@@ -76,6 +76,7 @@ namespace CStat.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = new CStatUser { UserName = Input.Email, Email = Input.Email };
+             
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

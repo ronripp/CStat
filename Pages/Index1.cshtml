@@ -1,0 +1,83 @@
+﻿@page
+@model CStat.Pages.Index1Model
+@{
+    Layout = null; //  "_Layout1";
+}
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="text/javascript">
+
+    function setCBHeight()
+    {
+        let hdrDiv = document.querySelector(".header");
+        hdrDiv.style.fontSize = "4vw";	
+	
+	    let totW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	    let totH = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+	
+        let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
+	    let cellH = Math.round((totH - (1.6*hdrH))/2 );
+	    let lineH = Math.round(cellH - (totW*.12));
+	
+        let myCells = document.querySelectorAll(".cellBtn");
+        for (var i = 0; i < myCells.length; ++i) {
+
+           myCells[i].style.fontSize = "6vw";
+           myCells[i].style.fontWeight = "600";
+           myCells[i].style.height = cellH + "px";
+	       myCells[i].style.lineHeight = lineH + "px";
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .header {
+            background-color: #003000;
+            color: yellow;
+            width: 100%;
+        }
+
+        .cellBtn {
+            background-color: #00FF00;
+			text-align: center;
+            float: left;
+            border: 3px solid #006600;
+            width: 50%;
+			line-height: 200px;
+        }
+    </style>
+</head>
+<body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
+
+    @{
+        var dt = DateTime.Now;
+        var curDT = dt.DayOfWeek.ToString().Substring(0,3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + DateTime.Now.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM");
+        var AtIdx = User.Identity.Name.IndexOf("@");
+        if (AtIdx == -1) AtIdx = 6;
+        var user = User.Identity.Name.Substring(0, AtIdx);
+    }
+    <div class="header">CCA : <b>@curDT  @user</b></div>
+
+    <div class="cellBtn" id="Tasks">
+        <p>Tasks</p>
+    </div>
+
+    <div class="cellBtn" id="Equip">
+        <p>Equip.</p>
+    </div>
+
+    <div class="cellBtn" id="Inv">
+        <p>Inv.</p>
+    </div>
+
+    <div class="cellBtn" id="Docs">
+        <p>Docs</p>
+    </div>
+
+</body>

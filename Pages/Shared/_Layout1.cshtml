@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Identity
+@using CStat.Areas.Identity.Data;
+@using CStat.Data;
+
+@inject SignInManager<CStatUser> SignInManager
+@inject UserManager<CStatUser> UserManager
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>

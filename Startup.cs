@@ -42,9 +42,10 @@ namespace CStat
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizePage("/Index1");
-//                    options.Conventions.AuthorizeFolder("/Private");
-//                    options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
-//                    options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
+                    options.Conventions.AuthorizePage("/Index");
+                    //                    options.Conventions.AuthorizeFolder("/Private");
+                    //                    options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
+                    //                    options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
                 });
 
             services.Configure<IdentityOptions>(options =>

@@ -1,0 +1,55 @@
+﻿@page
+@model DocsModel
+@{
+    ViewData["Title"] = "Docs";
+}
+
+    <head>
+
+        span: hover { cursor: pointer; }
+
+    </head>
+
+<h1>Docs</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                "Title 1"
+            </th>
+            <th>
+                "Title 2"
+            </th>
+            <th>
+                "Title 3"
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
+        {
+            <tr>
+                <td>
+                    <b><a href="Docs?id=@Html.DisplayFor(modelItem => item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>"
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        }
+        @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
+        {
+            <tr>
+                <td>
+                    <a href="@Model.GetSharedFileUrl(HttpUtility.HtmlEncode(item.Name))">@Html.DisplayFor(modelItem => item.Name, item.AsFile.Size)</a>
+                </td>
+
+             <td></td>
+
+             <td></td>
+
+         </tr>
+        }
+    </tbody>
+</table>
+

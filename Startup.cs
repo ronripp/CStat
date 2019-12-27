@@ -41,8 +41,8 @@ namespace CStat
             services.AddRazorPages()
                 .AddRazorPagesOptions(options =>
                 {
-                    options.Conventions.AuthorizePage("/Index1");
-                    //options.Conventions.AuthorizePage("/Index");
+                    options.Conventions.AuthorizePage("/Index");
+                    //options.Conventions.AuthorizePage("/Index1");
                     //                    options.Conventions.AuthorizeFolder("/Private");
                     //                    options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     //                    options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");

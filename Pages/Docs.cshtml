@@ -4,26 +4,28 @@
     ViewData["Title"] = "Docs";
 }
 
-    <head>
+<head>
 
-        span: hover { cursor: pointer; }
+    @using System.Web;
 
-    </head>
 
-<h1>Docs</h1>
+</head>
+
+@{
+    var DocTitle = "Docs" + Model.FolderName.Replace('/', '>');
+}
+<h2>@DocTitle</h2>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                "Title 1"
+                "Name"
             </th>
             <th>
-                "Title 2"
+                "Description"
             </th>
-            <th>
-                "Title 3"
-            </th>
+
         </tr>
     </thead>
     <tbody>
@@ -31,9 +33,9 @@
         {
             <tr>
                 <td>
-                    <b><a href="Docs?id=@Html.DisplayFor(modelItem => item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>"
+
+                    <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
                 </td>
-                <td></td>
                 <td></td>
             </tr>
         }
@@ -41,14 +43,11 @@
         {
             <tr>
                 <td>
-                    <a href="@Model.GetSharedFileUrl(HttpUtility.HtmlEncode(item.Name))">@Html.DisplayFor(modelItem => item.Name, item.AsFile.Size)</a>
+                    <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name, item.AsFile.Size)</a>
                 </td>
 
-             <td></td>
-
-             <td></td>
-
-         </tr>
+                <td></td>
+            </tr>
         }
     </tbody>
 </table>

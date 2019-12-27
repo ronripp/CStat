@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Dropbox.Api;
 using CStat.Data;
+using System.Web;
 
 namespace CStat
 {
@@ -20,9 +21,9 @@ namespace CStat
 
         public void OnGet(string id)
         {
-            FolderName = (id != null) ? "/" + id : "";
+            FolderName = id ?? "";
             dbox.GetFolderList(FolderName);
-
+            ViewData["Title"] = "Docs" + FolderName;
         }
 
         public string GetSharedFileUrl (string file)

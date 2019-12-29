@@ -37,6 +37,10 @@ namespace CStat
             {
                 return NotFound();
             }
+
+            var cse = new Common.CSEMail();
+            cse.send("Ron Ripperger", "ronripp3@gmail.com", "This is a CStat test to Ron", "This is a text body\nThat has 2 lines\nThanks!\nRon Ripperger\n203-770-3393");
+
             return Page();
         }
     }

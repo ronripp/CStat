@@ -12,9 +12,9 @@ namespace CStat.Common
     public class CSEMail
     {
 		private readonly string fromName = "CCA Informer";
-		private readonly string fromSMTP = "cccaserve.org";
+//		private readonly string fromSMTP = "cccaserve.org";
 		private readonly string fromAdr = "inform@ccaserve.org";
-		private readonly string fromPass = "Red35868!";
+		private readonly string fromPass = "*********";
 		public string sendResult = "";
 
 		public bool send(string toName, string toAdr, string subject, string body)

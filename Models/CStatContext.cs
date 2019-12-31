@@ -1,16 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Models
 {
     public partial class CStatContext : DbContext
     {
-        public CStatContext()
+        public CStatContext(IConfiguration configuration)
         {
+            Configuration = configuration;
         }
 
-        public CStatContext(DbContextOptions<CStatContext> options)
+        public IConfiguration Configuration { get; }
+
+        public CStatContext(IConfiguration configuration, DbContextOptions<CStatContext> options)
             : base(options)
         {
+            Configuration = configuration;
         }
 
         public virtual DbSet<Account> Account { get; set; }
@@ -32,8 +37,7 @@ namespace CStat.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=RONI7;Initial Catalog=CCA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("CStatConnection"));
             }
         }
 

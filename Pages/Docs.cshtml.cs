@@ -16,7 +16,7 @@ namespace CStat
         private string _FolderName = "";
         public DocsModel()
         {
-            dbox = new CSDropBox();
+            dbox = new CSDropBox(Startup.CSConfig);
         }
 
         public void OnGet(string id)

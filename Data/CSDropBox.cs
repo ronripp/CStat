@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Data
 {
@@ -12,15 +13,16 @@ namespace CStat.Data
     {
         public DropboxClient dbx = null;
         public Dropbox.Api.Files.ListFolderResult FolderList = null;
-        public CSDropBox()
+        public CSDropBox(IConfiguration configuration)
         {
+            Configuration = configuration;
             var task = Task.Run((Func<Task>)Run);
             task.Wait();
         }
-
+        public IConfiguration Configuration { get; }
         private async Task Run()
         {
-            dbx = new DropboxClient("Z9C16Hw2JcsAAAAAAAAOERtsasqL66ctVfvBbUvSU2rx6edkxjef8ntGZjJOpu1P");
+            dbx = new DropboxClient(Configuration.GetValue<string>("CSDropBox:ShareFileKey"));
             var full = await dbx.Users.GetCurrentAccountAsync();
             Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
         }

@@ -6,6 +6,7 @@ using MailKit.Net.Smtp;
 using MailKit;
 using MimeKit;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Common
 {
@@ -14,10 +15,17 @@ namespace CStat.Common
 		private readonly string fromName = "CCA Informer";
 //		private readonly string fromSMTP = "cccaserve.org";
 		private readonly string fromAdr = "inform@ccaserve.org";
-		private readonly string fromPass = "*********";
+		private readonly string fromPass = null;
 		public string sendResult = "";
 
-		public bool send(string toName, string toAdr, string subject, string body)
+		public CSEMail(IConfiguration configuration)
+		{
+			Configuration = configuration;
+			fromPass = Configuration["CSEMail:SendPassword"];
+		}
+		public IConfiguration Configuration { get; }
+
+		public bool Send(string toName, string toAdr, string subject, string body)
 		{
 			var message = new MimeMessage();
 			message.From.Add(new MailboxAddress(this.fromName, fromAdr));

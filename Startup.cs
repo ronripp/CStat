@@ -18,9 +18,11 @@ namespace CStat
 {
     public class Startup
     {
+        public static IConfiguration CSConfig = null;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            CSConfig = configuration;
         }
 
         public IConfiguration Configuration { get; }

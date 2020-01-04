@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CStat.Models;
+using System.Diagnostics;
 
 namespace CStat
 {
@@ -44,10 +45,10 @@ namespace CStat
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizePage("/Index");
-                    //options.Conventions.AuthorizePage("/Index1");
-                    //                    options.Conventions.AuthorizeFolder("/Private");
-                    //                    options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
-                    //                    options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
+                    options.Conventions.AuthorizePage("/Index1");
+                    options.Conventions.AuthorizeFolder("/Private");
+                    options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
+                    options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
                 });
 
             services.Configure<IdentityOptions>(options =>
@@ -88,11 +89,13 @@ namespace CStat
         {
             if (env.IsDevelopment())
             {
+//                Trace.WriteLine("DEVELOPMENT Env.");
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
             else
             {
+ //               Trace.WriteLine("PRODUCTION Env.");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();

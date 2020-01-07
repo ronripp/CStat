@@ -15,8 +15,8 @@
             let btnSVG = document.querySelector("#btnSVG");
             hdrDiv.style.fontSize = "4vw";
 
-            let totW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-            let totH = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            let totW = Math.min(document.documentElement.clientWidth, window.innerWidth || 0);
+            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
 
             let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
             let cellH = Math.round((totH - (1.6 * hdrH)) / 2);
@@ -34,6 +34,9 @@
                 myCells[i].style.lineHeight = lineH + "px";
             }
         }
+
+        screen.orientation.addEventListener("change", function (e) {setCBHeight();}, false);
+        
     </script>
 
     <style>

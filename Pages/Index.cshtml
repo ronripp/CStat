@@ -84,8 +84,10 @@
 <body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
 
     @{
-        var dt = DateTime.Now;
-        var curDT = dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + DateTime.Now.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM");
+        var dtLoc = DateTime.Now;
+        TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
+        var curDT = dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM");
         var AtIdx = User.Identity.Name.IndexOf("@");
         if (AtIdx == -1) AtIdx = 6;
         var user = User.Identity.Name.Substring(0, AtIdx);

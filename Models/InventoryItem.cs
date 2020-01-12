@@ -14,6 +14,11 @@ namespace CStat.Models
         [Key]
         [Column("id")]
         public int Id { get; set; }
+        [Column("Current_Stock")]
+        public float? CurrentStock { get; set; }
+        [Column("Reorder_Threshold")]
+        public float? ReorderThreshold { get; set; }
+        public int? Units { get; set; }
 
         [ForeignKey(nameof(InventoryId))]
         [InverseProperty("InventoryItem")]

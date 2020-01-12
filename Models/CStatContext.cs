@@ -1,21 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CStat.Models
 {
     public partial class CStatContext : DbContext
     {
-        public CStatContext(IConfiguration configuration)
+        public CStatContext()
         {
-            Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
-        public CStatContext(IConfiguration configuration, DbContextOptions<CStatContext> options)
+        public CStatContext(DbContextOptions<CStatContext> options)
             : base(options)
         {
-            Configuration = configuration;
         }
 
         public virtual DbSet<Account> Account { get; set; }
@@ -25,6 +22,10 @@ namespace CStat.Models
         public virtual DbSet<Church> Church { get; set; }
         public virtual DbSet<Event> Event { get; set; }
         public virtual DbSet<Incident> Incident { get; set; }
+        public virtual DbSet<Inventory> Inventory { get; set; }
+        public virtual DbSet<InventoryItem> InventoryItem { get; set; }
+        public virtual DbSet<Item> Item { get; set; }
+        public virtual DbSet<Manufacturer> Manufacturer { get; set; }
         public virtual DbSet<Medical> Medical { get; set; }
         public virtual DbSet<Operations> Operations { get; set; }
         public virtual DbSet<Person> Person { get; set; }
@@ -32,12 +33,14 @@ namespace CStat.Models
         public virtual DbSet<Registration> Registration { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
+        public virtual DbSet<TransactionItems> TransactionItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("CStatConnection"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=RONI7;Initial Catalog=CCA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -90,6 +93,10 @@ namespace CStat.Models
 
             modelBuilder.Entity<Business>(entity =>
             {
+                entity.Property(e => e.ApiLink).IsFixedLength();
+
+                entity.Property(e => e.UserLink).IsFixedLength();
+
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.Business)
                     .HasForeignKey(d => d.AddressId)
@@ -210,6 +217,51 @@ namespace CStat.Models
                     .HasConstraintName("FK_Incident_Person4");
             });
 
+            modelBuilder.Entity<Inventory>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Name).IsFixedLength();
+            });
+
+            modelBuilder.Entity<InventoryItem>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.Inventory)
+                    .WithMany(p => p.InventoryItem)
+                    .HasForeignKey(d => d.InventoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_InventoryItem_Inventory");
+
+                entity.HasOne(d => d.Item)
+                    .WithMany(p => p.InventoryItem)
+                    .HasForeignKey(d => d.ItemId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_InventoryItem_Item");
+            });
+
+            modelBuilder.Entity<Item>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Name).IsFixedLength();
+
+                entity.Property(e => e.Upc).IsFixedLength();
+
+                entity.HasOne(d => d.Mfg)
+                    .WithMany(p => p.Item)
+                    .HasForeignKey(d => d.MfgId)
+                    .HasConstraintName("FK_Item_Business");
+            });
+
+            modelBuilder.Entity<Manufacturer>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.Name).IsFixedLength();
+            });
+
             modelBuilder.Entity<Medical>(entity =>
             {
                 entity.HasOne(d => d.Event)
@@ -316,6 +368,10 @@ namespace CStat.Models
 
             modelBuilder.Entity<Transaction>(entity =>
             {
+                entity.Property(e => e.InvoiceId).IsFixedLength();
+
+                entity.Property(e => e.PaymentNumber).IsFixedLength();
+
                 entity.HasOne(d => d.Business)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.BusinessId)
@@ -324,18 +380,34 @@ namespace CStat.Models
                 entity.HasOne(d => d.CcaAccount)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.CcaAccountId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Transaction_Account");
+
+                entity.HasOne(d => d.CcaPerson)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.CcaPersonId)
+                    .HasConstraintName("FK_Transaction_Person");
 
                 entity.HasOne(d => d.Church)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.ChurchId)
                     .HasConstraintName("FK_Transaction_Church");
+            });
 
-                entity.HasOne(d => d.Person)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.PersonId)
-                    .HasConstraintName("FK_Transaction_Person");
+            modelBuilder.Entity<TransactionItems>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne(p => p.TransactionItems)
+                    .HasForeignKey<TransactionItems>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TransactionItems_Item");
+
+                entity.HasOne(d => d.Id1)
+                    .WithOne(p => p.TransactionItems)
+                    .HasForeignKey<TransactionItems>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TransactionItems_Transaction");
             });
 
             OnModelCreatingPartial(modelBuilder);

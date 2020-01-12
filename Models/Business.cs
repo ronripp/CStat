@@ -10,6 +10,7 @@ namespace CStat.Models
         public Business()
         {
             Account = new HashSet<Account>();
+            Item = new HashSet<Item>();
             Operations = new HashSet<Operations>();
             Transaction = new HashSet<Transaction>();
         }
@@ -26,9 +27,8 @@ namespace CStat.Models
         public string Terms { get; set; }
         [StringLength(255)]
         public string Fees { get; set; }
-        [Column("Status_Type")]
-        public int? StatusType { get; set; }
-        [Column("Status Details")]
+        public int? Status { get; set; }
+        [Column("Status_Details")]
         [StringLength(255)]
         public string StatusDetails { get; set; }
         [Column("POC_id")]
@@ -36,6 +36,12 @@ namespace CStat.Models
         [Column("Contract_Link")]
         [StringLength(255)]
         public string ContractLink { get; set; }
+        [Column("User_Link")]
+        [StringLength(255)]
+        public string UserLink { get; set; }
+        [Column("API_Link")]
+        [StringLength(255)]
+        public string ApiLink { get; set; }
 
         [ForeignKey(nameof(AddressId))]
         [InverseProperty("Business")]
@@ -45,6 +51,8 @@ namespace CStat.Models
         public virtual Person Poc { get; set; }
         [InverseProperty("Business")]
         public virtual ICollection<Account> Account { get; set; }
+        [InverseProperty("Mfg")]
+        public virtual ICollection<Item> Item { get; set; }
         [InverseProperty("Business")]
         public virtual ICollection<Operations> Operations { get; set; }
         [InverseProperty("Business")]

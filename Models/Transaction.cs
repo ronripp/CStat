@@ -21,8 +21,8 @@ namespace CStat.Models
         public int? ExpenseType { get; set; }
         [Column(TypeName = "decimal(10, 2)")]
         public decimal? Amount { get; set; }
-        [Column("Person_id")]
-        public int? PersonId { get; set; }
+        [Column("CCA_Person_id")]
+        public int? CcaPersonId { get; set; }
         [Column("Business_id")]
         public int? BusinessId { get; set; }
         [Column("Church_id")]
@@ -30,12 +30,18 @@ namespace CStat.Models
         [Column(TypeName = "datetime2(0)")]
         public DateTime Date { get; set; }
         [Column("CCA_Account_id")]
-        public int CcaAccountId { get; set; }
-        [Column("Source_Check_Num")]
-        public int? SourceCheckNum { get; set; }
+        public int? CcaAccountId { get; set; }
+        [Column("payment_type")]
+        public int? PaymentType { get; set; }
         [Column("memo")]
         [StringLength(50)]
         public string Memo { get; set; }
+        [Column("invoice_id")]
+        [StringLength(10)]
+        public string InvoiceId { get; set; }
+        [Column("payment_number")]
+        [StringLength(30)]
+        public string PaymentNumber { get; set; }
 
         [ForeignKey(nameof(BusinessId))]
         [InverseProperty("Transaction")]
@@ -43,12 +49,14 @@ namespace CStat.Models
         [ForeignKey(nameof(CcaAccountId))]
         [InverseProperty(nameof(Account.Transaction))]
         public virtual Account CcaAccount { get; set; }
+        [ForeignKey(nameof(CcaPersonId))]
+        [InverseProperty(nameof(Person.Transaction))]
+        public virtual Person CcaPerson { get; set; }
         [ForeignKey(nameof(ChurchId))]
         [InverseProperty("Transaction")]
         public virtual Church Church { get; set; }
-        [ForeignKey(nameof(PersonId))]
-        [InverseProperty("Transaction")]
-        public virtual Person Person { get; set; }
+        [InverseProperty("Id1")]
+        public virtual TransactionItems TransactionItems { get; set; }
         [InverseProperty("Transaction")]
         public virtual ICollection<Attendance> Attendance { get; set; }
     }

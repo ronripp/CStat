@@ -6,8 +6,10 @@
     <title>@ViewData["Title"] - CStat</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link runat="server" rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link runat="server" rel="icon" href="favicon.ico" type="image/ico" />
 </head>
-<body bgcolor="#D0FFA0">
+<body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container" style="background-color:#C0FF80;">
@@ -30,14 +32,14 @@
             </div>
         </nav>
     </header>
-    <div class="container" style="background-color:#C0FF80;">
+    <div class="container" style="background-color:#FFFFFF;">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
+        <div class="container" style="background-color:#C0FF80;">
             &copy; 2019 - CStat. All rights reserved.
             @*&copy; 2019 - CStat - <a asp-area="" asp-page="/Privacy">Privacy</a>*@
         </div>

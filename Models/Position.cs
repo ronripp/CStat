@@ -29,6 +29,7 @@ namespace CStat.Models
         public string ResponsibilityLink { get; set; }
         [StringLength(255)]
         public string Comments { get; set; }
+        public long? Roles { get; set; }
 
         [ForeignKey(nameof(PersonId))]
         [InverseProperty("Position")]

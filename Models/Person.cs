@@ -75,6 +75,7 @@ namespace CStat.Models
         public string ContactPref { get; set; }
         [StringLength(255)]
         public string Notes { get; set; }
+        public long? Roles { get; set; }
 
         [ForeignKey(nameof(AddressId))]
         [InverseProperty("Person")]
@@ -142,7 +143,7 @@ namespace CStat.Models
         public virtual ICollection<Registration> Registration { get; set; }
         [InverseProperty("Person")]
         public virtual ICollection<Task> Task { get; set; }
-        [InverseProperty("Person")]
+        [InverseProperty("CcaPerson")]
         public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

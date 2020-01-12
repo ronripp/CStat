@@ -20,6 +20,9 @@
                 "Name"
             </th>
             <th>
+                "Date/Time"
+            </th>
+            <th>
                 "Description"
             </th>
 
@@ -28,23 +31,24 @@
     <tbody>
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
         {
-            <tr>
-                <td>
+        <tr>
+            <td>
 
-                    <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
-                </td>
-                <td></td>
-            </tr>
+                <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
         }
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
         {
-            <tr>
-                <td>
-                    <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name, item.AsFile.Size)</a>
-                </td>
-
-                <td></td>
-            </tr>
+    <tr>
+        <td>
+            <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name)</a>
+        </td>
+        <td>@item.AsFile.ClientModified</td>
+        <td><i>(Add Description)</i></td>
+    </tr>
         }
     </tbody>
 </table>

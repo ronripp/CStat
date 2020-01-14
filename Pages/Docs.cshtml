@@ -43,13 +43,13 @@
         }
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
         {
-    <tr>
-        <td>
-            <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name)</a>
-        </td>
-        <td>@item.AsFile.ClientModified</td>
-        <td><i>(Add Description)</i></td>
-    </tr>
+        <tr>
+            <td>
+                <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name)</a>
+            </td>
+            <td>@item.AsFile.ClientModified</td>
+            <td><i>(Add Description)</i></td>
+        </tr>
         }
     </tbody>
 </table>

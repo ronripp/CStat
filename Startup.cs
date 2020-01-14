@@ -13,24 +13,33 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CStat.Models;
-using System.Diagnostics;
+//using System.Diagnostics;
+//using Microsoft.AspNetCore.DataProtection;
+//using System.IO;
 
 namespace CStat
 {
     public class Startup
     {
         public static IConfiguration CSConfig = null;
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            WebHostEnv = env;
             CSConfig = configuration;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment WebHostEnv { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //// Allow credentials to persist by ensure same machine key. May causes problem with Dev / Rel mode
+            //services.AddDataProtection()
+            //    .SetApplicationName($"my-app-{WebHostEnv.EnvironmentName}")
+            //    .PersistKeysToFileSystem(new DirectoryInfo($@"{WebHostEnv.ContentRootPath}\keys"));
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -95,7 +104,7 @@ namespace CStat
             }
             else
             {
- //               Trace.WriteLine("PRODUCTION Env.");
+//                Trace.WriteLine("PRODUCTION Env.");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();

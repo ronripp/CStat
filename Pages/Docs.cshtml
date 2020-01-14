@@ -9,7 +9,8 @@
 </head>
 
 @{
-    var DocTitle = "Docs" + Model.FolderName.Replace('/', '>');
+    var DocTitle = Model.FolderName.Replace('/', '>');
+    if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
 }
 <h2>@DocTitle</h2>
 

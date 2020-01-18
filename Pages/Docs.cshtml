@@ -6,6 +6,69 @@
 
 <head>
     @using System.Web;
+
+    <style>
+        a { cursor: pointer; }
+    </style>
+
+    <script type="text/javascript">
+
+        function switchToEdit(idx) {
+            let scanEl = document.querySelector("#" + "sid" + idx);
+            scanEl.style.display = "none";
+            let inputEl = document.querySelector("#" + "iid" + idx);
+            inputEl.type = "text";
+            let desc = scanEl.innerHTML;
+            inputEl.value = (desc.indexOf("[Add]") != -1) ? "" : desc;
+            inputEl.focus();
+        }
+
+        function openFileShare(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+            $.ajax({
+                url: "/Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data : parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        window.location.href = response;
+                    }
+                },
+            });
+        }
+
+        function updateFileDesc(idx, folder, file, desc) {
+            let scanEl = document.querySelector("#" + "sid" + idx);
+            let inputEl = document.querySelector("#" + "iid" + idx);
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "','Desc':'" + desc + "'}";
+
+            $.ajax({
+                url: "/Docs?handler=FileDesc",
+                contentType: "application/json",
+                dataType: "json",
+                data : parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        scanEl.innerHTML = desc;
+                    }
+                    else {
+                        scanEl.innerHTML = "";
+                    }
+                    inputEl.type = "hidden";
+                    scanEl.style.display = "inline-block";
+                },
+                fail: function (response) {
+                    inputEl.type = "hidden";
+                    scanEl.innerHTML = "";
+                    scanEl.style.display = "inline-block"
+                }
+            });
+
+        }
+
+    </script>
+
 </head>
 
 @{
@@ -24,7 +87,15 @@
                 "Date/Time"
             </th>
             <th>
-                "Description"
+                <form method="post">
+                    <div class="form-group">
+                        <label asp-for="DescStr" class="control-label"></label>
+                        <input asp-for="DescStr" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </form>
             </th>
 
         </tr>
@@ -32,24 +103,35 @@
     <tbody>
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
         {
-        <tr>
-            <td>
+            <tr>
+                <td>
 
-                <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
-            </td>
-            <td></td>
-            <td></td>
-        </tr>
+                    <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
         }
+        @{int idx = 0;}
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
         {
-        <tr>
-            <td>
-                <a href="@Model.GetSharedFileUrl(item.Name)">@Html.DisplayFor(modelItem => item.Name)</a>
-            </td>
-            <td>@item.AsFile.ClientModified</td>
-            <td><i>(Add Description)</i></td>
-        </tr>
+            <tr>
+                <td>
+                    <a onclick="openFileShare('@Model.FolderName','@item.Name')">@Html.DisplayFor(modelItem => item.Name)</a>
+                </td>
+                <td>@item.AsFile.ClientModified</td>
+                <td>
+                    @{
+                        var sid = "sid" + idx;
+                        var fid = "fid" + idx;
+                        var iid = "iid" + idx;
+                        var nid = "nid" + idx;
+                    }
+                    <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">[Add]</span>
+                    <form id="@fid" ><input type="hidden" onfocusout="updateFileDesc(@idx, '@Model.FolderName','@item.Name', this.value)" id="@iid" name="did" value=""></form>
+                </td>
+            </tr>
+            ++idx;
         }
     </tbody>
 </table>

@@ -47,7 +47,7 @@
                 url: "/Docs?handler=FileDesc",
                 contentType: "application/json",
                 dataType: "json",
-                data : parameters,
+                data: parameters,
                 success: function (response) {
                     if (response.indexOf("ERROR~:") === -1) {
                         scanEl.innerHTML = desc;
@@ -64,7 +64,16 @@
                     scanEl.style.display = "inline-block"
                 }
             });
+        }
 
+        window.onbeforeunload = function (e) {
+            $.ajax({
+                url: "/Docs?handler=Unload",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                }
+            });
         }
 
     </script>
@@ -81,23 +90,14 @@
     <thead>
         <tr>
             <th>
-                "Name"
+                <b>File</b>
             </th>
             <th>
-                "Date/Time"
+                <b>Description</b>
             </th>
             <th>
-                <form method="post">
-                    <div class="form-group">
-                        <label asp-for="DescStr" class="control-label"></label>
-                        <input asp-for="DescStr" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" />
-                    </div>
-                </form>
+                <b>Date</b>
             </th>
-
         </tr>
     </thead>
     <tbody>
@@ -115,22 +115,23 @@
         @{int idx = 0;}
         @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
         {
-            <tr>
-                <td>
-                    <a onclick="openFileShare('@Model.FolderName','@item.Name')">@Html.DisplayFor(modelItem => item.Name)</a>
-                </td>
-                <td>@item.AsFile.ClientModified</td>
-                <td>
-                    @{
-                        var sid = "sid" + idx;
-                        var fid = "fid" + idx;
-                        var iid = "iid" + idx;
-                        var nid = "nid" + idx;
-                    }
-                    <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">[Add]</span>
-                    <form id="@fid" ><input type="hidden" onfocusout="updateFileDesc(@idx, '@Model.FolderName','@item.Name', this.value)" id="@iid" name="did" value=""></form>
-                </td>
-            </tr>
+    <tr>
+        <td>
+            <a onclick="openFileShare('@Model.FolderName','@item.Name')">@Html.DisplayFor(modelItem => item.Name)</a>
+        </td>
+        <td>
+            @{
+                var sid = "sid" + idx;
+                var fid = "fid" + idx;
+                var iid = "iid" + idx;
+            }
+            <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
+            <form id="@fid"><input type="hidden" onfocusout="updateFileDesc(@idx, '@Model.FolderName','@item.Name', this.value)" id="@iid" name="did" value=""></form>
+        </td>
+        <td>
+            @item.AsFile.ClientModified.ToString("MM/dd/y")
+        </td>
+    </tr>
             ++idx;
         }
     </tbody>

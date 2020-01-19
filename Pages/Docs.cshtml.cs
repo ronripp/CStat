@@ -18,8 +18,10 @@ namespace CStat
         public CSDropBox dbox;
         private IWebHostEnvironment hostEnv;
         public String DescStr = "";
-        //string DropBoxFile = null;
-        //Dictionary<string, string> UrlMap = null;
+        private string DescFile = null;
+        private Dictionary<string, string> DescMap=null;
+        private bool IsDescMapDirty = false;
+        private const String RepStr = "~";
 
         private string _FolderName = "";
         public DocsModel(IWebHostEnvironment hstEnv)
@@ -33,22 +35,60 @@ namespace CStat
             FolderName = id ?? "";
             dbox.GetFolderList(FolderName);
             ViewData["Title"] = "Docs" + FolderName;
+            FillDescMap(FolderName);
+        }
 
-            //if (FolderName.Length > 0) { 
-            //    DropBoxFile = Path.Combine(hostEnv.WebRootPath, "DropBox_" + FolderName);
-            //    UrlMap = new Dictionary<string, string>();
+        private void FillDescMap(string fldName)
+        {
 
-            //using (StreamReader sr = new StreamReader(DropBoxFile))
-            //{
-            //    while (sr.Peek() >= 0)
-            //    {
-            //        string[] fields = sr.ReadLine().Split('~');
-            //        if (fields.Length >= 2)
-            //        {
-            //            UrlMap.Add(fields[0], fields[1]);
-            //        }
-            //    }
-            //}
+            if (DescMap == null)
+            {
+                DescMap = new Dictionary<string, string>();
+                SetDescFile(fldName);
+                try
+                {
+                    // Read Desc File.
+                    using (StreamReader sr = new StreamReader(DescFile))
+                    {
+                        while (sr.Peek() >= 0)
+                        {
+                            string[] fields = sr.ReadLine().Split('|');
+                            if (fields.Length >= 2)
+                            {
+                                DescMap.Add(fields[0], fields[1]);
+                            }
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                }
+            }
+        }
+        private void SetDescFile(string fld)
+        {
+            string fldName = Uri.UnescapeDataString(fld);
+            if (fldName.Length == 0)
+                fldName = RepStr;
+            DescFile = Path.Combine(hostEnv.WebRootPath, "DropBox_" + "\\" + fldName.Replace("/", RepStr));
+        }
+        private void WriteDescMap(string FolderName)
+        {
+            SetDescFile(FolderName);
+            try
+            {
+                // Write Desc File
+                using (StreamWriter sw = new StreamWriter(DescFile))
+                {
+                    foreach (var kvp in DescMap)
+                    {
+                        sw.WriteLine(kvp.Key + "|" + kvp.Value);
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+            }
         }
 
         public string GetSharedFileUrl (string file)
@@ -56,34 +96,19 @@ namespace CStat
             return dbox.GetSharedLink(FolderName + "/" + file);
         }
 
+        public string GetDescFromFile(string file)
+        {
+            if (DescMap.TryGetValue(file, out string Desc)) {
+                return Desc;
+            }
+            return "[Add]";
+        }
+
         public string FolderName {get{return _FolderName;} set{_FolderName=value;}}
 
-        public async Task<IActionResult> OnPostAsync()
-        {
-            //foreach (KeyValuePair<string,StringValues> kvp in Request.Form)
-            //{
-            //    if (kvp.Key.StartsWith("/"))
-            //    {
-            //        string FolderName = kvp.Key;
-            //        string FileName = kvp.Value[0];
-            //        string url = dbox.GetSharedLink(Uri.UnescapeDataString(FolderName + "/" + FileName));
-            //        if (url.Length > 0)
-            //        {
-            //            Redirect(url);
-            //            return StatusCode(200);
-            //        }
-            //        else
-            //        {
-            //            RedirectToPage("Docs?id=" + Uri.EscapeDataString(FolderName));
-            //            return StatusCode(200);
-            //        }                 
-            //    }
-            //}
-            return StatusCode(200);
-        }
         public JsonResult OnGetFileShare()
         { 
-            var rawQS = Request.QueryString.ToString();
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
@@ -101,7 +126,7 @@ namespace CStat
         }
         public JsonResult OnGetFileDesc()
         {
-            var rawQS = Request.QueryString.ToString();
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
@@ -109,10 +134,18 @@ namespace CStat
             Dictionary<string, string> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName) && NVPairs.TryGetValue("Desc", out string FileDesc))
             {
-                var key = FolderName + "/" + FileName;
-                return new JsonResult("SUCCESS~:Description updated."); 
+                FillDescMap(FolderName);
+                DescMap[FileName] = FileDesc;
+                WriteDescMap(FolderName);
+                return new JsonResult("SUCCESS~:Description updated.");
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
+
+        public JsonResult OnGetUnload()
+        {
+            return new JsonResult("SUCCESS~:OK");
+        }
+
     }
 }

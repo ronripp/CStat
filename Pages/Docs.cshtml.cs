@@ -20,7 +20,6 @@ namespace CStat
         public String DescStr = "";
         private string DescFile = null;
         private Dictionary<string, string> DescMap=null;
-        private bool IsDescMapDirty = false;
         private const String RepStr = "~";
 
         private string _FolderName = "";
@@ -113,10 +112,11 @@ namespace CStat
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
+            jsonQS = jsonQS.Replace("'s", "^s");
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
-                string url = dbox.GetSharedLink(Uri.UnescapeDataString(FolderName + "/" + FileName));
+                string url = dbox.GetSharedLink(Uri.UnescapeDataString(FolderName.Replace("^s", "'s") + "/" + FileName.Replace("^s", "'s")));
                 if (url.Length > 0)
                     return new JsonResult(url);
                 else
@@ -135,7 +135,7 @@ namespace CStat
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName) && NVPairs.TryGetValue("Desc", out string FileDesc))
             {
                 FillDescMap(FolderName);
-                DescMap[FileName] = FileDesc;
+                DescMap[FileName] = FileDesc.Replace("^", "'");
                 WriteDescMap(FolderName);
                 return new JsonResult("SUCCESS~:Description updated.");
             }

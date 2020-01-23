@@ -112,17 +112,25 @@ namespace CStat
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
-            jsonQS = jsonQS.Replace("'s", "^s");
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
-                string url = dbox.GetSharedLink(Uri.UnescapeDataString(FolderName.Replace("^s", "'s") + "/" + FileName.Replace("^s", "'s")));
+                string url = dbox.GetSharedLink(Uri.UnescapeDataString(UnencodeQuotes(FolderName) + "/" + UnencodeQuotes(FileName)));
                 if (url.Length > 0)
                     return new JsonResult(url);
                 else
                     return new JsonResult("ERROR~:No File Share");
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
+        public string EncodeQuotes(string str)
+        {
+            return (str.Length > 0) ? str.Replace("\"", "^^").Replace("'", "^") : "";
+        }
+        private string UnencodeQuotes(string str)
+        {
+            return (str.Length > 0) ? str.Replace("^^", "\"").Replace("^", "'") : "";
         }
         public JsonResult OnGetFileDesc()
         {
@@ -135,7 +143,7 @@ namespace CStat
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName) && NVPairs.TryGetValue("Desc", out string FileDesc))
             {
                 FillDescMap(FolderName);
-                DescMap[FileName] = FileDesc.Replace("^", "'");
+                DescMap[FileName] = UnencodeQuotes(FileDesc);
                 WriteDescMap(FolderName);
                 return new JsonResult("SUCCESS~:Description updated.");
             }

@@ -48,7 +48,7 @@
         function updateFileDesc(idx) {
             let scanEl = document.querySelector("#" + "sid" + idx);
             let inputEl = document.querySelector("#" + "iid" + idx);
-            var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + inputEl.value.replace(/\'/g, "^") + "'}";
+            var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
 
             $.ajax({
                 url: "/Docs?handler=FileDesc",
@@ -99,6 +99,10 @@
             }
         }
 
+        function encodeQuotes(str) {
+            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+        }
+
     </script>
 
 </head>
@@ -141,7 +145,7 @@
         {
             <tr>
                 <td>
-                    <a onclick='openFileShare("@Model.FolderName","@item.Name")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                    <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
                 </td>
                 <td>
                     @{

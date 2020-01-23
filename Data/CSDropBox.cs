@@ -36,7 +36,7 @@ namespace CStat.Data
 
         public string GetSharedLink(string path)
         {
-            if (path.StartsWith(@"/Getting")) return "";
+//            if (path.StartsWith(@"/Getting")) return "";
 
             SharedLinkMetadata sharedLinkMetadata=null;
             try

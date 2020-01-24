@@ -9,7 +9,9 @@
 
     <style>
         a { cursor: pointer; }
-        .table th {padding: 0.1rem;}
+        .table th {padding: 0.1rem;
+                   color: lightgray;
+        }
         .table td {padding: 0.5rem;}
     </style>
 
@@ -112,11 +114,11 @@
     var DocTitle = Model.FolderName.Replace('/', '>');
     if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
     }
-    <h3>@DocTitle</h3>
+    <h4><b>@DocTitle</b></h4>
 
     <table class="table">
         <thead>
-            <tr style="">
+            <tr>
                 <th>
                     <b>File</b>
                 </th>

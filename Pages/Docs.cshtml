@@ -62,14 +62,14 @@
                         scanEl.innerHTML = inputEl.value;
                     }
                     else {
-                        scanEl.innerHTML = "";
+                        scanEl.innerHTML = "[Add]";
                     }
                     inputEl.type = "hidden";
                     scanEl.style.display = "inline-block";
                 },
                 fail: function (response) {
                     inputEl.type = "hidden";
-                    scanEl.innerHTML = "";
+                    scanEl.innerHTML = "[Add]";
                     scanEl.style.display = "inline-block"
                 }
             });

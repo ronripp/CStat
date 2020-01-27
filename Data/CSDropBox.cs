@@ -97,12 +97,15 @@ namespace CStat.Data
             }
         }
 
-        // Download a file:
-        public async Task Download(string folder, string file)
+        // Download a file to destPath:
+        public async Task DownloadToFile(string folder, string file, string destPath)
         {
             using (var response = await dbx.Files.DownloadAsync(folder + "/" + file))
             {
-                Console.WriteLine(await response.GetContentAsStringAsync());
+                using (var fileStream = File.Create(destPath))
+                {
+                    (await response.GetContentAsStreamAsync()).CopyTo(fileStream);
+                }
             }
         }
 

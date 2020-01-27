@@ -115,7 +115,20 @@ namespace CStat
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
+                if (FileName.EndsWith(".txt", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".htm", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".html", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string destFName = Path.Combine("tmpDBox", (FolderName + FileName).Replace('/', '~').Replace('\\', '~'));
+                    string destFile = Path.Combine(hostEnv.WebRootPath, destFName);
+                    
+                    System.IO.File.Delete(destFile);
+                    var task = dbox.DownloadToFile(FolderName, FileName, destFile);
+                    task.Wait();
+                    return new JsonResult(destFName);
+                }
                 string url = dbox.GetSharedLink(Uri.UnescapeDataString(UnencodeQuotes(FolderName) + "/" + UnencodeQuotes(FileName)));
+
                 if (url.Length > 0)
                     return new JsonResult(url);
                 else
@@ -142,10 +155,13 @@ namespace CStat
             Dictionary<string, string> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName) && NVPairs.TryGetValue("Desc", out string FileDesc))
             {
-                FillDescMap(FolderName);
-                DescMap[FileName] = UnencodeQuotes(FileDesc);
-                WriteDescMap(FolderName);
-                return new JsonResult("SUCCESS~:Description updated.");
+                if (FileDesc.Length > 0)
+                {
+                    FillDescMap(FolderName);
+                    DescMap[FileName] = UnencodeQuotes(FileDesc);
+                    WriteDescMap(FolderName);
+                    return new JsonResult("SUCCESS~:Description updated.");
+                }
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }

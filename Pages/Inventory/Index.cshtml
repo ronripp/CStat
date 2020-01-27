@@ -1,0 +1,60 @@
+﻿@page
+@model CStat.IndexInvModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.InventoryItem[0].CurrentStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InventoryItem[0].ReorderThreshold)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InventoryItem[0].Units)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InventoryItem[0].Inventory)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InventoryItem[0].Item)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.InventoryItem) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentStock)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReorderThreshold)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Units)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Inventory.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Item.Name)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

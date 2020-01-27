@@ -14,7 +14,7 @@ namespace CStat.Models
 
         [Required]
         [Column("name")]
-        [StringLength(30)]
+        [StringLength(80)]
         public string Name { get; set; }
         [Column("UPC")]
         [StringLength(12)]

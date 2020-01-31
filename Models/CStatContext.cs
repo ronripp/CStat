@@ -42,7 +42,8 @@ namespace CStat.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("CStatConnection"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Data Source=RONI7;Initial Catalog=CCA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -221,15 +222,11 @@ namespace CStat.Models
 
             modelBuilder.Entity<Inventory>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name).IsFixedLength();
             });
 
             modelBuilder.Entity<InventoryItem>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.HasOne(d => d.Inventory)
                     .WithMany(p => p.InventoryItem)
                     .HasForeignKey(d => d.InventoryId)
@@ -245,8 +242,6 @@ namespace CStat.Models
 
             modelBuilder.Entity<Item>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name).IsFixedLength();
 
                 entity.Property(e => e.Upc).IsFixedLength();
@@ -255,12 +250,15 @@ namespace CStat.Models
                     .WithMany(p => p.Item)
                     .HasForeignKey(d => d.MfgId)
                     .HasConstraintName("FK_Item_Business");
+
+                entity.HasOne(d => d.MfgNavigation)
+                    .WithMany(p => p.Item)
+                    .HasForeignKey(d => d.MfgId)
+                    .HasConstraintName("FK_Item_Manufacturer");
             });
 
             modelBuilder.Entity<Manufacturer>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.Property(e => e.Name).IsFixedLength();
             });
 
@@ -397,7 +395,7 @@ namespace CStat.Models
 
             modelBuilder.Entity<TransactionItems>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.HasOne(d => d.IdNavigation)
                     .WithOne(p => p.TransactionItems)

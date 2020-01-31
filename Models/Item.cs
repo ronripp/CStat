@@ -31,6 +31,9 @@ namespace CStat.Models
         [ForeignKey(nameof(MfgId))]
         [InverseProperty(nameof(Business.Item))]
         public virtual Business Mfg { get; set; }
+        [ForeignKey(nameof(MfgId))]
+        [InverseProperty(nameof(Manufacturer.Item))]
+        public virtual Manufacturer MfgNavigation { get; set; }
         [InverseProperty("IdNavigation")]
         public virtual TransactionItems TransactionItems { get; set; }
         [InverseProperty("Item")]

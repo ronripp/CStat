@@ -486,8 +486,10 @@ namespace CStat.Migrations
             modelBuilder.Entity("CStat.Models.Inventory", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnName("id")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -506,8 +508,10 @@ namespace CStat.Migrations
             modelBuilder.Entity("CStat.Models.InventoryItem", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnName("id")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<float?>("CurrentStock")
                         .HasColumnName("Current_Stock")
@@ -540,8 +544,10 @@ namespace CStat.Migrations
             modelBuilder.Entity("CStat.Models.Item", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnName("id")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("MfgId")
                         .HasColumnName("Mfg_id")
@@ -578,6 +584,12 @@ namespace CStat.Migrations
 
             modelBuilder.Entity("CStat.Models.Manufacturer", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.Property<int?>("AddressId")
                         .HasColumnName("Address_id")
                         .HasColumnType("int");
@@ -592,6 +604,8 @@ namespace CStat.Migrations
                         .HasColumnType("nchar(10)")
                         .IsFixedLength(true)
                         .HasMaxLength(10);
+
+                    b.HasKey("Id");
 
                     b.ToTable("Manufacturer");
                 });
@@ -1030,8 +1044,10 @@ namespace CStat.Migrations
             modelBuilder.Entity("CStat.Models.TransactionItems", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnName("id")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("money");
@@ -1230,6 +1246,11 @@ namespace CStat.Migrations
                         .WithMany("Item")
                         .HasForeignKey("MfgId")
                         .HasConstraintName("FK_Item_Business");
+
+                    b.HasOne("CStat.Models.Manufacturer", "MfgNavigation")
+                        .WithMany("Item")
+                        .HasForeignKey("MfgId")
+                        .HasConstraintName("FK_Item_Manufacturer");
                 });
 
             modelBuilder.Entity("CStat.Models.Medical", b =>

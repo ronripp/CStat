@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CStat.Migrations
 {
     [DbContext(typeof(CStatContext))]
-    [Migration("20191231220616_InitialCreateCStat")]
-    partial class InitialCreateCStat
+    [Migration("20200131024412_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -188,6 +188,12 @@ namespace CStat.Migrations
                         .HasColumnName("Address_id")
                         .HasColumnType("int");
 
+                    b.Property<string>("ApiLink")
+                        .HasColumnName("API_Link")
+                        .HasColumnType("nchar(255)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(255);
+
                     b.Property<string>("ContractLink")
                         .HasColumnName("Contract_Link")
                         .HasColumnType("nvarchar(255)")
@@ -205,14 +211,13 @@ namespace CStat.Migrations
                         .HasColumnName("POC_id")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("StatusDetails")
-                        .HasColumnName("Status Details")
+                        .HasColumnName("Status_Details")
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
-
-                    b.Property<int?>("StatusType")
-                        .HasColumnName("Status_Type")
-                        .HasColumnType("int");
 
                     b.Property<string>("Terms")
                         .HasColumnType("nvarchar(255)")
@@ -220,6 +225,12 @@ namespace CStat.Migrations
 
                     b.Property<int?>("Type")
                         .HasColumnType("int");
+
+                    b.Property<string>("UserLink")
+                        .HasColumnName("User_Link")
+                        .HasColumnType("nchar(255)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(255);
 
                     b.HasKey("Id");
 
@@ -474,6 +485,133 @@ namespace CStat.Migrations
                     b.ToTable("Incident");
                 });
 
+            modelBuilder.Entity("CStat.Models.Inventory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nchar(30)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(30);
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Inventory");
+                });
+
+            modelBuilder.Entity("CStat.Models.InventoryItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<float?>("CurrentStock")
+                        .HasColumnName("Current_Stock")
+                        .HasColumnType("real");
+
+                    b.Property<int>("InventoryId")
+                        .HasColumnName("Inventory_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnName("Item_id")
+                        .HasColumnType("int");
+
+                    b.Property<float?>("ReorderThreshold")
+                        .HasColumnName("Reorder_Threshold")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("Units")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("InventoryItem");
+                });
+
+            modelBuilder.Entity("CStat.Models.Item", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("MfgId")
+                        .HasColumnName("Mfg_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("nchar(80)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(80);
+
+                    b.Property<float>("Size")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Units")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Upc")
+                        .HasColumnName("UPC")
+                        .HasColumnType("nchar(12)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(12);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MfgId");
+
+                    b.ToTable("Item");
+                });
+
+            modelBuilder.Entity("CStat.Models.Manufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("AddressId")
+                        .HasColumnName("Address_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContractLink")
+                        .IsRequired()
+                        .HasColumnName("Contract_Link")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(10);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Manufacturer");
+                });
+
             modelBuilder.Entity("CStat.Models.Medical", b =>
                 {
                     b.Property<int>("Id")
@@ -615,6 +753,9 @@ namespace CStat.Migrations
                         .HasColumnName("PG2_Person_id")
                         .HasColumnType("int");
 
+                    b.Property<long?>("Roles")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("SkillSets")
                         .HasColumnType("bigint");
 
@@ -676,6 +817,9 @@ namespace CStat.Migrations
                         .HasColumnName("Responsibility_Link")
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
+
+                    b.Property<long?>("Roles")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnName("Start_Date")
@@ -842,8 +986,12 @@ namespace CStat.Migrations
                         .HasColumnName("Business_id")
                         .HasColumnType("int");
 
-                    b.Property<int>("CcaAccountId")
+                    b.Property<int?>("CcaAccountId")
                         .HasColumnName("CCA_Account_id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CcaPersonId")
+                        .HasColumnName("CCA_Person_id")
                         .HasColumnType("int");
 
                     b.Property<int?>("ChurchId")
@@ -861,17 +1009,25 @@ namespace CStat.Migrations
                         .HasColumnName("Income_Type")
                         .HasColumnType("int");
 
+                    b.Property<string>("InvoiceId")
+                        .HasColumnName("invoice_id")
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(10);
+
                     b.Property<string>("Memo")
                         .HasColumnName("memo")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
-                    b.Property<int?>("PersonId")
-                        .HasColumnName("Person_id")
-                        .HasColumnType("int");
+                    b.Property<string>("PaymentNumber")
+                        .HasColumnName("payment_number")
+                        .HasColumnType("nchar(30)")
+                        .IsFixedLength(true)
+                        .HasMaxLength(30);
 
-                    b.Property<int?>("SourceCheckNum")
-                        .HasColumnName("Source_Check_Num")
+                    b.Property<int?>("PaymentType")
+                        .HasColumnName("payment_type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -880,11 +1036,35 @@ namespace CStat.Migrations
 
                     b.HasIndex("CcaAccountId");
 
+                    b.HasIndex("CcaPersonId");
+
                     b.HasIndex("ChurchId");
 
-                    b.HasIndex("PersonId");
-
                     b.ToTable("Transaction");
+                });
+
+            modelBuilder.Entity("CStat.Models.TransactionItems", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("money");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnName("item_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnName("Transaction_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TransactionItems");
                 });
 
             modelBuilder.Entity("CStat.Models.Account", b =>
@@ -1047,6 +1227,34 @@ namespace CStat.Migrations
                         .HasConstraintName("FK_Incident_Person4");
                 });
 
+            modelBuilder.Entity("CStat.Models.InventoryItem", b =>
+                {
+                    b.HasOne("CStat.Models.Inventory", "Inventory")
+                        .WithMany("InventoryItem")
+                        .HasForeignKey("InventoryId")
+                        .HasConstraintName("FK_InventoryItem_Inventory")
+                        .IsRequired();
+
+                    b.HasOne("CStat.Models.Item", "Item")
+                        .WithMany("InventoryItem")
+                        .HasForeignKey("ItemId")
+                        .HasConstraintName("FK_InventoryItem_Item")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CStat.Models.Item", b =>
+                {
+                    b.HasOne("CStat.Models.Business", "Mfg")
+                        .WithMany("Item")
+                        .HasForeignKey("MfgId")
+                        .HasConstraintName("FK_Item_Business");
+
+                    b.HasOne("CStat.Models.Manufacturer", "MfgNavigation")
+                        .WithMany("Item")
+                        .HasForeignKey("MfgId")
+                        .HasConstraintName("FK_Item_Manufacturer");
+                });
+
             modelBuilder.Entity("CStat.Models.Medical", b =>
                 {
                     b.HasOne("CStat.Models.Event", "Event")
@@ -1157,18 +1365,32 @@ namespace CStat.Migrations
                     b.HasOne("CStat.Models.Account", "CcaAccount")
                         .WithMany("Transaction")
                         .HasForeignKey("CcaAccountId")
-                        .HasConstraintName("FK_Transaction_Account")
-                        .IsRequired();
+                        .HasConstraintName("FK_Transaction_Account");
+
+                    b.HasOne("CStat.Models.Person", "CcaPerson")
+                        .WithMany("Transaction")
+                        .HasForeignKey("CcaPersonId")
+                        .HasConstraintName("FK_Transaction_Person");
 
                     b.HasOne("CStat.Models.Church", "Church")
                         .WithMany("Transaction")
                         .HasForeignKey("ChurchId")
                         .HasConstraintName("FK_Transaction_Church");
+                });
 
-                    b.HasOne("CStat.Models.Person", "Person")
-                        .WithMany("Transaction")
-                        .HasForeignKey("PersonId")
-                        .HasConstraintName("FK_Transaction_Person");
+            modelBuilder.Entity("CStat.Models.TransactionItems", b =>
+                {
+                    b.HasOne("CStat.Models.Item", "IdNavigation")
+                        .WithOne("TransactionItems")
+                        .HasForeignKey("CStat.Models.TransactionItems", "Id")
+                        .HasConstraintName("FK_TransactionItems_Item")
+                        .IsRequired();
+
+                    b.HasOne("CStat.Models.Transaction", "Id1")
+                        .WithOne("TransactionItems")
+                        .HasForeignKey("CStat.Models.TransactionItems", "Id")
+                        .HasConstraintName("FK_TransactionItems_Transaction")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

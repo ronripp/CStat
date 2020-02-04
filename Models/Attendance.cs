@@ -8,6 +8,7 @@ namespace CStat.Models
     public partial class Attendance
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
         [Column("Person_id")]

@@ -14,6 +14,7 @@ namespace CStat.Models
         [Column(TypeName = "money")]
         public decimal Cost { get; set; }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
 

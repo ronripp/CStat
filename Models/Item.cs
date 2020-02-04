@@ -25,6 +25,7 @@ namespace CStat.Models
         public int Units { get; set; }
         public int? Status { get; set; }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
 

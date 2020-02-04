@@ -59,7 +59,7 @@ namespace CStat
                         }
                     }
                 }
-                catch (IOException e)
+                catch
                 {
                 }
             }
@@ -85,8 +85,8 @@ namespace CStat
                     }
                 }
             }
-            catch (IOException e)
-            {
+            catch            {
+                
             }
         }
 

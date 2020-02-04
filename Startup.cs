@@ -54,6 +54,8 @@ namespace CStat
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizePage("/Index");
+                    options.Conventions.AuthorizePage("/Docs");
+                    options.Conventions.AuthorizePage("/Inventory/Index");
                     options.Conventions.AuthorizePage("/Index1");
                     options.Conventions.AuthorizeFolder("/Private");
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");

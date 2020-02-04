@@ -29,6 +29,7 @@ namespace CStat.Models
             IncidentPerson2 = new HashSet<Incident>();
             IncidentPerson4 = new HashSet<Incident>();
             IncidentPerson5 = new HashSet<Incident>();
+            InventoryItem = new HashSet<InventoryItem>();
             InversePg1Person = new HashSet<Person>();
             InversePg2Person = new HashSet<Person>();
             Medical = new HashSet<Medical>();
@@ -40,6 +41,7 @@ namespace CStat.Models
         }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
         [Required]
@@ -129,6 +131,8 @@ namespace CStat.Models
         public virtual ICollection<Incident> IncidentPerson4 { get; set; }
         [InverseProperty(nameof(Incident.Person5))]
         public virtual ICollection<Incident> IncidentPerson5 { get; set; }
+        [InverseProperty("Person")]
+        public virtual ICollection<InventoryItem> InventoryItem { get; set; }
         [InverseProperty(nameof(Person.Pg1Person))]
         public virtual ICollection<Person> InversePg1Person { get; set; }
         [InverseProperty(nameof(Person.Pg2Person))]

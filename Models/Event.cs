@@ -15,6 +15,7 @@ namespace CStat.Models
         }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
         [Column("Start_Time", TypeName = "datetime2(0)")]

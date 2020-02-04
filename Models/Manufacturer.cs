@@ -21,6 +21,7 @@ namespace CStat.Models
         [StringLength(50)]
         public string ContractLink { get; set; }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
 

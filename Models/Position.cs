@@ -8,6 +8,7 @@ namespace CStat.Models
     public partial class Position
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
         public int Title { get; set; }

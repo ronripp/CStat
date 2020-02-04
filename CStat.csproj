@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models2\**" />
     <Compile Remove="Pages\NewFolder1\**" />
+    <Content Remove="Models2\**" />
     <Content Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="Models2\**" />
     <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <None Remove="Models2\**" />
     <None Remove="Pages\NewFolder1\**" />
   </ItemGroup>
 

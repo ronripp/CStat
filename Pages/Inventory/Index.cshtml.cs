@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using Task = System.Threading.Tasks.Task;
+using Newtonsoft.Json;
 
 namespace CStat
 {
@@ -27,5 +28,22 @@ namespace CStat
                 .Include(i => i.Inventory)
                 .Include(i => i.Item).ToListAsync();
         }
+
+        public JsonResult OnGetItemStateChange()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+
+            if (NVPairs.TryGetValue("invItmId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("atate", out int state))
+            {
+                return new JsonResult("OK"); // TBD
+            }
+            return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
     }
 }

@@ -12,6 +12,7 @@ namespace CStat.Models
         [Column("Inventory_id")]
         public int InventoryId { get; set; }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
         [Column("Current_Stock")]
@@ -19,6 +20,11 @@ namespace CStat.Models
         [Column("Reorder_Threshold")]
         public float? ReorderThreshold { get; set; }
         public int? Units { get; set; }
+        public int? State { get; set; }
+        [Column("Person_Id")]
+        public int? PersonId { get; set; }
+        [Column("Units_per_day")]
+        public double? UnitsPerDay { get; set; }
 
         [ForeignKey(nameof(InventoryId))]
         [InverseProperty("InventoryItem")]
@@ -26,5 +32,8 @@ namespace CStat.Models
         [ForeignKey(nameof(ItemId))]
         [InverseProperty("InventoryItem")]
         public virtual Item Item { get; set; }
+        [ForeignKey(nameof(PersonId))]
+        [InverseProperty("InventoryItem")]
+        public virtual Person Person { get; set; }
     }
 }

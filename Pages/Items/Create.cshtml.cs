@@ -19,6 +19,25 @@ namespace CStat
     }
     public class CreateItemsModel : PageModel
     {
+        public enum ItemUnits
+        {
+            unknown = 0,
+            bags = 1,
+            bladders = 2,
+            bottles = 3,
+            boxes = 4,
+            bulbs = 5,
+            drums = 6,
+            jugs = 7,
+            ounces = 8,
+            pairs = 9,
+            pieces = 10,
+            reams = 11,
+            rolls = 12,
+            sheets = 13,
+            tablets = 14
+        };
+
         private readonly CStat.Models.CStatContext _context;
 
         public CreateItemsModel(CStat.Models.CStatContext context)
@@ -100,33 +119,49 @@ namespace CStat
             "{'reorder':'2','units':'bulbs','name':'Large Area Halogen Bulbs (cabins, lodge, walkway)'}"
         };
 
-        enum ItemUnits
-        {
-            unknown = 0,
-            bags = 1,
-            bladders = 2,
-            bottles = 3,
-            boxes = 4,
-            bulbs = 5,
-            drums = 6,
-            jugs = 7,
-            ounces = 8,
-            pairs = 9,
-            pieces = 10,
-            reams = 11,
-            rolls = 12,
-            sheets = 13,
-            tablets = 14
-        };
-
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (Item.Name == "ALL_ITEMS")
             {
+                //Item itemA = new Item();
+                //itemA.Name = "AAA";
+                //itemA.Size = 1;
+                //itemA.Units = 1;
+                //itemA.Status = 1;
+                //itemA.Upc = "111";
+                //_context.Item.Add(itemA);
+                //int resA = await _context.SaveChangesAsync();
+
+                //InventoryItem invItemA = new InventoryItem();
+                //invItemA.ItemId = itemA.Id;
+                //invItemA.InventoryId = 1;
+                //invItemA.ReorderThreshold = (float)10;
+                //invItemA.Units = itemA.Units;
+                //_context.InventoryItem.Add(invItemA);
+                //int resA2 = await _context.SaveChangesAsync();
+
+                //Item itemB = new Item();
+                //itemB.Name = "BBB";
+                //itemB.Size = 1;
+                //itemB.Units = 2;
+                //itemB.Status = 1;
+                //itemB.Upc = "222";
+                //_context.Item.Add(itemB);
+                //int resB = await _context.SaveChangesAsync();
+
+                //InventoryItem invItemB = new InventoryItem();
+                //invItemB.ItemId = itemB.Id;
+                //invItemB.InventoryId = 1;
+                //invItemB.ReorderThreshold = (float)20;
+                //invItemB.Units = itemB.Units;
+                //_context.InventoryItem.Add(invItemB);
+                //int resB2 = await _context.SaveChangesAsync();
+
+                //Console.WriteLine(resA + "," + resA2 + "," + resB + "," + resB2);
+
                 // Add all items and Inventory Items
-                List<ItemData> itemDataList = new List<ItemData>();
 
                 //Inventory inv = new Inventory();
                 //inv.Id = 1;
@@ -135,10 +170,9 @@ namespace CStat
                 //_context.Inventory.Add(inv);
                 //await _context.SaveChangesAsync();
 
-                int itemID = 1;
                 foreach (var str in ItemDataStrings)
                 {
-                  ItemData idobj = JsonConvert.DeserializeObject<ItemData>(str);
+                    ItemData idobj = JsonConvert.DeserializeObject<ItemData>(str);
 
                     Item item = new Item();
                     item.Name = idobj.name.Replace("^^", "\"").Replace("^", "'");
@@ -150,14 +184,12 @@ namespace CStat
                         item.Units = (int)ItemUnits.unknown;
                     item.Status = 1;
                     item.Upc = "";
-                    item.Id = itemID;
-                                                         
+
                     _context.Item.Add(item);
                     int res1 = await _context.SaveChangesAsync();
 
                     InventoryItem invItem = new InventoryItem();
-                    invItem.Id = itemID;
-                    invItem.ItemId = itemID++;
+                    invItem.ItemId = item.Id;
                     invItem.InventoryId = 1;
                     invItem.ReorderThreshold = (float)idobj.reorder;
                     invItem.Units = item.Units;
@@ -166,13 +198,11 @@ namespace CStat
                 }
             }
 
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Page();
+            //}
 
-            _context.Item.Add(Item);
-            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

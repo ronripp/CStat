@@ -25,6 +25,10 @@ namespace CStat.Models
         public int? PersonId { get; set; }
         [Column("Units_per_day")]
         public double? UnitsPerDay { get; set; }
+        [Column("Order_Id")]
+        public int? OrderId { get; set; }
+        [Column(TypeName = "datetime2(0)")]
+        public DateTime? Date { get; set; }
 
         [ForeignKey(nameof(InventoryId))]
         [InverseProperty("InventoryItem")]
@@ -32,6 +36,9 @@ namespace CStat.Models
         [ForeignKey(nameof(ItemId))]
         [InverseProperty("InventoryItem")]
         public virtual Item Item { get; set; }
+        [ForeignKey(nameof(OrderId))]
+        [InverseProperty(nameof(Transaction.InventoryItem))]
+        public virtual Transaction Order { get; set; }
         [ForeignKey(nameof(PersonId))]
         [InverseProperty("InventoryItem")]
         public virtual Person Person { get; set; }

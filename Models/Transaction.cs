@@ -10,6 +10,7 @@ namespace CStat.Models
         public Transaction()
         {
             Attendance = new HashSet<Attendance>();
+            InventoryItem = new HashSet<InventoryItem>();
         }
 
         [Key]
@@ -43,6 +44,9 @@ namespace CStat.Models
         [Column("payment_number")]
         [StringLength(30)]
         public string PaymentNumber { get; set; }
+        [Column("link")]
+        [StringLength(255)]
+        public string Link { get; set; }
 
         [ForeignKey(nameof(BusinessId))]
         [InverseProperty("Transaction")]
@@ -60,5 +64,7 @@ namespace CStat.Models
         public virtual TransactionItems TransactionItems { get; set; }
         [InverseProperty("Transaction")]
         public virtual ICollection<Attendance> Attendance { get; set; }
+        [InverseProperty("Order")]
+        public virtual ICollection<InventoryItem> InventoryItem { get; set; }
     }
 }

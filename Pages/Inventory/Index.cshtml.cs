@@ -29,6 +29,15 @@ namespace CStat
                 .Include(i => i.Item).ToListAsync();
         }
 
+        public async Task<Person> GetPersonFromEMail (string email)
+        {
+            var person = await _context.Person
+            .Include(p => p.Id)
+            .Include(p => p.FirstName)
+            .Include(p => p.LastName).FirstOrDefaultAsync(m => m.Email == email);
+            return person;
+        }
+
         public JsonResult OnGetItemStateChange()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());

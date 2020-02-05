@@ -238,6 +238,11 @@ namespace CStat.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_InventoryItem_Item");
 
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.InventoryItem)
+                    .HasForeignKey(d => d.OrderId)
+                    .HasConstraintName("FK_InventoryItem_Transaction");
+
                 entity.HasOne(d => d.Person)
                     .WithMany(p => p.InventoryItem)
                     .HasForeignKey(d => d.PersonId)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
 
 namespace CStat.Models
 {
@@ -149,5 +150,10 @@ namespace CStat.Models
         public virtual ICollection<Task> Task { get; set; }
         [InverseProperty("CcaPerson")]
         public virtual ICollection<Transaction> Transaction { get; set; }
+
+        public static implicit operator Task<object>(Person v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

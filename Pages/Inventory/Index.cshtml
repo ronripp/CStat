@@ -5,81 +5,134 @@
     ViewData["Title"] = "Index";
 }
 
-<head>
-    @using System.Web;
-    @using CStat.Models;
+    <head>
+        @using System.Web;
+        @using CStat.Models;
 
-    <style>
-        a {
-            cursor: pointer;
+        <style>
+            a {
+                cursor: pointer;
+            }
+
+            .table th {
+                padding: 0.1rem;
+                color: lightgray;
+            }
+
+            .table td {
+                padding: 0.5rem;
+            }
+
+            .InStockBtn {
+                background-color: #E0FFE0; /* Green */
+                border-radius: 8px;
+                border: solid;
+                border-color: black;
+                border-width: 1px;
+                color: black;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .OpenNeedBtn {
+                background-color: #FF0000; /* Red */
+                border-radius: 8px;
+                border: solid;
+                border-color: Black;
+                border-width: 2px;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .TakenNeedBtn {
+                background-color: #FFFF00; /* Yellow */
+                border-radius: 8px;
+                border: solid;
+                border-color: black;
+                border-width: 2px;
+                color: black;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        @{
+            var LoginPid = -1;
+            var LoginDisplayName = "";
+            Person p = Model.GetPersonFromEMail(User.Identity.Name);
+            if (p != null)
+            {
+                LoginPid = p.Id;
+                LoginDisplayName = p.FirstName.Substring(0, Math.Min(p.FirstName.Length, 5)) + p.LastName.Substring(0, Math.Min(p.LastName.Length, 1));
+            }
         }
+        var loginPid = @LoginPid;
 
-        .table th {
-            padding: 0.1rem;
-            color: lightgray;
-        }
-
-        .table td {
-            padding: 0.5rem;
-        }
-
-        .stateBtn {
-            background-color: #E0FFE0; /* Green */
-            border-radius: 8px;
-            border: solid;
-            border-color: black;
-            border-width: 1px;
-            color: black;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            cursor: pointer;
-        }
-
-    </style>
-
-    <script type="text/javascript">
-
-        function itemStateChange(invItmId, pid, state) {
-            var parameters = "{'invItmId':'" + invItmId + "','pid':'" + pid + "','state':'" + state + "'}";
-            $.ajax({
-                url: "/IndexInv?handler=ItemStateChange",
-                contentType: "application/json",
-                dataType: "json",
-                data : parameters,
-                success: function (response) {
-                    if (response.indexOf("ERROR~:") === -1) {
-                        window.location.href = response;
+            function itemStateChange(btn) {
+                var state = btn.getAttribute("state");
+                var pid = btn.getAttribute("pid");
+                switch (state) {
+                    case "0":
+                        state = 1;
+                        break;
+                    case "1":
+                        state = 2;
+                        pid = loginPid;
+                        break;
+                    case "2":
+                        if (pid == loginPid) {
+                            state = 1;
+                            pid = -1;
+                        }
+                        break;
+                    default:
+                        state = 1;
+                        break;
+                }
+                var parameters = "{'invItemId':'" + btn.getAttribute("invItemId") + "','pid':'" + pid + "','state':'" + state + "'}";
+                $.ajax({
+                    url: "/Inventory?handler=ItemStateChange",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            var invIS = $.parseJSON(response);
+                            btn.setAttribute("state", invIS.state);
+                            btn.setAttribute("pid", invIS.pid);
+                            btn.className = invIS.btnClass;
+                            btn.innerHTML = invIS.displayName;
+                        }
+                    },
+                    fail: function (response) {
                     }
-                },
-            });
-        }
+                });
+            }
 
-        function docsBeforeUnload() {
-        }
+            function docsBeforeUnload() {
+            }
 
-        function encodeQuotes(str) {
-            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
-        }
+            function encodeQuotes(str) {
+                return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+            }
+            function decodeQuotes(str) {
+                return str.replace(/^^/g, "\"").replace(/^/g, "'");
+            }
 
-    </script>
+        </script>
 
-</head>
+    </head>
 
 <body onbeforeunload="docsBeforeUnload()">
-
-@{ 
-    var pid = -1;
-    var displayName = "";
-    Task<Person> ptask = Model.GetPersonFromEMail(User.Identity.Name);
-    ptask.Wait();
-    Person p = ptask.Result;
-    if (p != null)
-    {
-        pid = p.Id;
-        displayName = p.FirstName.Substring(0, 5) + p.LastName.Substring(0, 1);
-    }
-}    
 
     <h1>Index</h1>
 
@@ -96,7 +149,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.InventoryItem)
+            @foreach (var item in Model.InventoryItems)
             {
                 <tr>
                     <td>
@@ -113,11 +166,14 @@
                         @Html.DisplayFor(modelItem => item.Item.Name)
                     </td>
                     <td>
-                        <button class="stateBtn">Need?</button>
-                        @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
-                    </td>
+                        @{
+                            IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
+                        }
+                        <button class="@invIS.btnClass" onClick="itemStateChange(this)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                            @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
+                        </td>
                 </tr>
             }
         </tbody>

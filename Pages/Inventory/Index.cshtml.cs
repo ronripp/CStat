@@ -15,27 +15,82 @@ namespace CStat
     {
         private readonly CStat.Models.CStatContext _context;
 
+        public class InvItemState
+        {
+            public int invItemId = -1;
+            public int state = 0;
+            public int pid = -1;
+            public string displayName = "";
+            public string btnClass = "";
+        }
+
         public IndexInvModel(CStat.Models.CStatContext context)
         {
             _context = context;
         }
 
-        public IList<InventoryItem> InventoryItem { get;set; }
+        public IList<InventoryItem> InventoryItems { get;set; }
 
         public async Task OnGetAsync()
         {
-            InventoryItem = await _context.InventoryItem
+            InventoryItems = await _context.InventoryItem
                 .Include(i => i.Inventory)
                 .Include(i => i.Item).ToListAsync();
         }
 
-        public async Task<Person> GetPersonFromEMail (string email)
+        public Person GetPersonFromEMail (string email)
         {
-            var person = await _context.Person
-            .Include(p => p.Id)
-            .Include(p => p.FirstName)
-            .Include(p => p.LastName).FirstOrDefaultAsync(m => m.Email == email);
+            Person person = _context.Person.FirstOrDefault(m => m.Email == email);
             return person;
+        }
+
+        public string MakeAbbr(Person p)
+        {
+            if (p != null)
+                return p.FirstName.Substring(0, Math.Min(p.FirstName.Length, 5)) + p.LastName.Substring(0, Math.Min(p.LastName.Length, 1));
+            return ("Unknown");
+        }
+
+        public string GetDisplayNameByPid(int pid)
+        {
+            Person person = _context.Person.FirstOrDefault(m => m.Id == pid);
+            return MakeAbbr(person);
+        }
+
+        public InvItemState GetInvItemState (InventoryItem invItem)
+        {
+            InvItemState invIS = new InvItemState();
+
+            // Get item DisplayName
+            invIS.pid = -1;
+            invIS.displayName = "Need?";
+            invIS.state = (int)InventoryItem.States.InStock;
+            invIS.btnClass = "InStockBtn";
+            if (invItem.PersonId.HasValue)
+            {
+                invIS.pid = invItem.PersonId.Value;
+                invIS.displayName = GetDisplayNameByPid(invIS.pid);
+            }
+
+            if (invItem.State.HasValue)
+            {
+                invIS.state = invItem.State.Value;
+                switch (invIS.state)
+                {
+                    case (int)InventoryItem.States.InStock:
+                        invIS.btnClass = "InStockBtn";
+                        invIS.displayName = "Need?";
+                        break;
+                    case (int)InventoryItem.States.OpenNeed:
+                        invIS.btnClass = "OpenNeedBtn";
+                        invIS.displayName = "Take it";
+                        break;
+                    case (int)InventoryItem.States.TakenNeed:
+                        invIS.btnClass = "TakenNeedBtn";
+                        break;
+                }
+            }
+            return invIS;
         }
 
         public JsonResult OnGetItemStateChange()
@@ -45,14 +100,34 @@ namespace CStat
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
-            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
 
-            if (NVPairs.TryGetValue("invItmId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("atate", out int state))
+//            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+//            if (NVPairs.TryGetValue("invItemId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("state", out int state))
+
+            InvItemState invIS = JsonConvert.DeserializeObject<InvItemState>(jsonQS);
+            if (invIS != null)
             {
-                return new JsonResult("OK"); // TBD
+                InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invIS.invItemId);
+                if (invItem != null)
+                {
+                    invItem.State = invIS.state;
+                    if (invIS.pid > 0)
+                       invItem.PersonId = invIS.pid;
+                }
+                _context.Attach(invItem).State = EntityState.Modified;
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return new JsonResult("ERROR~:Update DB Failed"); // TBD
+                }
+
+                return new JsonResult(JsonConvert.SerializeObject(GetInvItemState(invItem)));
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
-
     }
 }

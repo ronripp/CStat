@@ -23,12 +23,17 @@
                 let cellH = Math.round((totH - (1.6 * hdrH)) / 2);
                 let lineH = Math.round(cellH - (totW * .12));
 
-                let myCells = document.querySelectorAll(".cellBtn");
+                refBtn.style.width = .8 * hdrH + "px";
+                refBtn.style.height = .8 * hdrH + "px";
+                btnSVG.style.width = .6 * hdrH + "px";
+                btnSVG.style.height = .6 * hdrH + "px";
+                // let myCells = document.querySelectorAll('[style$="CBtn"]'); // TO DO : Make "Ends With" work for document.querySelectorAll('[style$="CBtn"]')
+                let myCells = [];
+                myCells.push(document.querySelectorAll(".TasksCBtn")[0]);
+                myCells.push(document.querySelectorAll(".EquipCBtn")[0]);
+                myCells.push(document.querySelectorAll(".InvCBtn")[0]);
+                myCells.push(document.querySelectorAll(".DocsCBtn")[0]);
                 for (var i = 0; i < myCells.length; ++i) {
-                    refBtn.style.width = .8 * hdrH + "px";
-                    refBtn.style.height = .8 * hdrH + "px";
-                    btnSVG.style.width = .6 * hdrH + "px";
-                    btnSVG.style.height = .6 * hdrH + "px";
                     myCells[i].style.fontSize = "6vw";
                     myCells[i].style.fontWeight = "600";
                     myCells[i].style.height = cellH + "px";
@@ -56,8 +61,32 @@
                 width: 100%;
             }
 
-            .cellBtn {
-                background-color: #00FF00;
+            .TasksCBtn {
+                background-color: @Model.GetTasksColor();
+                text-align: center;
+                float: left;
+                border: 3px solid #006600;
+                width: 50%;
+                line-height: 200px;
+            }
+            .EquipCBtn {
+                background-color: @Model.GetEquipColor();
+                text-align: center;
+                float: left;
+                border: 3px solid #006600;
+                width: 50%;
+                line-height: 200px;
+            }
+            .InvCBtn {
+                background-color: @Model.GetInvColor();
+                text-align: center;
+                float: left;
+                border: 3px solid #006600;
+                width: 50%;
+                line-height: 200px;
+            }
+            .DocsCBtn {
+                background-color: @Model.GetDocsColor();
                 text-align: center;
                 float: left;
                 border: 3px solid #006600;
@@ -107,19 +136,19 @@
         </b>
     </div>
 
-    <div class="cellBtn" id="Tasks">
+    <div class="TasksCBtn" id="Tasks">
         <p>Tasks</p>
     </div>
 
-    <div class="cellBtn" id="Equip">
+    <div class="EquipCBtn" id="Equip">
         <p>Equip.</p>
     </div>
 
-    <div class="cellBtn" id="Inv">
+    <div class="InvCBtn" id="Inv">
         <p><a href="Inventory">Inv.</a></p>
     </div>
 
-    <div class="cellBtn" id="Docs">
+    <div class="DocsCBtn" id="Docs">
         <p><a href= "Docs">Docs</a></p>
     </div>
 

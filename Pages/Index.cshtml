@@ -9,6 +9,15 @@
         <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
         <script type="text/javascript">
 
+            window.addEventListener( "pageshow", function ( event ) {
+              var historyTraversal = event.persisted || 
+                                     ( typeof window.performance != "undefined" && 
+                                          window.performance.navigation.type === 2 );
+              if ( historyTraversal ) {
+                 // Make sure to refresh top status page when returning to this page
+                 window.location.reload(true);
+              }
+            });
 
             function setCBHeight() {
                 let hdrDiv = document.querySelector(".header");

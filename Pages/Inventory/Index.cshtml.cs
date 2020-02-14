@@ -83,7 +83,7 @@ namespace CStat
                         break;
                     case (int)InventoryItem.States.OpenNeed:
                         invIS.btnClass = "OpenNeedBtn";
-                        invIS.displayName = "Take it";
+                        invIS.displayName = "Take";
                         break;
                     case (int)InventoryItem.States.TakenNeed:
                         invIS.btnClass = "TakenNeedBtn";

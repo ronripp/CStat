@@ -23,6 +23,8 @@
                 padding: 0.5rem;
             }
 
+            tr:nth-child(even) {background-color: #FFFFD0;}
+
             .InStockBtn {
                 background-color: #E0FFE0; /* Green */
                 border-radius: 8px;
@@ -61,6 +63,20 @@
                 display: inline-block;
                 cursor: pointer;
             }
+
+            .StockBtn {
+                background-color: #E0FFE0; /* Green */
+                border-radius: 8px;
+                border: solid;
+                border-color: Black;
+                border-width: 2px;
+                color: gray;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -77,28 +93,41 @@
         }
         var loginPid = @LoginPid;
 
-            function itemStateChange(btn) {
-                var state = btn.getAttribute("state");
-                var pid = btn.getAttribute("pid");
-                switch (state) {
-                    case "0":
-                        state = 1;
-                        break;
-                    case "1":
-                        state = 2;
-                        pid = loginPid;
-                        break;
-                    case "2":
-                        if (pid == loginPid) {
-                            state = 1;
-                            pid = -1;
-                        }
-                        break;
-                    default:
-                        state = 1;
-                        break;
+            function itemStateChange(invItemId, fromStock) {
+                let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                if (fromStock && stockBtn.getAttribute("type") == "text") {
+                    return;
                 }
-                var parameters = "{'invItemId':'" + btn.getAttribute("invItemId") + "','pid':'" + pid + "','state':'" + state + "'}";
+                let stateBtn = document.querySelector("#" + "sid" + invItemId);
+                let state;
+                let pid;
+                if (fromStock) {
+                   state = 0;
+                    pid = -1;
+                }
+                else {
+                    state = stateBtn.getAttribute("state");
+                    pid = stateBtn.getAttribute("pid");
+                    switch (state) {
+                        case "0":
+                            state = 1;
+                            break;
+                        case "1":
+                            state = 2;
+                            pid = loginPid;
+                            break;
+                        case "2":
+                            if (pid == loginPid) {
+                                state = 1;
+                                pid = -1;
+                            }
+                            break;
+                        default:
+                            state = 1;
+                            break;
+                    }
+                }
+                var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
                 $.ajax({
                     url: "/Inventory?handler=ItemStateChange",
                     contentType: "application/json",
@@ -107,10 +136,26 @@
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
                             var invIS = $.parseJSON(response);
-                            btn.setAttribute("state", invIS.state);
-                            btn.setAttribute("pid", invIS.pid);
-                            btn.className = invIS.btnClass;
-                            btn.innerHTML = invIS.displayName;
+                            stateBtn.setAttribute("state", invIS.state);
+                            stateBtn.setAttribute("pid", invIS.pid);
+                            stateBtn.className = invIS.btnClass;
+                            stateBtn.innerHTML = invIS.displayName;
+                            if (fromStock) {
+                                stockBtn.className = "";
+                                stockBtn.setAttribute("type", "text");
+                                if (stockBtn.value == "In?") {
+                                    stockBtn.value = "";
+                                }
+                            } else {
+                                if (invIS.state == 2) {
+                                    stockBtn.setAttribute("type", "button");
+                                    stockBtn.className = "StockBtn";
+                                    if (stockBtn.value == "") {
+                                        stockBtn.value = "In?";
+                                    }
+                                    stockBtn.onclick = function () { itemStateChange(invItemId, true);};
+                                }
+                            }
                         }
                     },
                     fail: function (response) {
@@ -142,7 +187,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Current</th>
+                <th>Cur</th>
                 <th>Units</th>
                 <th>Item</th>
                 <th></th>
@@ -153,7 +198,30 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CurrentStock)
+                        @{
+                            string fid = "fid" + item.ItemId;
+                            string iid = "iid" + item.ItemId;
+                            string sid = "sid" + item.ItemId;
+                            string inputType;
+                            string onClickFunc;
+                            string inputClass;
+                            string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                            if (item.State == 2)
+                            {
+                                inputType = "button";
+                                onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
+                                inputClass = "StockBtn";
+                                if (curStock.Length == 0)
+                                    curStock = "In?";
+                            }
+                            else
+                            {
+                                inputType = "text";
+                                onClickFunc = "";
+                                inputClass = "";
+                            }
+                         }
+                        <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass"  onclick="@onClickFunc" value="@curStock"></form>
                     </td>
                     <td>
                         @{
@@ -169,7 +237,7 @@
                         @{
                             IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
                         }
-                        <button class="@invIS.btnClass" onClick="itemStateChange(this)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                        <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
                             @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
             <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
             <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@

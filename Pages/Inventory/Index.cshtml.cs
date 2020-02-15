@@ -92,7 +92,6 @@ namespace CStat
             }
             return invIS;
         }
-
         public JsonResult OnGetItemStateChange()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
@@ -101,8 +100,8 @@ namespace CStat
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
 
-//            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
-//            if (NVPairs.TryGetValue("invItemId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("state", out int state))
+            //            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            //            if (NVPairs.TryGetValue("invItemId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("state", out int state))
 
             InvItemState invIS = JsonConvert.DeserializeObject<InvItemState>(jsonQS);
             if (invIS != null)
@@ -112,7 +111,7 @@ namespace CStat
                 {
                     invItem.State = invIS.state;
                     if (invIS.pid > 0)
-                       invItem.PersonId = invIS.pid;
+                        invItem.PersonId = invIS.pid;
                 }
                 _context.Attach(invItem).State = EntityState.Modified;
 
@@ -129,5 +128,38 @@ namespace CStat
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
+        public JsonResult OnGetItemStockChange()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            if (NVPairs.TryGetValue("invItemId", out int invItemId) && NVPairs.TryGetValue("stock", out int stock))
+            { 
+                InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invItemId);
+                if (invItem != null)
+                {
+                    invItem.CurrentStock = Math.Max(stock, 0);
+                    invItem.Date = DateTime.Now;
+                }
+                _context.Attach(invItem).State = EntityState.Modified;
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return new JsonResult("ERROR~:Update DB Failed"); // TBD
+                }
+
+                return new JsonResult("OK");
+            }
+            return new JsonResult("ERROR~:Incorrect Parameters");
+        }
     }
 }
+

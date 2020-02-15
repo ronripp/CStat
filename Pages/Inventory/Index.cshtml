@@ -2,7 +2,7 @@
 @model CStat.IndexInvModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Inventory";
 }
 
     <head>
@@ -81,6 +81,13 @@
 
         <script type="text/javascript">
 
+            var cur_StockInvItemId = -1;
+
+            function onFocus(invItemId) {
+                cur_StockInvItemId = invItemId;
+                console.log("csi4=" + cur_StockInvItemId);
+            }
+
         @{
             var LoginPid = -1;
             var LoginDisplayName = "";
@@ -95,19 +102,27 @@
 
             function itemStateChange(invItemId, fromStock) {
                 let stockBtn = document.querySelector("#" + "iid" + invItemId);
-                if (fromStock && stockBtn.getAttribute("type") == "text") {
-                    return;
+                if (fromStock) {
+                    if (stockBtn.getAttribute("type") == "text") {
+                        cur_StockInvItemId = invItemId;
+                        console.log("csi1=" + cur_StockInvItemId);
+                        return;
+                    }
+                    cur_StockInvItemId = -1;
+                    console.log("csi2=" + cur_StockInvItemId);
                 }
                 let stateBtn = document.querySelector("#" + "sid" + invItemId);
                 let state;
                 let pid;
                 if (fromStock) {
-                   state = 0;
+                    state = 0;
+                    console.log("isc : START fromStock state =" + state);
                     pid = -1;
                 }
                 else {
                     state = stateBtn.getAttribute("state");
                     pid = stateBtn.getAttribute("pid");
+                    console.log("isc : START fromState state =" + state);
                     switch (state) {
                         case "0":
                             state = 1;
@@ -128,6 +143,7 @@
                     }
                 }
                 var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
+                console.log("isc: parameters =" + parameters);
                 $.ajax({
                     url: "/Inventory?handler=ItemStateChange",
                     contentType: "application/json",
@@ -136,16 +152,21 @@
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
                             var invIS = $.parseJSON(response);
+                            console.log("SUCC: Changing to State :" + invIS.state);
                             stateBtn.setAttribute("state", invIS.state);
                             stateBtn.setAttribute("pid", invIS.pid);
                             stateBtn.className = invIS.btnClass;
                             stateBtn.innerHTML = invIS.displayName;
                             if (fromStock) {
+                                console.log("SUCC: Changing to Text : fromStock=" + fromStock);
                                 stockBtn.className = "";
                                 stockBtn.setAttribute("type", "text");
                                 if (stockBtn.value == "In?") {
                                     stockBtn.value = "";
                                 }
+                                stockBtn.onchange = function () { updateStock(invItemId); }
+                                stockBtn.onclick = function () { itemStateChange(invItemId, true); }
+                                stockBtn.onFocus = function () { onFocus(invItemId); }
                             } else {
                                 if (invIS.state == 2) {
                                     stockBtn.setAttribute("type", "button");
@@ -153,7 +174,8 @@
                                     if (stockBtn.value == "") {
                                         stockBtn.value = "In?";
                                     }
-                                    stockBtn.onclick = function () { itemStateChange(invItemId, true);};
+                                    stockBtn.onclick = function () { itemStateChange(invItemId, true); };
+                                    stockBtn.onFocus = function () { };
                                 }
                             }
                         }
@@ -163,7 +185,45 @@
                 });
             }
 
-            function docsBeforeUnload() {
+            function updateStock(invItemId) {
+                if (invItemId === -1) {
+                    return;
+                }
+                let stockBtn = document.querySelector("#" + "iid" + invItemId);
+
+                var stock; 
+                if (stockBtn.value.length == 0) {
+                    stock = 0;
+                }
+                else {
+                    stock = parseInt(stockBtn.value);
+                    if (Number.isNaN(stock) || (stock == 0)) {
+                        stockBtn.value = "";
+                        stock = 0;
+                    }
+                }
+             
+                var parameters = "{'invItemId':'" + invItemId + "','stock':'" + stock + "'}";
+                $.ajax({
+                    url: "/Inventory?handler=ItemStockChange",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") !== -1) {
+                            alert("Stock not updated.")
+                        }
+                        else {
+                            if (cur_StockInvItemId == invItemId) {
+                                cur_StockInvItemId = -1;
+                            }
+                            console.log("csi3=" + cur_StockInvItemId);
+                        }
+                    },
+                    fail: function (response) {
+                    }
+                });
+
             }
 
             function encodeQuotes(str) {
@@ -173,77 +233,88 @@
                 return str.replace(/^^/g, "\"").replace(/^/g, "'");
             }
 
+            function invBeforeUnload() {
+                updateStock(cur_StockInvItemId);
+            }
+
         </script>
 
     </head>
 
-<body onbeforeunload="docsBeforeUnload()">
+    <body onbeforeunload="invBeforeUnload()">
 
-    <h1>Index</h1>
+        <h4><b>Inventory</b></h4>
 
-    <p>
-        <a asp-page="Create">Create New</a>
-    </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Cur</th>
-                <th>Units</th>
-                <th>Item</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.InventoryItems)
-            {
+        <p>
+            <a asp-page="Create">Create New</a>
+        </p>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        @{
-                            string fid = "fid" + item.ItemId;
-                            string iid = "iid" + item.ItemId;
-                            string sid = "sid" + item.ItemId;
-                            string inputType;
-                            string onClickFunc;
-                            string inputClass;
-                            string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                            if (item.State == 2)
-                            {
-                                inputType = "button";
-                                onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
-                                inputClass = "StockBtn";
-                                if (curStock.Length == 0)
-                                    curStock = "In?";
-                            }
-                            else
-                            {
-                                inputType = "text";
-                                onClickFunc = "";
-                                inputClass = "";
-                            }
-                         }
-                        <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass"  onclick="@onClickFunc" value="@curStock"></form>
-                    </td>
-                    <td>
-                        @{
-                            CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
-                            var unitsStr = units.ToString();
-                        }
-                        @unitsStr
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Item.Name)
-                    </td>
-                    <td>
-                        @{
-                            IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
-                        }
-                        <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
-                            @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
-                        </td>
+                    <th>Cur</th>
+                    <th>Units</th>
+                    <th>Item</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</body>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.InventoryItems)
+                {
+                    <tr>
+                        <td>
+                            @{
+                                string fid = "fid" + item.ItemId;
+                                string iid = "iid" + item.ItemId;
+                                string sid = "sid" + item.ItemId;
+                                string inputType;
+                                string onClickFunc;
+                                string onChangeFunc;
+                                string onFocusFunc;
+                                string inputClass;
+                                string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                                if (item.State == 2)
+                                {
+                                    inputType = "button";
+                                    inputClass = "StockBtn";
+                                    if (curStock.Length == 0)
+                                        curStock = "In?";
+                                    onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
+                                    onChangeFunc = "";
+                                    onFocusFunc = "";
+                                }
+                                else
+                                {
+                                    inputType = "text";
+                                    onClickFunc = "";
+                                    inputClass = "";
+                                    onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
+                                    onChangeFunc = "updateStock(" + item.ItemId + ")";
+                                    onFocusFunc = "onFocus(" + item.ItemId + ")";
+                                }
+                            }
+                            <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock"></form>
+                        </td>
+                        <td>
+                            @{
+                                CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
+                                var unitsStr = units.ToString();
+                            }
+                            @unitsStr
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Item.Name)
+                        </td>
+                        <td>
+                            @{
+                                IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
+                            }
+                            <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                            @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </body>

@@ -159,14 +159,19 @@
                             stateBtn.innerHTML = invIS.displayName;
                             if (fromStock) {
                                 console.log("SUCC: Changing to Text : fromStock=" + fromStock);
-                                stockBtn.className = "";
                                 stockBtn.setAttribute("type", "text");
+                                stockBtn.className = "";
                                 if (stockBtn.value == "In?") {
                                     stockBtn.value = "";
                                 }
+                                // ensure value is selected after becoming text again
+                                stockBtn.blur();
+                                stockBtn.focus();
+                                stockBtn.select();
                                 stockBtn.onchange = function () { updateStock(invItemId); }
-                                stockBtn.onclick = function () { itemStateChange(invItemId, true); }
+                                stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); }
                                 stockBtn.onFocus = function () { onFocus(invItemId); }
+                                cur_StockInvItemId = invItemId;
                             } else {
                                 if (invIS.state == 2) {
                                     stockBtn.setAttribute("type", "button");
@@ -174,7 +179,7 @@
                                     if (stockBtn.value == "") {
                                         stockBtn.value = "In?";
                                     }
-                                    stockBtn.onclick = function () { itemStateChange(invItemId, true); };
+                                    stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); };
                                     stockBtn.onFocus = function () { };
                                 }
                             }
@@ -242,11 +247,8 @@
     </head>
 
     <body onbeforeunload="invBeforeUnload()">
-
-        <h4><b>Inventory</b></h4>
-
         <p>
-            <a asp-page="Create">Create New</a>
+            <a asp-page="Create"> <b>+</b> Add New Item</a>
         </p>
         <table class="table">
             <thead>
@@ -278,7 +280,7 @@
                                     inputClass = "StockBtn";
                                     if (curStock.Length == 0)
                                         curStock = "In?";
-                                    onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
+                                    onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
                                     onChangeFunc = "";
                                     onFocusFunc = "";
                                 }
@@ -287,7 +289,7 @@
                                     inputType = "text";
                                     onClickFunc = "";
                                     inputClass = "";
-                                    onClickFunc = "itemStateChange(" + item.ItemId + ", true)";
+                                    onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
                                     onChangeFunc = "updateStock(" + item.ItemId + ")";
                                     onFocusFunc = "onFocus(" + item.ItemId + ")";
                                 }

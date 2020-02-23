@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CStat.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CStat.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CStat
 {
@@ -21,6 +19,7 @@ namespace CStat
 
         [BindProperty]
         public InventoryItem InventoryItem { get; set; }
+        public Item EditItem { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -32,13 +31,22 @@ namespace CStat
             InventoryItem = await _context.InventoryItem
                 .Include(i => i.Inventory)
                 .Include(i => i.Item).FirstOrDefaultAsync(m => m.Id == id);
-
             if (InventoryItem == null)
             {
                 return NotFound();
             }
-           ViewData["InventoryId"] = new SelectList(_context.Inventory, "Id", "Name");
-           ViewData["ItemId"] = new SelectList(_context.Item, "Id", "Name");
+            EditItem = await _context.Item.FirstOrDefaultAsync(i => i.Id == id);
+            if (EditItem == null)
+            {
+                return NotFound();
+            }
+            ViewData["item"] = EditItem;
+            ViewData["InventoryItem"] = InventoryItem;
+            var slist = new SelectList(System.Enum.GetValues(typeof(InventoryItem.ItemUnits)), "Id", "Name", (InventoryItem.Units.HasValue ? (InventoryItem.ItemUnits)InventoryItem.Units.Value : 0));
+            ViewData["units"] = slist;
+            //           ViewData["InventoryId"] = new SelectList(_context.Inventory, "Id", "Name");
+            //           ViewData["ItemId"] = new SelectList(_context.Item, "Id", "Name");
+
             return Page();
         }
 
@@ -52,6 +60,7 @@ namespace CStat
             }
 
             _context.Attach(InventoryItem).State = EntityState.Modified;
+            _context.Attach(EditItem).State = EntityState.Modified;
 
             try
             {

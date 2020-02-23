@@ -5,40 +5,79 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>InventoryItem</h4>
+<h4>Edit Item</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-9">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="InventoryItem.ItemId" class="control-label"></label>
-                <select asp-for="InventoryItem.ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
-                <span asp-validation-for="InventoryItem.ItemId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InventoryItem.InventoryId" class="control-label"></label>
-                <select asp-for="InventoryItem.InventoryId" class="form-control" asp-items="ViewBag.InventoryId"></select>
-                <span asp-validation-for="InventoryItem.InventoryId" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="InventoryItem.Id" />
-            <div class="form-group">
-                <label asp-for="InventoryItem.CurrentStock" class="control-label"></label>
-                <input asp-for="InventoryItem.CurrentStock" class="form-control" />
-                <span asp-validation-for="InventoryItem.CurrentStock" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InventoryItem.ReorderThreshold" class="control-label"></label>
-                <input asp-for="InventoryItem.ReorderThreshold" class="form-control" />
-                <span asp-validation-for="InventoryItem.ReorderThreshold" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InventoryItem.Units" class="control-label"></label>
-                <input asp-for="InventoryItem.Units" class="form-control" />
-                <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
-            </div>
+            <table>
+                <tr>
+                    <td>
+                        <label for="idesc">Description : </label>
+                    </td>
+                    <td>
+                        <input type="text" id="idesc" size="72" value="@ViewBag.item.Name" />
+                    </td>
+                </tr>
+                <tr>
+                <td>
+                    <label for="iupc">UPC : </label>
+                </td>
+                <td>
+                    <input type="text" id="iupc" size="14" value="@ViewBag.item.Upc" />
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="iunits">Units : </label>
+                    </td>
+                    <td>
+                        <select id="iunits">
+                            @{int i = 0;
+                            }
+                            @foreach (var unit in ViewBag.units.Items)
+                            {
+                                @if (ViewBag.InventoryItem.Units == i)
+                                {
+                                    <option value=@{i++;} selected>@unit</option>
+                                }
+                                else
+                                {
+                                    <option value=@{i++;}>@unit</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+            </table>
+
+            @*<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="InventoryItem.ItemId" class="control-label"></label>
+            <select asp-for="InventoryItem.ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
+            <span asp-validation-for="InventoryItem.ItemId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="InventoryItem.InventoryId" class="control-label"></label>
+            <select asp-for="InventoryItem.InventoryId" class="form-control" asp-items="ViewBag.InventoryId"></select>
+            <span asp-validation-for="InventoryItem.InventoryId" class="text-danger"></span>
+        </div>
+        <input type="hidden" asp-for="InventoryItem.Id" />
+        <div class="form-group">
+            <label asp-for="InventoryItem.CurrentStock" class="control-label"></label>
+            <input asp-for="InventoryItem.CurrentStock" class="form-control" />
+            <span asp-validation-for="InventoryItem.CurrentStock" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="InventoryItem.ReorderThreshold" class="control-label"></label>
+            <input asp-for="InventoryItem.ReorderThreshold" class="form-control" />
+            <span asp-validation-for="InventoryItem.ReorderThreshold" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="InventoryItem.Units" class="control-label"></label>
+            <input asp-for="InventoryItem.Units" class="form-control" />
+            <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
+        </div>*@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

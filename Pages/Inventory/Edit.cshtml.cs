@@ -42,10 +42,6 @@ namespace CStat
             }
             ViewData["item"] = EditItem;
             ViewData["InventoryItem"] = InventoryItem;
-            var slist = new SelectList(System.Enum.GetValues(typeof(InventoryItem.ItemUnits)), "Id", "Name", (InventoryItem.Units.HasValue ? (InventoryItem.ItemUnits)InventoryItem.Units.Value : 0));
-            ViewData["units"] = slist;
-            //           ViewData["InventoryId"] = new SelectList(_context.Inventory, "Id", "Name");
-            //           ViewData["ItemId"] = new SelectList(_context.Item, "Id", "Name");
 
             return Page();
         }

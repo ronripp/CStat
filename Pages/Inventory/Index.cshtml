@@ -85,7 +85,6 @@
 
             function onFocus(invItemId) {
                 cur_StockInvItemId = invItemId;
-                console.log("csi4=" + cur_StockInvItemId);
             }
 
         @{
@@ -105,24 +104,20 @@
                 if (fromStock) {
                     if (stockBtn.getAttribute("type") == "text") {
                         cur_StockInvItemId = invItemId;
-                        console.log("csi1=" + cur_StockInvItemId);
                         return;
                     }
                     cur_StockInvItemId = -1;
-                    console.log("csi2=" + cur_StockInvItemId);
                 }
                 let stateBtn = document.querySelector("#" + "sid" + invItemId);
                 let state;
                 let pid;
                 if (fromStock) {
                     state = 0;
-                    console.log("isc : START fromStock state =" + state);
                     pid = -1;
                 }
                 else {
                     state = stateBtn.getAttribute("state");
                     pid = stateBtn.getAttribute("pid");
-                    console.log("isc : START fromState state =" + state);
                     switch (state) {
                         case "0":
                             state = 1;
@@ -143,7 +138,6 @@
                     }
                 }
                 var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
-                console.log("isc: parameters =" + parameters);
                 $.ajax({
                     url: "/Inventory?handler=ItemStateChange",
                     contentType: "application/json",
@@ -152,13 +146,11 @@
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
                             var invIS = $.parseJSON(response);
-                            console.log("SUCC: Changing to State :" + invIS.state);
                             stateBtn.setAttribute("state", invIS.state);
                             stateBtn.setAttribute("pid", invIS.pid);
                             stateBtn.className = invIS.btnClass;
                             stateBtn.innerHTML = invIS.displayName;
                             if (fromStock) {
-                                console.log("SUCC: Changing to Text : fromStock=" + fromStock);
                                 stockBtn.setAttribute("type", "text");
                                 stockBtn.className = "";
                                 if (stockBtn.value == "In?") {
@@ -222,7 +214,6 @@
                             if (cur_StockInvItemId == invItemId) {
                                 cur_StockInvItemId = -1;
                             }
-                            console.log("csi3=" + cur_StockInvItemId);
                         }
                     },
                     fail: function (response) {

@@ -29,6 +29,7 @@ namespace CStat.Models
         public int? OrderId { get; set; }
         [Column(TypeName = "datetime2(0)")]
         public DateTime? Date { get; set; }
+        public int? Zone { get; set; }
 
         [ForeignKey(nameof(InventoryId))]
         [InverseProperty("InventoryItem")]

@@ -19,6 +19,7 @@ namespace CStat
 
         [BindProperty]
         public InventoryItem InventoryItem { get; set; }
+        [BindProperty]
         public Item EditItem { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -55,24 +56,24 @@ namespace CStat
                 return Page();
             }
 
-            _context.Attach(InventoryItem).State = EntityState.Modified;
-            _context.Attach(EditItem).State = EntityState.Modified;
+            //_context.Attach(InventoryItem).State = EntityState.Modified;
+            //_context.Attach(EditItem).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!InventoryItemExists(InventoryItem.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!InventoryItemExists(InventoryItem.Id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
 
             return RedirectToPage("./Index");
         }

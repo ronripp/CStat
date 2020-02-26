@@ -27,15 +27,19 @@
     <div class="container">
         <form class="form-horizontal" method="post">
             <div class="form-group">
-                <label class="control-label col-sm-2 ILabel" for="idesc">Description: </label>
+                <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Name">Description: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="idesc" size="60" value="@ViewBag.item.Name" />
+                    @{Model.EditItem.Name = Model.EditItem.Name.Trim();}
+                    <input asp-for="EditItem.Name" size="60" />
+                    <span asp-validation-for="EditItem.Name" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label col-sm-2 ILabel" for="iupc">UPC: </label>
+                <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Upc">UPC: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="iupc" size="14" value="@ViewBag.item.Upc" />
+                    @{Model.EditItem.Upc = Model.EditItem.Upc.Trim();}
+                    <input type="text" asp-for="EditItem.Upc" size="14" />
+                    <span asp-validation-for="EditItem.Upc" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -52,25 +56,25 @@
             <div class="form-group">
                 <label class="control-label col-sm-2 ILabel" for="iui">Units per Item: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="iui" size="5" value="" />&nbsp;
+                    <input type="text" id="iui" size="5" value="" />
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-2 ILabel" for="irt">Reorder when: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="irt" size="5" value="@ViewBag.InventoryItem.ReorderThreshold" />&nbsp;
+                    <input type="text" id="irt" size="5" value="@ViewBag.InventoryItem.ReorderThreshold" />
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-2 ILabel" for="iud">Units per Day: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="iud" size="5" value="@ViewBag.UnitsPerDay" />&nbsp;
+                    <input type="text" id="iud" size="5" value="@ViewBag.UnitsPerDay" />
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-2 ILabel" for="iz">Zone: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" id="iz" size="3" value="@ViewBag.InventoryItem.Zone" />&nbsp;
+                    <input type="text" id="iz" size="3" value="@ViewBag.InventoryItem.Zone" />
                 </div>
             </div>
 

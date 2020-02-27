@@ -36,7 +36,7 @@ namespace CStat
             {
                 return NotFound();
             }
-            EditItem = await _context.Item.FirstOrDefaultAsync(i => i.Id == id);
+            EditItem = await _context.Item.FirstOrDefaultAsync(i => i.Id == InventoryItem.ItemId);
             if (EditItem == null)
             {
                 return NotFound();

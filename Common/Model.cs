@@ -26,5 +26,17 @@ namespace CStat.Models
             sheets = 13,
             tablets = 14
         };
+
+        public enum ItemZone
+        {
+            unknown = 0,
+            Office = 1,
+            Kitchen_Front = 2,
+            Kitchen_Mid = 3,
+            Kitchen_Back = 4,
+            Basement_Stairs = 5,
+            Basement_Water = 6,
+        };
+
     }
 }

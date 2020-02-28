@@ -67,9 +67,13 @@
                 </div>
             </div>
             <div class="form-group ediv">
-                <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Upc">UPC: </label>
+                <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Upc">UPC Barcode: </label>
                 <div class="col-sm-10 IValue">
-                    @{Model.EditItem.Upc = Model.EditItem.Upc.Trim();}
+                    @{if (Model.EditItem.Upc == null)
+                        Model.EditItem.Upc = "";
+                      else
+                        Model.EditItem.Upc = Model.EditItem.Upc.Trim();
+                    }
                     <input type="text" asp-for="EditItem.Upc" size="14" />
                     <span asp-validation-for="EditItem.Upc" class="text-danger"></span>
                 </div>
@@ -80,6 +84,7 @@
                     @{
                         IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
                         SelectList data = new SelectList(list, "Value", "Text");
+                        var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text; 
                     }
                     <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" style="height: 2em;
         width: 6.5em;
@@ -90,21 +95,21 @@
             <div class="form-group ediv">
                 <label asp-for="EditItem.Size" class="control-label col-sm-2 ILabel">Units per Item: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" asp-for="EditItem.Size" size="5" />
+                    <input type="text" asp-for="EditItem.Size" size="5" />&nbsp;@Selected
                     <span asp-validation-for="EditItem.Size" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group ediv">
-                <label asp-for="InventoryItem.ReorderThreshold" class="control-label col-sm-2 ILabel" >Reorder when: </label>
+                <label asp-for="InventoryItem.ReorderThreshold" class="control-label col-sm-2 ILabel">Reorder when: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" asp-for="InventoryItem.ReorderThreshold" size="5" />
+                    <input type="text" asp-for="InventoryItem.ReorderThreshold" size="5" />&nbsp;@Selected
                     <span asp-validation-for="InventoryItem.ReorderThreshold" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group ediv">
                 <label asp-for="InventoryItem.UnitsPerDay" class="control-label col-sm-2 ILabel">Usage per Day: </label>
                 <div class="col-sm-10 IValue">
-                    <input type="text" asp-for="InventoryItem.UnitsPerDay" size="5" /> (Units)
+                    <input type="text" asp-for="InventoryItem.UnitsPerDay" size="5" />&nbsp;@Selected / day consumed
                     <span asp-validation-for="InventoryItem.UnitsPerDay" class="text-danger"></span>
                 </div>
             </div>
@@ -148,6 +153,32 @@
             <input asp-for="InventoryItem.Units" class="form-control" />
             <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
         </div>*@
+
+            @*InventoryItem
+            //ReorderThreshold
+            //Units
+            //UnitsPerDay
+            //Zone*@
+            @Html.HiddenFor(model => model.InventoryItem.ItemId)
+            @Html.HiddenFor(model => model.InventoryItem.InventoryId)
+            @Html.HiddenFor(model => model.InventoryItem.Id)
+            @Html.HiddenFor(model => model.InventoryItem.CurrentStock)
+
+            @Html.HiddenFor(model => model.InventoryItem.State)
+            @Html.HiddenFor(model => model.InventoryItem.PersonId)
+
+            @Html.HiddenFor(model => model.InventoryItem.OrderId)
+            @Html.HiddenFor(model => model.InventoryItem.Date)
+
+            @*Item
+            //Name
+            //Upc
+            //Size*@
+            @Html.HiddenFor(model => model.EditItem.MfgId)
+            @Html.HiddenFor(model => model.EditItem.Units)
+            @Html.HiddenFor(model => model.EditItem.Status)
+            @Html.HiddenFor(model => model.EditItem.Id)
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

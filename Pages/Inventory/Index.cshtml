@@ -77,6 +77,11 @@
                 cursor: pointer;
             }
 
+            td > a {
+                text-decoration: none;
+                color: black;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -239,7 +244,7 @@
 
     <body onbeforeunload="invBeforeUnload()">
         <p>
-            <a href="Inventory\Edit?id=67"> <b>+</b> Add New Item</a>
+            <a href="Inventory\Create"> <b>+</b> Add New Item</a>
         </p>
         <table class="table">
             <thead>
@@ -295,7 +300,7 @@
                             @unitsStr
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Item.Name)
+                            <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
                         </td>
                         <td>
                             @{

@@ -34,8 +34,9 @@ namespace CStat.Models
             Kitchen_Front = 2,
             Kitchen_Mid = 3,
             Kitchen_Back = 4,
-            Basement_Stairs = 5,
-            Basement_Water = 6,
+            Basement_Shelves = 5,
+            Basement_Closet = 6,
+            Basement_Water = 7
         };
 
     }

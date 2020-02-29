@@ -257,76 +257,78 @@
             </thead>
             <tbody>
                 @{ int LastZone = -1, CurZone, ZoneCnt = 0;
-                   string[] bkRowColors = {"#FFD0D0", "#FFF2D0", "#FFFFD0", "#D0FFD0", "#D0FFFF", "#D0D8FF", "#F0D0FF"};
+                   string[] bkRowColors = {"#FFD0D0", "#FFF2D0", "#FFFFD0", "#D0FFD0", "#D0FFFF", "#DFF2FF", "#F0D0FF"};
                 }
                 @foreach (var item in Model.InventoryItems.OrderBy(i => (i.Zone.HasValue && (i.Zone.Value > 0)) ? i.Zone.Value : 999))
                 {
-                    <tr>
-                        <td>
-                            @{
-                                CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
-                                if (CurZone != LastZone)
-                                {
-                                    LastZone = CurZone;
-                                    ZoneCnt = 1;
-                                }
-                                else
-                                {
-                                    ++ZoneCnt;
-                                }
-                                var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone-1) % bkRowColors.Length] : "#FFFFFF";
+                <tr>
+                    @{
+                          CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
+                          if (CurZone != LastZone)
+                          {
+                              LastZone = CurZone;
+                              ZoneCnt = 1;
+                          }
+                          else
+                          {
+                              ++ZoneCnt;
+                          }
+                          var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone-1) % bkRowColors.Length] : "#FFFFFF";
 
-                                string fid = "fid" + item.ItemId;
-                                string iid = "iid" + item.ItemId;
-                                string sid = "sid" + item.ItemId;
-                                string inputType;
-                                string onClickFunc;
-                                string onChangeFunc;
-                                string onFocusFunc;
-                                string inputClass;
-                                string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                                if (item.State == 2)
-                                {
-                                    inputType = "button";
-                                    inputClass = "StockBtn";
-                                    if (curStock.Length == 0)
-                                        curStock = "In?";
-                                    onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                                    onChangeFunc = "";
-                                    onFocusFunc = "";
-                                }
-                                else
-                                {
-                                    inputType = "text";
-                                    onClickFunc = "";
-                                    inputClass = "";
-                                    onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                                    onChangeFunc = "updateStock(" + item.ItemId + ")";
-                                    onFocusFunc = "onFocus(" + item.ItemId + ")";
-                                }
-                            }
-                            <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock"></form>
-                        </td>
-                        <td>
-                            @{
+                          string fid = "fid" + item.ItemId;
+                          string iid = "iid" + item.ItemId;
+                          string sid = "sid" + item.ItemId;
+                          string inputType;
+                          string onClickFunc;
+                          string onChangeFunc;
+                          string onFocusFunc;
+                          string inputClass;
+                          string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                          if (item.State == 2)
+                          {
+                              inputType = "button";
+                              inputClass = "StockBtn";
+                              if (curStock.Length == 0)
+                                  curStock = "In?";
+                              onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                              onChangeFunc = "";
+                              onFocusFunc = "";
+                          }
+                          else
+                          {
+                              inputType = "text";
+                              onClickFunc = "";
+                              inputClass = "";
+                              onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                              onChangeFunc = "updateStock(" + item.ItemId + ")";
+                              onFocusFunc = "onFocus(" + item.ItemId + ")";
+                          }
+                    }
+                    <td style="background-color:@bcol">
+                        <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock"></form>
+                    </td>
+                    <td style="background-color:@bcol">
+                        @{
                                 CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
                                 var unitsStr = units.ToString();
-                            }
-                            @unitsStr
-                        </td>
-                        <td style="background-color:@bcol">
-                            <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
-                        </td>
-                        <td>
-                            @{
-                                IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
-                            }
-                            <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
-                            @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
-                        </td>
-                    </tr>
+                        }
+                        @unitsStr
+                    </td>
+                    <td style="background-color:@bcol">
+                        <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
+                    </td>
+                    <td style="background-color:@bcol">
+
+                        @{
+                            IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
+                        }
+                        <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                        @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
+
+                    </td>
+                </tr>
                 }
             </tbody>
         </table>

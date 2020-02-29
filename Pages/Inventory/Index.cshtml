@@ -23,7 +23,7 @@
                 padding: 0.5rem;
             }
 
-            tr:nth-child(even) {background-color: #FFFFD0;}
+            /*tr:nth-child(even) {background-color: #FFFFD0;}*/
 
             .InStockBtn {
                 background-color: #E0FFE0; /* Green */
@@ -256,11 +256,26 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.InventoryItems)
+                @{ int LastZone = -1, CurZone, ZoneCnt = 0;
+                   string[] bkRowColors = {"#FFD0D0", "#FFF2D0", "#FFFFD0", "#D0FFD0", "#D0FFFF", "#D0D8FF", "#F0D0FF"};
+                }
+                @foreach (var item in Model.InventoryItems.OrderBy(i => (i.Zone.HasValue && (i.Zone.Value > 0)) ? i.Zone.Value : 999))
                 {
                     <tr>
                         <td>
                             @{
+                                CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
+                                if (CurZone != LastZone)
+                                {
+                                    LastZone = CurZone;
+                                    ZoneCnt = 1;
+                                }
+                                else
+                                {
+                                    ++ZoneCnt;
+                                }
+                                var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone-1) % bkRowColors.Length] : "#FFFFFF";
+
                                 string fid = "fid" + item.ItemId;
                                 string iid = "iid" + item.ItemId;
                                 string sid = "sid" + item.ItemId;
@@ -299,7 +314,7 @@
                             }
                             @unitsStr
                         </td>
-                        <td>
+                        <td style="background-color:@bcol">
                             <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
                         </td>
                         <td>

@@ -352,8 +352,10 @@
                             }
                         </td>
                         <td style="background-color:@bcol">
-                            <a href="#" data-toggle="popover" title="Popover Header" data-html="true" data-content="Some <b>content</b> inside the popover">@unitsStr</a>
-</td>
+                            <div style="position: relative">
+                                <a data-toggle="popover" title="Popover Header" data-html="true" data-content="Some <b>content</b> inside the popover">@unitsStr</a>
+                            </div>
+                        </td>
                         <td style="background-color:@bcol">
                             <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
                         </td>

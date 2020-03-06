@@ -9,6 +9,12 @@
         @using System.Web;
         @using CStat.Models;
 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
         <style>
             a {
                 cursor: pointer;
@@ -193,7 +199,7 @@
                 }
                 let stockBtn = document.querySelector("#" + "iid" + invItemId);
 
-                var stock; 
+                var stock;
                 if (stockBtn.value.length == 0) {
                     stock = 0;
                 }
@@ -204,7 +210,7 @@
                         stock = 0;
                     }
                 }
-             
+
                 var parameters = "{'invItemId':'" + invItemId + "','stock':'" + stock + "'}";
                 $.ajax({
                     url: "/Inventory?handler=ItemStockChange",
@@ -238,6 +244,28 @@
                 updateStock(cur_StockInvItemId);
             }
 
+            function onStockClick(unitsStr) {
+                bsd.defaults.dialog.backdrop = false;
+                bsd.prompt('Lorem ipsum dolor sit amet', function (value, event) {
+                    if (value === null) {
+                        return true;
+                    }
+
+                    if (value.trim() === '') {
+                        bsd.alert('You must provide a value!');
+                        return false;
+                    }
+
+                    // ...
+
+                    return true;
+                });
+            }
+
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover();   
+        });
+
         </script>
 
     </head>
@@ -246,6 +274,7 @@
         <p>
             <a href="Inventory\Create"> <b>+</b> Add New Item</a>
         </p>
+
         <table class="table">
             <thead>
                 <tr>
@@ -257,78 +286,89 @@
             </thead>
             <tbody>
                 @{ int LastZone = -1, CurZone, ZoneCnt = 0;
-                   string[] bkRowColors = {"#FFD0D0", "#FFF2D0", "#FFFFD0", "#D0FFD0", "#D0FFFF", "#DFF2FF", "#F0D0FF"};
+                    string[] bkRowColors = { "#FFD0D0", "#FFF2D0", "#FFFFD0", "#D0FFD0", "#D0FFFF", "#DFF2FF", "#F0D0FF" };
                 }
                 @foreach (var item in Model.InventoryItems.OrderBy(i => (i.Zone.HasValue && (i.Zone.Value > 0)) ? i.Zone.Value : 999))
                 {
-                <tr>
-                    @{
-                          CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
-                          if (CurZone != LastZone)
-                          {
-                              LastZone = CurZone;
-                              ZoneCnt = 1;
-                          }
-                          else
-                          {
-                              ++ZoneCnt;
-                          }
-                          var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone-1) % bkRowColors.Length] : "#FFFFFF";
-
-                          string fid = "fid" + item.ItemId;
-                          string iid = "iid" + item.ItemId;
-                          string sid = "sid" + item.ItemId;
-                          string inputType;
-                          string onClickFunc;
-                          string onChangeFunc;
-                          string onFocusFunc;
-                          string inputClass;
-                          string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                          if (item.State == 2)
-                          {
-                              inputType = "button";
-                              inputClass = "StockBtn";
-                              if (curStock.Length == 0)
-                                  curStock = "In?";
-                              onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                              onChangeFunc = "";
-                              onFocusFunc = "";
-                          }
-                          else
-                          {
-                              inputType = "text";
-                              onClickFunc = "";
-                              inputClass = "";
-                              onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                              onChangeFunc = "updateStock(" + item.ItemId + ")";
-                              onFocusFunc = "onFocus(" + item.ItemId + ")";
-                          }
-                    }
-                    <td style="background-color:@bcol">
-                        <form id="@fid"><input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock"></form>
-                    </td>
-                    <td style="background-color:@bcol">
+                    <tr>
                         @{
+                            CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
+                            if (CurZone != LastZone)
+                            {
+                                LastZone = CurZone;
+                                ZoneCnt = 1;
+                            }
+                            else
+                            {
+                                ++ZoneCnt;
+                            }
+                            var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone - 1) % bkRowColors.Length] : "#FFFFFF";
+
+                            string fid = "fid" + item.ItemId;
+                            string iid = "iid" + item.ItemId;
+                            string sid = "sid" + item.ItemId;
+                            string inputType;
+                            string onClickFunc;
+                            string onChangeFunc;
+                            string onFocusFunc;
+                            string inputClass;
+                            string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                            if (item.State == 2)
+                            {
+                                inputType = "button";
+                                inputClass = "StockBtn";
+                                if (curStock.Length == 0)
+                                    curStock = "In?";
+                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                                onChangeFunc = "";
+                                onFocusFunc = "";
+                            }
+                            else
+                            {
+                                inputType = "text";
+                                onClickFunc = "";
+                                inputClass = "";
+                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                                onChangeFunc = "updateStock(" + item.ItemId + ")";
+                                onFocusFunc = "onFocus(" + item.ItemId + ")";
+                            }
+                        }
+                        <td style="background-color:@bcol">
+                            @{
                                 CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
                                 var unitsStr = units.ToString();
-                        }
-                        @unitsStr
-                    </td>
-                    <td style="background-color:@bcol">
-                        <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
-                    </td>
-                    <td style="background-color:@bcol">
+                            }
+                            @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.rolls))
+                            {
+                                <form id="@fid">
+                                    <input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
+                                </form>
+                            }
+                            else
+                            {
+                                <form id="@fid">
+                                    <input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
+                                </form>
+                            }
+                        </td>
+                        <td style="background-color:@bcol">
+                            <a href="#" data-toggle="popover" title="Popover Header" data-html="true" data-content="Some <b>content</b> inside the popover">@unitsStr</a>
+</td>
+                        <td style="background-color:@bcol">
+                            <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
+                        </td>
+                        <td style="background-color:@bcol">
 
-                        @{
-                            IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
-                        }
-                        <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
-                        @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
+                            @{
+                                IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
+                            }
+                            <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                            @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>

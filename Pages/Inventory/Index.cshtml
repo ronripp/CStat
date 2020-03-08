@@ -244,37 +244,41 @@
                 updateStock(cur_StockInvItemId);
             }
 
-            function onStockClick(unitsStr) {
-                bsd.defaults.dialog.backdrop = false;
-                bsd.prompt('Lorem ipsum dolor sit amet', function (value, event) {
-                    if (value === null) {
-                        return true;
-                    }
-
-                    if (value.trim() === '') {
-                        bsd.alert('You must provide a value!');
-                        return false;
-                    }
-
-                    // ...
-
-                    return true;
-                });
-            }
-
         $(document).ready(function(){
-            $('[data-toggle="popover"]').popover();   
+            $("[data-toggle=popover]").popover();
+
+            $(document).on('click', '.popover', function (e) {
+                var offset = $(this).offset();
+                var relX = (e.pageX - offset.left);
+                var relY = (e.pageY - offset.top);
+
+//                alert("X: " + relX + "  Y: " + relY);
+                let outer = this.lastChild.outerHTML;
+                let offStart = outer.indexOf("id=\"pid");
+                let offEnd = outer.indexOf("\" src=");
+                let invItemId = "";
+                if ((offStart != -1) && (offEnd != -1)) {
+                    invItemId = outer.substring(offStart + 7, offEnd);
+                    let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                    stockBtn.value = "1.4";
+                    updateStock(invItemId);
+                }
+
+
+                $(this).popover('hide');
+            });
+            $(document).on('blur','.popover', function(){
+               $(this).popover('hide');
+            });
         });
 
         </script>
-
     </head>
 
     <body onbeforeunload="invBeforeUnload()">
         <p>
             <a href="Inventory\Create"> <b>+</b> Add New Item</a>
         </p>
-
         <table class="table">
             <thead>
                 <tr>
@@ -307,6 +311,7 @@
                             string fid = "fid" + item.ItemId;
                             string iid = "iid" + item.ItemId;
                             string sid = "sid" + item.ItemId;
+                            string pid = "pid" + item.ItemId;
                             string inputType;
                             string onClickFunc;
                             string onChangeFunc;
@@ -338,23 +343,21 @@
                                 CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
                                 var unitsStr = units.ToString();
                             }
+                            <form id="@fid">
+                               <input style="width:2.5em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
+                            </form>
+                        </td>
+                        <td style="background-color:@bcol">
                             @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.rolls))
                             {
-                                <form id="@fid">
-                                    <input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
-                                </form>
+                            <div style="position: relative">
+                                <a data-toggle="popover" title="Tap Current Amount" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>
+                            </div>
                             }
                             else
                             {
-                                <form id="@fid">
-                                    <input style="width:2em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
-                                </form>
+                                @unitsStr
                             }
-                        </td>
-                        <td style="background-color:@bcol">
-                            <div style="position: relative">
-                                <a data-toggle="popover" title="Popover Header" data-html="true" data-content="Some <b>content</b> inside the popover">@unitsStr</a>
-                            </div>
                         </td>
                         <td style="background-color:@bcol">
                             <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>

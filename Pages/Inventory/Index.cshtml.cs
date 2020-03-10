@@ -23,7 +23,11 @@ namespace CStat
             public string displayName = "";
             public string btnClass = "";
         }
-
+        public class InvItemStock
+        {
+            public int invItemId = -1;
+            public float stock = 0;
+        }
         public IndexInvModel(CStat.Models.CStatContext context)
         {
             _context = context;
@@ -136,13 +140,13 @@ namespace CStat
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
 
-            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
-            if (NVPairs.TryGetValue("invItemId", out int invItemId) && NVPairs.TryGetValue("stock", out int stock))
+            InvItemStock invItmStk = JsonConvert.DeserializeObject<InvItemStock>(jsonQS);
+            if (invItmStk != null)
             { 
-                InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invItemId);
+                InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invItmStk.invItemId);
                 if (invItem != null)
                 {
-                    invItem.CurrentStock = Math.Max(stock, 0);
+                    invItem.CurrentStock = Math.Max(invItmStk.stock, (float)0);
                     invItem.Date = DateTime.Now;
                 }
                 _context.Attach(invItem).State = EntityState.Modified;

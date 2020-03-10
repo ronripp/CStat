@@ -204,7 +204,7 @@
                     stock = 0;
                 }
                 else {
-                    stock = parseInt(stockBtn.value);
+                    stock = parseFloat(stockBtn.value);
                     if (Number.isNaN(stock) || (stock == 0)) {
                         stockBtn.value = "";
                         stock = 0;
@@ -249,22 +249,39 @@
 
             $(document).on('click', '.popover', function (e) {
                 var offset = $(this).offset();
+                var lastChild = this.lastChild;
+                var fullX = lastChild.offsetWidth;
+                var fullY = lastChild.offsetHeight;
                 var relX = (e.pageX - offset.left);
-                var relY = (e.pageY - offset.top);
-
-//                alert("X: " + relX + "  Y: " + relY);
-                let outer = this.lastChild.outerHTML;
+                var relY = ((e.pageY - offset.top) - lastChild.offsetTop);
+                var xrat = relX / fullX;
+                var yrat = relY / fullY;
+                if ((xrat < 0) || (yrat < 0) || (xrat > 1) || (yrat > 1)) {
+                    return;
+                }
+                var row = (yrat > 0.4833) ? 1 : 0;
+                let outer = lastChild.outerHTML;
                 let offStart = outer.indexOf("id=\"pid");
                 let offEnd = outer.indexOf("\" src=");
                 let invItemId = "";
                 if ((offStart != -1) && (offEnd != -1)) {
                     invItemId = outer.substring(offStart + 7, offEnd);
                     let stockBtn = document.querySelector("#" + "iid" + invItemId);
-                    stockBtn.value = "1.4";
+                    if (xrat < 0.1847) {
+                        stockBtn.value = (row === 0) ? 0 : 1.2;
+                    } else if (xrat < 0.3378) {
+                        stockBtn.value = (row === 0) ? 0.2 : 1.4;
+                    } else if (xrat < 0.4955) {
+                        stockBtn.value = (row === 0) ? 0.4 : 1.6;
+                    } else if (xrat < 0.6486) {
+                        stockBtn.value = (row === 0) ? 0.6 : 1.8;
+                    } else if (xrat < 0.8018) {
+                        stockBtn.value = (row === 0) ? 0.8 : 2;
+                    } else  {
+                        stockBtn.value = (row === 0) ? 1 : 3;
+                    } 
                     updateStock(invItemId);
                 }
-
-
                 $(this).popover('hide');
             });
             $(document).on('blur','.popover', function(){
@@ -348,10 +365,10 @@
                             </form>
                         </td>
                         <td style="background-color:@bcol">
-                            @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.rolls))
+                            @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.boxes))
                             {
                             <div style="position: relative">
-                                <a data-toggle="popover" title="Tap Current Amount" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>
+                                <a data-toggle="popover" title="Pick Current amount :" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>
                             </div>
                             }
                             else

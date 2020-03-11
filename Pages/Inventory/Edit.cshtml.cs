@@ -1,4 +1,5 @@
 ﻿using CStat.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,6 +23,7 @@ namespace CStat
         public InventoryItem InventoryItem { get; set; }
         [BindProperty]
         public Item EditItem { get; set; }
+        public IFormFile ItemPhoto { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {

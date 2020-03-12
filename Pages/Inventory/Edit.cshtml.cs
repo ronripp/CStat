@@ -1,10 +1,12 @@
 ﻿using CStat.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,9 +15,11 @@ namespace CStat
     public class EditInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private IWebHostEnvironment hostEnv;
 
-        public EditInvModel(CStat.Models.CStatContext context)
+        public EditInvModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
+            hostEnv = hstEnv;
             _context = context;
         }
 
@@ -44,6 +48,10 @@ namespace CStat
             {
                 return NotFound();
             }
+
+            if (EditItem.Upc == null)
+                EditItem.Upc = "";
+
             ViewData["item"] = EditItem;
             ViewData["InventoryItem"] = InventoryItem;
 
@@ -58,6 +66,24 @@ namespace CStat
             {
                 return Page();
             }
+
+            if ((ItemPhoto != null) && (EditItem.Upc.Length > 0))
+            {
+                string destFile = Path.Combine(hostEnv.WebRootPath, "images", "ItmImg_" + EditItem.Upc + ".jpg");
+                
+                if (System.IO.File.Exists(destFile))
+                    System.IO.File.Delete(destFile); // Delete any existing photo for this item
+                using (var fs = new FileStream(destFile, FileMode.Create))
+                {
+  
+                    ItemPhoto.CopyTo(fs);
+                }
+            }
+
+            if (EditItem.Name.Length > 0)
+                EditItem.Name.Trim();
+            if (EditItem.Upc.Length > 0)
+                EditItem.Upc.Trim();
 
             _context.Attach(InventoryItem).State = EntityState.Modified;
             _context.Attach(EditItem).State = EntityState.Modified;

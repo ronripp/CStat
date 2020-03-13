@@ -9,6 +9,7 @@
 
 <head>
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
 </head>
 
 <style>
@@ -76,9 +77,9 @@
                 <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Upc">UPC Barcode: </label>
                 <div class="col-sm-10 IValue">
                     @{if (Model.EditItem.Upc == null)
-                            Model.EditItem.Upc = "";
-                        else
-                            Model.EditItem.Upc = Model.EditItem.Upc.Trim();
+                        Model.EditItem.Upc = "";
+                    else
+                        Model.EditItem.Upc = Model.EditItem.Upc.Trim();
                     }
                     <input type="text" asp-for="EditItem.Upc" size="14" />
                     <span asp-validation-for="EditItem.Upc" class="text-danger"></span>
@@ -88,9 +89,9 @@
                 <label asp-for="InventoryItem.Units" class="control-label col-sm-2 ILabel">Units:</label>
                 <div class="col-sm-10 SValue">
                     @{
-                        IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                        SelectList data = new SelectList(list, "Value", "Text");
-                        var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
+                    IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                    SelectList data = new SelectList(list, "Value", "Text");
+                    var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
                     }
                     <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
@@ -121,9 +122,9 @@
                 <label asp-for="InventoryItem.Zone" class="control-label col-sm-2 ILabel">Storage Loc.</label>
                 <div class="col-sm-10 SValue">
                     @{
-                        Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                        IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                        SelectList zdata = new SelectList(zlist, "Value", "Text");
+                    Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
+                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                    SelectList zdata = new SelectList(zlist, "Value", "Text");
                     }
                     <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Zone" class="text-danger"></span>
@@ -186,15 +187,21 @@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
+            @section Scripts {
+                @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+                <script>
+                    $(document).ready(function () {
+                        $('.custom-file-input').on("change", function () {
+                            var fname = $(this).val().split("\\").pop();
+                            $(this).next('.custom-file-label').html(fname);
+                        });
+                    });
+                </script>
+            }
         </form>
     </div>
-
 
     <div>
         <a asp-page="./Index">Back to List</a>
     </div>
 </body>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

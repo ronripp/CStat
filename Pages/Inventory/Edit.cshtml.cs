@@ -54,6 +54,7 @@ namespace CStat
 
             ViewData["item"] = EditItem;
             ViewData["InventoryItem"] = InventoryItem;
+            ViewData["UPCError"] = "";
 
             return Page();
         }
@@ -67,8 +68,13 @@ namespace CStat
                 return Page();
             }
 
-            if ((ItemPhoto != null) && (EditItem.Upc.Length > 0))
+            if (ItemPhoto != null)
             {
+                if ((EditItem.Upc == null) || (EditItem.Upc.Trim().Length == 0))
+                {
+                    ViewData["UPCError"] = "Error : UPC Must be specified with Photo.";
+                    return Page();
+                }
                 string destFile = Path.Combine(hostEnv.WebRootPath, "images", "ItmImg_" + EditItem.Upc + ".jpg");
                 
                 if (System.IO.File.Exists(destFile))
@@ -80,9 +86,9 @@ namespace CStat
                 }
             }
 
-            if (EditItem.Name.Length > 0)
+            if ((EditItem.Name != null) && (EditItem.Name.Length > 0))
                 EditItem.Name.Trim();
-            if (EditItem.Upc.Length > 0)
+            if ((EditItem.Upc != null) && (EditItem.Upc.Length > 0))
                 EditItem.Upc.Trim();
 
             _context.Attach(InventoryItem).State = EntityState.Modified;

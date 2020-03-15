@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace CStat
 {
@@ -21,13 +23,14 @@ namespace CStat
         [BindProperty]
         public InventoryItem InventoryItem { get; set; }
         [BindProperty]
-        public Item EditItem { get; set; }
+        public Item CreateItem { get; set; }
+        public IFormFile ItemPhoto { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public IActionResult OnGet()
         {
-            EditItem = new CStat.Models.Item
+            CreateItem = new CStat.Models.Item
             {
                 Upc = "",
                 Name = "",
@@ -38,7 +41,7 @@ namespace CStat
             InventoryItem.Units = (int)InventoryItem.ItemUnits.unknown;
             InventoryItem.Zone = (int)InventoryItem.ItemZone.unknown;
 
-            ViewData["item"] = EditItem;
+            ViewData["item"] = CreateItem;
             ViewData["InventoryItem"] = InventoryItem;
 
             return Page();
@@ -51,43 +54,22 @@ namespace CStat
                 return Page();
             }
 
-            _context.InventoryItem.Add(InventoryItem);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
-
-/**************************************************
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Attach(InventoryItem).State = EntityState.Modified;
-            _context.Attach(EditItem).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                CreateItem.Units = InventoryItem.Units.HasValue ? InventoryItem.Units.Value : (int)InventoryItem.ItemZone.unknown;
+                _context.Item.Add(CreateItem);
+                int res1 = await _context.SaveChangesAsync();
+                InventoryItem.ItemId = CreateItem.Id;
+                InventoryItem.InventoryId = 1;
+                _context.InventoryItem.Add(InventoryItem);
+                int res2 = await _context.SaveChangesAsync();
+             }
+            catch (Exception e)
             {
-                if (!InventoryItemExists(InventoryItem.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                String err = e.Message;
             }
 
             return RedirectToPage("./Index");
-*************************************************/
         }
-        private bool InventoryItemExists(int id)
-        {
-            return _context.InventoryItem.Any(e => e.Id == id);
-        }
-
     }
 }

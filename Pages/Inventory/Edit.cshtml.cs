@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -109,13 +111,44 @@ namespace CStat
                     throw;
                 }
             }
-
+        
             return RedirectToPage("./Index");
         }
 
         private bool InventoryItemExists(int id)
         {
             return _context.InventoryItem.Any(e => e.Id == id);
+        }
+        public JsonResult OnGetDeleteItem()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            if (NVPairs.TryGetValue("invItemId", out int invItmId))
+            {
+                InventoryItem = _context.InventoryItem.Find(invItmId);
+
+                if (InventoryItem != null)
+                {
+                    try
+                    {
+                        // Delete Item
+                        _context.InventoryItem.Remove(InventoryItem);
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        return new JsonResult("ERROR~: Exception : Delete Item Failed.");
+                    }
+                    return new JsonResult("SUCCESS~:Delete Item Succeeded.");
+                }
+            }
+            return new JsonResult("ERROR~: Delete Item Failed.");
         }
     }
 }

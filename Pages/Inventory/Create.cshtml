@@ -139,10 +139,10 @@
             </div>
 
             @*InventoryItem
-                //ReorderThreshold
-                //Units
-                //UnitsPerDay
-                //Zone*@
+        //ReorderThreshold
+        //Units
+        //UnitsPerDay
+        //Zone*@
             @Html.HiddenFor(model => model.InventoryItem.ItemId)
             @Html.HiddenFor(model => model.InventoryItem.InventoryId)
             @Html.HiddenFor(model => model.InventoryItem.Id)
@@ -155,17 +155,21 @@
             @Html.HiddenFor(model => model.InventoryItem.Date)
 
             @*Item
-                //Name
-                //Upc
-                //Size*@
+        //Name
+        //Upc
+        //Size*@
             @Html.HiddenFor(model => model.CreateItem.MfgId)
             @Html.HiddenFor(model => model.CreateItem.Units)
             @Html.HiddenFor(model => model.CreateItem.Status)
             @Html.HiddenFor(model => model.CreateItem.Id)
 
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <input type="button" id="DelBtn" value="Delete" style="background-color:#FFCCCC; margin-left:50px" />
+                <span class="col-sm-4">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </span>
+                <span class="col-sm-4">
+                    <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+                </span>
             </div>
             @section Scripts {
                 @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -174,25 +178,6 @@
                         $('.custom-file-input').on("change", function () {
                             var fname = $(this).val().split("\\").pop();
                             $(this).next('.custom-file-label').html(fname);
-                        });
-                        $("#DelBtn").click(function () {
-                            if (confirm('Delete Item From Inventory?')) {
-                                var parameters = "{'invItemId':'" + @Model.InventoryItem.Id + "}";
-                                $.ajax({
-                                    url: "/Inventory/Edit?handler=DeleteAsync",
-                                    contentType: "application/json",
-                                    dataType: "json",
-                                    data: parameters,
-                                    success: function (response) {
-                                        if (response.indexOf("ERROR~:") === -1) {
-
-                                        }
-                                    },
-                                    fail: function (response) {
-
-                                    }
-                                });
-                            }
                         });
                     });
 

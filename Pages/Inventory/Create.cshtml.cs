@@ -8,15 +8,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CStat
 {
     public class CreateInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private IWebHostEnvironment hostEnv;
 
-        public CreateInvModel(CStat.Models.CStatContext context)
+        public CreateInvModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
+            hostEnv = hstEnv;
             _context = context;
         }
 
@@ -52,6 +56,24 @@ namespace CStat
             if (!ModelState.IsValid)
             {
                 return Page();
+            }
+
+            if (ItemPhoto != null)
+            {
+                if ((CreateItem.Upc == null) || (CreateItem.Upc.Trim().Length == 0))
+                {
+                    ViewData["UPCError"] = "Error : UPC Must be specified with Photo.";
+                    return Page();
+                }
+                string destFile = Path.Combine(hostEnv.WebRootPath, "images", "ItmImg_" + CreateItem.Upc + ".jpg");
+
+                if (System.IO.File.Exists(destFile))
+                    System.IO.File.Delete(destFile); // Delete any existing photo for this item
+                using (var fs = new FileStream(destFile, FileMode.Create))
+                {
+
+                    ItemPhoto.CopyTo(fs);
+                }
             }
 
             try

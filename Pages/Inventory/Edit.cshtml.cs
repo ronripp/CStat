@@ -57,6 +57,7 @@ namespace CStat
             ViewData["item"] = EditItem;
             ViewData["InventoryItem"] = InventoryItem;
             ViewData["UPCError"] = "";
+            ViewData["ItemErrors"] = "";
 
             return Page();
         }
@@ -69,6 +70,18 @@ namespace CStat
             {
                 return Page();
             }
+
+            if (!InventoryItem.Units.HasValue || (EditItem.Size <= 0))
+            {
+                ViewData["ItemErrors"] = "* Must have a non-zero Units/Item.";
+                return Page();
+            }
+
+            if (InventoryItem.ReorderThreshold.HasValue && (InventoryItem.ReorderThreshold.Value <= 0))
+                InventoryItem.ReorderThreshold = null;
+
+            if (InventoryItem.UnitsPerDay.HasValue && (InventoryItem.UnitsPerDay.Value <= 0))
+                InventoryItem.UnitsPerDay = null;
 
             if (ItemPhoto != null)
             {

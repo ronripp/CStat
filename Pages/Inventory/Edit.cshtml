@@ -7,12 +7,27 @@
     var photoPath = "~/images/ItmImg_" +  ( ((Model.EditItem.Upc != null) && (Model.EditItem.Upc.Length > 0)) ? Model.EditItem.Upc.Trim() + ".jpg" : "noimage.jpg");
     string UPCError = (ViewData["UPCError"] != null) ? (string)ViewData["UPCError"] : "";
     UPCError = UPCError.Trim();
+    string ItemErrors = (ViewData["ItemErrors"] != null) ? (string)ViewData["ItemErrors"] : "";
+    ItemErrors = ItemErrors.Trim();
 }
 
-<head>
-   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 
-</head>
+        <script>
+
+            function changeUnits(selObj) {
+                var selIdx = selObj.value;
+                if (selIdx != -1) {
+                    var selText = selObj.options[selIdx].text;
+                    $("[id^=unitsId]").text(selText);
+                }
+            }
+
+        </script>
+
+    </head>
 
 <style>
 
@@ -62,8 +77,15 @@
 <body>
 
     <div class="container">
+
+        @{ if (ItemErrors.Length > 0)
+            {
+                <div style="color:red">@ItemErrors</div>
+            }
+        }
+
         <div class="ediv" style="float:left">
-        <img src="@photoPath" asp-append-version="true" class="itemPhoto" height="120">
+            <img src="@photoPath" asp-append-version="true" class="itemPhoto" height="120">
         </div>
         <form class="form-horizontal" method="post" enctype="multipart/form-data">
             <div class="form-group ediv">
@@ -96,39 +118,39 @@
                         {
                             <div style="color:red">@UPCError</div>
                         }
-                        }
+                    }
                 </div>
             </div>
             <div class="form-group ediv">
                 <label asp-for="InventoryItem.Units" class="control-label col-sm-4 ILabel">Units:</label>
                 <div class="col-sm-8 SValue">
                     @{
-                    IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                    SelectList data = new SelectList(list, "Value", "Text");
-                    var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
+                        IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                        SelectList data = new SelectList(list, "Value", "Text");
+                        var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
                     }
-                    <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
+                    <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group ediv">
                 <label asp-for="EditItem.Size" class="control-label col-sm-4 ILabel">Units per Item: </label>
                 <div class="col-sm-8 IValue">
-                    <input type="text" asp-for="EditItem.Size" size="5" />&nbsp;@Selected
+                    <input type="text" asp-for="EditItem.Size" size="5" />&nbsp;<span id="unitsId1">@Selected</span>
                     <span asp-validation-for="EditItem.Size" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group ediv">
                 <label asp-for="InventoryItem.ReorderThreshold" class="control-label col-sm-4 ILabel">Reorder when: </label>
                 <div class="col-sm-8 IValue">
-                    <input type="text" asp-for="InventoryItem.ReorderThreshold" size="5" />&nbsp;@Selected
+                    <input type="text" asp-for="InventoryItem.ReorderThreshold" size="5" />&nbsp;<span id="unitsId2">@Selected</span>
                     <span asp-validation-for="InventoryItem.ReorderThreshold" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group ediv">
                 <label asp-for="InventoryItem.UnitsPerDay" class="control-label col-sm-4 ILabel">Usage per Day: </label>
                 <div class="col-sm-8 IValue">
-                    <input type="text" asp-for="InventoryItem.UnitsPerDay" size="5" />&nbsp;@Selected / day consumed
+                    <input type="text" asp-for="InventoryItem.UnitsPerDay" size="5" />&nbsp;<span id="unitsId3">@Selected</span> / day consumed
                     <span asp-validation-for="InventoryItem.UnitsPerDay" class="text-danger"></span>
                 </div>
             </div>
@@ -136,9 +158,9 @@
                 <label asp-for="InventoryItem.Zone" class="control-label col-sm-4 ILabel">Storage Loc.</label>
                 <div class="col-sm-8 SValue">
                     @{
-                    Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                    SelectList zdata = new SelectList(zlist, "Value", "Text");
+                        Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
+                        IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                        SelectList zdata = new SelectList(zlist, "Value", "Text");
                     }
                     <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Zone" class="text-danger"></span>
@@ -198,17 +220,17 @@
             @Html.HiddenFor(model => model.EditItem.Status)
             @Html.HiddenFor(model => model.EditItem.Id)
 
-        <div class="form-group">
-            <span class="col-sm-4">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </span>
-            <span class="col-sm-4">
-                <input type="button" onclick="window.history.go(-1)" value="Cancel" />
-            </span>
-            <span class="col-sm-4">
-                <input type="button" id="DelBtn" value="Delete" class="alignRight" style="background-color: #FFCCCC" />
-            </span>
-        </div>
+            <div class="form-group">
+                <span class="col-sm-4">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </span>
+                <span class="col-sm-4">
+                    <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+                </span>
+                <span class="col-sm-4">
+                    <input type="button" id="DelBtn" value="Delete" class="alignRight" style="background-color: #FFCCCC" />
+                </span>
+            </div>
             @section Scripts {
                 @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
                 <script>
@@ -241,7 +263,7 @@
 
                 </script>
             }
-</form>
+        </form>
     </div>
 
     <div>

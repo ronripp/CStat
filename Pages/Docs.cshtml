@@ -4,110 +4,118 @@
     ViewData["Title"] = "Docs";
 }
 
-<head>
-    @using System.Web;
+    <head>
+        @using System.Web;
 
-    <style>
-        a { cursor: pointer; }
-        .table th {padding: 0.1rem;
-                   color: lightgray;
-        }
-        .table td {padding: 0.5rem;}
-    </style>
+        <style>
+            a {
+                cursor: pointer;
+            }
 
-    <script type="text/javascript">
+            .table th {
+                padding: 0.1rem;
+                color: lightgray;
+            }
 
-        var curEditIdx = -1;
-        var cur_inputEl;
+            .table td {
+                padding: 0.5rem;
+            }
+        </style>
 
-        function switchToEdit(idx) {
-            let scanEl = document.querySelector("#" + "sid" + idx);
-            scanEl.style.display = "none";
-            let inputEl = document.querySelector("#" + "iid" + idx);
-            curEditIdx = idx;
-            cur_inputEl = inputEl;
-            inputEl.type = "text";
-            let desc = scanEl.innerHTML;
-            inputEl.value = (desc.indexOf("[Add]") != -1) ? "" : desc;
-            inputEl.focus();
-        }
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript">
 
-        function openFileShare(folder, file) {
-            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
-            $.ajax({
-                url: "/Docs?handler=FileShare",
-                contentType: "application/json",
-                dataType: "json",
-                data : parameters,
-                success: function (response) {
-                    if (response.indexOf("ERROR~:") === -1) {
-                        window.location.href = response;
-                    }
-                },
-            });
-        }
+            var curEditIdx = -1;
+            var cur_inputEl;
 
-        function updateFileDesc(idx) {
-            let scanEl = document.querySelector("#" + "sid" + idx);
-            let inputEl = document.querySelector("#" + "iid" + idx);
-            var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
+            function switchToEdit(idx) {
+                let scanEl = document.querySelector("#" + "sid" + idx);
+                scanEl.style.display = "none";
+                let inputEl = document.querySelector("#" + "iid" + idx);
+                curEditIdx = idx;
+                cur_inputEl = inputEl;
+                inputEl.type = "text";
+                let desc = scanEl.innerHTML;
+                inputEl.value = (desc.indexOf("[Add]") != -1) ? "" : desc;
+                inputEl.focus();
+            }
 
-            $.ajax({
-                url: "/Docs?handler=FileDesc",
-                contentType: "application/json",
-                dataType: "json",
-                data: parameters,
-                success: function (response) {
-                    if (response.indexOf("ERROR~:") === -1) {
-                        scanEl.innerHTML = inputEl.value;
-                    }
-                    else {
-                        scanEl.innerHTML = "[Add]";
-                    }
-                    inputEl.type = "hidden";
-                    scanEl.style.display = "inline-block";
-                },
-                fail: function (response) {
-                    inputEl.type = "hidden";
-                    scanEl.innerHTML = "[Add]";
-                    scanEl.style.display = "inline-block"
-                }
-            });
+            function openFileShare(folder, file) {
+                var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+                $.ajax({
+                    url: "/Docs?handler=FileShare",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            window.location.href = response;
+                        }
+                    },
+                });
+            }
 
-            curEditIdx = -1;
-        }
+            function updateFileDesc(idx) {
+                let scanEl = document.querySelector("#" + "sid" + idx);
+                let inputEl = document.querySelector("#" + "iid" + idx);
+                var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
 
-        function docsBeforeUnload() {
-            if (curEditIdx !== -1) {
-                var parameters = "{'Folder':'" + cur_inputEl.getAttribute("folder") + "','File':'" + cur_inputEl.getAttribute("file") + "','Desc':'" + cur_inputEl.value + "'}";
                 $.ajax({
                     url: "/Docs?handler=FileDesc",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            scanEl.innerHTML = inputEl.value;
+                        }
+                        else {
+                            scanEl.innerHTML = "[Add]";
+                        }
+                        inputEl.type = "hidden";
+                        scanEl.style.display = "inline-block";
+                    },
+                    fail: function (response) {
+                        inputEl.type = "hidden";
+                        scanEl.innerHTML = "[Add]";
+                        scanEl.style.display = "inline-block"
+                    }
                 });
+
+                curEditIdx = -1;
             }
-        }
 
-        function toggleTime(idx, bShowLG) {
-            let st = document.querySelector("#" + "smt" + idx);
-            let lt = document.querySelector("#" + "lgt" + idx); 
-            if (bShowLG) {
-                st.style.display = "none";
-                lt.style.display = "inline-block";
-            } else {
-                st.style.display = "inline-block";
-                lt.style.display = "none";
+            function docsBeforeUnload() {
+                if (curEditIdx !== -1) {
+                    var parameters = "{'Folder':'" + cur_inputEl.getAttribute("folder") + "','File':'" + cur_inputEl.getAttribute("file") + "','Desc':'" + cur_inputEl.value + "'}";
+                    $.ajax({
+                        url: "/Docs?handler=FileDesc",
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: parameters,
+                    });
+                }
             }
-        }
 
-        function encodeQuotes(str) {
-            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
-        }
+            function toggleTime(idx, bShowLG) {
+                let st = document.querySelector("#" + "smt" + idx);
+                let lt = document.querySelector("#" + "lgt" + idx);
+                if (bShowLG) {
+                    st.style.display = "none";
+                    lt.style.display = "inline-block";
+                } else {
+                    st.style.display = "inline-block";
+                    lt.style.display = "none";
+                }
+            }
 
-    </script>
+            function encodeQuotes(str) {
+                return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+            }
 
-</head>
+        </script>
+
+    </head>
 
 <body onbeforeunload="docsBeforeUnload()">
     @{
@@ -116,57 +124,59 @@
     }
     <h4><b>@DocTitle</b></h4>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    <b>File</b>
-                </th>
-                <th>
-                    <b>Description</b>
-                </th>
-                <th>
-                    <b>Date</b>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <b>File</b>
+                    </th>
+                    <th>
+                        <b>Description</b>
+                    </th>
+                    <th>
+                        <b>Date</b>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
         {
-            @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
-            <tr>
-                <td>
-                    <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
-                </td>
-                <td></td>
-                <td></td>
-            </tr>
+                @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
+                <tr>
+                    <td>
+                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
         }
-            @{int idx = 0;}
-            @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
+                @{int idx = 0;}
+                @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
         {
-            <tr>
-                <td>
-                    <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
-                </td>
-                <td>
-                    @{
+                <tr>
+                    <td>
+                        <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                    <td>
+                        @{
                 var sid = "sid" + idx;
                 var fid = "fid" + idx;
                 var iid = "iid" + idx;
                 var smtid = "smt" + idx;
                 var lgtid = "lgt" + idx;
-                    }
-                    <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
-                    <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
-                </td>
-                <td>
-                    <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
-                    <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
-                </td>
-            </tr>
+                        }
+                        <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
+                        <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
+                    </td>
+                    <td>
+                        <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
+                        <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
+                    </td>
+                </tr>
             ++idx;
         }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </body>

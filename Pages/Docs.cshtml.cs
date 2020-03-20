@@ -119,6 +119,7 @@ namespace CStat
                     FileName.EndsWith(".htm", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".html", StringComparison.CurrentCultureIgnoreCase))
                 {
+                    FileName = UnencodeQuotes(FileName);
                     string destFName = Path.Combine("tmpDBox", (FolderName + FileName).Replace('/', '~').Replace('\\', '~'));
                     string destFile = Path.Combine(hostEnv.WebRootPath, destFName);
                     

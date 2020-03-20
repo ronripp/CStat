@@ -1,0 +1,65 @@
+﻿@page
+@model CStat.InfoModel
+
+@{
+    ViewData["Title"] = "Info .";
+}
+
+<head>
+    @using System.Web;
+
+    <style>
+        a {
+            cursor: pointer;
+        }
+
+        #userSel1 {
+            display: block;
+            text-align: center;
+            background-color: teal;
+            width: 100%;
+            padding-top: 20px;
+            padding-left: 30%;
+            padding-bottom: 60px;
+        }
+
+        .usBtn {
+            display: block;
+            font-weight: bold;
+            background-color: #FFF090;
+            border-width: 2px;
+            min-width: 50%;
+            margin-top: 40px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            //var orgDCBkCol = $("div.container").css("background-color");
+            //var orgNavBrandBkCol = $("a.navbar-brand").css("background-color");
+            //var orgNavTogBkCol = $(".navbar-toggler").css("background-color");
+
+            //$("div.container").css("background-color", "teal");
+            //$("a.navbar-brand").css("background-color", "#FFF090");
+            //$(".navbar-toggler").css("background-color", "#FFF090");
+        });
+
+    </script>
+
+</head>
+
+<body style="background-color:teal">
+
+    <h2><b>Select Option Below:</b></h2>
+    <p></p>
+
+    <div id="userSel1">
+        <button class="usBtn"><h2>How to ...</h2></button>
+        <button class="usBtn"><h2>Find ...</h2></button>
+        <button class="usBtn"><h2>Contact ...</h2></button>
+        <button class="usBtn" onclick="window.location.href='Docs';"><h2>Drop Box</h2></button>
+    </div>
+
+</body>

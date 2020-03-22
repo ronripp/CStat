@@ -13,14 +13,24 @@
             cursor: pointer;
         }
 
-        #userSel1 {
+        #userSel10 {
             display: block;
             text-align: center;
             background-color: teal;
             width: 100%;
             padding-top: 20px;
-            padding-left: 30%;
+            padding-left: 20%;
             padding-bottom: 60px;
+        }
+
+        #userSel11, #userSel12, #userSel13 {
+            display: block;
+            text-align: center;
+            background-color: teal;
+            width: 100%;
+            padding-top: 10px;
+            padding-left: 20%;
+            padding-bottom: 10px;
         }
 
         .usBtn {
@@ -28,9 +38,18 @@
             font-weight: bold;
             background-color: #FFF090;
             border-width: 2px;
-            min-width: 50%;
+            min-width: 70%;
             margin-top: 40px;
         }
+
+        .usSubBtn {
+            display: block;
+            font-size: 1.17em;
+            background-color: #FFF090;
+            min-width: 70%;
+            margin-bottom: 8px;
+        }
+
     </style>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -46,20 +65,92 @@
             //$(".navbar-toggler").css("background-color", "#FFF090");
         });
 
+        function showMenu(menu) {
+            $("#userSel10").hide();
+            $("#userSel11").hide();
+            $("#userSel12").hide();
+            $("#userSel13").hide();
+            switch (menu) {
+                case 10:
+                    $("#mTitle").html("<h3><b>Select Option Below:</b></h3>");
+                    $("#userSel10").show();
+                    break; 
+                case 11:
+                    $("#mTitle").html("<h3><b>How To :...</b></h3>");
+                    $("#userSel11").show();
+                    break; 
+                case 12:
+                    $("#mTitle").html("<h3><b>Find Doc :...</b></h3>");
+                    $("#userSel12").show();
+                    break; 
+                case 13:
+                    $("#mTitle").html("<h3><b>Contact :...</b></h3>");
+                    $("#userSel13").show();
+                    break; 
+            }
+        }
+
+            function openFileShare(folder, file) {
+                var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+                $.ajax({
+                    url: "/Docs?handler=FileShare",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            window.location.href = response;
+                        }
+                    },
+                });
+            }
+
     </script>
 
 </head>
 
 <body style="background-color:teal">
 
-    <h2><b>Select Option Below:</b></h2>
-    <p></p>
+    <div id="mTitle">
+        <h3><b>Select Option Below:</b></h3>
+    </div>
 
-    <div id="userSel1">
-        <button class="usBtn"><h2>How to ...</h2></button>
-        <button class="usBtn"><h2>Find ...</h2></button>
-        <button class="usBtn"><h2>Contact ...</h2></button>
+    <div id="userSel10">
+        <button class="usBtn" onclick="showMenu(11)"><h2>How To ...</h2></button>
+        <button class="usBtn" onclick="showMenu(12)"><h2>Find Doc...</h2></button>
+        <button class="usBtn" onclick="showMenu(13)"><h2>Contacts ...</h2></button>
         <button class="usBtn" onclick="window.location.href='Docs';"><h2>Drop Box</h2></button>
+    </div>
+
+    <div id="userSel11" style="display:none">
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Role Manuals', 'Dean Manual - 2019.pdf')"><b>Dean</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Role Manuals', 'SWAT Manual - 2019.pdf')"><b>SWAT</b></button>
+        <button class="usSubBtn">use <b>Chapel Audio/Visual</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-43 Dishwasher Operation.pdf')">use <b>Dishwasher</b></button>
+        <button class="usSubBtn">use <b>Scag Mower</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-44 Pots & Pans Cleaning.pdf')">clean <b>Pots & Pans</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-32 Bathroom Operations.pdf')">clean <b>Bathrooms</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-23 WaterTesting.pdf')"><b>Test Tap Water</b></button>
+        <button class="usSubBtn">do <b>Retreats</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-12 Camper Registration.pdf')">do <b>Camp Registration</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'Fire Safety.htm')">do <b>Fire Safety Plan</b></button>
+    </div>
+
+    <div id="userSel12" style="display:none">
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FEmpty%20Forms%20%26%20Applications%2FStaff%20%26%20Camper'"><b>Camp Application Forms ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FManuals%20%26%20Procedures'"><b>Manuals & Procedures ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FBuilding'"><b>Building Docs ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FEmpty%20Forms%20%26%20Applications%2FOperational'"><b>NYS/Corp App.Forms ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FCorporate%2FPermits%20%26%20Certifications'"><b>Permits/Certificates ...</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Corporate/By-Laws & IDs', 'CCA Vital IDs.pdf')"><b>CCA IDs ...</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Corporate/By-Laws & IDs', 'By-Laws.html')"><b>CCA By-Laws ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FSigns%20%26%20Posters'"><b>CCA Signs & Posters ...</b></button>
+        <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FMailings%20%26%20Presentations'"><b>Presentations/Logos ...</b></button>
+    </div>
+
+    <div id="userSel13" style="display:none">
+        <button class="usSubBtn"><b>Person ...</b></button>
+        <button class="usSubBtn" onclick="openFileShare('/Contacts', 'CCA Businesses.pdf')"><b>Vendors/Services ...</b></button>
     </div>
 
 </body>

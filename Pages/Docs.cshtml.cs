@@ -116,6 +116,9 @@ namespace CStat
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
                 if (FileName.EndsWith(".txt", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".docx", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".doc", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".htm", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".html", StringComparison.CurrentCultureIgnoreCase))
                 {

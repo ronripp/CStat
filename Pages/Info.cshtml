@@ -13,7 +13,7 @@
             cursor: pointer;
         }
 
-        #userSel10 {
+        #userSel10, #userSel13 {
             display: block;
             text-align: center;
             background-color: teal;
@@ -23,7 +23,7 @@
             padding-bottom: 60px;
         }
 
-        #userSel11, #userSel12, #userSel13 {
+        #userSel11, #userSel12 {
             display: block;
             text-align: center;
             background-color: teal;
@@ -33,7 +33,7 @@
             padding-bottom: 10px;
         }
 
-        .usBtn {
+        .usBtn, .usSubCBtn {
             display: block;
             font-weight: bold;
             background-color: #FFF090;
@@ -76,15 +76,15 @@
                     $("#userSel10").show();
                     break; 
                 case 11:
-                    $("#mTitle").html("<h3><b>How To :...</b></h3>");
+                    $("#mTitle").html("<h3><b>How To...</b></h3>");
                     $("#userSel11").show();
                     break; 
                 case 12:
-                    $("#mTitle").html("<h3><b>Find Doc :...</b></h3>");
+                    $("#mTitle").html("<h3><b>Forms/Docs/Manuals...</b></h3>");
                     $("#userSel12").show();
                     break; 
                 case 13:
-                    $("#mTitle").html("<h3><b>Contact :...</b></h3>");
+                    $("#mTitle").html("<h3><b>Contacts/Lists...</b></h3>");
                     $("#userSel13").show();
                     break; 
             }
@@ -117,8 +117,8 @@
 
     <div id="userSel10">
         <button class="usBtn" onclick="showMenu(11)"><h2>How To ...</h2></button>
-        <button class="usBtn" onclick="showMenu(12)"><h2>Find Doc...</h2></button>
-        <button class="usBtn" onclick="showMenu(13)"><h2>Contacts ...</h2></button>
+        <button class="usBtn" onclick="showMenu(12)"><h2>Forms/Docs/Manu...</h2></button>
+        <button class="usBtn" onclick="showMenu(13)"><h2>Contacts/Lists...</h2></button>
         <button class="usBtn" onclick="window.location.href='Docs';"><h2>Drop Box</h2></button>
     </div>
 
@@ -149,8 +149,10 @@
     </div>
 
     <div id="userSel13" style="display:none">
-        <button class="usSubBtn"><b>Person ...</b></button>
-        <button class="usSubBtn" onclick="openFileShare('/Contacts', 'CCA Businesses.pdf')"><b>Vendors/Services ...</b></button>
+        <button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>People...</h2></button>
+        <button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>Attendance...</h2></button>
+        <button class="usSubCBtn" onclick="openFileShare('/Contacts', 'CCA Businesses.pdf')"><h2>Vendors/Services ...</h2></button>
+        <button class="usSubCBtn" onclick="openFileShare('/Contacts', 'Recent CCA Churches.pdf'"><h2>Churches ...</h2></button>
     </div>
 
 </body>

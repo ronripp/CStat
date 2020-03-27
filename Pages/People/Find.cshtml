@@ -1,0 +1,89 @@
+﻿@page
+@model CStat.FindModel
+@using CStat.Models
+@{
+    ViewData["Title"] = "Find People :";
+}
+    <head>
+
+        <style>
+
+            [id^='BtnId'] {
+                margin: 3px;
+                min-width: 100px;
+            }
+
+            .BtnOff {
+                background-color: lightgray;
+                color: darkslategray;
+                font-weight: normal;
+            }
+
+            .BtnOn {
+                background-color: greenyellow;
+                color: black;
+                font-weight: bold;
+            }
+        </style>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script>
+
+            $(document).ready(function () {
+                $("button[id^='BtnId']").click(function () {
+                    var skill = $(this).attr("value");
+                    var skills = $("#Person_SkillSets").attr("value");
+                    if (!skills) {
+                        skills = 0;
+                    }
+
+                    if ($(this).hasClass("BtnOn")) {
+                        $(this).removeClass("BtnOn").addClass("BtnOff");
+                        skills &= ~skill;
+                    } else {
+                        $(this).removeClass("BtnOff").addClass("BtnOn");
+                        skills |= skill;
+                    }
+                    $("#Person_SkillSets").attr("value", skills);
+                });
+            });
+
+        </script>
+
+    </head>
+<body>
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            <input style="display:none;" asp-for="Person.SkillSets" class="form-control" />
+            <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                <label asp-for="Person.FirstName">First:</label>
+                <input asp-for="Person.FirstName" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="Person.LastName">Last:</label>
+                <input asp-for="Person.LastName" />
+            </div>
+            <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                <label asp-for="Person.Gender">Gender</label>
+                <select asp-for="Person.Gender" asp-items="ViewBag.Gender"></select>
+            </div>
+
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="Person.ChurchId" +":">Church:</label>
+                <select asp-for="Person.ChurchId" asp-items="ViewBag.ChurchId"></select>
+            </div>
+            <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                @Html.Raw(Model.GenSkillButtons())
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Find People" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,6 +1,6 @@
 ﻿@page
 @model CStat.CreateModel
-
+@using CStat.Models
 @{
     ViewData["Title"] = "Create";
 }
@@ -35,7 +35,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Person.Gender" class="control-label"></label>
-                <input asp-for="Person.Gender" class="form-control" />
+                <select asp-for="Person.Gender" class="form-control" asp-items="ViewBag.Gender"></select>
                 <span asp-validation-for="Person.Gender" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -50,19 +50,19 @@
             </div>
             <div class="form-group">
                 <label asp-for="Person.AddressId" class="control-label"></label>
-                <select asp-for="Person.AddressId" class ="form-control" asp-items="ViewBag.AddressId"></select>
+                <select asp-for="Person.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Person.Pg1PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg1PersonId" class ="form-control" asp-items="ViewBag.Pg1PersonId"></select>
+                <select asp-for="Person.Pg1PersonId" class="form-control" asp-items="ViewBag.Pg1PersonId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Person.Pg2PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg2PersonId" class ="form-control" asp-items="ViewBag.Pg2PersonId"></select>
+                <select asp-for="Person.Pg2PersonId" class="form-control" asp-items="ViewBag.Pg2PersonId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Person.ChurchId" class="control-label"></label>
-                <select asp-for="Person.ChurchId" class ="form-control" asp-items="ViewBag.ChurchId"></select>
+                <select asp-for="Person.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Person.SkillSets" class="control-label"></label>

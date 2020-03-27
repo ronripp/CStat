@@ -40,6 +40,40 @@ namespace CStat.Models
             Basement_Tanks = 8,
             Basement_Heater = 9
         };
+    }
 
+    public partial class Person
+    {
+        public enum eGender
+        {
+            Male = (int)(uint)(byte)'M',
+            Female = (int)(uint)(byte)'F'
+        };
+
+        public enum eSkills
+        { 
+            Carpentry    = 0x1,
+            Plumbing     = 0x2,   
+            Roofing      = 0x4,   
+            Cook         = 0x8,   
+            Nurse_Health = 0x10,  
+            SWAT         = 0x20,  
+            CampMgr      = 0x40,  
+            Painter      = 0x80,  
+            Minister     = 0x100, 
+            Dean         = 0x200, 
+            Accoutant    = 0x400, 
+            Electrician  = 0x800, 
+            Computer     = 0x1000,
+            Kitchen_Help = 0x2000,
+            Counselor    = 0x4000,
+            Gardening    = 0x8000,
+            Tree_Remove  = 0x10000,
+            Worship      = 0x20000, 
+            Worker       = 0x40000, 
+            Mason        = 0x80000,
+            Construction = 0x100000,
+            Septic_Drain = 0x200000
+        };
     }
 }

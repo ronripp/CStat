@@ -113,6 +113,7 @@ namespace CStat
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
+            
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
                 if (FileName.EndsWith(".txt", StringComparison.CurrentCultureIgnoreCase) ||

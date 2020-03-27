@@ -10,11 +10,11 @@ using static CStat.Models.Person;
 
 namespace CStat
 {
-    public class CreateModel : PageModel
+    public class FindModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
 
-        public CreateModel(CStat.Models.CStatContext context)
+        public FindModel(CStat.Models.CStatContext context)
         {
             _context = context;
         }
@@ -29,6 +29,18 @@ namespace CStat
             ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             return Page();
+        }
+
+        public String GenSkillButtons()
+        {
+            String btnStr = "<div style=\"display:inline-block\" width=100%>\n";
+            int i = 1;
+            foreach (var s in Enum.GetValues(typeof(eSkills)).Cast<eSkills>())
+            {
+                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" class=\"BtnOff\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
+            }
+            btnStr += "</div>\n";
+            return btnStr;
         }
 
         [BindProperty]

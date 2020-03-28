@@ -10,6 +10,11 @@ using static CStat.Models.Person;
 
 namespace CStat
 {
+    public class PersonHints : Person
+    {
+        public string AgeRange { get; set; }
+    }
+
     public class FindModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
@@ -21,14 +26,19 @@ namespace CStat
 
         public IActionResult OnGet()
         {
+            UpdateLists();
+            return Page();
+        }
+
+        private void UpdateLists()
+        {
             IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
             gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
             ViewData["Gender"] = new SelectList(gList, "Value", "Text");
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
-            ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
+            ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Name");
             ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
-            return Page();
         }
 
         public String GenSkillButtons()
@@ -44,7 +54,7 @@ namespace CStat
         }
 
         [BindProperty]
-        public Person Person { get; set; }
+        public PersonHints Person { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -52,6 +62,7 @@ namespace CStat
         {
             if (!ModelState.IsValid)
             {
+                UpdateLists();
                 return Page();
             }
 

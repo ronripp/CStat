@@ -46,8 +46,8 @@ namespace CStat.Models
     {
         public enum eGender
         {
-            Male = (int)(uint)(byte)'M',
-            Female = (int)(uint)(byte)'F'
+            M = (int)(uint)(byte)'M',
+            F = (int)(uint)(byte)'F'
         };
 
         public enum eSkills
@@ -56,24 +56,24 @@ namespace CStat.Models
             Plumbing     = 0x2,   
             Roofing      = 0x4,   
             Cook         = 0x8,   
-            Nurse_Health = 0x10,  
+            Nurse        = 0x10,  
             SWAT         = 0x20,  
-            CampMgr      = 0x40,  
+            Manager      = 0x40,  
             Painter      = 0x80,  
             Minister     = 0x100, 
             Dean         = 0x200, 
-            Accoutant    = 0x400, 
-            Electrician  = 0x800, 
+            Accountant   = 0x400, 
+            Electricn    = 0x800, 
             Computer     = 0x1000,
-            Kitchen_Help = 0x2000,
+            Kitch_Help   = 0x2000,
             Counselor    = 0x4000,
             Gardening    = 0x8000,
-            Tree_Remove  = 0x10000,
+            Tree_Cut     = 0x10000,
             Worship      = 0x20000, 
             Worker       = 0x40000, 
             Mason        = 0x80000,
-            Construction = 0x100000,
-            Septic_Drain = 0x200000
+            Constructn   = 0x100000,
+            Septic       = 0x200000
         };
     }
 }

@@ -13,14 +13,15 @@
             cursor: pointer;
         }
 
-        #userSel10, #userSel13 {
+        #userSel10 {
             display: block;
             text-align: center;
             background-color: teal;
+            display: block;
+            margin: 0 auto;
             width: 100%;
-            padding-top: 20px;
-            padding-left: 20%;
-            padding-bottom: 60px;
+            padding-top: 8px;
+            padding-bottom: 8px;
         }
 
         #userSel11, #userSel12 {
@@ -33,13 +34,15 @@
             padding-bottom: 10px;
         }
 
-        .usBtn, .usSubCBtn {
+        .usBtn{
             display: block;
             font-weight: bold;
+            font-size: 1.2em;
             background-color: #FFF090;
             border-width: 2px;
-            min-width: 70%;
-            margin-top: 40px;
+            min-width: 60%;
+            margin-left: 20%;
+            margin-top: 10px;
         }
 
         .usSubBtn {
@@ -116,10 +119,13 @@
     </div>
 
     <div id="userSel10">
-        <button class="usBtn" onclick="showMenu(11)"><h2>How To ...</h2></button>
-        <button class="usBtn" onclick="showMenu(12)"><h2>Forms/Docs/Manu...</h2></button>
-        <button class="usBtn" onclick="showMenu(13)"><h2>Contacts/Lists...</h2></button>
-        <button class="usBtn" onclick="window.location.href='Docs';"><h2>Drop Box</h2></button>
+        <button class="usBtn" onclick="showMenu(11)">How To ...</button>
+        <button class="usBtn" onclick="showMenu(12)">Forms/Docs/Manu...</button>
+        <button class="usBtn" onclick="window.location.href='People/Find'">People...</button>
+        <button class="usBtn" onclick="window.location.href='People/Find'">Attendance...</button>
+        <button class="usBtn" onclick="openFileShare('/Contacts', 'CCA Businesses.pdf')">Vendors/Services ...</button>
+        <button class="usBtn" onclick="openFileShare('/Contacts', 'Recent CCA Churches.pdf'">Churches ...</button>
+        <button class="usBtn" onclick="window.location.href='Docs';">Drop Box</button>
     </div>
 
     <div id="userSel11" style="display:none">

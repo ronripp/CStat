@@ -60,11 +60,14 @@ namespace CStat
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                UpdateLists();
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    UpdateLists();
+            //    return Page();
+            //}
+
+
+
 
             _context.Person.Add(Person);
             await _context.SaveChangesAsync();

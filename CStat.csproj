@@ -6,10 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\CCAService\CCADataAccess\**" />
     <Compile Remove="Pages\NewFolder1\**" />
+    <Content Remove="Common\CCAService\CCADataAccess\**" />
     <Content Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
     <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <None Remove="Common\CCAService\CCADataAccess\**" />
     <None Remove="Pages\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Common\CCAService\ChurchMgr.cs" />
+    <Compile Remove="Common\CCAService\FileUploadController.cs" />
+    <Compile Remove="Common\CCAService\HomeController.cs" />
   </ItemGroup>
 
 
@@ -30,6 +40,11 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

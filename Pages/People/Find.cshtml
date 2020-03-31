@@ -35,10 +35,6 @@
                 $("button[id^='BtnId']").click(function () {
                     var skill = $(this).attr("value");
                     var skills = $("#Person_SkillSets").attr("value");
-                    if (!skills) {
-                        skills = 0;
-                    }
-
                     if ($(this).hasClass("BtnOn")) {
                         $(this).removeClass("BtnOn").addClass("BtnOff");
                         skills &= ~skill;
@@ -57,27 +53,27 @@
 <div class="row">
     <div class="col-md-12">
         <form method="post">
-            <input style="display:none;" asp-for="Person.SkillSets" class="form-control" />
+            <input style="display:none;" asp-for="Person.SkillSets" class="form-control" value="0" data-val="false" />
 
             <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
                 <label asp-for="Person.FirstName">First:</label>
-                <input asp-for="Person.FirstName" style="max-width:6em" />
+                <input asp-for="Person.FirstName" data-val="false" style="max-width:6em" value="" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px">
                 <label asp-for="Person.LastName">Last:</label>
-                <input asp-for="Person.LastName" style="max-width:8em" />
+                <input asp-for="Person.LastName" data-val="false" style="max-width:8em" value="" />
             </div>
             <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
                 <label asp-for="Person.Gender">Gender</label>
-                <select asp-for="Person.Gender" asp-items="ViewBag.Gender"></select>
+                <select asp-for="Person.Gender" asp-items="ViewBag.Gender"  data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="Person.ChurchId" +":">Church:</label>
-                <select asp-for="Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em"></select>
+                <select asp-for="Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em"  data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="Person.AgeRange" +":">Age(s):</label>
-                <input asp-for="Person.AgeRange" style="max-width:9em" />
+                <input asp-for="Person.AgeRange" style="max-width:9em" data-val="false" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Find People" class="btn btn-primary" />

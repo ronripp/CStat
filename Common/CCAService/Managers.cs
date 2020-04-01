@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using CStat.Models;
 using Microsoft.EntityFrameworkCore;
 using static CStat.Models.Church;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace CStat
 {
@@ -453,22 +454,18 @@ namespace CStat
                     if (med.Id <= 0)
                     {
                         // Add a new Medical
-                        Medical nm = mce.Medicals.Add(med);
-                        if (nm == null)
+                        if (ce.Medical.Add(med) == null)
                             return MgrStatus.Add_Med_Failed;
-                        if (med.Id != -1)
-                            a.MedicalId = med.Id;
-                        else
-                            a.MedicalId = nm.Id;
+                         a.MedicalId = med.Id;
                     }
                     else
                     {
                         // Update an existing Medical
                         a.MedicalId = med.Id;
-                        mce.Medicals.Attach(med);
-                        mce.Entry(reg).State = EntityState.Modified;
+                        ce.Medical.Attach(med);
+                        ce.Entry(reg).State = EntityState.Modified;
                     }
-                    if (mce.SaveChanges() < 1)
+                    if (ce.SaveChanges() < 1)
                         return MgrStatus.Save_Med_Failed;
                 }
                 catch
@@ -611,7 +608,7 @@ namespace CStat
             if (id != -1)
             {
                 var EInfoListD = (from e in ce.Event
-                                  where (eId == id)
+                                  where (e.Id == id)
                                   orderby e.Description descending
                                   select e);
 
@@ -1003,15 +1000,15 @@ namespace CStat
             c.Affiliation = AffiliationType.UNK.ToString();
             for (int i = 0; i < (int)AffiliationType.NumAffiliations; ++i)
             {
-                if (cdata.Affiliation == ChurchLists.AffiliationList[i].aff_type.ToString())
+                if (cdata.Affiliation == Church.ChurchLists.AffiliationList[i].aff_type.ToString())
                 {
                     c.Affiliation = cdata.Affiliation;
                     break;
                 }
 
-                if (cdata.Affiliation == ChurchLists.AffiliationList[i].name)
+                if (cdata.Affiliation == Church.ChurchLists.AffiliationList[i].name)
                 {
-                    c.Affiliation = ChurchLists.AffiliationList[i].aff_type.ToString();
+                    c.Affiliation = Church.ChurchLists.AffiliationList[i].aff_type.ToString();
                     break;
                 }
             }
@@ -1019,15 +1016,15 @@ namespace CStat
             c.StatusDetails = MemberStatType.NOT_M.ToString();
             for (int i = 0; i < (int)MemberStatType.NumMemberStats; ++i)
             {
-                if (cdata.Status == ChurchLists.MemberStatList[i].ms_type.ToString())
+                if (cdata.Status == Church.ChurchLists.MemberStatList[i].ms_type.ToString())
                 {
-                    c.MembershipStatus = (int)ChurchLists.MemberStatList[i].ms_type;
+                    c.MembershipStatus = (int)Church.ChurchLists.MemberStatList[i].ms_type;
                     break;
                 }
 
-                if (cdata.Status == ChurchLists.MemberStatList[i].name)
+                if (cdata.Status == Church.ChurchLists.MemberStatList[i].name)
                 {
-                    c.MembershipStatus = (int)ChurchLists.MemberStatList[i].ms_type;
+                    c.MembershipStatus = (int)Church.ChurchLists.MemberStatList[i].ms_type;
                     break;
                 }
             }
@@ -1116,7 +1113,7 @@ namespace CStat
 
                     if (result == MgrStatus.Add_Update_Succeeded)
                     {
-                        id = rp.id;
+                        id = rp.Id;
                         return true;
                     }
                 }
@@ -1364,26 +1361,9 @@ namespace CStat
                     }
                     ce.SaveChanges();
                 }
-                catch (Validation.DbEntityValidationException dbEx)
-                {
-                    Exception raise = dbEx;
-                    foreach (var validationErrors in dbEx.EntityValidationErrors)
-                    {
-                        foreach (var validationError in validationErrors.ValidationErrors)
-                        {
-                            string message = string.Format("{0}:{1}",
-                                validationErrors.Entry.Entity.ToString(),
-                                validationError.ErrorMessage);
-                            // raise a new exception nesting
-                            // the current instance as InnerException
-                            raise = new InvalidOperationException(message, raise);
-                        }
-                    }
-                    throw raise;
-                }
                 catch
                 {
-                return MgrStatus.Save_Address_Failed;
+                   return MgrStatus.Save_Address_Failed;
                 }
                 return MgrStatus.Add_Update_Succeeded;
           }
@@ -1538,7 +1518,6 @@ namespace CStat
                 }
             }
 
-            bool bChurchFound=false;
             pv = props.Find(prop => prop.Key == "Church");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
@@ -1553,14 +1532,12 @@ namespace CStat
                     if (ch != null)
                     {
                         person.ChurchId = ch.Id;
-                        bChurchFound = true;
                     }
                     else
                     {
                         if (!bJustGetPerson)
                         {
                             // Add new Church
-                            bChurchFound = false;
                             Church nc = new Church();
                             nc.Name = pv.Value.Trim();
                             nc.Affiliation = "?";
@@ -1895,7 +1872,7 @@ namespace CStat
             pv = props.Find(prop => prop.Key == "PG1_pid");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
-                person.Pg1Person = Int32.Parse(pv.Value);
+                person.Pg1PersonId = int.Parse(pv.Value);
             }
             else
             {
@@ -2234,23 +2211,6 @@ namespace CStat
                     ResAddress = null;
                     return MgrStatus.Save_Person_Failed;
                 }
-            }
-            catch (Validation.DbEntityValidationException dbEx)
-            {
-                Exception raise = dbEx;
-                foreach (var validationErrors in dbEx.EntityValidationErrors)
-                {
-                    foreach (var validationError in validationErrors.ValidationErrors)
-                    {
-                        string message = string.Format("{0}:{1}",
-                            validationErrors.Entry.Entity.ToString(),
-                            validationError.ErrorMessage);
-                        // raise a new exception nesting
-                        // the current instance as InnerException
-                        raise = new InvalidOperationException(message, raise);
-                    }
-                }
-                throw raise;
             }
             catch (Exception e)
             {

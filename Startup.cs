@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CStat.Models;
+using Microsoft.AspNetCore.Http;
 //using System.Diagnostics;
 //using Microsoft.AspNetCore.DataProtection;
 //using System.IO;
@@ -60,6 +61,7 @@ namespace CStat
                     options.Conventions.AuthorizeFolder("/Private");
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
+                    options.Conventions.AllowAnonymousToFolder("/api/CStat");
                 });
 
             services.Configure<IdentityOptions>(options =>
@@ -93,6 +95,8 @@ namespace CStat
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
             });
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,6 +127,7 @@ namespace CStat
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }

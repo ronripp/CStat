@@ -93,6 +93,36 @@ namespace CStat.Models
             Constructn   = 0x100000,
             Septic       = 0x200000
         };
+        public enum ePA
+        {
+            pid = 0,
+            FirstName,
+            LastName,
+            Alias,
+            DOB,
+            Gender,
+            Status,
+            SSNum,
+            Address_id,
+            PG1_Person_id,
+            PG2_Person_id,
+            Church_id,
+            SkillSets,
+            CellPhone,
+            EMail,
+            ContactPref,
+            Notes,
+            Roles,
+            aid,
+            Street,
+            Town,
+            State,
+            ZipCode,
+            Phone,
+            Fax,
+            Country,
+            WebSite
+        };
     }
 
     public partial class Church

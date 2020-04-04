@@ -2085,7 +2085,7 @@ namespace CStat
                 }
             }
 
-            if (!bPersonFound)
+            if (!bPersonFound && (person.LastName != null) && (person.LastName.Length > 0))
             {
                 //**************************************************************************
                 // Find Person #3 : Find person by Last Name and close first name match

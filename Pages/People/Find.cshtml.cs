@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
+using Newtonsoft.Json;
 using static CStat.Models.Person;
 
 namespace CStat
@@ -47,14 +48,14 @@ namespace CStat
             int i = 1;
             foreach (var s in Enum.GetValues(typeof(eSkills)).Cast<eSkills>())
             {
-                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" class=\"BtnOff\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
+                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" abbr=\"" + ((eSkillsAbbr)s).ToString() + "\" class=\"BtnOff\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
             }
             btnStr += "</div>\n";
             return btnStr;
         }
 
         [BindProperty]
-        public PersonHints Person { get; set; }
+        public PersonHints _Person { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -66,13 +67,15 @@ namespace CStat
             //    return Page();
             //}
 
-
-
-
-            _context.Person.Add(Person);
+            _context.Person.Add(_Person);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
+        }
+
+        public JsonResult OnGetFindPeople()
+        {
+            return new JsonResult(Person.FindPeople(_context, "FindPeople"));
         }
     }
 }

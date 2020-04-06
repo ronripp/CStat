@@ -31,6 +31,9 @@
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script>
 
+        var CCAServer = "localhost";
+//      var CCAServer = "192.168.1.126";
+
             $(document).ready(function () {
                 $("button[id^='BtnId']").click(function () {
                     var skill = $(this).attr("value");
@@ -46,6 +49,72 @@
                 });
             });
 
+            function findPeople() {
+                var resDiv = $("#ResultsDiv");
+                resDiv.css("background-color", "#FFFF80");
+                resDiv.html("Executing ...");
+
+                var raw = "";
+                raw = "FName=" + $("#Person_FirstName").value.Trim();
+                raw += "&LName=" + $("#Person_LastName").value.Trim();
+                raw += "&Gender=" + $("#Person_Gender").value.Trim();
+                raw += "&Church=" + $("#Person_ChurchId").value.Trim();
+                $("button[id^='BtnId']").each(function () {
+                    if (this.prop("checked"))
+                        raw += "&multicheckbox[]=" + this.attr("abbr");
+                });
+                var prop = encodeURI(raw);
+
+                //FName=David&LName=Romero&Church=&DOB=5-23-2000&Street=3059%20Milburn%20Ave.&City=Baldwin&State=NY&Zip=11510&HPhone=&Cell=516-582-1651&SSNum=&EMail=laromero111%40gmail.com&multicheckbox%5B%5D=COK&multicheckbox%5B%5D=PNT&multicheckbox%5B%5D=KTH&PG1=Sandra%20Romero%20347-328-3608&PG2=Luis%20Romero&Comments=&Gender=M%20%7C%20F
+                //var uri = "my test.asp?name=ståle&car=saab";
+                //var res = encodeURI(uri);
+                //document.getElementById("demo").innerHTML = res;
+
+                //id = "Person_FirstName"
+                //id="Person_LastName"
+                //id = "Person_Gender"
+                //    <option value="70">F</option>
+                //    <option value="77">M</option>
+                //id="Person_ChurchId"
+                //id="BtnId1" class="BtnOff" value="1">Carpentry</button>
+
+                var raw = "https://" + CCAServer + ":44321/api/CStat/" + $("#Person_id").serialize() + "&" + document.getElementById("Gender_id").name + "=" + document.getElementById("Gender_id").value;
+
+                prop = prop.replace(/\*/g, "@@");
+
+                resDiv.html("Executing : Waiting on DB");
+
+                $.ajax({
+                    url: "/People?handler=FindPeople",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: props,
+                    success: function (data) {
+                        //alert(data);
+                        var obj = data;
+
+                        var strList = "<table class=\"plclass\"><tr style=\"color:#FF8000\"><th>Fn</th><th>Last</th><th>Addr</th><th>City</th><th>St.</th></tr>";
+                        var NumFound = 0;
+                        $.each(obj, function (i, item) {
+                            if (i % 2)
+                                strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFF80; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
+                            else
+                                strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
+                            ++NumFound;
+                        });
+
+                        //alert("result = " + strList);
+                        ClearForm();
+                        $("#divList_id").html(strList);
+                        $("#divStatus_id").html(NumFound + " matching people found.");
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        document.getElementById("divStatus_id").style.color = "#FF0000";
+                        $("#divStatus_id").html("Server Request failed! " + textStatus + " err=" + errorThrown);
+                    }
+                });
+            }
+
         </script>
 
     </head>
@@ -53,36 +122,37 @@
 <div class="row">
     <div class="col-md-12">
         <form method="post">
-            <input style="display:none;" asp-for="Person.SkillSets" class="form-control" value="0" data-val="false" />
+            <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" value="0" data-val="false" />
 
             <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                <label asp-for="Person.FirstName">First:</label>
-                <input asp-for="Person.FirstName" data-val="false" style="max-width:6em" value="" />
+                <label asp-for="_Person.FirstName">First:</label>
+                <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" value="" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px">
-                <label asp-for="Person.LastName">Last:</label>
-                <input asp-for="Person.LastName" data-val="false" style="max-width:8em" value="" />
+                <label asp-for="_Person.LastName">Last:</label>
+                <input asp-for="_Person.LastName" data-val="false" style="max-width:8em" value="" />
             </div>
             <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                <label asp-for="Person.Gender">Gender</label>
-                <select asp-for="Person.Gender" asp-items="ViewBag.Gender"  data-val="false"></select>
+                <label asp-for="_Person.Gender">Gender</label>
+                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender"  data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="Person.ChurchId" +":">Church:</label>
-                <select asp-for="Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em"  data-val="false"></select>
+                <label asp-for="_Person.ChurchId" +":">Church:</label>
+                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em"  data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="Person.AgeRange" +":">Age(s):</label>
-                <input asp-for="Person.AgeRange" style="max-width:9em" data-val="false" />
+                <label asp-for="_Person.AgeRange" +":">Age(s):</label>
+                <input asp-for="_Person.AgeRange" style="max-width:9em" data-val="false" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Find People" class="btn btn-primary" />
+                <input type="button" onclick="findPeople()" value="Find People" class="btn btn-primary" />
             </div>
             <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
                 @Html.Raw(Model.GenSkillButtons())
             </div>
         </form>
     </div>
+    <div id="ResultsDiv"></div>
 </div>
 </body>
 

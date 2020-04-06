@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace CStat.Models
 {
@@ -93,6 +94,33 @@ namespace CStat.Models
             Constructn   = 0x100000,
             Septic       = 0x200000
         };
+
+        public enum eSkillsAbbr
+        {
+            CRP = 1,
+            PLB = 2,
+            ROF = 4,
+            COK = 8,
+            HLD = 10,
+            SWT = 20,
+            CMG = 40,
+            PNT = 80,
+            MNS = 100,
+            DEN = 200,
+            ACC = 400,
+            ELE = 800,
+            CMP = 1000,
+            KTH = 2000,
+            CNS = 4000,
+            GAR = 8000,
+            TRR = 10000,
+            WRS = 20000,
+            WRK = 40000,
+            MSN = 80000,
+            CON = 100000,
+            SPT = 200000
+        };
+
         public enum ePA
         {
             pid = 0,
@@ -123,6 +151,284 @@ namespace CStat.Models
             Country,
             WebSite
         };
+
+        public static string FindPeople(CStatContext entities, string id)
+        {
+            String target = "Lookup Person:";
+            int lookup_index = id.IndexOf(target);
+            if (lookup_index >= 0)
+            {
+                String pidStr = id.Substring(lookup_index + target.Length);
+                int pid = Int32.Parse(pidStr);
+
+                //var PList = from p in entities.People
+                //            where p.id == pid
+                //            join a in entities.Addresses on
+                //            p.Address_id equals a.id
+                //            join c in entities.Churches on
+                //            p.Church_id equals c.id into pc
+                //            from pcn in pc.DefaultIfEmpty()
+                //            select p;
+
+                //var PList = from p in entities.Person
+                //            where p.Id == pid
+                //            join a in entities.Address on
+                //            p.AddressId equals a.Id into pa
+                //            from a in pa.DefaultIfEmpty()
+                //            join c in entities.Church on
+                //            p.ChurchId equals c.Id into pc
+                //            from c in pc.DefaultIfEmpty()
+                //            from pcn in pc.DefaultIfEmpty()
+                //            select p;
+
+                var PList = from _p in entities.Person
+                            where _p.Id == pid
+                            join _a in entities.Address on
+                            _p.AddressId equals _a.Id into pa
+                            from _a in pa.DefaultIfEmpty()
+                            select new { p = _p, a = _a };
+
+                var pgObj = new PG();
+                var MPList = new List<MinPerson>();
+
+                foreach (var pa in PList)
+                {
+                    pa.p.FirstName = PersonMgr.MakeFirstName(pa.p);
+                    pa.p.LastName = PersonMgr.MakeLastName(pa.p);
+
+                    // TEST pa.p.PG1_Person_id = 3;
+                    // TEST pa.p.PG2_Person_id = 4;
+
+                    if (pa.p.AddressId != null)
+                        pgObj.Adr_id = (int)pa.p.AddressId;
+
+                    var m = new MinPerson();
+                    m.FirstName = pa.p.FirstName;
+                    m.LastName = pa.p.LastName;
+                    m.id = pa.p.Id;
+                    m.Alias = pa.p.Alias;
+                    m.DOB = pa.p.Dob;
+                    m.Gender = pa.p.Gender;
+                    m.Status = pa.p.Status;
+                    m.SSNum = pa.p.Ssnum;
+                    m.Address_id = pa.p.AddressId;
+                    m.PG1_Person_id = pa.p.Pg1PersonId;
+                    m.PG2_Person_id = pa.p.Pg2PersonId;
+                    m.Church_id = pa.p.ChurchId;
+                    m.SkillSets = pa.p.SkillSets;
+                    m.CellPhone = pa.p.CellPhone;
+                    m.EMail = pa.p.Email;
+                    m.ContactPref = pa.p.ContactPref;
+                    m.Notes = pa.p.Notes;
+                    if (pa.p.Address != null)
+                    {
+                        m.Address.id = pa.a.Id;
+                        m.Address.Street = pa.a.Street;
+                        m.Address.Town = pa.a.Town;
+                        m.Address.State = pa.a.State;
+                        m.Address.ZipCode = pa.a.ZipCode;
+                        m.Address.Phone = pa.a.Phone;
+                        m.Address.Fax = pa.a.Fax;
+                        m.Address.Country = pa.a.Country;
+                        m.Address.WebSite = pa.a.WebSite;
+                    }
+                    MPList.Add(m);
+                }
+
+                // Resolve parents
+                foreach (var m in MPList)
+                {
+                    String PG1Str = null, PG2Str = null;
+                    int PG1_id = 0, PG2_id = 0;
+
+                    Person p1 = entities.Person.FirstOrDefault(p => p.Id == m.PG1_Person_id);
+                    if (p1 != null)
+                    {
+                        p1.FirstName = PersonMgr.MakeFirstName(p1);
+                        p1.LastName = PersonMgr.MakeLastName(p1);
+                        PG1Str = p1.FirstName + " " + p1.LastName;
+                        PG1_id = p1.Id;
+                    }
+
+                    Person p2 = entities.Person.FirstOrDefault(p => p.Id == m.PG2_Person_id);
+                    if (p2 != null)
+                    {
+                        p2.FirstName = PersonMgr.MakeFirstName(p2);
+                        p2.LastName = PersonMgr.MakeLastName(p2);
+                        PG2Str = p2.FirstName + " " + p2.LastName;
+                        PG2_id = p2.Id;
+                    }
+
+                    if ((PG1Str != null) || (PG2Str != null))
+                    {
+                        if (PG1Str != null)
+                        {
+                            pgObj.PG1Name = PG1Str;
+                            pgObj.PG1_id = PG1_id;
+                        }
+                        if (PG2Str != null)
+                        {
+                            pgObj.PG2Name = PG2Str;
+                            pgObj.PG2_id = PG2_id;
+                        }
+
+                        var jsonPG = JsonConvert.SerializeObject(pgObj, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                        m.ContactPref = jsonPG.ToString();
+                    }
+                    else
+                        m.ContactPref = null;
+                }
+
+                if (MPList != null)
+                {
+                    var json = JsonConvert.SerializeObject(MPList, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    string jstr = json.ToString();
+                    return jstr;
+                }
+                else
+                    return ("Lookup Failed with id:" + pid);
+            }
+
+            //******************************************************
+            // MULTI_FIELD FIND PEOPLE SEARCH
+            //******************************************************
+
+            // Generate Key/Value Pairs to update person
+            char[] outerDelims = { ';', '~', '&' };
+            char[] innerDelims = { ':', '=' };
+
+            string[] pairs = id.Split(outerDelims);
+
+            List<KeyValuePair<string, string>> props = new List<KeyValuePair<string, string>>();
+            foreach (string nvs in pairs)
+            {
+                string[] nvp = nvs.Split(innerDelims);
+                if ((nvp.Length == 2) && (nvp[1].Length > 0))
+                {
+                    props.Add(new KeyValuePair<string, string>(nvp[0], nvp[1]));
+                }
+            }
+
+            // SQL Based Query
+
+            String sel = "Select * from Person FULL OUTER JOIN Address ON (Person.Address_id = Address.id)";
+            int orgSelLen = sel.Length;
+            bool bFiltered = false;
+
+            PersonMgr pmgr = new PersonMgr(entities);
+            Person fp;
+            Address fa;
+            if (pmgr.Update(ref props, true, true, out fp, out fa) != MgrStatus.Add_Update_Succeeded)
+                return "Invalid Search Criteria";
+
+            PersonMgr.AddToSelect(ref sel, "Person.FirstName", fp.FirstName, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.LastName", fp.LastName, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Address.Street", fa.Street, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Address.Town", fa.Town, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.CellPhone", fp.CellPhone, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.EMail", fp.Email, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.Church_id", fp.ChurchId, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.Ssnum", fp.Ssnum, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Address.State", fa.State, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.Gender", fp.Gender.GetValueOrDefault(0), ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.SkillSets", fp.SkillSets, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.Status", fp.Status, ref bFiltered);
+            if (!fp.Dob.GetValueOrDefault().Equals(new DateTime(1900, 1, 1)))
+                PersonMgr.AddToSelect(ref sel, "Person.DOB", fp.Dob.GetValueOrDefault(), true, ref bFiltered);
+
+            if (sel.Length == orgSelLen)
+                sel += "order by Address.Street ASC";
+
+            //                Also, it is recommended to use ISO8601 format YYYY - MM - DDThh:mm: ss.nnn[Z], as this one will not depend on your server's local culture.
+            //SELECT*
+            //FROM TABLENAME
+            //WHERE
+            //    DateTime >= '2011-04-12T00:00:00.000' AND
+            //    DateTime <= '2011-05-25T03:53:04.000'
+
+            try
+            {
+                //List<Person> PList = new List<Person>();
+                //var PList = entities.Person.ExecuteSqlRaw(sel).ToList<Person>();
+                //var PList = entities.Person.SqlQuery(sel).ToList<Person>();
+                //var PList = entities.SqlQuery<Person>(sel).ToList<Person>();
+                var MPList = new List<MinPerson>();
+
+                using (var command = entities.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = sel;
+                    entities.Database.OpenConnection();
+                    using (var row = command.ExecuteReader())
+                    {
+                        while (row.Read())
+                        {
+                            var m = new MinPerson();
+                            m.FirstName = (string)row.GetValue((int)Person.ePA.FirstName);
+                            m.LastName = (string)row.GetValue((int)Person.ePA.LastName);
+                            m.id = (int)row.GetValue((int)Person.ePA.pid);
+                            m.Alias = (string)row.GetValue((int)Person.ePA.Alias).ToString();
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.DOB)))
+                                m.DOB = (DateTime)row.GetValue((int)Person.ePA.DOB);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Gender)))
+                                m.Gender = (byte)row.GetValue((int)Person.ePA.Gender);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Status)))
+                                m.Status = (long)row.GetValue((int)Person.ePA.Status);
+                            m.SSNum = (string)row.GetValue((int)Person.ePA.SSNum).ToString();
+
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Address_id)))
+                                m.Address_id = (int)row.GetValue((int)Person.ePA.Address_id);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.PG1_Person_id)))
+                                m.PG1_Person_id = (int)row.GetValue((int)Person.ePA.PG1_Person_id);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.PG2_Person_id)))
+                                m.PG2_Person_id = (int?)row.GetValue((int)Person.ePA.PG2_Person_id);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Church_id)))
+                                m.Church_id = (int?)row.GetValue((int)Person.ePA.Church_id);
+                            m.SkillSets = (long)row.GetValue((int)Person.ePA.SkillSets);
+                            m.CellPhone = (string)row.GetValue((int)Person.ePA.CellPhone).ToString();
+                            m.EMail = (string)row.GetValue((int)Person.ePA.EMail).ToString();
+                            m.ContactPref = (string)row.GetValue((int)Person.ePA.ContactPref).ToString();
+                            m.Notes = (string)row.GetValue((int)Person.ePA.Notes).ToString();
+                            if (m.Address_id.HasValue)
+                            {
+                                m.Address.id = (int)row.GetValue((int)Person.ePA.aid);
+                                m.Address.Street = (string)row.GetValue((int)Person.ePA.Street).ToString();
+                                m.Address.Town = (string)row.GetValue((int)Person.ePA.Town).ToString();
+                                m.Address.State = (string)row.GetValue((int)Person.ePA.State).ToString();
+                                m.Address.ZipCode = (string)row.GetValue((int)Person.ePA.ZipCode).ToString();
+                                m.Address.Phone = (string)row.GetValue((int)Person.ePA.Phone).ToString();
+                                m.Address.Fax = (string)row.GetValue((int)Person.ePA.Fax).ToString();
+                                m.Address.Country = (string)row.GetValue((int)Person.ePA.Country).ToString();
+                                m.Address.WebSite = (string)row.GetValue((int)Person.ePA.WebSite).ToString();
+                            }
+                            else
+                            {
+                                m.Address.Street = "";
+                                m.Address.Town = "";
+                                m.Address.State = "";
+                                m.Address.ZipCode = "";
+                                m.Address.Phone = "";
+                                m.Address.Fax = "";
+                                m.Address.Country = "";
+                                m.Address.WebSite = "";
+                            }
+                            MPList.Add(m);
+                        }
+                    }
+                }
+
+                if (MPList.Count > 0)
+                {
+                    var json = JsonConvert.SerializeObject(MPList, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    string jstr = json.ToString();
+                    return jstr;
+                }
+            }
+            catch (Exception e)
+            {
+            }
+
+            return "No one found with Name";
+        }
     }
 
     public partial class Church

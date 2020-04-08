@@ -35,6 +35,9 @@
 //      var CCAServer = "192.168.1.126";
 
             $(document).ready(function () {
+
+                $("#zPerson_ChurchId").prepend(new Option("Select Church", "-1")).prop('selectedIndex', 0);
+
                 $("button[id^='BtnId']").click(function () {
                     var skill = $(this).attr("value");
                     var skills = $("#Person_SkillSets").attr("value");
@@ -54,8 +57,8 @@
                 resDiv.css("background-color", "#FFFF80");
                 resDiv.html("Executing ...");
 
-                var raw = "";
-                raw = "FName=" + $("#zPerson_FirstName").val().trim();
+                var raw = "{";
+                raw += "FName=" + $("#zPerson_FirstName").val().trim();
                 raw += "&LName=" + $("#zPerson_LastName").val().trim();
                 raw += "&Gender=" + $("#zPerson_Gender").val().trim();
                 raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
@@ -63,6 +66,7 @@
                     if ($(this).css("background-color") == "rgb(173, 255, 47)")
                         raw += "&multicheckbox[]=" + $(this).attr("abbr");
                 });
+                raw += "}";
                 var props = encodeURI(raw);
 
                 //FName=David&LName=Romero&Church=&DOB=5-23-2000&Street=3059%20Milburn%20Ave.&City=Baldwin&State=NY&Zip=11510&HPhone=&Cell=516-582-1651&SSNum=&EMail=laromero111%40gmail.com&multicheckbox%5B%5D=COK&multicheckbox%5B%5D=PNT&multicheckbox%5B%5D=KTH&PG1=Sandra%20Romero%20347-328-3608&PG2=Luis%20Romero&Comments=&Gender=M%20%7C%20F
@@ -101,8 +105,7 @@
                                 ++NumFound;
                             });
 
-                            $("#divList_id").html(strList);
-                            $("#divStatus_id").html(NumFound + " matching people found.");
+                            $("#ResultsDiv").html(strList);
                         }
                     },
                     fail: function (response) {

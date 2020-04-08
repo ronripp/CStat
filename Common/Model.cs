@@ -289,6 +289,12 @@ namespace CStat.Models
                     return ("Lookup Failed with id:" + pid);
             }
 
+            string FPTarget = "Find People:";
+            if (id.StartsWith(FPTarget))
+                id = id.Substring(FPTarget.Length);
+
+            id = id.Replace("{", "").Replace("}", ""); // get rid of curly braces
+
             //******************************************************
             // MULTI_FIELD FIND PEOPLE SEARCH
             //******************************************************

@@ -75,7 +75,13 @@ namespace CStat
 
         public JsonResult OnGetFindPeople()
         {
-            return new JsonResult(Person.FindPeople(_context, "FindPeople"));
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+            return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
         }
     }
 }

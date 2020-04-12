@@ -166,16 +166,15 @@ namespace CStat
                                         sw.WriteLine(" id=" + id + " First=" + psn.FirstName + " Last=" + psn.LastName + " Cell=" + psn.CellPhone + " EMail=" + psn.Email);
 
                                         //**** DELETE ****
-                                        //_context.Person.Remove(psn);
-                                        //try
-                                        //{
-                                        //    await _context.SaveChangesAsync();
-                                        //}
-                                        //catch (Exception e)
-                                        //{
-                                        //    sw.WriteLine("**** DB ERROR: ***** Delete person. id=[" + psn.Id + "]");
-                                        //    return RedirectToPage("./Index");
-                                        //}
+                                        _context.Person.Remove(psn);
+                                        try
+                                        {
+                                            await _context.SaveChangesAsync();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            sw.WriteLine("**** DB ERROR: ***** Delete person. id=[" + psn.Id + "]");
+                                        }
 
                                         //**** UPDATE ****
                                         //var pg1arr = _context.Person.Where(p => p.Pg1PersonId == psn.Id).ToList<Person>();

@@ -95,16 +95,16 @@
                         if (response.indexOf("ERROR~:") === -1) {
                             var obj = $.parseJSON(response);
 
-                            var strList = "<table class=\"plclass\"><tr style=\"color:#FF8000\"><th>Fn</th><th>Last</th><th>Addr</th><th>City</th><th>St.</th></tr>";
+                            var strList = "<table class=\"plclass\"><tr style=\"color:#008080\"><th>Fn</th><th>Last</th><th>Addr</th><th>City</th><th>St.</th></tr>";
                             var NumFound = 0;
                             $.each(obj, function (i, item) {
                                 if (i % 2)
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFF80; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
+                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
                                 else
                                     strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
                                 ++NumFound;
                             });
-
+                            strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.
                             $("#ResultsDiv").html(strList);
                             $('html,body').animate({scrollTop: $("#ResultsDiv").offset().top}, 'slow');
                         }

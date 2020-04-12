@@ -14,6 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CStat.Models;
 using Microsoft.AspNetCore.Http;
+using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.AspNetCore.Http.Features;
 //using System.Diagnostics;
 //using Microsoft.AspNetCore.DataProtection;
 //using System.IO;
@@ -48,6 +52,8 @@ namespace CStat
             services.AddDbContext<CStatContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("CStatConnection")));
+
+//            services.AddCors();
 
             //RJR            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //RJR                .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -119,6 +125,10 @@ namespace CStat
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            //app.UseCors(builder => builder
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader());
             app.UseRouting();
 
             app.UseAuthentication();

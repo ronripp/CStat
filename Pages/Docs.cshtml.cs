@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+//using Microsoft.AspNetCore.Cors;
 
 namespace CStat
 {
@@ -106,7 +107,7 @@ namespace CStat
         public string FolderName {get{return _FolderName;} set{_FolderName=value;}}
 
         public JsonResult OnGetFileShare()
-        { 
+        {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
             if (idx == -1)

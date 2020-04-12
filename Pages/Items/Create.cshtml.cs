@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
 using Task = System.Threading.Tasks.Task;
 using Newtonsoft.Json;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace CStat
 {
@@ -39,10 +42,12 @@ namespace CStat
         };
 
         private readonly CStat.Models.CStatContext _context;
+        private IWebHostEnvironment hostEnv;
 
-        public CreateItemsModel(CStat.Models.CStatContext context)
+        public CreateItemsModel(IWebHostEnvironment hstEnv, CStat.Models.CStatContext context)
         {
             _context = context;
+            hostEnv = hstEnv;
         }
 
         public IActionResult OnGet()
@@ -123,6 +128,213 @@ namespace CStat
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            if (Item.Name == "FIX_PPL.List")
+            {
+                string srcFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "PplSrc.txt");
+                string destFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "PplList.txt");
+
+                using (StreamReader sr = new StreamReader(srcFile))
+                using (StreamWriter sw = new StreamWriter(destFile))
+                {
+                    string line;
+                    while (sr.Peek() >= 0)
+                    {
+                        line = sr.ReadLine();
+                        sw.WriteLine(line);
+                        int sidx = line.IndexOf("[");
+                        int eidx = line.IndexOf("]");
+                        if ((sidx != -1) && (eidx != -1))
+                        {
+                            string[] pplList = line.Substring(sidx,eidx-sidx).Trim().Replace("[", "").Replace("]", "").Split(',');
+                            bool isFirst = true;
+                            int NewPID = -1;
+                            foreach (var pid in pplList)
+                            {
+                                int id = int.Parse(pid.Trim());
+                                Person psn = _context.Person.FirstOrDefault(p => p.Id == id);
+
+                                if (psn != null)
+                                {
+                                    if (isFirst)
+                                    {
+                                        sw.WriteLine("KEY=" + id + " First=" + psn.FirstName + " Last=" + psn.LastName + " Cell=" + psn.CellPhone + " EMail=" + psn.Email);
+                                        isFirst = false;
+                                        NewPID = psn.Id;
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine(" id=" + id + " First=" + psn.FirstName + " Last=" + psn.LastName + " Cell=" + psn.CellPhone + " EMail=" + psn.Email);
+
+                                        //**** DELETE ****
+                                        //_context.Person.Remove(psn);
+                                        //try
+                                        //{
+                                        //    await _context.SaveChangesAsync();
+                                        //}
+                                        //catch (Exception e)
+                                        //{
+                                        //    sw.WriteLine("**** DB ERROR: ***** Delete person. id=[" + psn.Id + "]");
+                                        //    return RedirectToPage("./Index");
+                                        //}
+
+                                        //**** UPDATE ****
+                                        //var pg1arr = _context.Person.Where(p => p.Pg1PersonId == psn.Id).ToList<Person>();
+                                        //foreach (var p in pg1arr)
+                                        //{
+                                        //    p.Pg1PersonId = NewPID;
+                                        //    _context.Attach(p).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch (Exception e)
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing PG1 pid=[" + psn.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+
+                                        //var pg2arr = _context.Person.Where(p => p.Pg2PersonId == psn.Id).ToList<Person>();
+                                        //foreach (var p in pg2arr)
+                                        //{
+                                        //    p.Pg2PersonId = NewPID;
+                                        //    _context.Attach(p).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch (Exception e)
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing PG2 pid=[" + psn.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+
+                                        //var attarr = _context.Attendance.Where(a => a.PersonId == psn.Id).ToList<Attendance>();
+                                        //foreach (var a in attarr)
+                                        //{
+                                        //    a.PersonId = NewPID;
+                                        //    _context.Attach(a).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch (Exception e)
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing Attendance pid=[" + psn.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+                                    }
+                                }
+                                else
+                                {
+                                    sw.WriteLine("**** Cant Find id [" + pid + "]");
+                                }
+                            }
+                        }
+                        sw.WriteLine("----------------------------------------------");
+                    }
+                }
+            }
+
+            if (Item.Name == "FIX_ADRS.List")
+            {
+                string srcFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "AdrSrc.txt");
+                string destFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "AdrList.txt");
+
+                using (StreamReader sr = new StreamReader(srcFile))
+                using (StreamWriter sw = new StreamWriter(destFile))
+                {
+                    string line;
+                    while (sr.Peek() >= 0)
+                    {
+                        line = sr.ReadLine();
+                        sw.WriteLine(line);
+                        int idx = line.IndexOf("[");
+                        if (idx != -1)
+                        {
+                            string[] adrList = line.Substring(idx).Trim().Replace("[", "").Replace("]", "").Split(',');
+                            bool isFirst = true;
+                            int NewAdrID = -1;
+                            foreach (var aid in adrList)
+                            {
+                                int id = int.Parse(aid.Trim());
+                                Address adr = _context.Address.FirstOrDefault(a => a.Id == id);
+
+                                if (adr != null)
+                                {
+                                    if (isFirst)
+                                    {
+                                        sw.WriteLine("KEY=" + id + " Street=" + adr.Street + " Town=" + adr.Town + " State=" + adr.State + " Zip=" + adr.ZipCode);
+                                        isFirst = false;
+                                        NewAdrID = adr.Id;
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine(" id=" + id + " Street=" + adr.Street + " Town=" + adr.Town + " State=" + adr.State + " Zip=" + adr.ZipCode);
+
+                                        _context.Address.Remove(adr);
+                                        try
+                                        {
+                                            await _context.SaveChangesAsync();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            sw.WriteLine("**** DB ERROR: ***** Changing person.aid. aid=[" + adr.Id + "]");
+                                            return RedirectToPage("./Index");
+                                        }
+
+                                        //var parr = _context.Person.Where(p => p.AddressId == adr.Id).ToList<Person>();
+                                        //foreach (var p in parr)
+                                        //{
+                                        //    p.AddressId = NewAdrID;
+                                        //    _context.Attach(p).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch (Exception e)
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing person.aid. aid=[" + adr.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+
+                                        //var carr = _context.Church.Where(c => c.AddressId == adr.Id).ToList<Church>();
+                                        //foreach (var c in carr)
+                                        //{
+                                        //    c.AddressId = NewAdrID;
+                                        //    _context.Attach(c).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing church.aid. aid=[" + adr.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+                                    }
+                                }
+                                else
+                                {
+                                    sw.WriteLine("**** Cant Find id [" + aid + "]");
+                                }
+                            }
+                        }
+                        sw.WriteLine("----------------------------------------------");
+                    }
+                }
+            }
+
+
             if (Item.Name == "ALL_ITEMS")
             {
                 //Item itemA = new Item();

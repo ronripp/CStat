@@ -106,6 +106,7 @@
                             });
 
                             $("#ResultsDiv").html(strList);
+                            $('html,body').animate({scrollTop: $("#ResultsDiv").offset().top}, 'slow');
                         }
                     },
                     fail: function (response) {

@@ -95,16 +95,25 @@
                         if (response.indexOf("ERROR~:") === -1) {
                             var obj = $.parseJSON(response);
 
-                            var strList = "<table class=\"plclass\"><tr style=\"color:#008080\"><th>Fn</th><th>Last</th><th>Addr</th><th>City</th><th>St.</th></tr>";
+                            var strList = "<table class=\"plclass\"><tr style=\"color:#008080\"><th>Name</th><th>Addr</th><th>Phone</th><th>EMail</th></tr>";
                             var NumFound = 0;
                             $.each(obj, function (i, item) {
+                                let state = (item.Address.State.length > 2) ? item.Address.State.replace("New York", "NY").replace("Connecticut", "CT") : item.Address.State;
+                                let phone = !!item.CellPhone ? item.CellPhone : item.Address.Phone;
+                                if (phone.length > 4) {
+                                    phone = "<a href=\"tel:" + phone + "\">" + phone + "</a>";
+                                }
+                                let eMail = item.EMail;
+                                if (eMail.length > 4) {
+                                    eMail = "<a href=\"mailto:" + eMail + "\">" + eMail + "</a>";
+                                }
                                 if (i % 2)
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
+                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + " " + item.LastName + "</td><td>" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td>" + phone + "</td><td>" + eMail + "</td></tr>";
                                 else
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Address.Street + "</td><td>" + item.Address.Town + "</td><td>" + item.Address.State + "</td></tr>";
+                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + " " + item.LastName + "</td><td>" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td>" + phone + "</td><td>" + eMail + "</td></tr>";
                                 ++NumFound;
                             });
-                            strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.
+                            strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.
                             $("#ResultsDiv").html(strList);
                             $('html,body').animate({scrollTop: $("#ResultsDiv").offset().top}, 'slow');
                         }

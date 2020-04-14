@@ -437,7 +437,12 @@ namespace CStat.Models
         }
     }
 
-    public partial class Church
+    public partial class Address
+    {
+        
+    }
+
+        public partial class Church
     {
         public enum MemberStatType
         {

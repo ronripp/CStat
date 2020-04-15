@@ -1796,9 +1796,9 @@ namespace CStat
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
                 String gender = pv.Value.Trim().ToUpper();
-                if ((gender == "F") || (gender == "FEMALE"))
+                if ((gender == "F") || (gender == "70") || (gender == "FEMALE"))
                     person.Gender = (byte)'F';
-                else if ((gender == "M") || (gender == "MALE"))
+                else if ((gender == "M") || (gender == "77") || (gender == "MALE"))
                     person.Gender = (byte)'M';
                 else
                 {

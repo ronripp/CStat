@@ -128,6 +128,86 @@ namespace CStat
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+
+            if (Item.Name == "FIX_CHRS.List")
+            {
+                string srcFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "ChrsSrc.txt");
+                string destFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "ChrsList.txt");
+
+                using (StreamReader sr = new StreamReader(srcFile))
+                using (StreamWriter sw = new StreamWriter(destFile))
+                {
+                    string line;
+                    while (sr.Peek() >= 0)
+                    {
+                        line = sr.ReadLine();
+                        sw.WriteLine(line);
+                        int sidx = line.IndexOf("[");
+                        int eidx = line.IndexOf("]");
+                        if ((sidx != -1) && (eidx != -1))
+                        {
+                            string[] chrsList = line.Substring(sidx, eidx - sidx).Trim().Replace("[", "").Replace("]", "").Split(',');
+                            bool isFirst = true;
+                            int NewCID = -1;
+                            foreach (var cid in chrsList)
+                            {
+                                int id = int.Parse(cid.Trim());
+                                Church chr = _context.Church.FirstOrDefault(p => p.Id == id);
+
+                                if (chr != null)
+                                {
+                                    if (isFirst)
+                                    {
+                                        sw.WriteLine("KEY=" + id + " Name=" + chr.Name);
+                                        isFirst = false;
+                                        NewCID = chr.Id;
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine(" id=" + id + " Name=" + chr.Name);
+
+                                        // DELETE CHURCH
+                                        _context.Church.Remove(chr);
+                                        try
+                                        {
+                                            await _context.SaveChangesAsync();
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            sw.WriteLine("**** DB ERROR: ***** Changing person.cid. cid=[" + chr.Id + "]");
+                                            return RedirectToPage("./Index");
+                                        }
+
+                                        //// MERGE CHURCH
+                                        //var parr = _context.Person.Where(p => p.ChurchId == chr.Id).ToList<Person>();
+                                        //foreach (var p in parr)
+                                        //{
+                                        //    p.ChurchId = NewCID;
+                                        //    _context.Attach(p).State = EntityState.Modified;
+
+                                        //    try
+                                        //    {
+                                        //        await _context.SaveChangesAsync();
+                                        //    }
+                                        //    catch (Exception e)
+                                        //    {
+                                        //        sw.WriteLine("**** DB ERROR: ***** Changing person.cid. cid=[" + chr.Id + "]");
+                                        //        return RedirectToPage("./Index");
+                                        //    }
+                                        //}
+                                    }
+                                }
+                                else
+                                {
+                                    sw.WriteLine("**** Cant Find id [" + cid + "]");
+                                }
+                            }
+                        }
+                        sw.WriteLine("----------------------------------------------");
+                    }
+                }
+            }
+
             if (Item.Name == "FIX_PPL.List")
             {
                 string srcFile = Path.Combine(hostEnv.WebRootPath, "FixDB", "PplSrc.txt");

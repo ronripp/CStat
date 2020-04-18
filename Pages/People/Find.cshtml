@@ -26,6 +26,11 @@
                 color: black;
                 font-weight: bold;
             }
+
+            .rp {
+                padding-right : 6px;
+            }
+
         </style>
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -36,7 +41,7 @@
 
             $(document).ready(function () {
 
-                $("#zPerson_ChurchId").prepend(new Option("Select Church", "-1")).prop('selectedIndex', 0);
+                $("#zPerson_ChurchId").prepend(new Option(" Any ", "-1")).prop('selectedIndex', 0);
 
                 $("button[id^='BtnId']").click(function () {
                     var skill = $(this).attr("value");
@@ -95,7 +100,7 @@
                         if (response.indexOf("ERROR~:") === -1) {
                             var obj = $.parseJSON(response);
 
-                            var strList = "<table class=\"plclass\"><tr style=\"color:#008080\"><th>Name</th><th>Addr</th><th>Phone</th><th>EMail</th></tr>";
+                            var strList = "<table class=\"plclass\"><tr style=\"color:#008080\"><th class=\"rp\">Name</th><th class=\"rp\">Addr</th><th class=\"rp\">Phone</th><th>EMail</th></tr>";
                             var NumFound = 0;
                             $.each(obj, function (i, item) {
                                 let state = (item.Address.State.length > 2) ? item.Address.State.replace("New York", "NY").replace("Connecticut", "CT") : item.Address.State;
@@ -108,9 +113,9 @@
                                     eMail = "<a href=\"mailto:" + eMail + "\">" + eMail + "</a>";
                                 }
                                 if (i % 2)
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + " " + item.LastName + "</td><td>" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td>" + phone + "</td><td>" + eMail + "</td></tr>";
+                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
                                 else
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td>" + item.FirstName + " " + item.LastName + "</td><td>" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td>" + phone + "</td><td>" + eMail + "</td></tr>";
+                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
                                 ++NumFound;
                             });
                             strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.

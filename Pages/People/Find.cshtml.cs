@@ -37,7 +37,7 @@ namespace CStat
             gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
             ViewData["Gender"] = new SelectList(gList, "Value", "Text");
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
-            ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Name");
+            ViewData["ChurchId"] = new SelectList(_context.Church.OrderBy(c => c.Name), "Id", "Name");
             ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
         }

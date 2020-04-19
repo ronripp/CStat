@@ -5,104 +5,149 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<head>
 
-<h4>Person</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Person.Id" />
-            <div class="form-group">
-                <label asp-for="Person.FirstName" class="control-label"></label>
-                <input asp-for="Person.FirstName" class="form-control" />
-                <span asp-validation-for="Person.FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.LastName" class="control-label"></label>
-                <input asp-for="Person.LastName" class="form-control" />
-                <span asp-validation-for="Person.LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Alias" class="control-label"></label>
-                <input asp-for="Person.Alias" class="form-control" />
-                <span asp-validation-for="Person.Alias" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Dob" class="control-label"></label>
-                <input asp-for="Person.Dob" class="form-control" />
-                <span asp-validation-for="Person.Dob" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Gender" class="control-label"></label>
-                <input asp-for="Person.Gender" class="form-control" />
-                <span asp-validation-for="Person.Gender" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Status" class="control-label"></label>
-                <input asp-for="Person.Status" class="form-control" />
-                <span asp-validation-for="Person.Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Ssnum" class="control-label"></label>
-                <input asp-for="Person.Ssnum" class="form-control" />
-                <span asp-validation-for="Person.Ssnum" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.AddressId" class="control-label"></label>
-                <select asp-for="Person.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
-                <span asp-validation-for="Person.AddressId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Pg1PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg1PersonId" class="form-control" asp-items="ViewBag.Pg1PersonId"></select>
-                <span asp-validation-for="Person.Pg1PersonId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Pg2PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg2PersonId" class="form-control" asp-items="ViewBag.Pg2PersonId"></select>
-                <span asp-validation-for="Person.Pg2PersonId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.ChurchId" class="control-label"></label>
-                <select asp-for="Person.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
-                <span asp-validation-for="Person.ChurchId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.SkillSets" class="control-label"></label>
-                <input asp-for="Person.SkillSets" class="form-control" />
-                <span asp-validation-for="Person.SkillSets" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.CellPhone" class="control-label"></label>
-                <input asp-for="Person.CellPhone" class="form-control" />
-                <span asp-validation-for="Person.CellPhone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Email" class="control-label"></label>
-                <input asp-for="Person.Email" class="form-control" />
-                <span asp-validation-for="Person.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.ContactPref" class="control-label"></label>
-                <input asp-for="Person.ContactPref" class="form-control" />
-                <span asp-validation-for="Person.ContactPref" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Notes" class="control-label"></label>
-                <input asp-for="Person.Notes" class="form-control" />
-                <span asp-validation-for="Person.Notes" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <style>
+        [id^='BtnId'] {
+            margin: 2px 1px 2px 1px;
+            padding-left: 3px;
+            padding-right: 3px;
+            min-width: 90px;
+        }
+
+        .BtnOff {
+            background-color: lightgray;
+            color: darkslategray;
+            font-weight: normal;
+        }
+
+        .BtnOn {
+            background-color: greenyellow;
+            color: black;
+            font-weight: bold;
+        }
+
+        .rp {
+            padding-right: 6px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>
+
+        var CCAServer = "localhost";
+//      var CCAServer = "192.168.1.126";
+
+            $(document).ready(function () {
+
+                $("button[id^='BtnId']").click(function () {
+                    var skill = $(this).attr("value");
+                    var skills = $("#zPerson_SkillSets").attr("value");
+                    if ($(this).hasClass("BtnOn")) {
+                        $(this).removeClass("BtnOn").addClass("BtnOff");
+                        skills &= ~skill;
+                    } else {
+                        $(this).removeClass("BtnOff").addClass("BtnOn");
+                        skills |= skill;
+                    }
+                    $("#zPerson_SkillSets").attr("value", skills);
+                });
+            });
+
+    </script>
+
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-12">
+            <form method="post">
+                <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
+
+                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                    <label asp-for="_Person.FirstName">First:</label>
+                    <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px">
+                    <label asp-for="_Person.LastName">Last:</label>
+                    <input asp-for="_Person.LastName" data-val="false" style="max-width:8em" />
+                </div>
+                <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                    <label asp-for="_Person.Gender">Gender</label>
+                    <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Person.ChurchId" +":">Church:</label>
+                    <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em" data-val="false"></select>
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Person.Dob" +":">DOB:</label>
+                    <input type="date" asp-for="_Person.Dob" style="max-width:9.7em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Address.Street" +":">Street:</label>
+                    <input asp-for="_Address.Street" style="max-width:10em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Address.Town" +":">Town/C:</label>
+                    <input asp-for="_Address.Town" style="max-width:6em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Address.State" +":">State:</label>
+                    <input asp-for="_Address.State" style="max-width:6em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Address.ZipCode" +":">Zip:</label>
+                    <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Person.CellPhone" +":">Cell:</label>
+                    <input asp-for="_Person.CellPhone" style="max-width:7em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Address.Phone" +":">Home Phone:</label>
+                    <input asp-for="_Address.Phone" style="max-width:7em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Person.Email" +":">EMail:</label>
+                    <input asp-for="_Person.Email" style="max-width:9em" data-val="false" />
+                </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_Person.Notes" +":">Comments:</label>
+                    <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" />
+                </div>
+
+                <div class="form-group">
+                    <input type="hidden" asp-for="_Person.Id" />
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </div>
+                <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+                </div>
+
+                @Html.HiddenFor(model => model._Person.Alias)
+                @Html.HiddenFor(model => model._Person.Status)
+                @Html.HiddenFor(model => model._Person.Ssnum)
+                @Html.HiddenFor(model => model._Person.AddressId)
+                @Html.HiddenFor(model => model._Person.Pg1PersonId)
+                @Html.HiddenFor(model => model._Person.Pg2PersonId)
+                @Html.HiddenFor(model => model._Person.ContactPref)
+                @Html.HiddenFor(model => model._Person.Roles)
+
+                @Html.HiddenFor(model => model._Address.Id)
+                @Html.HiddenFor(model => model._Address.Country)
+                @Html.HiddenFor(model => model._Address.WebSite)
+                @Html.HiddenFor(model => model._Address.Fax)
+
+            </form>
+        </div>
+        <div id="ResultsDiv"></div>
     </div>
-</div>
+</body>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a href="javascript:history.back()">Back to List</a>
 </div>
 
 @section Scripts {

@@ -36,9 +36,6 @@
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script>
 
-        var CCAServer = "localhost";
-//      var CCAServer = "192.168.1.126";
-
             $(document).ready(function () {
 
                 $("#zPerson_ChurchId").prepend(new Option(" Any ", "-1")).prop('selectedIndex', 0);
@@ -67,25 +64,26 @@
                 raw += "&LName=" + $("#zPerson_LastName").val().trim();
                 raw += "&Gender=" + $("#zPerson_Gender").val().trim();
                 raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
+
+//                raw += "&DOB=" + $("#zPerson_DOB").val().trim();
+//                raw += "&Street=" + $("#zAddress_Street").val().trim();
+//                raw += "&City=" + $("#zAddress_City").val().trim();
+//                raw += "&State=" + $("#zAddress_State").val().trim();
+//                raw += "&Zip=" + $("#zAddress_Zip").val().trim();
+//                raw += "&HPhone=" + $("#zAddress_HPhone").val().trim();
+//                raw += "&Cell=" + $("#zPerson_Cell").val().trim();
+//                raw += "&EMail=" + $("#zPerson_EMail").val().trim();
+//                raw += "&Comments=" + $("#zPerson_Comment").val().trim();
+////                raw += "&SSNum=" + $("#zSSNum").val().trim();
+////                raw += "&PG1=" + $("#zPersion_PG1").val().trim();
+////                raw += "&PG2=" + $("#zPerson_PG2").val().trim();
+
                 $("button[id^='BtnId']").each(function () {
                     if ($(this).css("background-color") == "rgb(173, 255, 47)")
                         raw += "&multicheckbox[]=" + $(this).attr("abbr");
                 });
                 raw += "}";
                 var props = encodeURI(raw);
-
-                //FName=David&LName=Romero&Church=&DOB=5-23-2000&Street=3059%20Milburn%20Ave.&City=Baldwin&State=NY&Zip=11510&HPhone=&Cell=516-582-1651&SSNum=&EMail=laromero111%40gmail.com&multicheckbox%5B%5D=COK&multicheckbox%5B%5D=PNT&multicheckbox%5B%5D=KTH&PG1=Sandra%20Romero%20347-328-3608&PG2=Luis%20Romero&Comments=&Gender=M%20%7C%20F
-                //var uri = "my test.asp?name=ståle&car=saab";
-                //var res = encodeURI(uri);
-                //document.getElementById("demo").innerHTML = res;
-
-                //id = "Person_FirstName"
-                //id="Person_LastName"
-                //id = "Person_Gender"
-                //    <option value="70">F</option>
-                //    <option value="77">M</option>
-                //id="Person_ChurchId"
-                //id="BtnId1" class="BtnOff" value="1">Carpentry</button>
 
                 props = props.replace(/\*/g, "@@");
 
@@ -113,9 +111,9 @@
                                     eMail = "<a href=\"mailto:" + eMail + "\">" + eMail + "</a>";
                                 }
                                 if (i % 2)
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
+                                    strList += "<tr style=\"background-color:#FFF4CF; color:#000000\" id=\"" + item.id + "\"><td onclick=\"window.location.href='Edit?id=" + item.id + "'\" class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
                                 else
-                                    strList += "<tr onclick=\"OnLineClick(this)\" style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
+                                    strList += "<tr style=\"background-color:#FFFFFF; color:#000000\" id=\"" + item.id + "\"><td onclick=\"window.location.href='Edit?id=" + item.id + "'\" class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
                                 ++NumFound;
                             });
                             strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.

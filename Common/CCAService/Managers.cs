@@ -1812,6 +1812,13 @@ namespace CStat
                 }
             }
 
+            pv = props.Find(prop => prop.Key == "SkillSets");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                person.SkillSets = long.Parse(pv.Value.Trim());
+ 
+            }
+
             var pva = from pair in props
                       where (pair.Key == "multicheckbox[]")
                       select pair;
@@ -2036,6 +2043,9 @@ namespace CStat
                 }
             }
 
+            Person JGPerson = (bJustGetPerson) ? person.ShallowCopy() : person;
+            Address JGnewAdr = (bJustGetPerson) ? newAdr.ShallowCopy() : newAdr;
+
             //**************************************************************************
             // Find Person #1 : Find person by SS# First
             //**************************************************************************
@@ -2111,8 +2121,8 @@ namespace CStat
 
             if (bJustGetPerson)
             { 
-                ResPerson = person;
-                ResAddress = newAdr;
+                ResPerson = JGPerson;
+                ResAddress = JGnewAdr;
                 return MgrStatus.Add_Update_Succeeded;
             }
 
@@ -2283,7 +2293,7 @@ namespace CStat
                     sel = sel + " AND ";
                 bFiltered = true;
 
-                sel = sel + "(" + name + " & " + value.ToString() + " <> 0)"; 
+                sel = sel + "(" + name + " & " + value.ToString() + " = " + value.ToString() + ")"; 
             }
         }
         public static void AddToSelect(ref String sel, String name, long? value, ref bool bFiltered)

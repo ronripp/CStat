@@ -115,15 +115,14 @@
                     <label asp-for="_Person.Notes" +":">Comments:</label>
                     <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" />
                 </div>
-
+                <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+                </div>
                 <div class="form-group">
                     <input type="hidden" asp-for="_Person.Id" />
                     <div class="form-group">
                         <input type="submit" value="Save" class="btn btn-primary" />
                     </div>
-                </div>
-                <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
-                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
                 </div>
 
                 @Html.HiddenFor(model => model._Person.Alias)

@@ -48,7 +48,7 @@ namespace CStat
             int i = 1;
             foreach (var s in Enum.GetValues(typeof(eSkills)).Cast<eSkills>())
             {
-                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" abbr=\"" + ((eSkillsAbbr)s).ToString() + "\" class=\"BtnOff\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
+                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" abbr=\"" + Enum.GetName(typeof(eSkillsAbbr), s) + "\" class=\"BtnOff\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
             }
             btnStr += "</div>\n";
             return btnStr;

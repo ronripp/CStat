@@ -42,7 +42,7 @@
 
                 $("button[id^='BtnId']").click(function () {
                     var skill = $(this).attr("value");
-                    var skills = $("#Person_SkillSets").attr("value");
+                    var skills = $("#zPerson_SkillSets").attr("value");
                     if ($(this).hasClass("BtnOn")) {
                         $(this).removeClass("BtnOn").addClass("BtnOff");
                         skills &= ~skill;
@@ -50,7 +50,7 @@
                         $(this).removeClass("BtnOff").addClass("BtnOn");
                         skills |= skill;
                     }
-                    $("#Person_SkillSets").attr("value", skills);
+                    $("#zPerson_SkillSets").attr("value", skills);
                 });
             });
 
@@ -63,6 +63,7 @@
                 raw += "FName=" + $("#zPerson_FirstName").val().trim();
                 raw += "&LName=" + $("#zPerson_LastName").val().trim();
                 raw += "&Gender=" + $("#zPerson_Gender").val().trim();
+                raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
                 raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
 
 //                raw += "&DOB=" + $("#zPerson_DOB").val().trim();
@@ -78,10 +79,14 @@
 ////                raw += "&PG1=" + $("#zPersion_PG1").val().trim();
 ////                raw += "&PG2=" + $("#zPerson_PG2").val().trim();
 
-                $("button[id^='BtnId']").each(function () {
-                    if ($(this).css("background-color") == "rgb(173, 255, 47)")
-                        raw += "&multicheckbox[]=" + $(this).attr("abbr");
-                });
+
+                raw += "&SkillSets=" + $("#zPerson_SkillSets").val().trim();
+                //// ALTERNATE 
+                //$("button[id^='BtnId']").each(function () {
+                //    if ($(this).css("background-color") == "rgb(173, 255, 47)")
+                //        raw += "&multicheckbox[]=" + $(this).attr("abbr");
+                //});
+
                 raw += "}";
                 var props = encodeURI(raw);
 

@@ -97,28 +97,28 @@ namespace CStat.Models
 
         public enum eSkillsAbbr
         {
-            CRP = 1,
-            PLB = 2,
-            ROF = 4,
-            COK = 8,
-            HLD = 10,
-            SWT = 20,
-            CMG = 40,
-            PNT = 80,
-            MNS = 100,
-            DEN = 200,
-            ACC = 400,
-            ELE = 800,
-            CMP = 1000,
-            KTH = 2000,
-            CNS = 4000,
-            GAR = 8000,
-            TRR = 10000,
-            WRS = 20000,
-            WRK = 40000,
-            MSN = 80000,
-            CON = 100000,
-            SPT = 200000
+            CRP = 0x1,
+            PLB = 0x2,
+            ROF = 0x4,
+            COK = 0x8,
+            HLD = 0x10,
+            SWT = 0x20,
+            CMG = 0x40,
+            PNT = 0x80,
+            MNS = 0x100,
+            DEN = 0x200,
+            ACC = 0x400,
+            ELE = 0x800,
+            CMP = 0x1000,
+            KTH = 0x2000,
+            CNS = 0x4000,
+            GAR = 0x8000,
+            TRR = 0x10000,
+            WRS = 0x20000,
+            WRK = 0x40000,
+            MSN = 0x80000,
+            CON = 0x100000,
+            SPT = 0x200000
         };
 
         public enum ePA
@@ -151,6 +151,11 @@ namespace CStat.Models
             Country,
             WebSite
         };
+
+        public Person ShallowCopy()
+        {
+            return (Person)this.MemberwiseClone();
+        }
 
         public static string FindPeople(CStatContext entities, string id)
         {
@@ -327,6 +332,20 @@ namespace CStat.Models
             if (pmgr.Update(ref props, true, true, out fp, out fa) != MgrStatus.Add_Update_Succeeded)
                 return "Invalid Search Criteria";
 
+            //  "&DOB="
+            //  "&Street="
+            //  "&City="
+            //  "&State="
+            //  "&Zip="
+            //  "&HPhone="
+            //  "&Cell="
+            //  "&EMail="
+            //  "&Comments="
+            //  "&SSNum="
+            //  "&PG1="
+            //  "&PG2="
+            //  "&SkillSets=" ...OR...  "&multicheckbox[]="
+
             PersonMgr.AddToSelect(ref sel, "Person.FirstName", fp.FirstName, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "Person.LastName", fp.LastName, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "Address.Street", fa.Street, ref bFiltered);
@@ -439,7 +458,10 @@ namespace CStat.Models
 
     public partial class Address
     {
-        
+        public Address ShallowCopy()
+        {
+            return (Address)this.MemberwiseClone();
+        }
     }
 
         public partial class Church

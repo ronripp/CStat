@@ -1,0 +1,121 @@
+﻿@page
+@model CStat.Pages.Tasks.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Task</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Priority)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Priority)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Type)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Type)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.TaskStatus)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.TaskStatus)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.PositionTitle1)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.PositionTitle1)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.PositionTile2)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.PositionTile2)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.PositionTitle3)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.PositionTitle3)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.DueDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.DueDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.CreationDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.CreationDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.StartDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.StartDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.CompletionDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.CompletionDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.PlanLink)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.PlanLink)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.RequiredSkills)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.RequiredSkills)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Blocking1)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Blocking1.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Blocking2)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Blocking2.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Church)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Church.Affiliation)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Task.Person)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Task.Person.FirstName)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Task.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

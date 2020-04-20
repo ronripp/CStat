@@ -1,0 +1,132 @@
+﻿@page
+@model CStat.Pages.Tasks.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].TaskStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].PositionTitle1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].PositionTile2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].PositionTitle3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].DueDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].CompletionDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].PlanLink)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].RequiredSkills)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Blocking1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Blocking2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Church)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Task[0].Person)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Task) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TaskStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PositionTitle1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PositionTile2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PositionTitle3)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DueDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CompletionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlanLink)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequiredSkills)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Blocking1.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Blocking2.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Church.Affiliation)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Person.FirstName)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

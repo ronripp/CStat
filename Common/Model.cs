@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using CTask = CStat.Models.Task;
 
 namespace CStat.Models
 {
@@ -24,6 +25,11 @@ namespace CStat.Models
             return _context;
         }
     }
+
+    public partial class Tasks
+    {
+    }
+
     public partial class InventoryItem
     {
         public enum States { InStock = 0, OpenNeed = 1, TakenNeed = 2 };

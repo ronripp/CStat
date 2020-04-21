@@ -9,6 +9,7 @@ using CStat.Models;
 using Newtonsoft.Json;
 using static CStat.Models.Person;
 using Microsoft.EntityFrameworkCore;
+using Dropbox.Api.Sharing;
 
 namespace CStat
 {
@@ -88,23 +89,29 @@ namespace CStat
         // more details see https://aka.ms/RazorPagesCRUD.
         public IActionResult OnPost()
         {
-            if (_Person.AddressId == null)
+            try
             {
-                if (_Address.Street.Length > 0)
+                bool isValidAdr = ((_Address.Street != null) && (_Address.Street.Length > 0) &&
+                                (_Address.Town != null) && (_Address.Town.Length > 0) &&
+                                (_Address.State != null) && (_Address.State.Length > 0));
+                if ((_Person.AddressId == null) && isValidAdr)
                 {
                     _context.Address.Add(_Address);
                     _context.SaveChanges();
                     _Person.AddressId = _Address.Id;
                 }
-            }
+                else
+                {
+                    if (isValidAdr)
+                    {
+                        _context.Attach(_Address).State = EntityState.Modified;
+                        _context.SaveChanges();
+                    }
+                }
 
-            try
-            {
                 if (_Person.ChurchId == -1)
                     _Person.ChurchId = null;
                 _context.Attach(_Person).State = EntityState.Modified;
-                _context.SaveChanges();
-                _context.Attach(_Address).State = EntityState.Modified;
                 _context.SaveChanges();
             }
             catch (Exception e)

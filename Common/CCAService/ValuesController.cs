@@ -487,7 +487,7 @@ namespace CStat
                     return jstr;
                 }
             }
-            catch(Exception e)
+            catch(Exception)
             {
             }
 

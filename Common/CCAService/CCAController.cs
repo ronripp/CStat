@@ -8,7 +8,6 @@ using CStat.Models;
 //using CCAEvents2;
 //using CCAChurch;
 //using CCAAttendance;
-using CStat.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CStat

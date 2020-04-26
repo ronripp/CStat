@@ -507,7 +507,7 @@ namespace CStat
                                                               (((!ai.StartTime.HasValue || !a.StartTime.HasValue)) || (ai.StartTime == a.StartTime)) &&
                                                               (((!ai.EndTime.HasValue || !a.EndTime.HasValue)) || (ai.EndTime == a.EndTime)));
                  }
-                 catch (Exception e)
+                 catch (Exception)
                  {
                      a2 = null;
                  }
@@ -2222,7 +2222,7 @@ namespace CStat
                     return MgrStatus.Save_Person_Failed;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ResPerson = null;
                 ResAddress = null;

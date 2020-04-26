@@ -114,7 +114,7 @@ namespace CStat
                 _context.Attach(_Person).State = EntityState.Modified;
                 _context.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Page();
             }

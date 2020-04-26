@@ -454,7 +454,7 @@ namespace CStat.Models
                     return jstr;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
 
@@ -470,7 +470,44 @@ namespace CStat.Models
         }
     }
 
-        public partial class Church
+    public partial class Task
+    {
+        enum eTaskStatus
+        {
+            // Percent Complete 0x7F
+
+            // State
+            NotStarted     = 0x00000080,
+            Planning       = 0x00000100,
+            Ready          = 0x00000200,
+            Active         = 0x00000400,
+            Paused         = 0x00000800,
+            Completed      = 0x00001000,
+
+            //Reason
+            NeedFunds      = 0x00100000,
+            NeedLabor      = 0x00200000,
+            NeedMaterial   = 0x00400000,
+            NeedInspection = 0x00800000,
+            NeedPlanning   = 0x01000000
+        }
+
+        void GetTaskStatus (out int state, out int reason, out int pctComp)
+        {
+            state = (int)(this.TaskStatus & 0x000FFF80);
+            reason = (int)(this.TaskStatus & 0xFFF00000);
+            pctComp = (int)(this.TaskStatus & 0x0000007F);
+        }
+        void SetTaskStatus(int state, int reason, int pctComp)
+        {
+            this.TaskStatus &= (state & 0x000FFF80);
+            this.TaskStatus &= (reason & 0xFFF0000);
+            this.TaskStatus = (pctComp & 0x0000007F);
+        }
+    }
+
+
+    public partial class Church
     {
         public enum MemberStatType
         {

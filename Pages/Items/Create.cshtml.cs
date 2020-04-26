@@ -172,7 +172,7 @@ namespace CStat
                                         {
                                             await _context.SaveChangesAsync();
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
                                             sw.WriteLine("**** DB ERROR: ***** Changing person.cid. cid=[" + chr.Id + "]");
                                             return RedirectToPage("./Index");
@@ -251,7 +251,7 @@ namespace CStat
                                         {
                                             await _context.SaveChangesAsync();
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
                                             sw.WriteLine("**** DB ERROR: ***** Delete person. id=[" + psn.Id + "]");
                                         }
@@ -361,7 +361,7 @@ namespace CStat
                                         {
                                             await _context.SaveChangesAsync();
                                         }
-                                        catch (Exception e)
+                                        catch (Exception)
                                         {
                                             sw.WriteLine("**** DB ERROR: ***** Changing person.aid. aid=[" + adr.Id + "]");
                                             return RedirectToPage("./Index");

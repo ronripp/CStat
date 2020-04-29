@@ -370,9 +370,24 @@ namespace CStat.Models
                     .HasConstraintName("FK_Task_Church");
 
                 entity.HasOne(d => d.Person)
-                    .WithMany(p => p.Task)
+                    .WithMany(p => p.TaskPerson)
                     .HasForeignKey(d => d.PersonId)
                     .HasConstraintName("FK_Task_Person");
+
+                entity.HasOne(d => d.Worker1)
+                    .WithMany(p => p.TaskWorker1)
+                    .HasForeignKey(d => d.Worker1Id)
+                    .HasConstraintName("FK_Task_Person1");
+
+                entity.HasOne(d => d.Worker2)
+                    .WithMany(p => p.TaskWorker2)
+                    .HasForeignKey(d => d.Worker2Id)
+                    .HasConstraintName("FK_Task_Person2");
+
+                entity.HasOne(d => d.Worker3)
+                    .WithMany(p => p.TaskWorker3)
+                    .HasForeignKey(d => d.Worker3Id)
+                    .HasConstraintName("FK_Task_Person3");
             });
 
             modelBuilder.Entity<Transaction>(entity =>

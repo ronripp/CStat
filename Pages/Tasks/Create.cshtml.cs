@@ -14,6 +14,9 @@ namespace CStat.Pages.Tasks
     {
         private readonly CStat.Models.CStatContext _context;
 
+        [BindProperty]
+        CTask _CTask { get; set; }
+
         public CreateModel(CStat.Models.CStatContext context)
         {
             _context = context;
@@ -21,6 +24,26 @@ namespace CStat.Pages.Tasks
 
         public IActionResult OnGet()
         {
+            _CTask = new CTask();
+            _CTask.Description = "Fix Miller House Shed";
+            _CTask.EstimatedManHours = 24;
+            _CTask.Id = 126;
+            _CTask.PersonId = 1632;
+            _CTask.TotalCost = 562;
+            _CTask.EstimatedDoneDate = new DateTime(2020, 8, 15);
+            _CTask.CommittedCost = 385;
+            _CTask.SetTaskStatus(CTask.eTaskStatus.Paused, CTask.eTaskStatus.Need_Funds, 60);
+            _CTask.Priority = 3; 
+            //_CTask.
+            //_CTask.
+            //_CTask.
+            //_CTask.
+            //_CTask.
+            //_CTask.
+            //_CTask.
+            //_CTask.
+
+
         ViewData["Blocking1Id"] = new SelectList(_context.Task, "Id", "Description");
         ViewData["Blocking2Id"] = new SelectList(_context.Task, "Id", "Description");
         ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");

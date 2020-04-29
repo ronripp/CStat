@@ -37,7 +37,10 @@ namespace CStat.Models
             Operations = new HashSet<Operations>();
             Position = new HashSet<Position>();
             Registration = new HashSet<Registration>();
-            Task = new HashSet<Task>();
+            TaskPerson = new HashSet<Task>();
+            TaskWorker1 = new HashSet<Task>();
+            TaskWorker2 = new HashSet<Task>();
+            TaskWorker3 = new HashSet<Task>();
             Transaction = new HashSet<Transaction>();
         }
 
@@ -146,8 +149,14 @@ namespace CStat.Models
         public virtual ICollection<Position> Position { get; set; }
         [InverseProperty("Person")]
         public virtual ICollection<Registration> Registration { get; set; }
-        [InverseProperty("Person")]
-        public virtual ICollection<Task> Task { get; set; }
+        [InverseProperty(nameof(Task.Person))]
+        public virtual ICollection<Task> TaskPerson { get; set; }
+        [InverseProperty(nameof(Task.Worker1))]
+        public virtual ICollection<Task> TaskWorker1 { get; set; }
+        [InverseProperty(nameof(Task.Worker2))]
+        public virtual ICollection<Task> TaskWorker2 { get; set; }
+        [InverseProperty(nameof(Task.Worker3))]
+        public virtual ICollection<Task> TaskWorker3 { get; set; }
         [InverseProperty("CcaPerson")]
         public virtual ICollection<Transaction> Transaction { get; set; }
 

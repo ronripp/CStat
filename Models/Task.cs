@@ -27,24 +27,23 @@ namespace CStat.Models
         [Column("Blocking2_id")]
         public int? Blocking2Id { get; set; }
         public int Type { get; set; }
-        [Column("Task_Status")]
-        public int TaskStatus { get; set; }
+        public int Status { get; set; }
         [Column("Person_id")]
         public int? PersonId { get; set; }
-        [Column("Position_Title1")]
-        public int? PositionTitle1 { get; set; }
-        [Column("Position_Tile2")]
-        public int? PositionTile2 { get; set; }
-        [Column("Position_Title3")]
-        public int? PositionTitle3 { get; set; }
+        [Column("Worker1_id")]
+        public int? Worker1Id { get; set; }
+        [Column("Worker2_id")]
+        public int? Worker2Id { get; set; }
+        [Column("Worker3_id")]
+        public int? Worker3Id { get; set; }
         [Column("Due_Date", TypeName = "datetime2(0)")]
         public DateTime? DueDate { get; set; }
         [Column("Creation_Date", TypeName = "datetime2(0)")]
         public DateTime CreationDate { get; set; }
         [Column("Start_Date", TypeName = "datetime2(0)")]
         public DateTime? StartDate { get; set; }
-        [Column("Completion_Date", TypeName = "datetime2(0)")]
-        public DateTime? CompletionDate { get; set; }
+        [Column("Actual_Done_Date", TypeName = "datetime2(0)")]
+        public DateTime? ActualDoneDate { get; set; }
         [Column("Church_id")]
         public int? ChurchId { get; set; }
         [Column("Plan_Link")]
@@ -54,6 +53,17 @@ namespace CStat.Models
         [Column("Required_Skills")]
         [StringLength(255)]
         public string RequiredSkills { get; set; }
+        [Column("Estimated_Done_Date")]
+        public DateTime? EstimatedDoneDate { get; set; }
+        [Column("Estimated_Man_Hours")]
+        public double? EstimatedManHours { get; set; }
+        [Column("Committed_Man_Hours")]
+        public double? CommittedManHours { get; set; }
+        [Column("Total_Cost", TypeName = "money")]
+        public decimal? TotalCost { get; set; }
+        [Column("Committed_Cost", TypeName = "money")]
+        public decimal? CommittedCost { get; set; }
+        public long? Roles { get; set; }
 
         [ForeignKey(nameof(Blocking1Id))]
         [InverseProperty(nameof(Task.InverseBlocking1))]
@@ -65,8 +75,17 @@ namespace CStat.Models
         [InverseProperty("Task")]
         public virtual Church Church { get; set; }
         [ForeignKey(nameof(PersonId))]
-        [InverseProperty("Task")]
+        [InverseProperty("TaskPerson")]
         public virtual Person Person { get; set; }
+        [ForeignKey(nameof(Worker1Id))]
+        [InverseProperty("TaskWorker1")]
+        public virtual Person Worker1 { get; set; }
+        [ForeignKey(nameof(Worker2Id))]
+        [InverseProperty("TaskWorker2")]
+        public virtual Person Worker2 { get; set; }
+        [ForeignKey(nameof(Worker3Id))]
+        [InverseProperty("TaskWorker3")]
+        public virtual Person Worker3 { get; set; }
         [InverseProperty(nameof(Task.Blocking1))]
         public virtual ICollection<Task> InverseBlocking1 { get; set; }
         [InverseProperty(nameof(Task.Blocking2))]

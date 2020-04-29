@@ -472,12 +472,33 @@ namespace CStat.Models
 
     public partial class Task
     {
-        enum eTaskStatus
+        public enum eTaskType
+        {
+            // Area
+            PlanCampEvent   = 0x00000001,
+            CampEventTask   = 0x00000002,
+            BuildingFix     = 0x00000004,
+            GroundsFix      = 0x00000008,
+            NewAdditon      = 0x00000010,
+            RequiredTask    = 0x00000020,
+            CampEnhancement = 0x00000040,
+            Promition       = 0x00000040,
+
+            //Occurance
+            OneTime         = 0x00010000,
+            WeeklyCamp      = 0x00020000,
+            DailyCamp       = 0x00040000,
+            Monthly         = 0x00080000,
+            Quarterly       = 0x00100000,
+            PerCampEvent    = 0x00200000
+        }
+
+        public enum eTaskStatus
         {
             // Percent Complete 0x7F
 
             // State
-            NotStarted     = 0x00000080,
+            Not_Started    = 0x00000080,
             Planning       = 0x00000100,
             Ready          = 0x00000200,
             Active         = 0x00000400,
@@ -485,25 +506,44 @@ namespace CStat.Models
             Completed      = 0x00001000,
 
             //Reason
-            NeedFunds      = 0x00100000,
-            NeedLabor      = 0x00200000,
-            NeedMaterial   = 0x00400000,
-            NeedInspection = 0x00800000,
-            NeedPlanning   = 0x01000000
+            Need_Funds      = 0x00100000,
+            Need_Labor      = 0x00200000,
+            Need_Material   = 0x00400000,
+            Need_Inspection = 0x00800000,
+            Need_Planning   = 0x01000000
         }
 
-        void GetTaskStatus (out int state, out int reason, out int pctComp)
+        public void GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp)
         {
-            state = (int)(this.TaskStatus & 0x000FFF80);
-            reason = (int)(this.TaskStatus & 0xFFF00000);
-            pctComp = (int)(this.TaskStatus & 0x0000007F);
+            state = (CTask.eTaskStatus)(this.Status & 0x000FFF80);
+            reason = (CTask.eTaskStatus)(this.Status & 0xFFF00000);
+            pctComp = (int)(this.Status & 0x0000007F);
         }
-        void SetTaskStatus(int state, int reason, int pctComp)
+        public void SetTaskStatus(CTask.eTaskStatus state, CTask.eTaskStatus reason, int pctComp)
         {
-            this.TaskStatus &= (state & 0x000FFF80);
-            this.TaskStatus &= (reason & 0xFFF0000);
-            this.TaskStatus = (pctComp & 0x0000007F);
+            this.Status &= ((int)state & 0x000FFF80);
+            this.Status &= ((int)reason & 0xFFF0000);
+            this.Status = (pctComp & 0x0000007F);
         }
+
+        public String TaskString (CTask.eTaskStatus ts)
+        {
+            String resStr = "";
+            foreach (String s in Enum.GetValues(typeof(eTaskStatus)))
+            {
+                if (((eTaskStatus)Enum.Parse(typeof(eTaskStatus), s) & ts) != 0)
+                {
+                    if (resStr.Length > 0)
+                        resStr += ", ";
+                    if ((resStr.IndexOf("Need") != -1) && (s.IndexOf("Need_") == 0))
+                        resStr += s.Substring(5);
+                    else
+                        resStr += s;
+                }
+            }
+            return resStr.Replace("_", " ");
+        }
+
     }
 
 

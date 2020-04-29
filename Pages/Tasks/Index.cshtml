@@ -23,16 +23,16 @@
                 @Html.DisplayNameFor(model => model.Task[0].Type)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Task[0].TaskStatus)
+                @Html.DisplayNameFor(model => model.Task[0].Status)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Task[0].PositionTitle1)
+                @Html.DisplayNameFor(model => model.Task[0].Worker1)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Task[0].PositionTile2)
+                @Html.DisplayNameFor(model => model.Task[0].Worker2)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Task[0].PositionTitle3)
+                @Html.DisplayNameFor(model => model.Task[0].Worker3)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Task[0].DueDate)
@@ -44,7 +44,7 @@
                 @Html.DisplayNameFor(model => model.Task[0].StartDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Task[0].CompletionDate)
+                @Html.DisplayNameFor(model => model.Task[0].ActualDoneDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Task[0].PlanLink)
@@ -80,16 +80,16 @@
                 @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TaskStatus)
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PositionTitle1)
+                @Html.DisplayFor(modelItem => item.Worker1)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PositionTile2)
+                @Html.DisplayFor(modelItem => item.Worker2)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PositionTitle3)
+                @Html.DisplayFor(modelItem => item.Worker3)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DueDate)
@@ -101,7 +101,7 @@
                 @Html.DisplayFor(modelItem => item.StartDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CompletionDate)
+                @Html.DisplayFor(modelItem => item.ActualDoneDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PlanLink)

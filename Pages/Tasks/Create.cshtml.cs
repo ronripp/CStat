@@ -7,15 +7,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
 using CTask = CStat.Models.Task;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace CStat.Pages.Tasks
 {
+    public class TaskData
+    {
+        public int state;
+        public int reason;
+        public int PercentComplete;
+        public string FullDescription;
+    }
+
     public class CreateModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
 
         [BindProperty]
-        CTask _CTask { get; set; }
+        public TaskData taskData { get; set; }
+
+        [BindProperty]
+        public CTask task { get; set; }
 
         public CreateModel(CStat.Models.CStatContext context)
         {
@@ -24,35 +36,57 @@ namespace CStat.Pages.Tasks
 
         public IActionResult OnGet()
         {
-            _CTask = new CTask();
-            _CTask.Description = "Fix Miller House Shed";
-            _CTask.EstimatedManHours = 24;
-            _CTask.Id = 126;
-            _CTask.PersonId = 1632;
-            _CTask.TotalCost = 562;
-            _CTask.EstimatedDoneDate = new DateTime(2020, 8, 15);
-            _CTask.CommittedCost = 385;
-            _CTask.SetTaskStatus(CTask.eTaskStatus.Paused, CTask.eTaskStatus.Need_Funds, 60);
-            _CTask.Priority = 3; 
-            //_CTask.
-            //_CTask.
-            //_CTask.
-            //_CTask.
-            //_CTask.
-            //_CTask.
-            //_CTask.
-            //_CTask.
+            task = new CTask();
+            task.Description = "Fix Miller House Shed";
+            task.EstimatedManHours = 24;
+            task.Id = 126;
+            task.PersonId = 1632;
+            task.TotalCost = 562;
+            task.EstimatedDoneDate = new DateTime(2020, 8, 15);
+            task.CommittedCost = 385;
+            task.SetTaskStatus(CTask.eTaskStatus.Paused, CTask.eTaskStatus.Need_Funds, 60);
+            task.Priority = (int)CTask.ePriority.High;
+            //task.
+            //task.
+            //task.
+            //task.
+            //task.
+            //task.
+            //task.
+            //task.
+
+            taskData = new TaskData();
+            taskData.state = (int)CTask.eTaskStatus.Paused;
+            taskData.reason = (int)CTask.eTaskStatus.Need_Funds;
 
 
-        ViewData["Blocking1Id"] = new SelectList(_context.Task, "Id", "Description");
-        ViewData["Blocking2Id"] = new SelectList(_context.Task, "Id", "Description");
-        ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
-        ViewData["PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
+            //Not_Started = 0x00000080,
+            //Planning = 0x00000100,
+            //Ready = 0x00000200,
+            //Active = 0x00000400,
+            //Paused = 0x00000800,
+            //Completed = 0x00001000,
+
+            ////Reason
+            //Need_Funds = 0x00100000,
+            //Need_Labor = 0x00200000,
+            //Need_Material = 0x00400000,
+            //Need_Inspection = 0x00800000,
+            //Need_Planning = 0x01000000
+
+            IList <SelectListItem> sList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e < (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["State"] = sList;
+            IList<SelectListItem> rList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e >= (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["Reason"] = rList;
+            IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["Priority"] = pList;
+
+            ViewData["Blocking1Id"] = new SelectList(_context.Task, "Id", "Description");
+            ViewData["Blocking2Id"] = new SelectList(_context.Task, "Id", "Description");
+            ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
+            ViewData["PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             return Page();
         }
-
-        [BindProperty]
-        public CTask Task { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -63,7 +97,7 @@ namespace CStat.Pages.Tasks
                 return Page();
             }
 
-            _context.Task.Add(Task);
+//            _context.Task.Add(task);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

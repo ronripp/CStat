@@ -2,188 +2,283 @@
 @model CStat.Pages.Tasks.CreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Task";
 }
 
-<head>
-    @using System.Web;
+    <head>
+        @using System.Web;
 
-    <style>
-        #Summary {
-            overflow-y: scroll;
-            height: 200px;
-            font-family: "Verdana";
-            min-width: 90%;
-            resize: none; /* Remove this if you want the user to resize the textarea */
-        }
-    </style>
+        <style>
+            #Summary {
+                overflow - y: scroll;
+                height: 200px;
+                font-family: "Verdana";
+                min-width: 90%;
+                resize: none; /* Remove this if you want the user to resize the textarea */
+            }
+        </style>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script type="text/javascript">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-    </script>
+        <script type="text/javascript">
 
-</head>
+            var pics = [
+                "https://localhost:44321/images/ItmImg_76069501658.jpg?v=iUAGVFZM8eZc4Qrm1qOH60Whgxo-cT33_NH9x9zAMJU",
+                "https://localhost:44321/images/ItmImg_042523001003.jpg?v=Kj7JCiQxuD8l867LRT5TWim6vgmicjmGdWOBFFIeT4M",
+                "https://localhost:44321/images/ItmImg_072288116810.jpg?v=1Lc_1xEVA3GPxkkd2S-bHcQD2L2WySsd1X_k7sYoyh4"
+            ];
+            var curPic = 0;
+
+            $(document).ready(function () {
+
+                function setPicture() {
+                    $("#imgId").attr("src", pics[curPic]);
+                }
+
+                setPicture();
+
+                $("#imgNextBtn").click(function () {
+                    if (curPic < (pics.length - 1)) {
+                        ++curPic;
+                        setPicture();
+                    }
+                });
+
+                $("#imgPriorBtn").click(function () {
+                    if (curPic > 0) {
+                        --curPic;
+                        setPicture();
+                    }
+                });
+            });
+
+        </script>
+
+    </head>
 
 <body>
-    <h3>Create New Task</h3>
-    <hr />
-    <form method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
             <div class="col-md-9">
                 <div class="form-group">
-                    <label asp-for="Task.Description" class="control-label">Title:</label>
-                    <input asp-for="Task.Description" class="form-control" />
-                    <span asp-validation-for="Task.Description" class="text-danger"></span>
+                    <label asp-for="task.Description" class="control-label">Title:</label>
+                    <input asp-for="task.Description" class="form-control" />
+                    <span asp-validation-for="task.Description" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <label asp-for="Task.Priority" class="control-label">Priority:</label>
-                    <select asp-for="Task.Priority" class="form-control" asp-items="ViewBag.Priority"></select>
+                    <label asp-for="task.Priority" class="control-label">Priority</label>
+                    <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style="max-height:2.4em; max-width:8em"></select>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.Status" class="control-label">Status:</label>
-                    <input asp-for="Task.Status" class="form-control" />
-                    <span asp-validation-for="Task.Status" class="text-danger"></span>
+
+        <div>
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#statusTab" data-toggle="tab">Status</a>
+                </li>
+                <li role="presentation">
+                    <a href="#descTab" data-toggle="tab">Description</a>
+                </li>
+                <li role="presentation">
+                    <a href="#picTab" data-toggle="tab">Pictures</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="statusTab">
+
+                    <div class="row">
+                        <h3>Status</h3>
+                        <div class="col-md-6">
+                            <div class="form-group" style="margin-top:10px">
+                                <div class="form-group">
+                                    <div class="progress" style="max-height:2.1em; max-width:16em">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+                                            <span class="sr-only">70% Complete</span>
+                                        </div>
+                                    </div>
+                                    <select asp-for="taskData.state" class="form-control" asp-items="ViewBag.State" style="max-width:10em"></select>
+                                    <select asp-for="taskData.reason" class="form-control" asp-items="ViewBag.Reason" style="max-width:10em"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="task.TotalCost" class="control-label">Total Cost $</label>
+                                <input asp-for="task.TotalCost" class="form-control" style="max-height:2.4em; max-width:8em" />
+                                <span asp-validation-for="task.TotalCost" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.Status" class="control-label">% Complete:</label>
-                    <input asp-for="Task.Status" class="form-control" />
-                    <label for="file">Downloading progress:</label>
-                    <progress id="TotProg" value="8" max="10"> 8 </progress>
-                    <span asp-validation-for="Task.Status" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.Status" class="control-label">Needed $:</label>
-                    <input asp-for="Task.Status" class="form-control" />
-                    <progress id="TotCost" value="8" max="10"> 8 </progress>
-                    <span asp-validation-for="Task.Status" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.PersonId" class="control-label">Assigned to:</label>
-                    <select asp-for="Task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
-                    <span asp-validation-for="Task.PersonId" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.Worker1Id" class="control-label">Workers</label>
-                    <input asp-for="Task.DueDate" class="form-control" />
-                    <span asp-validation-for="Task.DueDate" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="Task.DueDate" class="control-label">Est.Done: </label>
-                    <input asp-for="Task.DueDate" class="form-control" />
-                    <span asp-validation-for="Task.DueDate" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <hr />
-        <h3>Description</h3>
-        <div class="row">
-            <div class="col-md-12" width="100%">
-                <textarea id="Summary">
+
+                <div class="tab-pane" id="descTab">
+
+                    <section class="row">
+                        <h3>Description</h3>
+                        <div class="col-md-12" width="100%">
+                            <textarea id="Summary">
             The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God.
             Nicodemus saith unto him, How can a man be born when he is old? can he enter the second time into his mother's womb, and be born?
             Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.
             That which is born of the flesh is flesh; and that which is born of the Spirit is spirit.
             Marvel not that I said unto thee, Ye must be born again.
             The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit.
-            </textarea>
+                            </textarea>
+                        </div>
+                    </section>
+
+                </div>
+                <div class="tab-pane" id="picTab">
+
+                    <div class="col-md-12" id="imgDivId" width="100%">
+                        <img id="imgId" src="" />
+                        <label id="imgLabelId">This describes the picture in detail</label>
+                    </div>
+                    <div class="col-md-12" id="imgDivId" width="100%">
+                        <button id="imgPriorBtn">Prior</button>
+                        <button id="imgNextBtn">Next</button>
+                    </div>
+                </div>
             </div>
         </div>
-        @*<div class="form-group">
-            <label asp-for="Task.Blocking1Id" class="control-label"></label>
-            <select asp-for="Task.Blocking1Id" class="form-control" asp-items="ViewBag.Blocking1Id"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.Blocking2Id" class="control-label"></label>
-            <select asp-for="Task.Blocking2Id" class="form-control" asp-items="ViewBag.Blocking2Id"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.Type" class="control-label"></label>
-            <input asp-for="Task.Type" class="form-control" />
-            <span asp-validation-for="Task.Type" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.TaskStatus" class="control-label"></label>
-            <input asp-for="Task.TaskStatus" class="form-control" />
-            <span asp-validation-for="Task.TaskStatus" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PersonId" class="control-label"></label>
-            <select asp-for="Task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTitle1" class="control-label"></label>
-            <input asp-for="Task.PositionTitle1" class="form-control" />
-            <span asp-validation-for="Task.PositionTitle1" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTile2" class="control-label"></label>
-            <input asp-for="Task.PositionTile2" class="form-control" />
-            <span asp-validation-for="Task.PositionTile2" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTitle3" class="control-label"></label>
-            <input asp-for="Task.PositionTitle3" class="form-control" />
-            <span asp-validation-for="Task.PositionTitle3" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.DueDate" class="control-label"></label>
-            <input asp-for="Task.DueDate" class="form-control" />
-            <span asp-validation-for="Task.DueDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.CreationDate" class="control-label"></label>
-            <input asp-for="Task.CreationDate" class="form-control" />
-            <span asp-validation-for="Task.CreationDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.StartDate" class="control-label"></label>
-            <input asp-for="Task.StartDate" class="form-control" />
-            <span asp-validation-for="Task.StartDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.CompletionDate" class="control-label"></label>
-            <input asp-for="Task.CompletionDate" class="form-control" />
-            <span asp-validation-for="Task.CompletionDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.ChurchId" class="control-label"></label>
-            <select asp-for="Task.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PlanLink" class="control-label"></label>
-            <input asp-for="Task.PlanLink" class="form-control" />
-            <span asp-validation-for="Task.PlanLink" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.RequiredSkills" class="control-label"></label>
-            <input asp-for="Task.RequiredSkills" class="form-control" />
-            <span asp-validation-for="Task.RequiredSkills" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Create" class="btn btn-primary" />
-        </div>*@
-    </form>
 
+        @*<section class="row">
+            <h3>Status</h3>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-top:10px">
+                    <div class="form-group">
+                        <div class="progress" style="max-height:1.8em; max-width:12em">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+                                <span class="sr-only">70% Complete</span>
+                            </div>
+                        </div>
+                        <select asp-for="taskData.state" class="form-control" asp-items="ViewBag.State" style="max-width:10em"></select>
+                        <select asp-for="taskData.reason" class="form-control" asp-items="ViewBag.Reason" style="max-width:10em"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="task.Status" class="control-label">% Complete:</label>
+                    <input asp-for="task.Status" class="form-control" style="max-height:1.2em; max-width:5em" />
+                    <span asp-validation-for="task.Status" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="task.Status" class="control-label">Needed $:</label>
+                    <input asp-for="task.Status" class="form-control" />
+                    <span asp-validation-for="task.Status" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <section class="row">
+            <h3>Owner</h3>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
+                    <select asp-for="task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
+                    <span asp-validation-for="task.PersonId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="task.Worker1Id" class="control-label">Workers</label>
+                    <input asp-for="task.DueDate" class="form-control" />
+                    <span asp-validation-for="task.DueDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="task.DueDate" class="control-label">Est.Done: </label>
+                    <input asp-for="task.DueDate" class="form-control" />
+                    <span asp-validation-for="task.DueDate" class="text-danger"></span>
+                </div>
+            </div>
+        </section>*@
+
+            @*<div class="form-group">
+                <label asp-for="Task.Blocking1Id" class="control-label"></label>
+                <select asp-for="Task.Blocking1Id" class="form-control" asp-items="ViewBag.Blocking1Id"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.Blocking2Id" class="control-label"></label>
+                <select asp-for="Task.Blocking2Id" class="form-control" asp-items="ViewBag.Blocking2Id"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.Type" class="control-label"></label>
+                <input asp-for="Task.Type" class="form-control" />
+                <span asp-validation-for="Task.Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.TaskStatus" class="control-label"></label>
+                <input asp-for="Task.TaskStatus" class="form-control" />
+                <span asp-validation-for="Task.TaskStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.PersonId" class="control-label"></label>
+                <select asp-for="Task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.PositionTitle1" class="control-label"></label>
+                <input asp-for="Task.PositionTitle1" class="form-control" />
+                <span asp-validation-for="Task.PositionTitle1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.PositionTile2" class="control-label"></label>
+                <input asp-for="Task.PositionTile2" class="form-control" />
+                <span asp-validation-for="Task.PositionTile2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.PositionTitle3" class="control-label"></label>
+                <input asp-for="Task.PositionTitle3" class="form-control" />
+                <span asp-validation-for="Task.PositionTitle3" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.DueDate" class="control-label"></label>
+                <input asp-for="Task.DueDate" class="form-control" />
+                <span asp-validation-for="Task.DueDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.CreationDate" class="control-label"></label>
+                <input asp-for="Task.CreationDate" class="form-control" />
+                <span asp-validation-for="Task.CreationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.StartDate" class="control-label"></label>
+                <input asp-for="Task.StartDate" class="form-control" />
+                <span asp-validation-for="Task.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.CompletionDate" class="control-label"></label>
+                <input asp-for="Task.CompletionDate" class="form-control" />
+                <span asp-validation-for="Task.CompletionDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.ChurchId" class="control-label"></label>
+                <select asp-for="Task.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.PlanLink" class="control-label"></label>
+                <input asp-for="Task.PlanLink" class="form-control" />
+                <span asp-validation-for="Task.PlanLink" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Task.RequiredSkills" class="control-label"></label>
+                <input asp-for="Task.RequiredSkills" class="form-control" />
+                <span asp-validation-for="Task.RequiredSkills" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>*@
     <div>
         <a asp-page="Index">Back to List</a>
     </div>

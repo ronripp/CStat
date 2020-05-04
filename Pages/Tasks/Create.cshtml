@@ -24,17 +24,41 @@
 
         <script type="text/javascript">
 
-            var pics = [
+            var taskImgs = [
                 "https://localhost:44321/images/ItmImg_76069501658.jpg?v=iUAGVFZM8eZc4Qrm1qOH60Whgxo-cT33_NH9x9zAMJU",
                 "https://localhost:44321/images/ItmImg_042523001003.jpg?v=Kj7JCiQxuD8l867LRT5TWim6vgmicjmGdWOBFFIeT4M",
                 "https://localhost:44321/images/ItmImg_072288116810.jpg?v=1Lc_1xEVA3GPxkkd2S-bHcQD2L2WySsd1X_k7sYoyh4"
             ];
             var curPic = 0;
+            var lastPic = -1;
+            var pics = [];
+            function loadTaskImages() {
+                for(let i = 0; i < taskImgs.length; ++i) {
+                    let pic = new Image();
+                    pic.src = taskImgs[i];
+                    pics.push(pic);
+                }
+            }
+            loadTaskImages();
 
             $(document).ready(function () {
 
                 function setPicture() {
-                    $("#imgId").attr("src", pics[curPic]);
+                    let imgDiv = document.getElementById("imgDiv");
+                    if (lastPic >= 0) {
+                        imgDiv.removeChild(pics[lastPic]);
+                    }
+                    let img = pics[curPic];
+                    //let CAsp = imgDiv.clientHeight / imgDiv.clientWidth;
+                    //let NAsp = img.naturalHeight / img.naturalWidth;
+                    //if (Casp >= NAsp) {
+                    //  img.style.clientWidth = imgDiv.clientWidth;
+                    //} else {
+                    //    img.style.clientWidth = imgDiv.clientHeight;
+                    //}
+                    img.style.width = "100%";
+                    imgDiv.appendChild(img);
+                    lastPic = curPic;
                 }
 
                 setPicture();
@@ -137,11 +161,11 @@
                 </div>
                 <div class="tab-pane" id="picTab">
 
-                    <div class="col-md-12" id="imgDivId" width="100%">
-                        <img id="imgId" src="" />
+                    <div class="col-md-12" id="picDiv" width="100%">
+                        <div id="imgDiv"></div>
                         <label id="imgLabelId">This describes the picture in detail</label>
                     </div>
-                    <div class="col-md-12" id="imgDivId" width="100%">
+                    <div class="col-md-12" width="100%">
                         <button id="imgPriorBtn">Prior</button>
                         <button id="imgNextBtn">Next</button>
                     </div>

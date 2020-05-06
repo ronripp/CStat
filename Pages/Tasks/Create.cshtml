@@ -76,6 +76,11 @@
                         setPicture();
                     }
                 });
+
+                $("#imgAddBtn").click(function () {
+                        $("#imgNew").show();
+                });
+
             });
 
         </script>
@@ -160,14 +165,18 @@
 
                 </div>
                 <div class="tab-pane" id="picTab">
-
                     <div class="col-md-12" id="picDiv" width="100%">
-                        <div id="imgDiv"></div>
-                        <label id="imgLabelId">This describes the picture in detail</label>
+                        <table width="100%" style="margin-top:4px">
+                            <tr>
+                                <td><input style="display:none" id="imgNew" type="file" name="file"></td>
+                                <td><button id="imgAddBtn">+</button></td>
+                                <td><button id="imgPriorBtn">&#60;&#60;</button></td>
+                                <td style="text-align:center; margin-left:4px; margin-right:4px;"><b>[1 of 3] This describes the picture in detail and can be a long text message as well.</b></td>
+                                <td><button id="imgNextBtn">&#62;&#62;</button></td>
+                            </tr> 
+                        </table>
                     </div>
-                    <div class="col-md-12" width="100%">
-                        <button id="imgPriorBtn">Prior</button>
-                        <button id="imgNextBtn">Next</button>
+                    <div id="imgDiv">
                     </div>
                 </div>
             </div>

@@ -74,7 +74,7 @@ namespace CStat.Pages.Tasks
             //Need_Inspection = 0x00800000,
             //Need_Planning = 0x01000000
 
-            IList <SelectListItem> sList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e < (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> sList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e < (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["State"] = sList;
             IList<SelectListItem> rList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e >= (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["Reason"] = rList;
@@ -97,10 +97,26 @@ namespace CStat.Pages.Tasks
                 return Page();
             }
 
-//            _context.Task.Add(task);
+            //            _context.Task.Add(task);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
+        }
+
+        public ActionResult OnPostSend()
+        {
+            List<string> lstString = new List<string>
+            {
+                "Val 1",
+                "Val 2",
+                "Val 3"
+            };
+            return new JsonResult(lstString);
+        }
+
+        public void OnPost()
+        {
+            //do something with the person class
         }
     }
 }

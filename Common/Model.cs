@@ -11,6 +11,18 @@ using CTask = CStat.Models.Task;
 
 namespace CStat.Models
 {
+    public static class CCommon
+    {
+        public static string EncodeQuotes(string str)
+        {
+            return (str.Length > 0) ? str.Replace("\"", "^^").Replace("'", "^") : "";
+        }
+        public static string UnencodeQuotes(string str)
+        {
+            return (str.Length > 0) ? str.Replace("^^", "\"").Replace("^", "'") : "";
+        }
+    }
+
     public class _CCADataEntities
     {
         private readonly CStat.Models.CStatContext _context;

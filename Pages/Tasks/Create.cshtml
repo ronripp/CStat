@@ -117,8 +117,17 @@
 
                         if (formdata) {
                             let picDesc = $("#newImgDesc").val();
+                            if (!picDesc) {
+                                picDesc = "";
+                            }
+                            let tid = $("#newImgDesc").attr("tid");
+                            if (!tid) {
+                                tid = "-1"; // error condition
+                            }
                             formdata.append("image", file);
-                            formdata.append("extra", picDesc);
+                            formdata.append("picTitle", encodeQuotes(picDesc));
+                            formdata.append("taskId", tid);
+                            formdata.append("picId", pics.length);
                         }
 
                         if (formdata) {
@@ -153,6 +162,10 @@
                 }
             });
         });
+
+        function encodeQuotes(str) {
+            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+        }
 
     </script>
 
@@ -255,7 +268,7 @@
                         <input id="newImg" type="file" name="file">
                     </div>
                     <div class="col-md-6" style="margin-top:4px">
-                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" style="min-width:20em"></span>
+                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em"></span>
                     </div>
                     <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
                         <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>

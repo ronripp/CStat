@@ -15,15 +15,36 @@ using System.Net.Http.Headers;
 using Org.BouncyCastle.Ocsp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace CStat.Pages.Tasks
 {
+
+    public class Pic
+    {
+        public Pic (int taskID, int picID, string desc)
+        {
+            taskId = taskID;
+            picId = picID;
+            title = desc;
+        }
+        public int taskId { get; set; }
+        public int picId { get; set; }
+        public string title { get; set; }
+        public string GetFileName (string srcFile)
+        {
+            string ext = Path.GetExtension(srcFile);
+            return "Img_" + taskId + "_" + picId + ext;
+        }
+    }
+
     public class TaskData
     {
         public int state;
         public int reason;
         public int PercentComplete;
         public string FullDescription;
+        List<Pic> pics;
     }
 
     public class CreateModel : PageModel
@@ -117,25 +138,15 @@ namespace CStat.Pages.Tasks
             if ((this.Request != null) && (this.Request.Form != null))
             {
                 var files = this.Request.Form.Files;
+                string PicTitle = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitle").Value);
+                int imgTID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                int imgPID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "picId").Value);
 
-                //SSSSSSSSSSSSSS
-
-                //var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
-                //var idx = rawQS.IndexOf('{');
-                //if (idx == -1)
-                //    return new JsonResult("ERROR~:No Parameters");
-                //var jsonQS = rawQS.Substring(idx);
-                //Dictionary<string, string> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
-
-                //EEEEEEEEEEEEEE
-
-                var kvp = this.Request.Form.First();
-                String title = kvp.Value;
-
-                if (files != null && files.Count > 0)
+                if (files != null && (files.Count == 1) && (imgTID >=0))
                 {
                     string folderName = @"Tasks\Images";
                     string webRootPath = hostEnv.WebRootPath;
+                    Pic pic = new Pic (imgTID, imgPID, PicTitle);
                     string newPath = Path.Combine(webRootPath, folderName);
                     if (!Directory.Exists(newPath))
                     {
@@ -146,7 +157,7 @@ namespace CStat.Pages.Tasks
                         if (item.Length > 0)
                         {
                             string fileName = ContentDispositionHeaderValue.Parse(item.ContentDisposition).FileName.Trim('"');
-                            string fullPath = Path.Combine(newPath, fileName);
+                            string fullPath = Path.Combine(newPath, pic.GetFileName(fileName));
                             using (var stream = new FileStream(fullPath, FileMode.Create))
                             {
                                 item.CopyTo(stream);

@@ -78,27 +78,33 @@
                 }
             });
 
-            $("#imgAddBtn").click(function () {
-                let addBtn = $("#imgAddBtn");
-                if (addBtn.text() == "+") {
-                    $("#imgNew").show();
-                    addBtn.text("-");
-                } else {
-                    $("#imgNew").hide();
-                    addBtn.text("+");
+            var formdata = null;
+            var fileInput = null;
+            $("#newPicBtn").click(function () {
+                $("#picHdrId").hide();
+                $("#savePicBtn").hide();
+                $("#newPicId").show();
+
+                fileInput = document.getElementById("newImg");
+                if (window.FormData) {
+                    formdata = new FormData();
                 }
+
+                fileInput.addEventListener("change", function (evt) {
+                    $("#savePicBtn").show();
+                });
             });
 
-            var input = document.getElementById("imgNew");
-            var formdata = false;
-            if (window.FormData) {
-                formdata = new FormData();
-            }
-            input.addEventListener("change", function (evt) {
-                var i = 0, len = this.files.length, img, reader, file;
+            $("#cancelPicBtn").click(function () {
+                $("#newPicId").hide();
+                $("#picHdrId").show();
+            });
+
+            $("#savePicBtn").click(function () {
+                var i = 0, len = fileInput.files.length, img, reader, file;
 
                 for (; i < len; i++) {
-                    file = this.files[i];
+                    file = fileInput.files[i];
 
                     if (!!file.type.match(/image.*/)) {
                         if (window.FileReader) {
@@ -110,8 +116,9 @@
                         }
 
                         if (formdata) {
+                            let picDesc = $("#newImgDesc").val();
                             formdata.append("image", file);
-                            //formdata.append("extra", 'extra-data');
+                            formdata.append("extra", picDesc);
                         }
 
                         if (formdata) {
@@ -129,16 +136,22 @@
                                 processData: false,
                                 contentType: false,
                                 success: function (res) {
-                                    //jQuery('div#response').html("Successfully uploaded");
+                                },
+                                error: function (res) {
+                                    alert("Image Save Failed : " + res);
+                                },
+                                complete: function (res) {
+                                    $("#newPicId").hide();
+                                    $("#picHdrId").show();
                                 }
                             });
                         }
                     }
                     else {
-                        alert('Not a vaild image!');
+                        alert('Not a valid image!');
                     }
                 }
-            }, false);
+            });
         });
 
     </script>
@@ -223,21 +236,36 @@
 
             </div>
             <div class="tab-pane" id="picTab">
-                <div class="col-md-12" id="picDiv" width="100%">
+                <div id="picHdrId" class="col-md-12" width="100%">
                     <table width="100%" style="margin-top:4px">
                         <tr>
-                            <td><input style="display:none" id="imgNew" type="file" name="file"></td>
-                            <td><button id="imgAddBtn">+</button></td>
+                            <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
                             <td><button id="imgPriorBtn">&#60;&#60;</button></td>
                             <td style="text-align:center; margin-left:4px; margin-right:4px;"><b>[1 of 3] This describes the picture in detail and can be a long text message as well.</b></td>
                             <td><button id="imgNextBtn">&#62;&#62;</button></td>
                         </tr>
                     </table>
                 </div>
+
+                <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
+                    <div class="col-md-12">
+                        <h4>Add New Picture with Title ...</h4>
+                    </div>
+                    <div class="col-md-3" style="margin-top:4px">
+                        <input id="newImg" type="file" name="file">
+                    </div>
+                    <div class="col-md-6" style="margin-top:4px">
+                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" style="min-width:20em"></span>
+                    </div>
+                    <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
+                        <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
+                        <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
+                    </div>
+                </div>
                 <div id="imgDiv">
                 </div>
             </div>
-        </div>
+         </div>
     </div>
 
     @*<section class="row">

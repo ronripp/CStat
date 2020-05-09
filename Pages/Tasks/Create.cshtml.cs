@@ -8,6 +8,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
 using CTask = CStat.Models.Task;
 using Org.BouncyCastle.Math.EC.Rfc7748;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Net.Http.Headers;
+using Org.BouncyCastle.Ocsp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
 
 namespace CStat.Pages.Tasks
 {
@@ -22,6 +29,7 @@ namespace CStat.Pages.Tasks
     public class CreateModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private IWebHostEnvironment hostEnv;
 
         [BindProperty]
         public TaskData taskData { get; set; }
@@ -29,9 +37,10 @@ namespace CStat.Pages.Tasks
         [BindProperty]
         public CTask task { get; set; }
 
-        public CreateModel(CStat.Models.CStatContext context)
+        public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
             _context = context;
+            hostEnv = hstEnv;
         }
 
         public IActionResult OnGet()
@@ -105,18 +114,49 @@ namespace CStat.Pages.Tasks
 
         public ActionResult OnPostSend()
         {
-            List<string> lstString = new List<string>
+            if ((this.Request != null) && (this.Request.Form != null))
             {
-                "Val 1",
-                "Val 2",
-                "Val 3"
-            };
-            return new JsonResult(lstString);
-        }
+                var files = this.Request.Form.Files;
 
-        public void OnPost()
-        {
-            //do something with the person class
+                //SSSSSSSSSSSSSS
+
+                //var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+                //var idx = rawQS.IndexOf('{');
+                //if (idx == -1)
+                //    return new JsonResult("ERROR~:No Parameters");
+                //var jsonQS = rawQS.Substring(idx);
+                //Dictionary<string, string> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
+
+                //EEEEEEEEEEEEEE
+
+                var kvp = this.Request.Form.First();
+                String title = kvp.Value;
+
+                if (files != null && files.Count > 0)
+                {
+                    string folderName = @"Tasks\Images";
+                    string webRootPath = hostEnv.WebRootPath;
+                    string newPath = Path.Combine(webRootPath, folderName);
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    foreach (IFormFile item in files)
+                    {
+                        if (item.Length > 0)
+                        {
+                            string fileName = ContentDispositionHeaderValue.Parse(item.ContentDisposition).FileName.Trim('"');
+                            string fullPath = Path.Combine(newPath, fileName);
+                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            {
+                                item.CopyTo(stream);
+                            }
+                        }
+                    }
+                    return this.Content("Success");
+                }
+            }
+            return this.Content("Fail");
         }
     }
 }

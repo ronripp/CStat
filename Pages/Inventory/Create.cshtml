@@ -150,7 +150,7 @@
                 <div class="col-sm-10 SValue">
                     @{
                     Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_"," "), Value = ((int)x).ToString() }).ToList();
                     SelectList zdata = new SelectList(zlist, "Value", "Text");
                     }
                     <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
@@ -183,11 +183,11 @@
             @Html.HiddenFor(model => model.CreateItem.Status)
             @Html.HiddenFor(model => model.CreateItem.Id)
 
-            <div class="form-group">
-                <span class="col-sm-4">
+            <div class="form-group" style="text-align:center">
+                <span class="col-md-10">
                     <input type="submit" value="Save" class="btn btn-primary" />
                 </span>
-                <span class="col-sm-4">
+                <span class="col-md-2">
                     <input type="button" onclick="window.history.go(-1)" value="Cancel" />
                 </span>
             </div>

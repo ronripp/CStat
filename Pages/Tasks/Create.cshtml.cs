@@ -16,10 +16,13 @@ using Org.BouncyCastle.Ocsp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Routing.Constraints;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Runtime.Serialization;
 
 namespace CStat.Pages.Tasks
 {
-
+    [DataContract]
     public class Pic
     {
         public Pic (int taskID, int picID, string desc)
@@ -28,8 +31,11 @@ namespace CStat.Pages.Tasks
             picId = picID;
             title = desc;
         }
+        [DataMember]
         public int taskId { get; set; }
+        [DataMember]
         public int picId { get; set; }
+        [DataMember]
         public string title { get; set; }
         public string GetFileName (string srcFile)
         {
@@ -38,13 +44,19 @@ namespace CStat.Pages.Tasks
         }
     }
 
+    [DataContract]
     public class TaskData
     {
-        public int state;
-        public int reason;
-        public int PercentComplete;
-        public string FullDescription;
-        List<Pic> pics;
+        [DataMember]
+        public int state { get; set; }
+        [DataMember]
+        public int reason { get; set; }
+        [DataMember]
+        public int PercentComplete { get; set; }
+        [DataMember]
+        public string Desc { get; set; }
+        [DataMember]
+        List<Pic> pics { get; set; }
     }
 
     public class CreateModel : PageModel
@@ -63,6 +75,53 @@ namespace CStat.Pages.Tasks
             _context = context;
             hostEnv = hstEnv;
         }
+
+        //SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+
+        //[DataContract]
+        //class BlogSite
+        //{
+        //    [DataMember]
+        //    public string Name { get; set; }
+
+        //    [DataMember]
+        //    public string Description { get; set; }
+        //}
+        //private void TestJSon()
+        //{
+        //    BlogSite bsObj = new BlogSite()
+        //    {
+        //        Name = "C-sharpcorner",
+        //        Description = "Share Knowledge"
+        //    };
+
+        //    DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(BlogSite));
+        //    MemoryStream msObj = new MemoryStream();
+        //    js.WriteObject(msObj, bsObj);
+        //    msObj.Position = 0;
+        //    StreamReader sr = new StreamReader(msObj);
+
+        //    // "{\"Description\":\"Share Knowledge\",\"Name\":\"C-sharpcorner\"}"  
+        //    string json1 = sr.ReadToEnd();
+
+        //    sr.Close();
+        //    msObj.Close();
+
+        //    //============================
+
+        //    string json = "{\"Description\":\"Share Knowledge\",\"Name\":\"C-sharpcorner\"}";
+
+        //    using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
+        //    {
+        //        // Deserialization from JSON  
+        //        DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(BlogSite));
+        //        BlogSite bsObj2 = (BlogSite)deserializer.ReadObject(ms);
+        //        //Response.Write("Name: " + bsObj2.Name); // Name: C-sharpcorner
+        //        //Response.Write("Description: " + bsObj2.Description); // Description: Share Knowledge  
+        //    }
+
+        //}
+        //EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         public IActionResult OnGet()
         {
@@ -88,7 +147,7 @@ namespace CStat.Pages.Tasks
             taskData = new TaskData();
             taskData.state = (int)CTask.eTaskStatus.Paused;
             taskData.reason = (int)CTask.eTaskStatus.Need_Funds;
-
+            taskData.Desc = "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God. Nicodemus saith unto him, How can a man be born when he is old ? can he enter the second time into his mother's womb, and be born? Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God. That which is born of the flesh is flesh; and that which is born of the Spirit is spirit. Marvel not that I said unto thee, Ye must be born again. The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit.";
 
             //Not_Started = 0x00000080,
             //Planning = 0x00000100,

@@ -48,6 +48,7 @@ namespace CStat.Pages.Tasks
     public class TaskData
     {
         [DataMember]
+        public int tid { get; set; }
         public int state { get; set; }
         [DataMember]
         public int reason { get; set; }
@@ -56,7 +57,70 @@ namespace CStat.Pages.Tasks
         [DataMember]
         public string Desc { get; set; }
         [DataMember]
-        List<Pic> pics { get; set; }
+        public List<Pic> pics { get; set; }
+
+        public TaskData(int taskId=-1)
+        {
+            tid = taskId;
+            state = 0;
+            reason = 0;
+            PercentComplete = 0;
+            Desc = "";
+        }
+
+        public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId)
+        {
+            TaskData taskData = null;
+            string folderName = @"Tasks";
+            string webRootPath = hstEnv.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            string fullPath = Path.Combine(newPath, "Task_" + taskId.ToString() + ".json");
+            using (StreamReader r = new StreamReader(fullPath))
+            {
+                string json = r.ReadToEnd();
+                var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
+                DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
+                taskData = (TaskData)deserializer.ReadObject(ms);
+                taskData.tid = taskId;
+            }
+            return taskData;
+        }
+
+        public bool Write (IWebHostEnvironment hstEnv)
+        {
+            if (tid == -1)
+                return false;
+            string folderName = @"Tasks";
+            string webRootPath = hstEnv.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            string fullPath = Path.Combine(newPath, "Task_" + tid.ToString() + ".json");
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(TaskData));
+                js.WriteObject(ms, this);
+                StreamWriter writer = new StreamWriter(ms);
+                writer.Flush();
+
+                //You have to rewind the MemoryStream before copying
+                ms.Seek(0, SeekOrigin.Begin);
+
+                using (FileStream fs = new FileStream(fullPath, FileMode.OpenOrCreate))
+                {
+                    ms.CopyTo(fs);
+                    fs.Flush();
+                }
+            }
+            return File.Exists(fullPath);
+        }
     }
 
     public class CreateModel : PageModel
@@ -144,10 +208,23 @@ namespace CStat.Pages.Tasks
             //task.
             //task.
 
-            taskData = new TaskData();
-            taskData.state = (int)CTask.eTaskStatus.Paused;
-            taskData.reason = (int)CTask.eTaskStatus.Need_Funds;
-            taskData.Desc = "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God. Nicodemus saith unto him, How can a man be born when he is old ? can he enter the second time into his mother's womb, and be born? Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God. That which is born of the flesh is flesh; and that which is born of the Spirit is spirit. Marvel not that I said unto thee, Ye must be born again. The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit.";
+            taskData = new TaskData(task.Id)
+            {
+                state = (int)CTask.eTaskStatus.Paused,
+                reason = (int)CTask.eTaskStatus.Need_Funds,
+                Desc = "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God. Nicodemus saith unto him, How can a man be born when he is old ? can he enter the second time into his mother's womb, and be born? Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God. That which is born of the flesh is flesh; and that which is born of the Spirit is spirit. Marvel not that I said unto thee, Ye must be born again. The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit."
+            };
+
+            Pic pic = new Pic(126, 1, "This is the title description for Pic 1");
+            taskData.pics.Add(pic);
+            pic = new Pic(126, 2, "This is the title description for Pic 22");
+            taskData.pics.Add(pic);
+            pic = new Pic(126, 3, "This is the title description for Pic 333");
+            taskData.pics.Add(pic);
+
+            taskData.Write(hostEnv);
+
+            TaskData tsRead = TaskData.ReadTaskData(hostEnv, task.Id);
 
             //Not_Started = 0x00000080,
             //Planning = 0x00000100,

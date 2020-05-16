@@ -66,6 +66,7 @@ namespace CStat.Pages.Tasks
             reason = 0;
             PercentComplete = 0;
             Desc = "";
+            pics = new List<Pic>();
         }
 
         public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId)
@@ -222,7 +223,7 @@ namespace CStat.Pages.Tasks
             pic = new Pic(126, 3, "This is the title description for Pic 333");
             taskData.pics.Add(pic);
 
-            taskData.Write(hostEnv);
+            //taskData.Write(hostEnv);
 
             TaskData tsRead = TaskData.ReadTaskData(hostEnv, task.Id);
 

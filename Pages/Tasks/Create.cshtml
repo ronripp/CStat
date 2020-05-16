@@ -11,11 +11,61 @@
 
     <style>
         #Summary {
-            overflow - y: scroll;
-            height: 200px;
+            overflow-y: scroll;
+            height: 400px;
             font-family: "Verdana";
             min-width: 90%;
             resize: none; /* Remove this if you want the user to resize the textarea */
+        }
+
+        .table th {
+            padding: 0.1rem;
+            color: lightgray;
+        }
+
+        .table td {
+            padding: 0.5rem;
+        }
+
+        .ljust {
+            text-align: left;
+        }
+
+        .cjust {
+            text-align: center;
+        }
+
+        .rjust {
+            text-align:right;
+        }
+
+        .mhider {
+            display: none;
+            text-align: right;
+        }
+
+        .mhidec {
+            display: none;
+            text-align: center;
+        }
+
+        .mhidel {
+            display: none;
+            text-align: right;
+        }
+
+        .redit {
+            text-align: right;
+            max-width: 4em;
+        }
+
+        .cedit {
+            text-align: left;
+            max-width:4em;
+        }
+        .ledit {
+            text-align: left;
+            width: 100%;
         }
     </style>
 
@@ -76,6 +126,54 @@
                     --curPic;
                     setPicture();
                 }
+            });
+
+            //$("[id^=md]").click(function () {
+            //    let did = "#" + event.target.id;
+            //    let line = did.substr(3);
+            //    let eid = "#med" + line;
+            //    let iid = "#mid" + line;
+
+            //    $(did).hide();
+            //    $(eid).show();
+            //    $(iid).attr("value", $(did).text());
+            //    $(iid).select();
+            //});
+
+            //$("[id^=mid]").on('blur', function () {
+            //    let iid = "#" + event.target.id;
+            //    let line = iid.substr(4);
+            //    let did = "#md" + line;
+            //    let eid = "#med" + line;
+
+            //    $(eid).hide();
+            //    $(did).show();
+            //    $(did).text($(iid).val());
+            //});
+
+            $("[id^=md]").click(function () {
+                let did = "#" + event.target.id;
+                let field = did.substr(3,1);
+                let line = did.substr(4);
+                let eid = "#me" + field + line;
+                let iid = "#mi" + field + line;
+
+                $(did).hide();
+                $(eid).show();
+                $(iid).attr("value", $(did).text());
+                $(iid).select();
+            });
+
+            $("[id^=mi]").on('blur', function () {
+                let iid = "#" + event.target.id;
+                let field = iid.substr(3, 1);
+                let line = iid.substr(4);
+                let did = "#md" + field + line;
+                let eid = "#me" + field + line;
+
+                $(eid).hide();
+                $(did).show();
+                $(did).text($(iid).val());
             });
 
             var formdata = null;
@@ -184,7 +282,7 @@
         <div class="col-md-3">
             <div class="form-group">
                 <label asp-for="task.Priority" class="control-label">Priority</label>
-                <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style="max-height:2.4em; max-width:8em"></select>
+                <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style=" max-height: 2.4em; max-width: 8em"></select>
             </div>
         </div>
     </div>
@@ -192,13 +290,16 @@
     <div>
         <ul class="nav nav-tabs">
             <li class="active">
-                <a href="#statusTab" data-toggle="tab">Status</a>
+                <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
             </li>
             <li role="presentation">
-                <a href="#descTab" data-toggle="tab">Description</a>
+                <a href="#descTab" data-toggle="tab"><b>Description</b></a>
             </li>
             <li role="presentation">
-                <a href="#picTab" data-toggle="tab">Pictures</a>
+                <a href="#picTab" data-toggle="tab"><b>Pictures</b></a>
+            </li>
+            <li role="presentation">
+                <a href="#bomTab" data-toggle="tab"><b>Materials</b></a>
             </li>
         </ul>
 
@@ -271,8 +372,62 @@
                 <div id="imgDiv">
                 </div>
             </div>
-         </div>
-    </div>
+
+            <div class="tab-pane" id="bomTab">
+
+                <section class="row">
+                    <h4><b>Materials</b></h4><button id="mopId" style="margin-left:10px; max-height:2.2em">+</button>
+                    <div class="col-md-12" width="100%">
+                        <table width="100%" style="margin-top:4px">
+                            <tr>
+                                <th>Item Description</th>
+                                <th class="rjust">UCost</th>
+                                <th class="cjust">Unit</th>
+                                <th class="rjust">Qty</th>
+                                <th class="rjust">TCost</th>
+                            </tr>
+                            <tr>
+                                <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
+                                <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                <td id="mdu1" class="rjust">$12.00</td>
+                                <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                <td id="mds1" class="cjust">piece</td>
+                                <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                <td id="mdq1" class="rjust">9</td>
+                                <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                <td id="mdt1" class="rjust">$108.00</td>
+                                <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                            </tr>
+                            <tr>
+                                <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
+                                <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
+                                <td id="mdu2" class="rjust">$12.00</td>
+                                <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
+                                <td id="mds2" class="cjust">piece</td>
+                                <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
+                                <td id="mdq2" class="rjust">9</td>
+                                <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
+                                <td id="mdt2" class="rjust">$108.00</td>
+                                <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
+                            </tr>
+                            <tr>
+                                <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
+                                <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
+                                <td id="mdu3" class="rjust">$12.00</td>
+                                <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
+                                <td id="mds3" class="cjust">piece</td>
+                                <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
+                                <td id="mdq3" class="rjust">9</td>
+                                <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
+                                <td id="mdt3" class="rjust">$108.00</td>
+                                <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+        </div>
 
     @*<section class="row">
             <h3>Status</h3>

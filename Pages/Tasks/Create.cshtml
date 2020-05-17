@@ -92,6 +92,41 @@
         }
         loadTaskImages();
 
+/****************
+<tr>
+    <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
+    <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+    <td id="mdu1" class="rjust">$12.00</td>
+    <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
+    <td id="mds1" class="cjust">piece</td>
+    <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+    <td id="mdq1" class="rjust">9</td>
+    <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+    <td id="mdt1" class="rjust">$108.00</td>
+    <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
+</tr>
+ * */
+
+        function updateBOM() {
+
+            var grandTot = 0;
+            $('#bomTable > tbody  > tr').each(function () {
+                $(this).find('td').each(function () {
+                    if ($(this).attr("id").indexOf("mdt") === 0) {
+                        let totStr = $(this).html().trim();
+                        if (totStr.length > 0) {
+                            if (totStr.indexOf("$") === 0) {
+                                grandTot += parseFloat(totStr.substr(1));
+                            } else {
+                                grandTot += parseFloat(totStr);
+                            }
+                        }
+                    }
+                });
+            });
+            $("#gtId").html("Grand Total $" + grandTot.toFixed(2));
+        }
+
         $(document).ready(function () {
 
             function setPicture() {
@@ -128,29 +163,6 @@
                 }
             });
 
-            //$("[id^=md]").click(function () {
-            //    let did = "#" + event.target.id;
-            //    let line = did.substr(3);
-            //    let eid = "#med" + line;
-            //    let iid = "#mid" + line;
-
-            //    $(did).hide();
-            //    $(eid).show();
-            //    $(iid).attr("value", $(did).text());
-            //    $(iid).select();
-            //});
-
-            //$("[id^=mid]").on('blur', function () {
-            //    let iid = "#" + event.target.id;
-            //    let line = iid.substr(4);
-            //    let did = "#md" + line;
-            //    let eid = "#med" + line;
-
-            //    $(eid).hide();
-            //    $(did).show();
-            //    $(did).text($(iid).val());
-            //});
-
             $("[id^=md]").click(function () {
                 let did = "#" + event.target.id;
                 let field = did.substr(3,1);
@@ -175,6 +187,7 @@
                 $(did).show();
                 $(did).text($(iid).val());
             });
+
 
             var formdata = null;
             var fileInput = null;
@@ -376,9 +389,9 @@
             <div class="tab-pane" id="bomTab">
 
                 <section class="row">
-                    <h4><b>Materials</b></h4><button id="mopId" style="margin-left:10px; max-height:2.2em">+</button>
+                    <h4><b>Materials</b></h4><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button><span id="gtId" style="text-align:right;"></span> 
                     <div class="col-md-12" width="100%">
-                        <table width="100%" style="margin-top:4px">
+                        <table id="bomTable" width="100%" style="margin-top:4px">
                             <tr>
                                 <th>Item Description</th>
                                 <th class="rjust">UCost</th>
@@ -386,42 +399,44 @@
                                 <th class="rjust">Qty</th>
                                 <th class="rjust">TCost</th>
                             </tr>
-                            <tr>
-                                <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
-                                <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
-                                <td id="mdu1" class="rjust">$12.00</td>
-                                <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
-                                <td id="mds1" class="cjust">piece</td>
-                                <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
-                                <td id="mdq1" class="rjust">9</td>
-                                <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt1" class="rjust">$108.00</td>
-                                <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
-                            </tr>
-                            <tr>
-                                <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
-                                <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
-                                <td id="mdu2" class="rjust">$12.00</td>
-                                <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
-                                <td id="mds2" class="cjust">piece</td>
-                                <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
-                                <td id="mdq2" class="rjust">9</td>
-                                <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt2" class="rjust">$108.00</td>
-                                <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
-                            </tr>
-                            <tr>
-                                <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
-                                <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
-                                <td id="mdu3" class="rjust">$12.00</td>
-                                <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
-                                <td id="mds3" class="cjust">piece</td>
-                                <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
-                                <td id="mdq3" class="rjust">9</td>
-                                <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt3" class="rjust">$108.00</td>
-                                <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
-                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
+                                    <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                    <td id="mdu1" class="rjust">$12.00</td>
+                                    <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                    <td id="mds1" class="cjust">piece</td>
+                                    <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                    <td id="mdq1" class="rjust">9</td>
+                                    <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                    <td id="mdt1" class="rjust">$108.00</td>
+                                    <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                                </tr>
+                                <tr>
+                                    <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
+                                    <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
+                                    <td id="mdu2" class="rjust">$12.00</td>
+                                    <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
+                                    <td id="mds2" class="cjust">piece</td>
+                                    <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
+                                    <td id="mdq2" class="rjust">9</td>
+                                    <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
+                                    <td id="mdt2" class="rjust">$108.00</td>
+                                    <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
+                                </tr>
+                                <tr>
+                                    <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
+                                    <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
+                                    <td id="mdu3" class="rjust">$12.00</td>
+                                    <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
+                                    <td id="mds3" class="cjust">piece</td>
+                                    <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
+                                    <td id="mdq3" class="rjust">9</td>
+                                    <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
+                                    <td id="mdt3" class="rjust">$108.00</td>
+                                    <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </section>

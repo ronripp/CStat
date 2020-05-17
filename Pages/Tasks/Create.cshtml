@@ -67,6 +67,11 @@
             text-align: left;
             width: 100%;
         }
+
+        .hdrBk {
+            background-color:#FFF090;
+        }
+
     </style>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -124,7 +129,7 @@
                     }
                 });
             });
-            $("#gtId").html("Grand Total $" + grandTot.toFixed(2));
+            $("#gtId").html("Grand Total: $" + grandTot.toFixed(2));
         }
 
         $(document).ready(function () {
@@ -186,6 +191,7 @@
                 $(eid).hide();
                 $(did).show();
                 $(did).text($(iid).val());
+                updateBOM();
             });
 
 
@@ -389,15 +395,25 @@
             <div class="tab-pane" id="bomTab">
 
                 <section class="row">
-                    <h4><b>Materials</b></h4><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button><span id="gtId" style="text-align:right;"></span> 
+                    <div class="col-md-12" width="100%">
+                        <table width="100%" style="margin-top:4px">
+                            <tr>
+                                <th><h4><b>Materials</b></h4></th>
+                                <th>&nbsp;&nbsp;&nbsp;</th>
+                                <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
+                                <th>&nbsp;&nbsp;&nbsp;</th>
+                                <th id="gtId" style="text-align:right;"></th>
+                            </tr>
+                        </table>
+                    </div>
                     <div class="col-md-12" width="100%">
                         <table id="bomTable" width="100%" style="margin-top:4px">
                             <tr>
-                                <th>Item Description</th>
-                                <th class="rjust">UCost</th>
-                                <th class="cjust">Unit</th>
-                                <th class="rjust">Qty</th>
-                                <th class="rjust">TCost</th>
+                                <th class="hdrBk">Item Description</th>
+                                <th class="rjust hdrBk">UCost</th>
+                                <th class="cjust hdrBk">Unit</th>
+                                <th class="rjust hdrBk">Qty</th>
+                                <th class="rjust hdrBk">TCost</th>
                             </tr>
                             <tbody>
                                 <tr>
@@ -438,7 +454,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                     </div>
                 </section>
             </div>
         </div>

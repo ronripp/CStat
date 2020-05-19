@@ -113,11 +113,14 @@
  * */
 
         function updateBOM() {
-
             var grandTot = 0;
+            var foundAdd = false;
+            var maxLine = 0;
             $('#bomTable > tbody  > tr').each(function () {
                 $(this).find('td').each(function () {
-                    if ($(this).attr("id").indexOf("mdt") === 0) {
+                    let idStr = $(this).attr("id");
+
+                    if (idStr.indexOf("mdt") === 0) {
                         let totStr = $(this).html().trim();
                         if (totStr.length > 0) {
                             if (totStr.indexOf("$") === 0) {
@@ -126,9 +129,35 @@
                                 grandTot += parseFloat(totStr);
                             }
                         }
+                    } else {
+                        if (idStr.indexOf("mdd") === 0) {
+                            let line = parseInt(idStr.substr(3), 10);
+                            if (line > maxLine) {
+                                maxLine = line;
+                            }
+                            let descStr = $(this).html().trim();
+                            if (descStr.indexOf("&lt;add new") != -1) {
+                                foundAdd = true;
+                            }
+                        }
                     }
                 });
             });
+
+            if (!foundAdd) {
+                var newLine = maxLine + 1;
+                $('#bomTable > tbody:last').append('<tr><td id="mdd' + newLine + '">&#60;add new description&#62;</td >' +
+                    '<td id="med' + newLine + '" class="mhidel"><input id="mid' + newLine + '" type="text" class="ledit"></td>' +
+                    '<td id="mdu' + newLine + '" class="rjust"></td>' +
+                    '<td id="meu' + newLine + '" class="mhider"><input id="miu' + newLine + '" type="text" class="redit"></td>' +
+                    '<td id="mds' + newLine + '" class="cjust"></td>' +
+                    '<td id="mes' + newLine + '" class="mhidec"><input id="mis' + newLine + '" type="text" class="cedit"></td>' +
+                    '<td id="mdq' + newLine + '" class="rjust"></td>' +
+                    '<td id="meq' + newLine + '" class="mhider"><input id="miq' + newLine + '" type="text" class="redit" style="max-width:2em;"></td>' +
+                    '<td id="mdt' + newLine + '" class="rjust"></td>' +
+                    '<td id="met' + newLine + '" class="mhider"><input id="mit' + newLine + '" type="text" class="redit"></td>' + '</tr>');
+            }
+
             $("#gtId").html("Grand Total: $" + grandTot.toFixed(2));
         }
 

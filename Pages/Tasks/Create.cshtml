@@ -100,17 +100,68 @@
 /****************
 <tr>
     <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
-    <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                  <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
     <td id="mdu1" class="rjust">$12.00</td>
-    <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                  <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
     <td id="mds1" class="cjust">piece</td>
-    <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                  <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
     <td id="mdq1" class="rjust">9</td>
-    <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                  <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
     <td id="mdt1" class="rjust">$108.00</td>
-    <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                  <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
 </tr>
  * */
+        function saveBOM() {
+
+            var bom = [];
+
+            $('#bomTable > tbody  > tr').each(function () {
+
+                var id = -1;
+                var desc = "";
+                var ucost = "";
+                var units = "";
+                var qty = "";
+                var tcost = "";
+
+                $(this).find('td').each(function () {
+
+                    let idStr = $(this).attr("id");
+
+                    if (idStr.indexOf("mdd") === 0) {
+                        desc = $(this).html().trim();
+                        if (descStr.indexOf("&lt;add new") == -1) {
+                            id = parseInt(idStr.substr(3), 10);
+                        }
+                    }
+
+                    if (idStr.indexOf("mdu") === 0) {
+                        ucost = $(this).html().trim();
+                    }
+
+                    if (idStr.indexOf("mds") === 0) {
+                        qty = $(this).html().trim();
+                    }
+
+                    if (idStr.indexOf("mdt") === 0) {
+                        tcost = $(this).html().trim();
+                    }
+                });
+
+                if (id !== -1) {
+                    var line = [];
+                    line["id"] = id;
+                    line["desc"] = desc;
+                    line["ucost"] = ucost;
+                    line["units"] = units;
+                    line["qty"] = qty;
+                    line["tcost"] = tcost;
+                    bom.push(line);
+                }
+            });
+
+            return bom;
+        }
 
         function updateBOM() {
             var grandTot = 0;
@@ -445,7 +496,22 @@
                                 <th class="rjust hdrBk">TCost</th>
                             </tr>
                             <tbody>
-                                <tr>
+                                @foreach (var bl in Model.taskData.bom)
+                                {
+                                    <tr>
+                                        <td id="mdd@{@bl.id}">@bl.desc</td>
+                                       <td id="med@{@bl.id}" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                       <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                        <td id="meu@{@bl.id}" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                        <td id="mds1@{@bl.id}" class="cjust">@bl.units</td>
+                                        <td id="mes@{@bl.id} " class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                        <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                        <td id="meq@{@bl.id}" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                        <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                        <td id="met@{@bl.id}" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                                    </tr>
+                                }
+                                @*<tr>
                                     <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
                                     <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
                                     <td id="mdu1" class="rjust">$12.00</td>
@@ -480,7 +546,7 @@
                                     <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
                                     <td id="mdt3" class="rjust">$108.00</td>
                                     <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
-                                </tr>
+                                </tr>*@
                             </tbody>
                         </table>
                      </div>

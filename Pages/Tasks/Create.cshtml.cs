@@ -45,6 +45,32 @@ namespace CStat.Pages.Tasks
     }
 
     [DataContract]
+    public class BOMLine
+    {
+        public BOMLine(int id_, string desc_, string ucost_, string units_, string qty_, string tcost_)
+        {
+            id = id_;
+            desc = desc_;
+            ucost = ucost_;
+            units = units_;
+            qty = qty_;
+            tcost = tcost_;
+        }
+        [DataMember]
+        public int id { get; set; }
+        [DataMember]
+        public string desc { get; set; }
+        [DataMember]
+        public string ucost { get; set; }
+        [DataMember]
+        public string units { get; set; }
+        [DataMember]
+        public string qty { get; set; }
+        [DataMember]
+        public string tcost { get; set; }
+    }
+
+    [DataContract]
     public class TaskData
     {
         [DataMember]
@@ -58,6 +84,8 @@ namespace CStat.Pages.Tasks
         public string Desc { get; set; }
         [DataMember]
         public List<Pic> pics { get; set; }
+        [DataMember]
+        public List<BOMLine> bom { get; set; }
 
         public TaskData(int taskId=-1)
         {

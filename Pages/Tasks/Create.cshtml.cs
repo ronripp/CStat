@@ -270,7 +270,7 @@ namespace CStat.Pages.Tasks
             return this.Content("Fail");
         }
 
-        public ActionResult OnPostSend()
+        public ActionResult OnPostSave()
         {
             if ((this.Request != null) && (this.Request.Form != null))
             {
@@ -279,7 +279,7 @@ namespace CStat.Pages.Tasks
                 int imgTID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
                 int imgPID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "picId").Value);
 
-                return this.Content("Success:");  // Send back URL
+                return this.Content("Success:");  // Send back results
             }
             return this.Content("Fail");
         }

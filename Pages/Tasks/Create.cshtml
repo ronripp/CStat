@@ -72,6 +72,12 @@
             background-color:#FFF090;
         }
 
+        .tborder {
+            padding: 4px 4px 4px 4px;
+            border: 2px solid #ffd800;
+            background-color: #fef4b9
+        }
+
     </style>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -80,37 +86,59 @@
 
     <script type="text/javascript">
 
-        var taskImgs = [
-            "https://localhost:44321/images/ItmImg_76069501658.jpg?v=iUAGVFZM8eZc4Qrm1qOH60Whgxo-cT33_NH9x9zAMJU",
-            "https://localhost:44321/images/ItmImg_042523001003.jpg?v=Kj7JCiQxuD8l867LRT5TWim6vgmicjmGdWOBFFIeT4M",
-            "https://localhost:44321/images/ItmImg_072288116810.jpg?v=1Lc_1xEVA3GPxkkd2S-bHcQD2L2WySsd1X_k7sYoyh4"
-        ];
+        var pics = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.url + "'")))];
+        var picTitles = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.title + "'")))];
+
         var curPic = 0;
         var lastPic = -1;
-        var pics = [];
-        function loadTaskImages() {
-            for (let i = 0; i < taskImgs.length; ++i) {
-                let pic = new Image();
-                pic.src = taskImgs[i];
-                pics.push(pic);
-            }
-        }
-        loadTaskImages();
 
-/****************
-<tr>
-    <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
-                  <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
-    <td id="mdu1" class="rjust">$12.00</td>
-                  <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
-    <td id="mds1" class="cjust">piece</td>
-                  <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
-    <td id="mdq1" class="rjust">9</td>
-                  <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
-    <td id="mdt1" class="rjust">$108.00</td>
-                  <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
-</tr>
- * */
+        function saveTask() {
+
+            // Get Task fields
+
+            // Get Description
+
+            // Get Photos and titles
+            let pics_s = JSON.stringify(pics);
+            let picTitles_s = JSON.stringify(picTitles.map(t => encodeQuotes(t)));
+
+            // Get BOM 
+            let bom_s = JSON.stringify(saveBOM());
+
+            formdata.append("pics", pic_);
+            formdata.append("picTitle", picTitles_s);
+            formdata.append("bom", tid);
+            formdata.append("picId", pics.length + 1);
+
+            jQuery.ajax({
+                url: "/Tasks/Create?handler=Send",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: formdata,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.indexOf("Success:") === 0) {
+                        pics.push(res.substr(8));
+                        picTitles.push(picDesc);
+                    } else {
+                        alert("Image Save Failed : " + res);
+                    }
+                },
+                error: function (res) {
+                    alert("Image Save Failed : " + res);
+                },
+                complete: function (res) {
+                    $("#newPicId").hide();
+                    $("#picHdrId").show();
+                }
+            });
+        }
+
         function saveBOM() {
 
             var bom = [];
@@ -129,7 +157,7 @@
                     let idStr = $(this).attr("id");
 
                     if (idStr.indexOf("mdd") === 0) {
-                        desc = $(this).html().trim();
+                        desc = encodeQuotes($(this).html().trim());
                         if (descStr.indexOf("&lt;add new") == -1) {
                             id = parseInt(idStr.substr(3), 10);
                         }
@@ -197,7 +225,7 @@
 
             if (!foundAdd) {
                 var newLine = maxLine + 1;
-                $('#bomTable > tbody:last').append('<tr><td id="mdd' + newLine + '">&#60;add new description&#62;</td >' +
+                $('#bomTable > tbody:last').append('<tr><td id="mdd' + newLine + '">&#60;add new description&#62;</td>' +
                     '<td id="med' + newLine + '" class="mhidel"><input id="mid' + newLine + '" type="text" class="ledit"></td>' +
                     '<td id="mdu' + newLine + '" class="rjust"></td>' +
                     '<td id="meu' + newLine + '" class="mhider"><input id="miu' + newLine + '" type="text" class="redit"></td>' +
@@ -215,20 +243,8 @@
         $(document).ready(function () {
 
             function setPicture() {
-                let imgDiv = document.getElementById("imgDiv");
-                if (lastPic >= 0) {
-                    imgDiv.removeChild(pics[lastPic]);
-                }
-                let img = pics[curPic];
-                //let CAsp = imgDiv.clientHeight / imgDiv.clientWidth;
-                //let NAsp = img.naturalHeight / img.naturalWidth;
-                //if (Casp >= NAsp) {
-                //  img.style.clientWidth = imgDiv.clientWidth;
-                //} else {
-                //    img.style.clientWidth = imgDiv.clientHeight;
-                //}
-                img.style.width = "100%";
-                imgDiv.appendChild(img);
+                $("#imgDiv").html('<image src="' +  pics[curPic] + '" style="width:100%">');
+                $("#imgTitle").html("<b>" + picTitles[curPic] + "</b>");
                 lastPic = curPic;
             }
 
@@ -283,6 +299,9 @@
                 $("#newPicId").show();
 
                 fileInput = document.getElementById("newImg");
+                fileInput.value = "";
+                $("#newImgDesc").val("");
+
                 if (window.FormData) {
                     formdata = new FormData();
                 }
@@ -324,14 +343,10 @@
                             formdata.append("image", file);
                             formdata.append("picTitle", encodeQuotes(picDesc));
                             formdata.append("taskId", tid);
-                            formdata.append("picId", pics.length);
-                        }
-
-                        if (formdata) {
-                            //jQuery('div#response').html('<br /><img src="ajax-loader.gif"/>');
+                            formdata.append("picId", pics.length + 1);
 
                             jQuery.ajax({
-                                url: "/Tasks/Create?handler=Send",
+                                url: "/Tasks/Create?handler=SendPic",
                                 headers: {
                                     RequestVerificationToken:
                                         $('input:hidden[name="__RequestVerificationToken"]').val()
@@ -342,6 +357,12 @@
                                 processData: false,
                                 contentType: false,
                                 success: function (res) {
+                                    if (res.indexOf("Success:") === 0) {
+                                        pics.push(res.substr(8));
+                                        picTitles.push(picDesc);
+                                    } else {
+                                        alert("Image Save Failed : " + res);
+                                    }
                                 },
                                 error: function (res) {
                                     alert("Image Save Failed : " + res);
@@ -371,17 +392,11 @@
 <body>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-12">
             <div class="form-group">
                 <label asp-for="task.Description" class="control-label">Title:</label>
                 <input asp-for="task.Description" class="form-control" />
                 <span asp-validation-for="task.Description" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label asp-for="task.Priority" class="control-label">Priority</label>
-                <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style=" max-height: 2.4em; max-width: 8em"></select>
             </div>
         </div>
     </div>
@@ -406,22 +421,33 @@
             <div class="tab-pane active" id="statusTab">
 
                 <div class="row">
-                    <h3>Status</h3>
-                    <div class="col-md-6">
-                        <div class="form-group" style="margin-top:10px">
-                            <div class="form-group">
-                                <div class="progress" style="max-height:2.1em; max-width:16em">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
-                                        <span class="sr-only">70% Complete</span>
-                                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group tborder" style="margin-top:10px">
+                            <input type="text" id="pcomp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b>
+                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                                    <div class="sr-only">Model.taskData.PercentComplete% Complete</div>
                                 </div>
-                                <select asp-for="taskData.state" class="form-control" asp-items="ViewBag.State" style="max-width:10em"></select>
-                                <select asp-for="taskData.reason" class="form-control" asp-items="ViewBag.Reason" style="max-width:10em"></select>
                             </div>
+                            <span>
+                                <label asp-for="taskData.state" class="control-label">State:</label>
+                                <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
+                            </span>
+                            <span>
+                                <label asp-for="taskData.reason" class="control-label">Reason:</label>
+                                <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
+                            </span>
                         </div>
                     </div>
-
-                    <div class="col-md-6">
+                    <div class="col-md-3">
+                        <div class="tborder" style="margin-top:10px">
+                            <label asp-for="task.Priority" class="control-label">Priority</label>
+                            <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style=" max-height: 2.4em; max-width: 8em"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label asp-for="task.TotalCost" class="control-label">Total Cost $</label>
                             <input asp-for="task.TotalCost" class="form-control" style="max-height:2.4em; max-width:8em" />
@@ -447,7 +473,7 @@
                         <tr>
                             <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
                             <td><button id="imgPriorBtn">&#60;&#60;</button></td>
-                            <td style="text-align:center; margin-left:4px; margin-right:4px;"><b>[1 of 3] This describes the picture in detail and can be a long text message as well.</b></td>
+                            <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
                             <td><button id="imgNextBtn">&#62;&#62;</button></td>
                         </tr>
                     </table>
@@ -461,7 +487,7 @@
                         <input id="newImg" type="file" name="file">
                     </div>
                     <div class="col-md-6" style="margin-top:4px">
-                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em"></span>
+                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
                     </div>
                     <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
                         <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>

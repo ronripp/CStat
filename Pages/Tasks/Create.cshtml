@@ -438,38 +438,40 @@
                 <div class="tab-pane active" id="statusTab">
 
                     <div class="row">
-                        <div class="col-md-9">
-                            <div class="form-group tborder" style="        margin-top: 10px
-">
+                        <div class="col-md-6">
+                            <div class="form-group tborder" style="margin-top: 10px">
                                 <input type="text" id="pctComp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b>
                                 <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
                                     <div class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                         <div class="sr-only">Model.taskData.PercentComplete% Complete</div>
                                     </div>
                                 </div>
-                                <span>
+                                <div>
                                     <label asp-for="taskData.state" class="control-label">State:</label>
                                     <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
-                                </span>
-                                <span>
                                     <label asp-for="taskData.reason" class="control-label">Reason:</label>
                                     <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
-                                </span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="tborder" style="margin-top:10px">
-                                <label asp-for="task.Priority" class="control-label">Priority</label>
-                                <select asp-for="task.Priority" class="form-control" asp-items="ViewBag.Priority" style=" max-height: 2.4em; max-width: 8em"></select>
+                                <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
+                                <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
+                                <div>
+                                        <label asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">Due Date:</label>
+                                        <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" name="FixedDue">
+                                    <label for="FixedDue">Fixed Date?</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="task.TotalCost" class="control-label">Total Cost $</label>
-                                <input asp-for="task.TotalCost" class="form-control" style="max-height:2.4em; max-width:8em" />
-                                <span asp-validation-for="task.TotalCost" class="text-danger"></span>
+                        <div class="col-md-3">
+                            <div class="tborder" style="margin-top:10px">
+                                <label asp-for="task.Priority" class="control-label">Priority:</label>
+                                <select asp-for="task.Priority" asp-items="ViewBag.Priority" style="max-height: 2.4em; max-width: 8.2em"></select>
                             </div>
                         </div>
                     </div>

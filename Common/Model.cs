@@ -494,7 +494,7 @@ namespace CStat.Models
             NewAdditon      = 0x00000010,
             RequiredTask    = 0x00000020,
             CampEnhancement = 0x00000040,
-            Promition       = 0x00000040,
+            Promotion       = 0x00000040,
 
             //Occurance
             OneTime         = 0x00010000,
@@ -507,11 +507,12 @@ namespace CStat.Models
 
         public enum ePriority
         {
-            Urgent    = 0x00000001,
-            Very_High = 0x00000002,
-            High      = 0x00000004,
-            Medium    = 0x00000008,
-            Low       = 0x00000010,
+            Mandatory = 0x00000001,
+            Urgent    = 0x00000002,
+            Very_High = 0x00000004,
+            High      = 0x00000008,
+            Medium    = 0x00000010,
+            Low       = 0x00000020
         }
 
         public enum eTaskStatus

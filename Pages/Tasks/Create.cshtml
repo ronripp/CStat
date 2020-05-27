@@ -128,13 +128,13 @@
             let pics_s = JSON.stringify(pics);
             let picTitles_s = JSON.stringify(picTitles.map(t => encodeQuotes(t)));
 
-            // Get BOM 
+            // Get BOM
             let bom_s = JSON.stringify(saveBOM());
 
             saveFormData.append("pics", pics_s);
             saveFormData.append("picTitle", picTitles_s);
             saveFormData.append("bom", bom_s);
-      
+
             jQuery.ajax({
                 url: "/Tasks/Create?handler=Save",
                 headers: {
@@ -343,6 +343,46 @@
                 $("#picHdrId").show();
             });
 
+            $("#pctComp").change(function () {
+                let comp = $("#pctComp").val();
+                //<div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                //    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                //        <div id="srComp" class="sr-only">60% Complete</div>
+                //    </div>
+                //</div>
+                var pbarComp = $("#pbarComp");
+                pbarComp.attr("aria-valuenow", comp);
+                pbarComp.css("width", comp + "%");
+                $("#srComp").text(comp + "% Complete");
+            });
+
+            $("#Funded").change(function () {
+                updateFunded();
+            });
+
+            $("#TCostInput").change(function () {
+                updateFunded();
+            });
+
+            function updateFunded() {
+                let tcost = parseFloat($("#TCostInput").val());
+
+                if (!tcost) {
+                    return;
+                }
+                let funded = parseFloat($("#Funded").val());
+                //<div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                //    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                //        <div id="srComp" class="sr-only">60% Complete</div>
+                //    </div>
+                //</div>
+                let pct = Math.round((funded / tcost) * 100);
+                var pbarCost = $("#pbarCost");
+                pbarCost.attr("aria-valuenow", pct);
+                pbarCost.css("width", pct + "%");
+                $("#srCost").text(pct + "% Funded");
+            }
+
             $("#savePicBtn").click(function () {
                 var i = 0, len = fileInput.files.length, img, reader, file;
 
@@ -456,8 +496,8 @@
                             <div class="form-group tborder" style="margin-top: 10px">
                                 <input type="text" id="pctComp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
                                 <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
-                                        <div class="sr-only">@Model.taskData.PercentComplete% Complete</div>
+                                    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                                        <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
                                     </div>
                                 </div>
                                 <div>
@@ -492,15 +532,15 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group tcborder">
-                                <label asp-for="task.CommittedCost" class="control-label" style="margin-right:1em">Funded:</label>
-                                <input type="text" id="Funded" style="max-width:5em; text-align:center; font-weight:bold;" value="@Model.task.CommittedCost" />
+                                <label asp-for="task.CommittedCost" class="control-label">Funded&nbsp;&nbsp;&nbsp;&nbsp;$</label>
+                                <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost" />
                                 <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:60%; background-color:limegreen !important;">
-                                        <div class="sr-only">60% Complete</div>
+                                    <div id="pbarCost" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:60%; background-color:limegreen !important;">
+                                        <div id="srCost" class="sr-only">60% Funded</div>
                                     </div>
                                 </div>
-                                <label asp-for="task.TotalCost" class="control-label">Total Cost:</label>
-                                <input type="text" id="Funded" style="max-width:5em; text-align:center; font-weight:bold" value="@Model.task.TotalCost" />
+                                <label asp-for="task.TotalCost" class="control-label">Total Cost $</label>
+                                <input type="text" id="TCostInput" style="max-width:5em; text-align:left; font-weight:bold" value="@Model.task.TotalCost" />
                             </div>
                         </div>
                         <div class="col-md-6">

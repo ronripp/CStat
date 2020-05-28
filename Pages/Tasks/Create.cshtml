@@ -260,6 +260,7 @@
             }
 
             $("#gtId").html("Grand Total: $" + grandTot.toFixed(2));
+            $("#TCostStat").html(grandTot.toFixed(2));
         }
 
         $(document).ready(function () {
@@ -360,28 +361,36 @@
                 updateFunded();
             });
 
-            $("#TCostInput").change(function () {
+
+            $("body").on('DOMSubtreeModified', "#TCostStat", function () {
                 updateFunded();
             });
 
             function updateFunded() {
-                let tcost = parseFloat($("#TCostInput").val());
+                let tcostStr = $("#TCostStat").html();
+                let tcost = (!!tcostStr) ? parseFloat(tcostStr) : 0; 
 
-                if (!tcost) {
-                    return;
-                }
-                let funded = parseFloat($("#Funded").val());
+                let fundedStr = $("#Funded").val();
+                let funded = !!fundedStr ? parseFloat(fundedStr) : 0;
                 //<div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
                 //    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                 //        <div id="srComp" class="sr-only">60% Complete</div>
                 //    </div>
                 //</div>
-                let pct = Math.round((funded / tcost) * 100);
+
+                let pct = (tcost === 0) ? 100 : Math.round((funded / tcost) * 100);
                 var pbarCost = $("#pbarCost");
                 pbarCost.attr("aria-valuenow", pct);
                 pbarCost.css("width", pct + "%");
                 $("#srCost").text(pct + "% Funded");
             }
+
+            function initCosts() {
+                updateBOM();
+                // updateFunded();
+            }
+
+            initCosts();
 
             $("#savePicBtn").click(function () {
                 var i = 0, len = fileInput.files.length, img, reader, file;
@@ -463,7 +472,7 @@
         <div class="col-md-10">
             <div class="form-group">
                 <label asp-for="task.Description" class="control-label">Title:</label>
-                <input asp-for="task.Description" class="form-control" />
+                <input asp-for="task.Description" class="form-control" style="font-weight:bold"/>
                 <span asp-validation-for="task.Description" class="text-danger"></span>
             </div>
         </div>
@@ -478,13 +487,13 @@
                     <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
                 </li>
                 <li role="presentation">
-                    <a href="#descTab" data-toggle="tab"><b>Description</b></a>
+                    <a href="#descTab" data-toggle="tab"><b>Detail</b></a>
                 </li>
                 <li role="presentation">
                     <a href="#picTab" data-toggle="tab"><b>Pictures</b></a>
                 </li>
                 <li role="presentation">
-                    <a href="#bomTab" data-toggle="tab"><b>Materials</b></a>
+                    <a href="#bomTab" data-toggle="tab"><b>Costs</b></a>
                 </li>
             </ul>
 
@@ -539,8 +548,8 @@
                                         <div id="srCost" class="sr-only">60% Funded</div>
                                     </div>
                                 </div>
-                                <label asp-for="task.TotalCost" class="control-label">Total Cost $</label>
-                                <input type="text" id="TCostInput" style="max-width:5em; text-align:left; font-weight:bold" value="@Model.task.TotalCost" />
+                                <span font-weight:bold">Total Cost $</span>
+                                <span id="TCostStat" style="max-width:5em; text-align:left; font-weight:bold">@Model.task.TotalCost</span>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -594,7 +603,7 @@
                            <div class="col-md-12" width="100%">
                                <table width="100%" style="margin-top:4px">
                                    <tr>
-                                       <th><h4><b>Materials</b></h4></th>
+                                       <th><h4><b>Materials/Labor/Fees</b></h4></th>
                                        <th>&nbsp;&nbsp;&nbsp;</th>
                                        <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
                                        <th>&nbsp;&nbsp;&nbsp;</th>

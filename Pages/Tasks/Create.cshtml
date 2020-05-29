@@ -111,6 +111,7 @@
 
         var curPic = 0;
         var lastPic = -1;
+        var inMarkDone = false;
 
         function saveTask() {
 
@@ -149,6 +150,8 @@
                 success: function (res) {
                     if (res.indexOf("Success") !== 0) {
                         alert("Image Save Failed : " + res);
+                    } else {
+                        inMarkDone && $("#markDone").prop("disabled", true);
                     }
                 },
                 error: function (res) {
@@ -157,6 +160,7 @@
                 complete: function (res) {
                     $("#newPicId").hide();
                     $("#picHdrId").show();
+                    inMarkDone = false;
                 }
             });
         }
@@ -285,6 +289,14 @@
                     --curPic;
                     setPicture();
                 }
+            });
+
+            $("#markDone").click(function () {
+                inMarkDone = true;
+                $("#taskData_state").val(0x00001000);
+                $("#taskData_reason").val(0x02000000);
+                $("#pctComp").val(100);
+                saveTask();
             });
 
             //$(document).on('click', "[id^=md]", function () {
@@ -575,7 +587,7 @@
                                    <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
                                    <td><button id="imgNextBtn">&#62;&#62;</button></td>
                                </tr>
-                           </table>
+                           </table>MA
                        </div>
 
                        <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">

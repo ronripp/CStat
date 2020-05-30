@@ -130,10 +130,11 @@
             let picTitles_s = JSON.stringify(picTitles.map(t => encodeQuotes(t)));
 
             // Get BOM
-            let bom_s = JSON.stringify(saveBOM());
+            let bom_a = saveBOM();
+            let bom_s = JSON.stringify(bom_a);
 
             saveFormData.append("pics", pics_s);
-            saveFormData.append("picTitle", picTitles_s);
+            saveFormData.append("picTitles", picTitles_s);
             saveFormData.append("bom", bom_s);
 
             jQuery.ajax({
@@ -151,7 +152,9 @@
                     if (res.indexOf("Success") !== 0) {
                         alert("Image Save Failed : " + res);
                     } else {
-                        inMarkDone && $("#markDone").prop("disabled", true);
+                        if (inMarkDone) {
+                            $("#markDone").prop("disabled", true).css('opacity', 0.5);
+                        }
                     }
                 },
                 error: function (res) {
@@ -183,8 +186,8 @@
                     let idStr = $(this).attr("id");
 
                     if (idStr.indexOf("mdd") === 0) {
-                        descStr = encodeQuotes($(this).html().trim());
-                        if (descStr.indexOf("&lt;add new") == -1) {
+                        desc = encodeQuotes($(this).html().trim());
+                        if (desc.indexOf("&lt;add new") === -1) {
                             id = parseInt(idStr.substr(3), 10);
                         }
                     }
@@ -194,6 +197,10 @@
                     }
 
                     if (idStr.indexOf("mds") === 0) {
+                        units = $(this).html().trim();
+                    }
+
+                    if (idStr.indexOf("mdq") === 0) {
                         qty = $(this).html().trim();
                     }
 
@@ -203,7 +210,7 @@
                 });
 
                 if (id !== -1) {
-                    var line = [];
+                    var line = new Object(); //matches C# BOMLine
                     line["id"] = id;
                     line["desc"] = desc;
                     line["ucost"] = ucost;
@@ -296,17 +303,80 @@
                 $("#taskData_state").val(0x00001000);
                 $("#taskData_reason").val(0x02000000);
                 $("#pctComp").val(100);
+                $("#pctComp").trigger("change");
                 saveTask();
             });
 
-            //$(document).on('click', "[id^=md]", function () {
-            //    alert(event.target.id);
+            $('body').on('keydown', "[id^=me]", function (e) {
+                if (e.which == 9) {
+                    e.preventDefault();
+                    let eid = "#" + event.target.id;
+                    let field = eid.substr(3, 1);
+                    let line = eid.substr(4);
+                    let did = "#md" + field + line;
+                    let iid = "#mi" + field + line;
+//                    console.log("keyup :" + did + " " + field + " " + line);
+                    /*****
+                    keyup :#mid1 d 1
+                    keyup :#miu1 u 1
+                    keyup :#mis1 s 1
+                    keyup :#miq1 q 1
+                    keyup :#mit1 t 1
+                     ****/
+                    //$(eid).hide();
+                    //$(did).show();
+                    //$(did).text($(iid).val());
+                    let fld;
+                    let ln;
+                    switch (field) {
+                        case "d":
+                            fld = "u";
+                            ln = line;
+                            break;
+                        case "u":
+                            fld = "s";
+                            ln = line;
+                            break;
+                        case "s":
+                            fld = "q";
+                            ln = line;
+                            break;
+                        case "q":
+                            fld = "t";
+                            ln = line;
+                            break;
+                        case "t":
+                            fld = "d";
+                            ln = line+1;
+                            break;
+                    }
+                    let ndid = "#md" + fld + ln;
+                    $(ndid).hide();
+                    let neid = "#me" + fld + ln;
+                    let niid = "#mi" + fld + ln;
+                    $(neid).show();
+                    $(niid).attr("value", $(ndid).text());
+                    $(niid).select();
+                }
+            });
+
+            //$(document).on('keyup', "[id^=me]", function (event) {
+            //    let did = "#" + event.target.id;
+            //    let field = did.substr(3,1);
+            //    let line = did.substr(4);
+            //    console.log("keyup :" + did + " " + field + " " + line);
+            //    //let eid = "#me" + field + line;
+            //    //let iid = "#mi" + field + line;
+
+            //    //$(did).hide();
+            //    //$(eid).show();
+            //    //$(iid).attr("value", $(did).text());
+            //    //$(iid).select();
             //});
 
-//            $("[id^=md]").on('click', function () {
             $(document).on('click', "[id^=md]", function () {
                 let did = "#" + event.target.id;
-                let field = did.substr(3,1);
+                let field = did.substr(3, 1);
                 let line = did.substr(4);
                 let eid = "#me" + field + line;
                 let iid = "#mi" + field + line;
@@ -317,7 +387,7 @@
                 $(iid).select();
             });
 
-//            $("[id^=mi]").on('blur', function () {
+
             $(document).on('blur', "[id^=mi]", function () {
                 let iid = "#" + event.target.id;
                 let field = iid.substr(3, 1);
@@ -358,11 +428,16 @@
 
             $("#pctComp").change(function () {
                 let comp = $("#pctComp").val();
-                //<div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                //    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
-                //        <div id="srComp" class="sr-only">60% Complete</div>
-                //    </div>
-                //</div>
+                let compVal = parseInt(comp);
+                if (!!compVal) {
+                    if (compVal < 100) {
+                        $("#markDone").prop("disabled", false).css('opacity', 1.0);
+                    } else {
+                        $("#markDone").prop("disabled", true).css('opacity', 0.5);
+                    }
+                } else {
+                    return;
+                }
                 var pbarComp = $("#pbarComp");
                 pbarComp.attr("aria-valuenow", comp);
                 pbarComp.css("width", comp + "%");
@@ -384,12 +459,6 @@
 
                 let fundedStr = $("#Funded").val();
                 let funded = !!fundedStr ? parseFloat(fundedStr) : 0;
-                //<div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                //    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
-                //        <div id="srComp" class="sr-only">60% Complete</div>
-                //    </div>
-                //</div>
-
                 let pct = (tcost === 0) ? 100 : Math.round((funded / tcost) * 100);
                 var pbarCost = $("#pbarCost");
                 pbarCost.attr("aria-valuenow", pct);
@@ -399,7 +468,6 @@
 
             function initCosts() {
                 updateBOM();
-                // updateFunded();
             }
 
             initCosts();
@@ -641,7 +709,7 @@
                                                <td id="med@{@bl.id}" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
                                                <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
                                                <td id="meu@{@bl.id}" class="mhider"><input id="miu1" type="text" class="redit"></td>
-                                               <td id="mds1@{@bl.id}" class="cjust">@bl.units</td>
+                                               <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
                                                <td id="mes@{@bl.id} " class="mhidec"><input id="mis1" type="text" class="cedit"></td>
                                                <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
                                                <td id="meq@{@bl.id}" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>

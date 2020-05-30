@@ -274,10 +274,19 @@ namespace CStat.Pages.Tasks
         {
             if ((this.Request != null) && (this.Request.Form != null))
             {
-                var files = this.Request.Form;
-                string PicTitle = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitle").Value);
-                int imgTID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
-                int imgPID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "picId").Value);
+                uint pctComp = uint.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "pctComp").Value);
+                ulong status = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskState").Value);
+                ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
+                int priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
+                string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value);
+                int tid = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                string desc = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                string[] pics = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "pics").Value);
+                string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
+                List<BOMLine> bom = new List<BOMLine>();
+                var sBOM = this.Request.Form.FirstOrDefault(kv => kv.Key == "bom").Value;
+
+                List<BOMLine> bList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BOMLine>>(sBOM);
 
                 return this.Content("Success:");  // Send back results
             }

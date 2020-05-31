@@ -3,7 +3,7 @@
 @Html.AntiForgeryToken()
 
 @{
-    ViewData["Title"] = "Task";
+    ViewData["Title"] = "Task " + ((Model.task.Id == -1) ? "(New)" : Model.task.Id.ToString()); 
 }
 
 <head>
@@ -307,6 +307,17 @@
                 saveTask();
             });
 
+            $("#taskData_state").change(function () {
+                if ($("#taskData_state").val() == 0x00001000) {
+                    $("#pctComp").val(100);
+                }
+                else {
+                    $("#pctComp").val(90);
+
+                }
+                $("#pctComp").trigger("change");
+            });
+
             $('body').on('keydown', "[id^=me]", function (e) {
                 if (e.which == 9) {
                     e.preventDefault();
@@ -432,7 +443,11 @@
                 if (!!compVal) {
                     if (compVal < 100) {
                         $("#markDone").prop("disabled", false).css('opacity', 1.0);
+                        $("#taskData_state").val(0x00000400);
+                        $("#taskData_reason").val(0x04000000);
                     } else {
+                        $("#taskData_state").val(0x00001000);
+                        $("#taskData_reason").val(0x02000000);
                         $("#markDone").prop("disabled", true).css('opacity', 0.5);
                     }
                 } else {

@@ -533,7 +533,8 @@ namespace CStat.Models
             Need_Material   = 0x00400000,
             Need_Inspection = 0x00800000,
             Need_Planning   = 0x01000000,
-            Job_Done        = 0x02000000
+            Job_Done        = 0x02000000,
+            Unknown         = 0x04000000
         }
 
         public void GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp)

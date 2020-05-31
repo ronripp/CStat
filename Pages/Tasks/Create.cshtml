@@ -319,7 +319,7 @@
             });
 
             $('body').on('keydown', "[id^=me]", function (e) {
-                if (e.which == 9) {
+                if ((e.which == 9) || (e.which == 13)) {
                     e.preventDefault();
                     let eid = "#" + event.target.id;
                     let field = eid.substr(3, 1);
@@ -358,7 +358,7 @@
                             break;
                         case "t":
                             fld = "d";
-                            ln = line+1;
+                            ln = parseInt(line,10)+1;
                             break;
                     }
                     let ndid = "#md" + fld + ln;

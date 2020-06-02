@@ -125,6 +125,11 @@
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskDesc", $("#taskDesc").val()); // Add Description
 
+            if (($("#task_ActualDoneDate").val() === "") && (inMarkDone || ($("#taskData_state").val() === 0x00001000))) {
+                $("#task_ActualDoneDate").val(Date.now().toString());
+            }
+            saveFormData.append("taskDoneDate", $("#task_ActualDoneDate").val());
+
             // Get Photos and titles
             let pics_s = JSON.stringify(pics);
             let picTitles_s = JSON.stringify(picTitles.map(t => encodeQuotes(t)));
@@ -313,7 +318,7 @@
                 }
                 else {
                     $("#pctComp").val(90);
-
+                    $("#task_ActualDoneDate").val("");
                 }
                 $("#pctComp").trigger("change");
             });
@@ -326,17 +331,6 @@
                     let line = eid.substr(4);
                     let did = "#md" + field + line;
                     let iid = "#mi" + field + line;
-//                    console.log("keyup :" + did + " " + field + " " + line);
-                    /*****
-                    keyup :#mid1 d 1
-                    keyup :#miu1 u 1
-                    keyup :#mis1 s 1
-                    keyup :#miq1 q 1
-                    keyup :#mit1 t 1
-                     ****/
-                    //$(eid).hide();
-                    //$(did).show();
-                    //$(did).text($(iid).val());
                     let fld;
                     let ln;
                     switch (field) {
@@ -371,20 +365,6 @@
                 }
             });
 
-            //$(document).on('keyup', "[id^=me]", function (event) {
-            //    let did = "#" + event.target.id;
-            //    let field = did.substr(3,1);
-            //    let line = did.substr(4);
-            //    console.log("keyup :" + did + " " + field + " " + line);
-            //    //let eid = "#me" + field + line;
-            //    //let iid = "#mi" + field + line;
-
-            //    //$(did).hide();
-            //    //$(eid).show();
-            //    //$(iid).attr("value", $(did).text());
-            //    //$(iid).select();
-            //});
-
             $(document).on('click', "[id^=md]", function () {
                 let did = "#" + event.target.id;
                 let field = did.substr(3, 1);
@@ -397,7 +377,6 @@
                 $(iid).attr("value", $(did).text());
                 $(iid).select();
             });
-
 
             $(document).on('blur', "[id^=mi]", function () {
                 let iid = "#" + event.target.id;
@@ -563,221 +542,222 @@
 <body>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="task.Id" />
+    <input type="hidden" asp-for="task.ActualDoneDate" />
     <div class="row">
         <div class="col-md-10">
             <div class="form-group">
                 <label asp-for="task.Description" class="control-label">Title:</label>
-                <input asp-for="task.Description" class="form-control" style="font-weight:bold"/>
+                <input asp-for="task.Description" class="form-control" style="font-weight:bold" />
                 <span asp-validation-for="task.Description" class="text-danger"></span>
             </div>
         </div>
         <div class="col-md-2">
             <button id="SaveAll" onclick="saveTask()">Save Task</button>
         </div>
-        </div>
+    </div>
 
-        <div>
-            <ul class="nav nav-tabs">
-                <li class="active">
-                    <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
-                </li>
-                <li role="presentation">
-                    <a href="#descTab" data-toggle="tab"><b>Detail</b></a>
-                </li>
-                <li role="presentation">
-                    <a href="#picTab" data-toggle="tab"><b>Pictures</b></a>
-                </li>
-                <li role="presentation">
-                    <a href="#bomTab" data-toggle="tab"><b>Costs</b></a>
-                </li>
-            </ul>
+    <div>
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
+            </li>
+            <li role="presentation">
+                <a href="#descTab" data-toggle="tab"><b>Detail</b></a>
+            </li>
+            <li role="presentation">
+                <a href="#picTab" data-toggle="tab"><b>Pictures</b></a>
+            </li>
+            <li role="presentation">
+                <a href="#bomTab" data-toggle="tab"><b>Costs</b></a>
+            </li>
+        </ul>
 
-            <div class="tab-content">
-                <div class="tab-pane active" id="statusTab">
+        <div class="tab-content">
+            <div class="tab-pane active" id="statusTab">
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group tborder" style="margin-top: 10px">
-                                <input type="text" id="pctComp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
-                                <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                                    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
-                                        <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label asp-for="taskData.state" class="control-label">State:</label>
-                                    <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
-                                    <label asp-for="taskData.reason" class="control-label">Reason:</label>
-                                    <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group tborder" style="margin-top: 10px">
+                            <input type="text" id="pctComp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
+                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                                <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                                    <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="tborder" style="margin-top:10px">
-                                <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
-                                <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
-                                <div>
-                                    <label asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">Due Date:</label>
-                                    <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
-                                </div>
-                                <div>
-                                    <input type="checkbox" name="FixedDue">
-                                    <label for="FixedDue">Fixed Date?</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="tborder" style="margin-top:10px">
-                                <label asp-for="task.Priority" class="control-label">Priority:</label>
-                                <select asp-for="task.Priority" asp-items="ViewBag.Priority" style="max-height: 2.4em; max-width: 8.2em"></select>
+                            <div>
+                                <label asp-for="taskData.state" class="control-label">State:</label>
+                                <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
+                                <label asp-for="taskData.reason" class="control-label">Reason:</label>
+                                <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group tcborder">
-                                <label asp-for="task.CommittedCost" class="control-label">Funded&nbsp;&nbsp;&nbsp;&nbsp;$</label>
-                                <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost" />
-                                <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
-                                    <div id="pbarCost" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:60%; background-color:limegreen !important;">
-                                        <div id="srCost" class="sr-only">60% Funded</div>
-                                    </div>
-                                </div>
-                                <span font-weight:bold">Total Cost $</span>
-                                <span id="TCostStat" style="max-width:5em; text-align:left; font-weight:bold">@Model.task.TotalCost</span>
+                    <div class="col-md-3">
+                        <div class="tborder" style="margin-top:10px">
+                            <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
+                            <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
+                            <div>
+                                <label asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">Due Date:</label>
+                                <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                            </div>
+                            <div>
+                                <input type="checkbox" name="FixedDue">
+                                <label for="FixedDue">Fixed Date?</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            reserved
+                    </div>
+                    <div class="col-md-3">
+                        <div class="tborder" style="margin-top:10px">
+                            <label asp-for="task.Priority" class="control-label">Priority:</label>
+                            <select asp-for="task.Priority" asp-items="ViewBag.Priority" style="max-height: 2.4em; max-width: 8.2em"></select>
                         </div>
                     </div>
                 </div>
-                   <div class="tab-pane" id="descTab">
-
-                       <section class="row">
-                           <div class="col-md-12" width="100%" style="margin-top:8px">
-                               <textarea asp-for="taskData.Desc" class="form-control" id="taskDesc"></textarea>
-                           </div>
-                       </section>
-
-                   </div>
-                   <div class="tab-pane" id="picTab">
-                       <div id="picHdrId" class="col-md-12" width="100%">
-                           <table width="100%" style="margin-top:4px">
-                               <tr>
-                                   <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
-                                   <td><button id="imgPriorBtn">&#60;&#60;</button></td>
-                                   <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
-                                   <td><button id="imgNextBtn">&#62;&#62;</button></td>
-                               </tr>
-                           </table>MA
-                       </div>
-
-                       <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
-                           <div class="col-md-12">
-                               <h4>Add New Picture with Title ...</h4>
-                           </div>
-                           <div class="col-md-3" style="margin-top:4px">
-                               <input id="newImg" type="file" name="file">
-                           </div>
-                           <div class="col-md-6" style="margin-top:4px">
-                               <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
-                           </div>
-                           <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
-                               <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
-                               <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
-                           </div>
-                       </div>
-                       <div id="imgDiv">
-                       </div>
-                   </div>
-
-                   <div class="tab-pane" id="bomTab">
-
-                       <section class="row">
-                           <div class="col-md-12" width="100%">
-                               <table width="100%" style="margin-top:4px">
-                                   <tr>
-                                       <th><h4><b>Materials/Labor/Fees</b></h4></th>
-                                       <th>&nbsp;&nbsp;&nbsp;</th>
-                                       <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
-                                       <th>&nbsp;&nbsp;&nbsp;</th>
-                                       <th id="gtId" style="text-align:right;"></th>
-                                   </tr>
-                               </table>
-                           </div>
-                           <div class="col-md-12" width="100%">
-                               <table id="bomTable" width="100%" style="margin-top:4px">
-                                   <tr>
-                                       <th class="hdrBk">Item Description</th>
-                                       <th class="rjust hdrBk">UCost</th>
-                                       <th class="cjust hdrBk">Unit</th>
-                                       <th class="rjust hdrBk">Qty</th>
-                                       <th class="rjust hdrBk">TCost</th>
-                                   </tr>
-                                   <tbody>
-
-                                       @foreach (var bl in Model.taskData.bom)
-                                       {
-                                           <tr>
-                                               <td id="mdd@{@bl.id}">@bl.desc</td>
-                                               <td id="med@{@bl.id}" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
-                                               <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                               <td id="meu@{@bl.id}" class="mhider"><input id="miu1" type="text" class="redit"></td>
-                                               <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                               <td id="mes@{@bl.id} " class="mhidec"><input id="mis1" type="text" class="cedit"></td>
-                                               <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                               <td id="meq@{@bl.id}" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
-                                               <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                               <td id="met@{@bl.id}" class="mhider"><input id="mit1" type="text" class="redit"></td>
-                                           </tr>
-                                       }
-
-                                       @*<tr>
-                           <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
-                           <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
-                           <td id="mdu1" class="rjust">$12.00</td>
-                           <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
-                           <td id="mds1" class="cjust">piece</td>
-                                <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
-                                <td id="mdq1" class="rjust">9</td>
-                                <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt1" class="rjust">$108.00</td>
-                                <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
-                            </tr>
-                            <tr>
-                                <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
-                                <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
-                                <td id="mdu2" class="rjust">$12.00</td>
-                                <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
-                                <td id="mds2" class="cjust">piece</td>
-                                <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
-                                <td id="mdq2" class="rjust">9</td>
-                                <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt2" class="rjust">$108.00</td>
-                                <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
-                            </tr>
-                            <tr>
-                                <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
-                                <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
-                                <td id="mdu3" class="rjust">$12.00</td>
-                                <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
-                                <td id="mds3" class="cjust">piece</td>
-                                <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
-                                <td id="mdq3" class="rjust">9</td>
-                                <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
-                                <td id="mdt3" class="rjust">$108.00</td>
-                                <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
-                            </tr>*@
-                                        </tbody>
-                                    </table>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group tcborder">
+                            <label asp-for="task.CommittedCost" class="control-label">Funded&nbsp;&nbsp;&nbsp;&nbsp;$</label>
+                            <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost" />
+                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                                <div id="pbarCost" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:60%; background-color:limegreen !important;">
+                                    <div id="srCost" class="sr-only">60% Funded</div>
                                 </div>
-                            </section>
+                            </div>
+                            <span font-weight:bold">Total Cost $</span>
+                            <span id="TCostStat" style="max-width:5em; text-align:left; font-weight:bold">@Model.task.TotalCost</span>
                         </div>
                     </div>
-        </div>
+                    <div class="col-md-6">
+                        reserved
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="descTab">
 
-        @*<section class="row">
+                <section class="row">
+                    <div class="col-md-12" width="100%" style="margin-top:8px">
+                        <textarea asp-for="taskData.Desc" class="form-control" id="taskDesc"></textarea>
+                    </div>
+                </section>
+
+            </div>
+            <div class="tab-pane" id="picTab">
+                <div id="picHdrId" class="col-md-12" width="100%">
+                    <table width="100%" style="margin-top:4px">
+                        <tr>
+                            <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
+                            <td><button id="imgPriorBtn">&#60;&#60;</button></td>
+                            <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
+                            <td><button id="imgNextBtn">&#62;&#62;</button></td>
+                        </tr>
+                    </table>MA
+                </div>
+
+                <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
+                    <div class="col-md-12">
+                        <h4>Add New Picture with Title ...</h4>
+                    </div>
+                    <div class="col-md-3" style="margin-top:4px">
+                        <input id="newImg" type="file" name="file">
+                    </div>
+                    <div class="col-md-6" style="margin-top:4px">
+                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
+                    </div>
+                    <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
+                        <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
+                        <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
+                    </div>
+                </div>
+                <div id="imgDiv">
+                </div>
+            </div>
+
+            <div class="tab-pane" id="bomTab">
+
+                <section class="row">
+                    <div class="col-md-12" width="100%">
+                        <table width="100%" style="margin-top:4px">
+                            <tr>
+                                <th><h4><b>Materials/Labor/Fees</b></h4></th>
+                                <th>&nbsp;&nbsp;&nbsp;</th>
+                                <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
+                                <th>&nbsp;&nbsp;&nbsp;</th>
+                                <th id="gtId" style="text-align:right;"></th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-12" width="100%">
+                        <table id="bomTable" width="100%" style="margin-top:4px">
+                            <tr>
+                                <th class="hdrBk">Item Description</th>
+                                <th class="rjust hdrBk">UCost</th>
+                                <th class="cjust hdrBk">Unit</th>
+                                <th class="rjust hdrBk">Qty</th>
+                                <th class="rjust hdrBk">TCost</th>
+                            </tr>
+                            <tbody>
+
+                                @foreach (var bl in Model.taskData.bom)
+                                       {
+                                <tr>
+                                    <td id="mdd@{@bl.id}">@bl.desc</td>
+                                    <td id="med@{@bl.id}" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                    <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                    <td id="meu@{@bl.id}" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                    <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
+                                    <td id="mes@{@bl.id} " class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                    <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                    <td id="meq@{@bl.id}" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                    <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                    <td id="met@{@bl.id}" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                                </tr>
+                                       }
+
+                                @*<tr>
+                                    <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
+                                    <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                    <td id="mdu1" class="rjust">$12.00</td>
+                                    <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                    <td id="mds1" class="cjust">piece</td>
+                                         <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                         <td id="mdq1" class="rjust">9</td>
+                                         <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                         <td id="mdt1" class="rjust">$108.00</td>
+                                         <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                                     </tr>
+                                     <tr>
+                                         <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
+                                         <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
+                                         <td id="mdu2" class="rjust">$12.00</td>
+                                         <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
+                                         <td id="mds2" class="cjust">piece</td>
+                                         <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
+                                         <td id="mdq2" class="rjust">9</td>
+                                         <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
+                                         <td id="mdt2" class="rjust">$108.00</td>
+                                         <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
+                                     </tr>
+                                     <tr>
+                                         <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
+                                         <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
+                                         <td id="mdu3" class="rjust">$12.00</td>
+                                         <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
+                                         <td id="mds3" class="cjust">piece</td>
+                                         <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
+                                         <td id="mdq3" class="rjust">9</td>
+                                         <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
+                                         <td id="mdt3" class="rjust">$108.00</td>
+                                         <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
+                                     </tr>*@
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    @*<section class="row">
             <h3>Status</h3>
             <div class="col-md-6">
                 <div class="form-group" style="margin-top:10px">
@@ -833,7 +813,7 @@
             </div>
         </section>*@
 
-        @*<div class="form-group">
+    @*<div class="form-group">
             <label asp-for="Task.Blocking1Id" class="control-label"></label>
             <select asp-for="Task.Blocking1Id" class="form-control" asp-items="ViewBag.Blocking1Id"></select>
         </div>
@@ -907,9 +887,9 @@
         <div class="form-group">
             <input type="submit" value="Create" class="btn btn-primary" />
         </div>*@
-        <div>
-            <a asp-page="Index">Back to List</a>
-        </div>
+    <div>
+        <a asp-page="Index">Back to List</a>
+    </div>
 </body>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

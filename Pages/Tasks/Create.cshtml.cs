@@ -285,10 +285,16 @@ namespace CStat.Pages.Tasks
                 string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
                 List<BOMLine> bom = new List<BOMLine>();
                 var sBOM = this.Request.Form.FirstOrDefault(kv => kv.Key == "bom").Value;
-
                 List<BOMLine> bList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BOMLine>>(sBOM);
+                string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();
+                DateTime doneDateTime = new DateTime();
+                if (msDoneStr.Length > 0)
+                {
+                    long msSinceUXEpoc = long.Parse(msDoneStr);
+                    doneDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                }
 
-                return this.Content("Success:");  // Send back results
+                return this.Content("Success:" + tid + " at " + doneDateTime.ToString("G"));  // Send back results
             }
             return this.Content("Fail");
         }

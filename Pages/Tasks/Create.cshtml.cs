@@ -87,10 +87,10 @@ namespace CStat.Pages.Tasks
 
         public TaskData(int taskId = -1)
         {
-            tid = taskId;
-            state = 0;
-            reason = 0;
-            PercentComplete = 30;
+            tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
+            state = (int)CTask.eTaskStatus.Not_Started; 
+            reason = (int)CTask.eTaskStatus.Unknown;    
+            PercentComplete = 0;                        
             Desc = "";
             pics = new List<Pic>();
             bom = new List<BOMLine>();
@@ -169,37 +169,58 @@ namespace CStat.Pages.Tasks
             task = new CTask();
         }
 
-        private TaskData CreateTestTaskData ()
-        {
-            TaskData tData = new TaskData(task.Id)
-            {
-                state = (int)CTask.eTaskStatus.Paused,
-                reason = (int)CTask.eTaskStatus.Need_Funds,
-                Desc = "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God. Nicodemus saith unto him, How can a man be born when he is old ? can he enter the second time into his mother's womb, and be born? Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God. That which is born of the flesh is flesh; and that which is born of the Spirit is spirit. Marvel not that I said unto thee, Ye must be born again. The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit."
-            };
+        //private TaskData CreateTestTaskData ()
+        //{
+        //    TaskData tData = new TaskData(task.Id)
+        //    {
+        //        state = (int)CTask.eTaskStatus.Paused,
+        //        reason = (int)CTask.eTaskStatus.Need_Funds,
+        //        Desc = "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.             Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God. Nicodemus saith unto him, How can a man be born when he is old ? can he enter the second time into his mother's womb, and be born? Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God. That which is born of the flesh is flesh; and that which is born of the Spirit is spirit. Marvel not that I said unto thee, Ye must be born again. The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit."
+        //    };
 
-            Pic pic = new Pic(126, 1, "This is the title description for Pic 1", "Images/Img_126_1.jpg");
-            tData.pics.Add(pic);
-            pic = new Pic(126, 2, "This is the title description for Pic 22", "Images/Img_126_2.jpg");
-            tData.pics.Add(pic);
-            pic = new Pic(126, 3, "This is the title description for Pic 333", "Images/Img_126_3.jpg");
-            tData.pics.Add(pic);
-            return tData;
+        //    Pic pic = new Pic(126, 1, "This is the title description for Pic 1", "Images/Img_126_1.jpg");
+        //    tData.pics.Add(pic);
+        //    pic = new Pic(126, 2, "This is the title description for Pic 22", "Images/Img_126_2.jpg");
+        //    tData.pics.Add(pic);
+        //    pic = new Pic(126, 3, "This is the title description for Pic 333", "Images/Img_126_3.jpg");
+        //    tData.pics.Add(pic);
+        //    return tData;
+        //}
+
+        private void InitializeTask()
+        {
+            task = new CTask();
+            task.Description = "";
+            task.EstimatedManHours = 0;
+            task.Id = 0;
+            task.PersonId = null;
+            task.TotalCost = 0;
+            task.EstimatedDoneDate = new DateTime(1900, 1, 1);
+            task.CommittedCost = 0;
+            task.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
+            task.Priority = (int)CTask.ePriority.High;
+            task.RequiredSkills = "";
+            taskData = new TaskData();
         }
 
         public IActionResult OnGet()
         {
             task = new CTask();
-            task.Description = "Fix Miller House Shed";
-            task.EstimatedManHours = 24;
-            task.Id = 126;
-            task.PersonId = 1632;
-            task.TotalCost = 562;
-            task.EstimatedDoneDate = new DateTime(2020, 8, 15);
-            task.CommittedCost = 385;
-            task.SetTaskStatus(CTask.eTaskStatus.Paused, CTask.eTaskStatus.Need_Funds, 60);
-            task.Priority = (int)CTask.ePriority.High;
-            taskData = CreateTestTaskData();
+            InitializeTask();
+
+            //_context.Task.Add(task);
+            //int res = _context.SaveChanges();
+
+            //task.Description = "Fix Miller House Shed";
+            //task.EstimatedManHours = 24;
+            //task.Id = 126;
+            //task.PersonId = 1632;
+            //task.TotalCost = 562;
+            //task.EstimatedDoneDate = new DateTime(2020, 8, 15);
+            //task.CommittedCost = 385;
+            //task.SetTaskStatus(CTask.eTaskStatus.Paused, CTask.eTaskStatus.Need_Funds, 60);
+            //task.Priority = (int)CTask.ePriority.High;
+            //taskData = CreateTestTaskData();
 
             IList<SelectListItem> sList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e < (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["State"] = sList;
@@ -211,7 +232,11 @@ namespace CStat.Pages.Tasks
             ViewData["Blocking1Id"] = new SelectList(_context.Task, "Id", "Description");
             ViewData["Blocking2Id"] = new SelectList(_context.Task, "Id", "Description");
             ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
-            ViewData["PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
+
+            IList<SelectListItem> personList = _context.Person.OrderBy(p => p.LastName).ThenBy(p1 => p1.FirstName).Select(p2 => new SelectListItem { Text = p2.FirstName + " " + p2.LastName, Value = p2.Id.ToString() } ).ToList<SelectListItem>();
+            personList.Insert(0, new SelectListItem(" ", "-1"));
+            ViewData["PersonId"] = personList;
+
             return Page();
         }
 
@@ -279,13 +304,28 @@ namespace CStat.Pages.Tasks
                 ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
                 int priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
                 string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value);
-                int tid = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
-                string desc = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
+
+                task.CommittedCost = decimal.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCommittedCost").Value);
+                task.TotalCost = decimal.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTotalCost").Value);
+
+                task.Description = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
                 string[] pics = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "pics").Value);
                 string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
                 List<BOMLine> bom = new List<BOMLine>();
                 var sBOM = this.Request.Form.FirstOrDefault(kv => kv.Key == "bom").Value;
                 List<BOMLine> bList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BOMLine>>(sBOM);
+
+                string msDueStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
+                DateTime dueDateTime = new DateTime();
+                if (msDueStr.Length > 0)
+                {
+                    long msSinceUXEpoc = long.Parse(msDueStr);
+                    dueDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                }
+
+
                 string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();
                 DateTime doneDateTime = new DateTime();
                 if (msDoneStr.Length > 0)
@@ -294,7 +334,47 @@ namespace CStat.Pages.Tasks
                     doneDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
                 }
 
-                return this.Content("Success:" + tid + " at " + doneDateTime.ToString("G"));  // Send back results
+                //**task.Description = "";
+                task.EstimatedManHours = 0;
+                //**task.Id = 0;
+                //task.PersonId = null;
+                //task.TotalCost = 0;
+                //task.EstimatedDoneDate = new DateTime(1900, 1, 1);
+                //task.CommittedCost = 0;
+                //task.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
+                //task.Priority = (int)CTask.ePriority.High;
+                //task.RequiredSkills = "";
+
+
+
+
+                //int Id                      Y
+                //string Description          Y
+                //int Priority                Y
+                //int? Blocking1Id
+                //int? Blocking2Id
+                //int Type                    Y
+                //int Status                  Y
+                //int? PersonId               Y
+                //int? Worker1Id
+                //int? Worker2Id
+                //int? Worker3Id
+                //DateTime? DueDate           Y
+                //DateTime CreationDate       Y
+                //DateTime? StartDate         Y
+                //DateTime? ActualDoneDate    Y
+                //int? ChurchId
+                //string PlanLink
+                //string RequiredSkills
+                //DateTime? EstimatedDoneDate Y
+                //double? EstimatedManHours
+                //double? CommittedManHours
+                //decimal? TotalCost          Y
+                //decimal? CommittedCost      Y
+                //long? Roles
+
+
+                return this.Content("Success:" + task.Id + " at " + doneDateTime.ToString("G"));  // Send back results
             }
             return this.Content("Fail");
         }

@@ -3,7 +3,7 @@
 @Html.AntiForgeryToken()
 
 @{
-    ViewData["Title"] = "Task " + ((Model.task.Id == -1) ? "(New)" : Model.task.Id.ToString()); 
+    ViewData["Title"] = "Task " + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString()); 
 }
 
 <head>
@@ -121,6 +121,10 @@
             saveFormData.append("taskState", $("#taskData_state").val());
             saveFormData.append("taskReason", $("#taskData_reason").val());
             saveFormData.append("taskPriority", $("#task_Priority").val());
+            saveFormData.append("taskPersonId", $("#task_PersonId").val());
+            saveFormData.append("taskDueDate", $("#task_DueDate").val());
+            saveFormData.append("taskCommittedCost", $("#task_CommittedCost").val());
+            saveFormData.append("taskTotalCost", $("#task_TotalCost").val());
             saveFormData.append("taskTitle", $("#task_Description").val());
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskDesc", $("#taskDesc").val()); // Add Description
@@ -282,9 +286,16 @@
         $(document).ready(function () {
 
             function setPicture() {
-                $("#imgDiv").html('<image src="' +  pics[curPic] + '" style="width:100%">');
-                $("#imgTitle").html("<b>" + picTitles[curPic] + "</b>");
-                lastPic = curPic;
+                if (pics.length > 0) {
+                    $("#imgDiv").html('<image src="' + pics[curPic] + '" style="width:100%">');
+                    $("#imgTitle").html("<b>" + picTitles[curPic] + "</b>");
+                    lastPic = curPic;
+                } else {
+                    $("#imgDiv").html('[No Pictures]');
+                    $("#imgTitle").html("<b>Tap [+] to Add a Picture</b>");
+                }
+                $("#imgNextBtn").prop("disabled", curPic >= (pics.length - 1));
+                $("#imgPriorBtn").prop("disabled", curPic <= 0);
             }
 
             setPicture();
@@ -510,6 +521,7 @@
                                     if (res.indexOf("Success:") === 0) {
                                         pics.push(res.substr(8));
                                         picTitles.push(picDesc);
+                                        setPicture();
                                     } else {
                                         alert("Image Save Failed : " + res);
                                     }
@@ -650,7 +662,7 @@
                             <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
                             <td><button id="imgNextBtn">&#62;&#62;</button></td>
                         </tr>
-                    </table>MA
+                    </table>
                 </div>
 
                 <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
@@ -888,7 +900,7 @@
             <input type="submit" value="Create" class="btn btn-primary" />
         </div>*@
     <div>
-        <a asp-page="Index">Back to List</a>
+        <a asp-page="Index"><p style="margin-top:1em;">Back to List</p></a>
     </div>
 </body>
 @section Scripts {

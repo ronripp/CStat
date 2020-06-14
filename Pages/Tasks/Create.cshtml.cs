@@ -1,6 +1,7 @@
 ﻿using CStat.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -84,7 +86,8 @@ namespace CStat.Pages.Tasks
         public List<Pic> pics { get; set; }
         [DataMember]
         public List<BOMLine> bom { get; set; }
-
+        [DataMember]
+        public List<String> comments { get; set; }
         public TaskData(int taskId = -1)
         {
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
@@ -299,85 +302,123 @@ namespace CStat.Pages.Tasks
         {
             if ((this.Request != null) && (this.Request.Form != null))
             {
-                uint pctComp = uint.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "pctComp").Value);
-                ulong status = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskState").Value);
-                ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
-                int priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
-                string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value);
-                task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
-                task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
-
-                task.CommittedCost = decimal.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCommittedCost").Value);
-                task.TotalCost = decimal.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTotalCost").Value);
-
-                task.Description = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
-                string[] pics = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "pics").Value);
-                string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
-                List<BOMLine> bom = new List<BOMLine>();
-                var sBOM = this.Request.Form.FirstOrDefault(kv => kv.Key == "bom").Value;
-                List<BOMLine> bList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BOMLine>>(sBOM);
-
-                string msDueStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
-                DateTime dueDateTime = new DateTime();
-                if (msDueStr.Length > 0)
+                string fStr = "% Comp";
+                try
                 {
-                    long msSinceUXEpoc = long.Parse(msDueStr);
-                    dueDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                    uint pctComp = uint.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "pctComp").Value);
+                    fStr = "Status";
+                    ulong status = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskState").Value);
+                    fStr = "Reason";
+                    ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
+                    fStr = "Priority";
+                    int priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
+                    task.SetTaskStatus((CTask.eTaskStatus)status, (CTask.eTaskStatus)reason, (int)pctComp);
+                    fStr = "Title";
+                    string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value);
+                    fStr = "Task Id";
+                    task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                    fStr = "Person Id";
+                    task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
+                    fStr = "Committed Cost";
+                    String ccostStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCommittedCost").Value;
+                    if (ccostStr.Trim().Length > 0)
+                        task.CommittedCost = decimal.Parse(ccostStr);
+                    else
+                        task.CommittedCost = 0;
+                    fStr = "Total Cost";
+                    String tcostStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTotalCost").Value;
+                    if (tcostStr.Trim().Length > 0)
+                        task.TotalCost = decimal.Parse(tcostStr);
+                    else
+                        task.TotalCost = 0;
+                    fStr = "Detail Text";
+                    task.Description = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                    fStr = "Pics";
+                    string[] pics = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "pics").Value);
+                    fStr = "Pic Titles";
+                    string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
+                    List<BOMLine> bom = new List<BOMLine>();
+                    fStr = "Costs /BOM";
+                    var sBOM = this.Request.Form.FirstOrDefault(kv => kv.Key == "bom").Value;
+                    List<BOMLine> bList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BOMLine>>(sBOM);
+
+                    fStr = "Due/Est.Done Date";
+                    string msDueStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
+                    DateTime dueDateTime = new DateTime();
+                    if (msDueStr.Length > 0)
+                    {
+                        long msSinceUXEpoc = long.Parse(msDueStr);
+                        dueDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                    }
+                    bool isFixedDueDate = bool.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "fixedDueDate").Value);
+                    if (isFixedDueDate)
+                    {
+                        task.DueDate = dueDateTime;
+                        task.EstimatedDoneDate = null;
+                    }
+                    else
+                    {
+                        task.EstimatedDoneDate = dueDateTime;
+                        task.DueDate = null;
+                    }
+                    fStr = "Completed Date";
+                    string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();
+                    if (msDoneStr.Length > 0)
+                    {
+                        long msSinceUXEpoc = long.Parse(msDoneStr);
+                        task.ActualDoneDate = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                    }
+                    else
+                    {
+                        task.ActualDoneDate = null;
+                    }
+
+                    task.EstimatedManHours = 0;
+                    task.RequiredSkills = "";
+
+                    fStr = "DB/File Update";
+                    //YYYYtask.Description = "";
+                    //YYYYtask.Id = 0;
+                    //YYYYtask.PersonId = null;
+                    //YYYYtask.TotalCost = 0;
+                    //YYYYtask.EstimatedDoneDate = new DateTime(1900, 1, 1);
+                    //YYYYtask.DueDate 
+                    //YYYYtask.CommittedCost = 0;
+                    //YYYYtask.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
+                    //YYYYtask.Priority = (int)CTask.ePriority.High;
+                    //int Id                      Y
+                    //string Description          Y
+                    //int Priority                Y
+                    //int? Blocking1Id
+                    //int? Blocking2Id
+                    //int Type                    Y
+                    //int Status                  Y
+                    //int? PersonId               Y
+                    //int? Worker1Id
+                    //int? Worker2Id
+                    //int? Worker3Id
+                    //DateTime? DueDate           Y
+                    //DateTime CreationDate       Y
+                    //DateTime? StartDate         Y
+                    //DateTime? ActualDoneDate    Y
+                    //int? ChurchId
+                    //string PlanLink
+                    //string RequiredSkills
+                    //DateTime? EstimatedDoneDate Y
+                    //double? EstimatedManHours
+                    //double? CommittedManHours
+                    //decimal? TotalCost          Y
+                    //decimal? CommittedCost      Y
+                    //long? Roles
+                }
+                catch
+                {
+                    return this.Content("Fail: " + fStr); // Send back results
                 }
 
-
-                string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();
-                DateTime doneDateTime = new DateTime();
-                if (msDoneStr.Length > 0)
-                {
-                    long msSinceUXEpoc = long.Parse(msDoneStr);
-                    doneDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
-                }
-
-                //**task.Description = "";
-                task.EstimatedManHours = 0;
-                //**task.Id = 0;
-                //task.PersonId = null;
-                //task.TotalCost = 0;
-                //task.EstimatedDoneDate = new DateTime(1900, 1, 1);
-                //task.CommittedCost = 0;
-                //task.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
-                //task.Priority = (int)CTask.ePriority.High;
-                //task.RequiredSkills = "";
-
-
-
-
-                //int Id                      Y
-                //string Description          Y
-                //int Priority                Y
-                //int? Blocking1Id
-                //int? Blocking2Id
-                //int Type                    Y
-                //int Status                  Y
-                //int? PersonId               Y
-                //int? Worker1Id
-                //int? Worker2Id
-                //int? Worker3Id
-                //DateTime? DueDate           Y
-                //DateTime CreationDate       Y
-                //DateTime? StartDate         Y
-                //DateTime? ActualDoneDate    Y
-                //int? ChurchId
-                //string PlanLink
-                //string RequiredSkills
-                //DateTime? EstimatedDoneDate Y
-                //double? EstimatedManHours
-                //double? CommittedManHours
-                //decimal? TotalCost          Y
-                //decimal? CommittedCost      Y
-                //long? Roles
-
-
-                return this.Content("Success:" + task.Id + " at " + doneDateTime.ToString("G"));  // Send back results
+                return this.Content("Success:" + task.Id); // Send back results
             }
-            return this.Content("Fail");
+            return this.Content("Fail: Bad/Missing Request"); // Send back results
         }
-
     }
 }

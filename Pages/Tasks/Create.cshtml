@@ -542,6 +542,20 @@
                     }
                 }
             });
+
+//          <input type="text" style="width:90%" id="NewComment" />
+//          <button id="AddComment"><b>+</b></button>
+//          <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="color:black; background-color:white"></textarea>
+            $("#AddComment").click(function () {
+                let newCom = $("#NewComment").val();
+                if (!!newCom) {
+                    let allComs = $("#AllComments").val();
+                    allComs = "====[ ronrip 6/16/20 10:32 pm ]====\n" + newCom + "\n" + allComs;
+                    $("#AllComments").val(allComs);
+                    $("#NewComment").val("");
+                }
+            });
+
         });
 
         function encodeQuotes(str) {
@@ -641,9 +655,9 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <input type="text" style="width:90%" id="NewComment" />
+                        <input type="text" style="width:94%" id="NewComment" />
                         <button id="AddComment"><b>+</b></button>
-                        <textarea asp-for="taskData.comments" class="form-control" id="taskDesc"></textarea>
+                        <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="min-height:8em; color:black; background-color:white"></textarea>
                     </div>
                 </div>
             </div>

@@ -332,7 +332,9 @@ namespace CStat.Pages.Tasks
                     else
                         task.TotalCost = 0;
                     fStr = "Detail Text";
-                    task.Description = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                    string Detail = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                    fStr = "Comments";
+                    string Comments = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskComments").Value);
                     fStr = "Pics";
                     string[] pics = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "pics").Value);
                     fStr = "Pic Titles";

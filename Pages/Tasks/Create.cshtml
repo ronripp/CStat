@@ -3,108 +3,110 @@
 @Html.AntiForgeryToken()
 
 @{
-    ViewData["Title"] = "Task " + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString()); 
+    ViewData["Title"] = "Task " + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
 }
 
-<head>
-    @using System.Web;
+    <head>
+        @using System.Web;
+        @using System.Globalization;
 
-    <style>
-        #taskDesc {
-            overflow-y: scroll;
-            height: 400px;
-            font-family: "Verdana";
-            min-width: 90%;
-            resize: none; /* Remove this if you want the user to resize the textarea */
-        }
+        <style>
+            #taskDetail {
+                overflow-y: scroll;
+                height: 400px;
+                font-family: "Verdana";
+                min-width: 90%;
+                resize: none; /* Remove this if you want the user to resize the textarea */
+            }
 
-        .table th {
-            padding: 0.1rem;
-            color: lightgray;
-        }
+            .table th {
+                padding: 0.1rem;
+                color: lightgray;
+            }
 
-        .table td {
-            padding: 0.5rem;
-        }
+            .table td {
+                padding: 0.5rem;
+            }
 
-        .ljust {
-            text-align: left;
-        }
+            .ljust {
+                text-align: left;
+            }
 
-        .cjust {
-            text-align: center;
-        }
+            .cjust {
+                text-align: center;
+            }
 
-        .rjust {
-            text-align:right;
-        }
+            .rjust {
+                text-align: right;
+            }
 
-        .mhider {
-            display: none;
-            text-align: right;
-        }
+            .mhider {
+                display: none;
+                text-align: right;
+            }
 
-        .mhidec {
-            display: none;
-            text-align: center;
-        }
+            .mhidec {
+                display: none;
+                text-align: center;
+            }
 
-        .mhidel {
-            display: none;
-            text-align: right;
-        }
+            .mhidel {
+                display: none;
+                text-align: right;
+            }
 
-        .redit {
-            text-align: right;
-            max-width: 4em;
-        }
+            .redit {
+                text-align: right;
+                max-width: 4em;
+            }
 
-        .cedit {
-            text-align: left;
-            max-width:4em;
-        }
-        .ledit {
-            text-align: left;
-            width: 100%;
-        }
+            .cedit {
+                text-align: left;
+                max-width: 4em;
+            }
 
-        .hdrBk {
-            background-color:#FFF090;
-        }
+            .ledit {
+                text-align: left;
+                width: 100%;
+            }
 
-        .tborder {
-            padding: 4px 4px 4px 4px;
-            border: 2px solid #ffd800;
-            background-color: #fef4b9
-        }
+            .hdrBk {
+                background-color: #FFF090;
+            }
 
-        .tcborder {
-            padding: 4px 4px 4px 4px;
-            border: 2px solid #008000;
-            background-color: #D0FFD0;
-            margin-top: 10px;
-        }
+            .tborder {
+                padding: 4px 4px 4px 4px;
+                border: 2px solid #ffd800;
+                background-color: #fef4b9
+            }
 
-        #SaveAll {
-            background-color: #007272;
-            border: 2px solid #0000FF;
-            color: white;
-        }
+            .tcborder {
+                padding: 4px 4px 4px 4px;
+                border: 2px solid #008000;
+                background-color: #D0FFD0;
+                margin-top: 10px;
+            }
 
-        #markDone {
-            background-color: #C0FFC0;
-            color: black;
-            font-weight: bold;
-            margin-left:8px;
-        }
+            #SaveAll {
+                background-color: #007272;
+                border: 2px solid #0000FF;
+                color: white;
+                margin-bottom: 6px;
+            }
 
-    </style>
+            #markDone {
+                background-color: #C0FFC0;
+                color: black;
+                font-weight: bold;
+                margin-left: 8px;
+            }
+        </style>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript">
+        <script type="text/javascript">
 
         var pics = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.url + "'")))];
         var picTitles = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.title + "'")))];
@@ -123,11 +125,11 @@
             saveFormData.append("taskPriority", $("#task_Priority").val());
             saveFormData.append("taskPersonId", $("#task_PersonId").val());
             saveFormData.append("taskDueDate", $("#task_DueDate").val());
-            saveFormData.append("taskCommittedCost", !!$("#task_CommittedCost").val() ? $("#task_CommittedCost").val() : "");
+            saveFormData.append("taskCommittedCost", !!$("#Funded").val() ? $("#Funded").val() : "");
             saveFormData.append("taskTotalCost", !!$("#TCostStat").html() ? $("#TCostStat").html() : "");
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
-            saveFormData.append("taskDesc", encodeQuotes($("#taskDesc").val())); // Add Description
+            saveFormData.append("taskDetail", encodeQuotes($("#taskDetail").val())); // Add Description
             saveFormData.append("fixedDueDate", $("#FixedDueDate").is(":checked"));
             saveFormData.append("taskComments", encodeQuotes($("#AllComments").val()));
 
@@ -330,7 +332,9 @@
                     $("#pctComp").val(100);
                 }
                 else {
-                    $("#pctComp").val(90);
+                    if ($("#pctComp").val() >= 100) {
+                        $("#pctComp").val(90);
+                    }
                     $("#task_ActualDoneDate").val("");
                 }
                 $("#pctComp").trigger("change");
@@ -544,6 +548,14 @@
                 }
             });
 
+            $("#FixedDueDate").click(function () {
+                if ($("#FixedDueDate").is(":checked")) {
+                    $("#DueDateLabel").text("Due Date:");
+                } else {
+                    $("#DueDateLabel").text("Est. Done:");
+                }
+             });
+
 //          <input type="text" style="width:90%" id="NewComment" />
 //          <button id="AddComment"><b>+</b></button>
 //          <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="color:black; background-color:white"></textarea>
@@ -572,9 +584,9 @@
             return str.replace(/\"/g, "^^").replace(/\'/g, "^");
         }
 
-    </script>
+        </script>
 
-</head>
+    </head>
 
 <body>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -633,13 +645,18 @@
                         <div class="tborder" style="margin-top:10px">
                             <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
                             <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
+                            @{
+                                var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
+                                var dueDateLabel = (Model.taskData.FixedDueDate) ? "Due Date:" : "Est. Done:";
+                            }
                             <div>
-                                <label asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">Due Date:</label>
+                                <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
                                 <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+
                             </div>
                             <div>
-                                <input type="checkbox" id="FixedDueDate" name="FixedDue">
-                                <label for="FixedDue">Fixed Date?</label>
+                                <input type="checkbox" id="FixedDueDate" name="FixedDue" @checkedStr>
+                                <label id="FixedDueLabel" for="FixedDue">Fixed Date?</label>
                             </div>
                         </div>
                     </div>
@@ -654,7 +671,7 @@
                     <div class="col-md-6">
                         <div class="form-group tcborder">
                             <label asp-for="task.CommittedCost" class="control-label">Funded&nbsp;&nbsp;&nbsp;&nbsp;$</label>
-                            <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost" />
+                            <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost.Value.ToString("F", CultureInfo.CurrentCulture)" />
                             <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
                                 <div id="pbarCost" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width:60%; background-color:limegreen !important;">
                                     <div id="srCost" class="sr-only">60% Funded</div>
@@ -665,8 +682,10 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <input type="text" style="width:94%" id="NewComment" />
-                        <button id="AddComment"><b>+</b></button>
+                        <span>
+                            <input type="text" style="width:94%" id="NewComment" />
+                            <button id="AddComment"><b>+</b></button>
+                        </span>
                         <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="min-height:8em; color:black; background-color:white"></textarea>
                     </div>
                 </div>
@@ -675,7 +694,7 @@
 
                 <section class="row">
                     <div class="col-md-12" width="100%" style="margin-top:8px">
-                        <textarea asp-for="taskData.Desc" class="form-control" id="taskDesc"></textarea>
+                        <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>
                     </div>
                 </section>
 

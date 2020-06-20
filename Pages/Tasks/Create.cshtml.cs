@@ -75,13 +75,18 @@ namespace CStat.Pages.Tasks
     {
         [DataMember]
         public int tid { get; set; }
+        [DataMember]
         public int state { get; set; }
         [DataMember]
         public int reason { get; set; }
         [DataMember]
         public int PercentComplete { get; set; }
         [DataMember]
-        public string Desc { get; set; }
+        public string Title { get; set; }
+        [DataMember]
+        public string Detail { get; set; }
+        [DataMember]
+        public bool FixedDueDate { get; set; }
         [DataMember]
         public List<Pic> pics { get; set; }
         [DataMember]
@@ -94,10 +99,12 @@ namespace CStat.Pages.Tasks
             state = (int)CTask.eTaskStatus.Not_Started; 
             reason = (int)CTask.eTaskStatus.Unknown;    
             PercentComplete = 0;                        
-            Desc = "";
+            Title = "";
+            Detail = "";
             pics = new List<Pic>();
             bom = new List<BOMLine>();
             comments = "";
+            FixedDueDate = false;
         }
 
         public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId)
@@ -228,7 +235,11 @@ namespace CStat.Pages.Tasks
             {
                 task = _context.Task.FirstOrDefault(m => m.Id == tid);
                 if ((task != null) && (tid == task.Id))
+                {
                     taskData = TaskData.ReadTaskData(hostEnv, tid);
+                    if (task.DueDate == null)
+                        task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
+                }
                 else
                     InitializeTask(tid);
             }
@@ -339,17 +350,22 @@ namespace CStat.Pages.Tasks
                     fStr = "Reason";
                     ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
                     fStr = "Priority";
-                    int priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
+                    task.Priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
                     task.SetTaskStatus((CTask.eTaskStatus)status, (CTask.eTaskStatus)reason, (int)pctComp);
                     taskData.state = (int)status;
                     taskData.reason = (int)reason;
                     taskData.PercentComplete = (int)pctComp;
-                    fStr = "Title";
-                    string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value);
+                    fStr = "Title must be filled";
+                    string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value).Trim();
+                    if  (title.Length == 0)
+                        throw new ArgumentNullException("bad title");
+                    taskData.Title = task.Description = title;
                     fStr = "Task Id";
                     taskData.tid = task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
                     fStr = "Person Id";
                     task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
+                    if (!task.PersonId.HasValue || (task.PersonId <= 0))
+                        task.PersonId = null;
                     fStr = "Committed Cost";
                     String ccostStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCommittedCost").Value;
                     if (ccostStr.Trim().Length > 0)
@@ -363,7 +379,7 @@ namespace CStat.Pages.Tasks
                     else
                         task.TotalCost = 0;
                     fStr = "Detail Text";
-                    taskData.Desc = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDesc").Value);
+                    taskData.Detail = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDetail").Value);
                     fStr = "Comments";
                     taskData.comments = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskComments").Value);
                     fStr = "Pics";
@@ -394,8 +410,8 @@ namespace CStat.Pages.Tasks
                     {
                         dueDateTime = DateTime.ParseExact(msDueStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
                     }
-                    bool isFixedDueDate = bool.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "fixedDueDate").Value);
-                    if (isFixedDueDate)
+                    taskData.FixedDueDate = bool.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "fixedDueDate").Value);
+                    if (taskData.FixedDueDate)
                     {
                         if (msDueStr.Length > 0)
                             task.DueDate = dueDateTime;
@@ -432,9 +448,9 @@ namespace CStat.Pages.Tasks
                     _context.Attach(task).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     _context.SaveChanges();
                 }
-                catch
+                catch(Exception e)
                 {
-                    return this.Content("Fail: " + fStr); // Send back results
+                    return this.Content("Fail: " + fStr + " e.msg=" + e.Message); // Send back results
                 }
 
                 return this.Content("Success:" + task.Id); // Send back results

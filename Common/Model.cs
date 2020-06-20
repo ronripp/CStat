@@ -545,9 +545,7 @@ namespace CStat.Models
         }
         public void SetTaskStatus(CTask.eTaskStatus state, CTask.eTaskStatus reason, int pctComp)
         {
-            this.Status &= ((int)state & 0x000FFF80);
-            this.Status &= ((int)reason & 0xFFF0000);
-            this.Status = (pctComp & 0x0000007F);
+            this.Status = ((int)state & 0x000FFF80) | ((int)reason & 0x7FF00000) | (pctComp & 0x0000007F);
         }
 
         public String TaskString (CTask.eTaskStatus ts)

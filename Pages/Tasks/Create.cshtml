@@ -124,7 +124,7 @@
             saveFormData.append("taskPersonId", $("#task_PersonId").val());
             saveFormData.append("taskDueDate", $("#task_DueDate").val());
             saveFormData.append("taskCommittedCost", !!$("#task_CommittedCost").val() ? $("#task_CommittedCost").val() : "");
-            saveFormData.append("taskTotalCost", !!$("#task_TotalCost").val() ? $("#task_TotalCost").val() : "");
+            saveFormData.append("taskTotalCost", !!$("#TCostStat").html() ? $("#TCostStat").html() : "");
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskDesc", encodeQuotes($("#taskDesc").val())); // Add Description

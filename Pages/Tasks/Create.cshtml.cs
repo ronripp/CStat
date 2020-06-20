@@ -111,14 +111,19 @@ namespace CStat.Pages.Tasks
                 Directory.CreateDirectory(newPath);
             }
             string fullPath = Path.Combine(newPath, "Task_" + taskId.ToString() + ".json");
-            using (StreamReader r = new StreamReader(fullPath))
+            if (File.Exists(fullPath))
             {
-                string json = r.ReadToEnd();
-                var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
-                DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
-                taskData = (TaskData)deserializer.ReadObject(ms);
-                taskData.tid = taskId;
+                using (StreamReader r = new StreamReader(fullPath))
+                {
+                    string json = r.ReadToEnd();
+                    var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
+                    DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
+                    taskData = (TaskData)deserializer.ReadObject(ms);
+                    taskData.tid = taskId;
+                }
             }
+            if (taskData == null)
+                taskData = new TaskData();
             return taskData;
         }
 
@@ -209,7 +214,7 @@ namespace CStat.Pages.Tasks
 
         public IActionResult OnGet(int? id)
         {
-            int tid = !id.HasValue ? tid = 0 : id.Value;
+             int tid = !id.HasValue ? tid = 4 : id.Value;
 
             int res = 0;
             if (tid == 0)
@@ -387,18 +392,23 @@ namespace CStat.Pages.Tasks
                     DateTime dueDateTime = new DateTime();
                     if (msDueStr.Length > 0)
                     {
-                        long msSinceUXEpoc = long.Parse(msDueStr);
-                        dueDateTime = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                        dueDateTime = DateTime.ParseExact(msDueStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
                     }
                     bool isFixedDueDate = bool.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "fixedDueDate").Value);
                     if (isFixedDueDate)
                     {
-                        task.DueDate = dueDateTime;
+                        if (msDueStr.Length > 0)
+                            task.DueDate = dueDateTime;
+                        else
+                            task.DueDate = null;
                         task.EstimatedDoneDate = null;
                     }
                     else
                     {
-                        task.EstimatedDoneDate = dueDateTime;
+                        if (msDueStr.Length > 0)
+                            task.EstimatedDoneDate = dueDateTime;
+                        else
+                            task.EstimatedDoneDate = null;
                         task.DueDate = null;
                     }
                     fStr = "Completed Date";

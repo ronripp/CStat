@@ -221,7 +221,7 @@ namespace CStat.Pages.Tasks
 
         public IActionResult OnGet(int? id)
         {
-             int tid = !id.HasValue ? tid = 4 : id.Value;
+             int tid = !id.HasValue ? tid = 0 : id.Value;
 
             int res = 0;
             if (tid == 0)
@@ -431,8 +431,16 @@ namespace CStat.Pages.Tasks
                     string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();
                     if (msDoneStr.Length > 0)
                     {
-                        long msSinceUXEpoc = long.Parse(msDoneStr);
-                        task.ActualDoneDate = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                        int slashIdx = msDoneStr.IndexOf("/");
+                        if ((slashIdx > 0) && (slashIdx <= 2))
+                        {
+                            task.ActualDoneDate = DateTime.ParseExact(msDoneStr, "M/d/yyyy h:mm:ss tt", System.Globalization.CultureInfo.CurrentCulture);
+                        }
+                        else
+                        {
+                            long msSinceUXEpoc = long.Parse(msDoneStr);
+                            task.ActualDoneDate = DateTimeOffset.FromUnixTimeMilliseconds(msSinceUXEpoc).DateTime.ToLocalTime();
+                        }
                     }
                     else
                     {

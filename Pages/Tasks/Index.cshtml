@@ -5,15 +5,24 @@
     ViewData["Title"] = "Tasks";
 }
 
+<head>
 
-<h1>Index</h1>
+<style>
+
+    tr:nth-child(even) {
+        background-color: #fff185
+    }
+
+</style>
+
+</head>
 
 <p>
     <a asp-page="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
-        <tr>
+        <tr style="background-color: lightgray">
             <th>
                 @Html.DisplayNameFor(model => model.Task[0].Id)
             </th>
@@ -53,7 +62,7 @@
             </td>
             <td>
                 @{
-                    var priorityStr = ((CTask.ePriority)item.Priority).ToString();
+                    var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
                 }
                 @priorityStr
             </td>

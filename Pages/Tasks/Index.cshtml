@@ -5,17 +5,28 @@
     ViewData["Title"] = "Tasks";
 }
 
-<head>
+    <head>
 
-<style>
+        <style>
 
-    tr:nth-child(even) {
-        background-color: #fff185
-    }
+            tr:nth-child(even) {
+                background-color: #fff185
+            }
+        </style>
 
-</style>
+    <script type="text/javascript">
 
-</head>
+        window.addEventListener("pageshow", function (event) {
+            let historyTraversal = event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2);
+            if (historyTraversal) {}
+                // Make sure to refresh top status page when returning to this page
+                window.location.reload(true);
+            }
+        });
+
+</script>
+
+    </head>
 
 <p>
     <a asp-page="Create">Create New</a>

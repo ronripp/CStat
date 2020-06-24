@@ -165,8 +165,12 @@
                 success: function (res) {
                     if (res.indexOf("Success") === 0) {
                         dirtyTask = false;
-                        $("#Save All").text("Success!");
-                        setTimeout(function () { $("#Save All").text("Save Task"); }, 1000);
+                        $("#SaveAll").text("Success!");
+                        $("#SaveAll").css("background-color", "#00C000");
+                        setTimeout(function () {
+                            $("#SaveAll").text("Save Task");
+                            $("#SaveAll").css("background-color", "#007272");
+                        }, 1000);
                         if (inMarkDone) {
                             $("#markDone").prop("disabled", true).css('opacity', 0.5);
                         }
@@ -595,17 +599,14 @@
                 dirtyTask = true;
             }
 
+            // Enable navigation prompt if task dirty
             window.onbeforeunload = function () {
-                return "Leaving Task";
-            }
-
-            // A jQuery event (I think), which is triggered after "onbeforeunload"
-            $(window).unload(function () {
-                if (dirtyTask && confirm("Task Changes Not Save. Save Now?")) {
-                    saveTask();
+                if (dirtyTask) {
+                    return "Task NOT Saved";
+                } else {
+                    return;
                 }
-            });
-
+            };
         });
 
         function encodeQuotes(str) {

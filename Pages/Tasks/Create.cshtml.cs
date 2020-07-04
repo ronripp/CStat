@@ -146,6 +146,10 @@ namespace CStat.Pages.Tasks
                 Directory.CreateDirectory(newPath);
             }
             string fullPath = Path.Combine(newPath, "Task_" + tid.ToString() + ".json");
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
 
             using (MemoryStream ms = new MemoryStream())
             {
@@ -305,6 +309,10 @@ namespace CStat.Pages.Tasks
                             string fileName = ContentDispositionHeaderValue.Parse(item.ContentDisposition).FileName.Trim('"');
                             picFilename = pic.GetFileName(fileName);
                             string fullPath = Path.Combine(newPath, picFilename);
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                System.IO.File.Delete(fullPath);
+                            }
                             using (var stream = new FileStream(fullPath, FileMode.Create))
                             {
                                 item.CopyTo(stream);

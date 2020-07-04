@@ -507,7 +507,7 @@ namespace CStat.Models
 
         public enum ePriority
         {
-            Mandatory = 0x00000001,
+            Required  = 0x00000001,
             Urgent    = 0x00000002,
             Very_High = 0x00000004,
             High      = 0x00000008,

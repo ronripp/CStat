@@ -5,92 +5,103 @@
     ViewData["Title"] = "Tasks";
 }
 
-    <head>
+<head>
 
-        <style>
+    <style>
 
-            tr:nth-child(even) {
-                background-color: #fff185
-            }
-        </style>
+        tr:nth-child(even) {
+            background-color: #fff185
+        }
+
+        .table td {
+            padding: 0.5rem;
+        }
+
+        td > a {
+            text-decoration: none;
+            color: black;
+        }
+
+    </style>
 
     <script type="text/javascript">
 
         window.addEventListener("pageshow", function (event) {
             let historyTraversal = event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2);
-            if (historyTraversal) {}
+            if (historyTraversal) {
                 // Make sure to refresh top status page when returning to this page
                 window.location.reload(true);
             }
         });
 
-</script>
+    </script>
 
-    </head>
+</head>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr style="background-color: lightgray">
-            <th>
-                @Html.DisplayNameFor(model => model.Task[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Task[0].Description)
-            </th>
-            <td>
-                @Html.DisplayNameFor(model => model.Task[0].Status)
-            </td>
-            <th>
-                @Html.DisplayNameFor(model => model.Task[0].Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Task[0].Person)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Task[0].DueDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Task) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @{
+<body>
+    <p>
+        <a asp-page="Create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr style="background-color: lightgray;">
+                <th>
+                    ID
+                </th>
+                <th>
+                    Desc
+                </th>
+                <th>
+                    Stat
+                </th>
+                <th>
+                    Priority
+                </th>
+                <th>
+                    Person
+                </th>
+                <th>
+                    Due
+                </th>
+                <th>X</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Task) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @{
                     item.GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
                     var stateStr = ((CTask.eTaskStatus)state).ToString().Replace("_", " ") + " (" + pctComp + "%)";
-                }
-                @stateStr
-            </td>
-            <td>
-                @{
+                    }
+                    @stateStr
+                </td>
+                <td>
+                    @{
                     var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
-                }
-                @priorityStr
-            </td>
-            <td>
-                @{
-                    var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "<unassigned>";
-                }
-                @nameStr
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DueDate)
-            </td>
-            <td>
-                <a asp-page="./Create" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                    }
+                    @priorityStr
+                </td>
+                <td>
+                    @{
+                    var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "none";
+                    }
+                    @nameStr
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DueDate)
+                </td>
+                <td>
+                    <a asp-page="./Delete" asp-route-id="@item.Id">[Delete]</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</body>

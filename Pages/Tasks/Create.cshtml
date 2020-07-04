@@ -553,6 +553,7 @@
                                     if (res.indexOf("Success:") === 0) {
                                         pics.push(res.substr(8));
                                         picTitles.push(picDesc);
+                                        dirtyTask = true;
                                         setPicture();
                                     } else {
                                         alert("Image Save Failed : " + res);
@@ -575,14 +576,15 @@
             });
 
             $("#delPicBtn").click(function () {
-                if (pics.length > 0) {
+                if ((pics.length > 0) && confirm("Delete" + picTitles[curPic] + "?")) {
                     pics.splice(curPic, 1);
                     picTitles.splice(curPic, 1);
                     if (curPic > (pics.length - 1)) {
                         curPic = Math.max(curPic - 1, 0);
                     }
+                    dirtyTask = true;
+                    setPicture();
                 }
-                setPicture();
             });
 
             $("#FixedDueDate").click(function () {

@@ -576,7 +576,7 @@
             });
 
             $("#delPicBtn").click(function () {
-                if ((pics.length > 0) && confirm("Delete" + picTitles[curPic] + "?")) {
+                if ((pics.length > 0) && confirm("Delete " + picTitles[curPic] + " ?")) {
                     pics.splice(curPic, 1);
                     picTitles.splice(curPic, 1);
                     if (curPic > (pics.length - 1)) {

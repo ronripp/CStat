@@ -1,1 +1,1 @@
-{"Detail":"","FixedDueDate":false,"PercentComplete":0,"Title":"This is task3","bom":[{"desc":"Task 3 stuff","id":1,"qty":"","tcost":"3000","ucost":"","units":""}],"comments":"","pics":[],"reason":67108864,"state":128,"tid":3}
+{"Detail":"","FixedDueDate":false,"PercentComplete":0,"Title":"This is task322","bom":[{"desc":"Task 3 stuff","id":1,"qty":"","tcost":"3000","ucost":"","units":""}],"comments":"","pics":[{"picId":1,"taskId":3,"title":"carpet used for the wedding","url":"Images\/Img_3_1.png"}],"reason":67108864,"state":128,"tid":3}

@@ -63,7 +63,7 @@
                 <th>
                     Due
                 </th>
-                <th>X</th>
+                <th style="text-align:center">X</th>
             </tr>
         </thead>
         <tbody>
@@ -73,7 +73,7 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Description)
+                    <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
                 </td>
                 <td>
                     @{

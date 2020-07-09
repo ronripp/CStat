@@ -45,7 +45,6 @@ namespace CStat.Models
         [InverseProperty("Address")]
         public virtual ICollection<Church> Church { get; set; }
         [InverseProperty("Address")]
-        [NotMapped]
         public virtual ICollection<Person> Person { get; set; }
     }
 }

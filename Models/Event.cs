@@ -20,7 +20,7 @@ namespace CStat.Models
         public int Id { get; set; }
         [Column("Start_Time", TypeName = "datetime2(0)")]
         public DateTime StartTime { get; set; }
-        [Column("End _Time", TypeName = "datetime2(0)")]
+        [Column("End_Time", TypeName = "datetime2(0)")]
         public DateTime EndTime { get; set; }
         public int Type { get; set; }
         [StringLength(255)]

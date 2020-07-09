@@ -11,6 +11,7 @@ namespace CStat.Models
         {
             InverseBlocking1 = new HashSet<Task>();
             InverseBlocking2 = new HashSet<Task>();
+            InverseParentTask = new HashSet<Task>();
         }
 
         [Key]
@@ -27,15 +28,8 @@ namespace CStat.Models
         [Column("Blocking2_id")]
         public int? Blocking2Id { get; set; }
         public int Type { get; set; }
-        public int Status { get; set; }
         [Column("Person_id")]
         public int? PersonId { get; set; }
-        [Column("Worker1_id")]
-        public int? Worker1Id { get; set; }
-        [Column("Worker2_id")]
-        public int? Worker2Id { get; set; }
-        [Column("Worker3_id")]
-        public int? Worker3Id { get; set; }
         [Column("Due_Date", TypeName = "datetime2(0)")]
         public DateTime? DueDate { get; set; }
         [Column("Creation_Date", TypeName = "datetime2(0)")]
@@ -53,17 +47,26 @@ namespace CStat.Models
         [Column("Required_Skills")]
         [StringLength(255)]
         public string RequiredSkills { get; set; }
+        [Column("Committed_Cost", TypeName = "money")]
+        public decimal? CommittedCost { get; set; }
+        [Column("Committed_Man_Hours")]
+        public double? CommittedManHours { get; set; }
         [Column("Estimated_Done_Date")]
         public DateTime? EstimatedDoneDate { get; set; }
         [Column("Estimated_Man_Hours")]
         public double? EstimatedManHours { get; set; }
-        [Column("Committed_Man_Hours")]
-        public double? CommittedManHours { get; set; }
+        public long? Roles { get; set; }
+        public int Status { get; set; }
         [Column("Total_Cost", TypeName = "money")]
         public decimal? TotalCost { get; set; }
-        [Column("Committed_Cost", TypeName = "money")]
-        public decimal? CommittedCost { get; set; }
-        public long? Roles { get; set; }
+        [Column("Worker1_id")]
+        public int? Worker1Id { get; set; }
+        [Column("Worker2_id")]
+        public int? Worker2Id { get; set; }
+        [Column("Worker3_id")]
+        public int? Worker3Id { get; set; }
+        [Column("ParentTask_id")]
+        public int? ParentTaskId { get; set; }
 
         [ForeignKey(nameof(Blocking1Id))]
         [InverseProperty(nameof(Task.InverseBlocking1))]
@@ -74,6 +77,9 @@ namespace CStat.Models
         [ForeignKey(nameof(ChurchId))]
         [InverseProperty("Task")]
         public virtual Church Church { get; set; }
+        [ForeignKey(nameof(ParentTaskId))]
+        [InverseProperty(nameof(Task.InverseParentTask))]
+        public virtual Task ParentTask { get; set; }
         [ForeignKey(nameof(PersonId))]
         [InverseProperty("TaskPerson")]
         public virtual Person Person { get; set; }
@@ -90,5 +96,7 @@ namespace CStat.Models
         public virtual ICollection<Task> InverseBlocking1 { get; set; }
         [InverseProperty(nameof(Task.Blocking2))]
         public virtual ICollection<Task> InverseBlocking2 { get; set; }
+        [InverseProperty(nameof(Task.ParentTask))]
+        public virtual ICollection<Task> InverseParentTask { get; set; }
     }
 }

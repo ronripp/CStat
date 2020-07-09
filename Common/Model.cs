@@ -486,23 +486,45 @@ namespace CStat.Models
     {
         public enum eTaskType
         {
-            // Area
+            // Area :   MASK= 0x0000001F     
             PlanCampEvent   = 0x00000001,
             CampEventTask   = 0x00000002,
-            BuildingFix     = 0x00000004,
-            GroundsFix      = 0x00000008,
-            NewAdditon      = 0x00000010,
-            RequiredTask    = 0x00000020,
-            CampEnhancement = 0x00000040,
-            Promotion       = 0x00000040,
+            BuildingFix     = 0x00000003,
+            GroundsFix      = 0x00000004,
+            NewAdditon      = 0x00000005,
+            RequiredTask    = 0x00000006,
+            CampEnhancement = 0x00000007,
+            Promotion       = 0x00000008,
+            CampMantTask    = 0x00000009,
 
-            //Occurance
-            OneTime         = 0x00010000,
-            WeeklyCamp      = 0x00020000,
-            DailyCamp       = 0x00040000,
-            Monthly         = 0x00080000,
-            Quarterly       = 0x00100000,
-            PerCampEvent    = 0x00200000
+            // Flags    MASK= 0x00000FE0
+            Template        = 0x00000020,
+            unk1            = 0x00000040,
+            unk2            = 0x00000080,
+            unk3            = 0x00000100,
+            unk4            = 0x00000200,
+            unk5            = 0x00000400,
+            unk6            = 0x00000800,
+
+            //Occurance  MASK= 0x0001F000 
+            OneTime          = 0x00001000,
+            PerEvent         = 0x00002000,
+            StartEvent       = 0x00003000,
+            EndEvent         = 0x00004000,
+            Every_Event_Day  = 0x00005000,
+            Every_Work_Day   = 0x00006000,
+            Every_Day        = 0x00007000,
+            Every_Event_Week = 0x00008000,
+            Every_ChC_Month  = 0x00009000,
+            Every_Month      = 0x0000A000,
+            Every_Year_Qtr   = 0x0000B000,
+            Every_Year       = 0x0000C000,
+            StartSeason      = 0x0000B000,
+            EndSeason        = 0x0000C000,
+            Expires          = 0x0000D000
+
+            // Alert     MASK= 0x7FFE0000
+
         }
 
         public enum ePriority
@@ -535,6 +557,10 @@ namespace CStat.Models
             Need_Planning   = 0x01000000,
             Job_Done        = 0x02000000,
             Unknown         = 0x04000000
+        }
+        public enum eAGFrequency
+        {
+
         }
 
         public void GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp)

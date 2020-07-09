@@ -12,14 +12,14 @@ namespace CStat.Models
             InventoryItem = new HashSet<InventoryItem>();
         }
 
-        [Required]
-        [StringLength(30)]
-        public string Name { get; set; }
-        public int Type { get; set; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
+        [Required]
+        [StringLength(30)]
+        public string Name { get; set; }
+        public int Type { get; set; }
 
         [InverseProperty("Inventory")]
         public virtual ICollection<InventoryItem> InventoryItem { get; set; }

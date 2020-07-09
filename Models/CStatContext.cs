@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 
 namespace CStat.Models
@@ -20,6 +22,13 @@ namespace CStat.Models
 
         public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Address> Address { get; set; }
+        public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
+        public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+        public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
+        public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
+        public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
+        public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
+        public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<Attendance> Attendance { get; set; }
         public virtual DbSet<Business> Business { get; set; }
         public virtual DbSet<Church> Church { get; set; }
@@ -48,8 +57,12 @@ namespace CStat.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasAnnotation("Relational:DefaultSchema", "ronripp_CStat");
+
             modelBuilder.Entity<Account>(entity =>
             {
+                entity.HasIndex(e => e.BusinessId);
+
                 entity.HasOne(d => d.Business)
                     .WithMany(p => p.Account)
                     .HasForeignKey(d => d.BusinessId)
@@ -64,8 +77,66 @@ namespace CStat.Models
                 entity.Property(e => e.Country).IsFixedLength();
             });
 
+            modelBuilder.Entity<AspNetRoleClaims>(entity =>
+            {
+                entity.HasIndex(e => e.RoleId);
+            });
+
+            modelBuilder.Entity<AspNetRoles>(entity =>
+            {
+                entity.HasIndex(e => e.NormalizedName)
+                    .HasName("RoleNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedName] IS NOT NULL)");
+            });
+
+            modelBuilder.Entity<AspNetUserClaims>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+            });
+
+            modelBuilder.Entity<AspNetUserLogins>(entity =>
+            {
+                entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+
+                entity.HasIndex(e => e.UserId);
+            });
+
+            modelBuilder.Entity<AspNetUserRoles>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+
+                entity.HasIndex(e => e.RoleId);
+            });
+
+            modelBuilder.Entity<AspNetUserTokens>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+            });
+
+            modelBuilder.Entity<AspNetUsers>(entity =>
+            {
+                entity.HasIndex(e => e.NormalizedEmail)
+                    .HasName("EmailIndex");
+
+                entity.HasIndex(e => e.NormalizedUserName)
+                    .HasName("UserNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedUserName] IS NOT NULL)");
+            });
+
             modelBuilder.Entity<Attendance>(entity =>
             {
+                entity.HasIndex(e => e.EventId);
+
+                entity.HasIndex(e => e.MedicalId);
+
+                entity.HasIndex(e => e.PersonId);
+
+                entity.HasIndex(e => e.RegistrationId);
+
+                entity.HasIndex(e => e.TransactionId);
+
                 entity.HasOne(d => d.Event)
                     .WithMany(p => p.Attendance)
                     .HasForeignKey(d => d.EventId)
@@ -95,6 +166,10 @@ namespace CStat.Models
 
             modelBuilder.Entity<Business>(entity =>
             {
+                entity.HasIndex(e => e.AddressId);
+
+                entity.HasIndex(e => e.PocId);
+
                 entity.Property(e => e.ApiLink).IsFixedLength();
 
                 entity.Property(e => e.UserLink).IsFixedLength();
@@ -112,6 +187,34 @@ namespace CStat.Models
 
             modelBuilder.Entity<Church>(entity =>
             {
+                entity.HasIndex(e => e.AddressId);
+
+                entity.HasIndex(e => e.Alternate1Id);
+
+                entity.HasIndex(e => e.Alternate2Id);
+
+                entity.HasIndex(e => e.Alternate3Id);
+
+                entity.HasIndex(e => e.Elder1Id);
+
+                entity.HasIndex(e => e.Elder2Id);
+
+                entity.HasIndex(e => e.Elder3Id);
+
+                entity.HasIndex(e => e.Elder4Id);
+
+                entity.HasIndex(e => e.Elder5Id);
+
+                entity.HasIndex(e => e.SeniorMinisterId);
+
+                entity.HasIndex(e => e.Trustee1Id);
+
+                entity.HasIndex(e => e.Trustee2Id);
+
+                entity.HasIndex(e => e.Trustee3Id);
+
+                entity.HasIndex(e => e.YouthMinisterId);
+
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.Church)
                     .HasForeignKey(d => d.AddressId)
@@ -185,6 +288,8 @@ namespace CStat.Models
 
             modelBuilder.Entity<Event>(entity =>
             {
+                entity.HasIndex(e => e.ChurchId);
+
                 entity.HasOne(d => d.Church)
                     .WithMany(p => p.Event)
                     .HasForeignKey(d => d.ChurchId)
@@ -193,6 +298,16 @@ namespace CStat.Models
 
             modelBuilder.Entity<Incident>(entity =>
             {
+                entity.HasIndex(e => e.Persion3Id);
+
+                entity.HasIndex(e => e.Person1Id);
+
+                entity.HasIndex(e => e.Person2Id);
+
+                entity.HasIndex(e => e.Person4Id);
+
+                entity.HasIndex(e => e.Person5Id);
+
                 entity.HasOne(d => d.Persion3)
                     .WithMany(p => p.IncidentPersion3)
                     .HasForeignKey(d => d.Persion3Id)
@@ -226,6 +341,14 @@ namespace CStat.Models
 
             modelBuilder.Entity<InventoryItem>(entity =>
             {
+                entity.HasIndex(e => e.InventoryId);
+
+                entity.HasIndex(e => e.ItemId);
+
+                entity.HasIndex(e => e.OrderId);
+
+                entity.HasIndex(e => e.PersonId);
+
                 entity.HasOne(d => d.Inventory)
                     .WithMany(p => p.InventoryItem)
                     .HasForeignKey(d => d.InventoryId)
@@ -251,6 +374,8 @@ namespace CStat.Models
 
             modelBuilder.Entity<Item>(entity =>
             {
+                entity.HasIndex(e => e.MfgId);
+
                 entity.Property(e => e.Name).IsFixedLength();
 
                 entity.Property(e => e.Upc).IsFixedLength();
@@ -273,6 +398,10 @@ namespace CStat.Models
 
             modelBuilder.Entity<Medical>(entity =>
             {
+                entity.HasIndex(e => e.EventId);
+
+                entity.HasIndex(e => e.PersonId);
+
                 entity.HasOne(d => d.Event)
                     .WithMany(p => p.Medical)
                     .HasForeignKey(d => d.EventId)
@@ -287,6 +416,12 @@ namespace CStat.Models
 
             modelBuilder.Entity<Operations>(entity =>
             {
+                entity.HasIndex(e => e.BusinessId);
+
+                entity.HasIndex(e => e.ChurchId);
+
+                entity.HasIndex(e => e.PersonId);
+
                 entity.HasOne(d => d.Business)
                     .WithMany(p => p.Operations)
                     .HasForeignKey(d => d.BusinessId)
@@ -306,6 +441,14 @@ namespace CStat.Models
             modelBuilder.Entity<Person>(entity =>
             {
                 entity.HasComment("Person");
+
+                entity.HasIndex(e => e.AddressId);
+
+                entity.HasIndex(e => e.ChurchId);
+
+                entity.HasIndex(e => e.Pg1PersonId);
+
+                entity.HasIndex(e => e.Pg2PersonId);
 
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.Person)
@@ -330,6 +473,8 @@ namespace CStat.Models
 
             modelBuilder.Entity<Position>(entity =>
             {
+                entity.HasIndex(e => e.PersonId);
+
                 entity.HasOne(d => d.Person)
                     .WithMany(p => p.Position)
                     .HasForeignKey(d => d.PersonId)
@@ -339,6 +484,10 @@ namespace CStat.Models
 
             modelBuilder.Entity<Registration>(entity =>
             {
+                entity.HasIndex(e => e.EventId);
+
+                entity.HasIndex(e => e.PersonId);
+
                 entity.Property(e => e.TShirtSize).IsFixedLength();
 
                 entity.HasOne(d => d.Event)
@@ -354,6 +503,20 @@ namespace CStat.Models
 
             modelBuilder.Entity<Task>(entity =>
             {
+                entity.HasIndex(e => e.Blocking1Id);
+
+                entity.HasIndex(e => e.Blocking2Id);
+
+                entity.HasIndex(e => e.ChurchId);
+
+                entity.HasIndex(e => e.PersonId);
+
+                entity.HasIndex(e => e.Worker1Id);
+
+                entity.HasIndex(e => e.Worker2Id);
+
+                entity.HasIndex(e => e.Worker3Id);
+
                 entity.HasOne(d => d.Blocking1)
                     .WithMany(p => p.InverseBlocking1)
                     .HasForeignKey(d => d.Blocking1Id)
@@ -368,6 +531,11 @@ namespace CStat.Models
                     .WithMany(p => p.Task)
                     .HasForeignKey(d => d.ChurchId)
                     .HasConstraintName("FK_Task_Church");
+
+                entity.HasOne(d => d.ParentTask)
+                    .WithMany(p => p.InverseParentTask)
+                    .HasForeignKey(d => d.ParentTaskId)
+                    .HasConstraintName("FK_Task_Task2");
 
                 entity.HasOne(d => d.Person)
                     .WithMany(p => p.TaskPerson)
@@ -392,6 +560,14 @@ namespace CStat.Models
 
             modelBuilder.Entity<Transaction>(entity =>
             {
+                entity.HasIndex(e => e.BusinessId);
+
+                entity.HasIndex(e => e.CcaAccountId);
+
+                entity.HasIndex(e => e.CcaPersonId);
+
+                entity.HasIndex(e => e.ChurchId);
+
                 entity.Property(e => e.InvoiceId).IsFixedLength();
 
                 entity.Property(e => e.PaymentNumber).IsFixedLength();

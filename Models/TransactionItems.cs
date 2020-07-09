@@ -7,16 +7,16 @@ namespace CStat.Models
 {
     public partial class TransactionItems
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id")]
+        public int Id { get; set; }
         [Column("Transaction_id")]
         public int TransactionId { get; set; }
         [Column("item_id")]
         public int ItemId { get; set; }
         [Column(TypeName = "money")]
         public decimal Cost { get; set; }
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
-        public int Id { get; set; }
 
         [ForeignKey(nameof(Id))]
         [InverseProperty(nameof(Transaction.TransactionItems))]

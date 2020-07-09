@@ -348,16 +348,21 @@
             });
 
             $("#taskData_state").change(function () {
+                let pctCompChanged = false;
                 if ($("#taskData_state").val() == 0x00001000) {
                     $("#pctComp").val(100);
+                    pctCompChanged = true;
                 }
                 else {
                     if ($("#pctComp").val() >= 100) {
                         $("#pctComp").val(90);
+                        pctCompChanged = true;
                     }
                     $("#task_ActualDoneDate").val("");
                 }
-                $("#pctComp").trigger("change");
+                if (pctCompChanged) {
+                    $("#pctComp").trigger("change");
+                }
             });
 
             $('body').on('keydown', "[id^=me]", function (e) {
@@ -461,7 +466,9 @@
                 if (!!compVal) {
                     if (compVal < 100) {
                         $("#markDone").prop("disabled", false).css('opacity', 1.0);
-                        $("#taskData_state").val(0x00000400);
+                        if ($("#taskData_state").val() === 0x00001000) {
+                            $("#taskData_state").val(0x00000400);
+                        }
                         $("#taskData_reason").val(0x04000000);
                     } else {
                         $("#taskData_state").val(0x00001000);

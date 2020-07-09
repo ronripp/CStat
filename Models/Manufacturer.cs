@@ -12,6 +12,10 @@ namespace CStat.Models
             Item = new HashSet<Item>();
         }
 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id")]
+        public int Id { get; set; }
         [StringLength(10)]
         public string Name { get; set; }
         [Column("Address_id")]
@@ -20,10 +24,6 @@ namespace CStat.Models
         [Column("Contract_Link")]
         [StringLength(50)]
         public string ContractLink { get; set; }
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
-        public int Id { get; set; }
 
         [InverseProperty("MfgNavigation")]
         public virtual ICollection<Item> Item { get; set; }

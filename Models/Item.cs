@@ -12,6 +12,10 @@ namespace CStat.Models
             InventoryItem = new HashSet<InventoryItem>();
         }
 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id")]
+        public int Id { get; set; }
         [Required]
         [Column("name")]
         [StringLength(80)]
@@ -24,10 +28,6 @@ namespace CStat.Models
         public float Size { get; set; }
         public int Units { get; set; }
         public int? Status { get; set; }
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
-        public int Id { get; set; }
 
         [ForeignKey(nameof(MfgId))]
         [InverseProperty(nameof(Business.Item))]

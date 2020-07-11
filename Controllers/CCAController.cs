@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
 using CStat.Models;
-//using CCAEvents2;
-//using CCAChurch;
-//using CCAAttendance;
+using CCAEvents2;
+using CCAChurch;
+using CCAAttendance;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
-namespace CStat
+namespace CStat.Controllers
 {
     public class Raw
     {
@@ -18,7 +22,9 @@ namespace CStat
         public string data { get; set; }
     }
 
-    public class CCAController 
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CCAController : ControllerBase
     {
         private CStatContext entities;
 
@@ -28,6 +34,7 @@ namespace CStat
         }
 
         // PUT api/cca/5
+        [HttpPut]
         [Obsolete]
         public String Put(Raw raw)
         {
@@ -78,7 +85,7 @@ namespace CStat
                 {
                     if ((rp != null) && (rp.Id > 0))
                         return "Update/Add Succeeded:" + "[" + rp.Id + "]";
-                    else                             
+                    else
                         return "Update/Add Succeeded.";
                 }
                 else
@@ -126,7 +133,7 @@ namespace CStat
                 String resultsStr = "";
                 MgrStatus ams = amgr.Update(atd);
                 if (resultsStr.Length > 0)
-                    resultsStr = String.Join (",", resultsStr, ams.ToString());
+                    resultsStr = String.Join(",", resultsStr, ams.ToString());
                 else
                     resultsStr = ams.ToString();
 

@@ -41,6 +41,10 @@ namespace CStat.Pages.Tasks
            {
                 Task.Add(ct);
            }
+
+           // TBD : Add AutoGen
+
+           // TBD : Set Normal(Green) Warning(Yellow),  Alert(Red) state
  
         }
     }

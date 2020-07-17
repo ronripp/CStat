@@ -486,45 +486,47 @@ namespace CStat.Models
     {
         public enum eTaskType
         {
-            // Area :   MASK= 0x0000001F     
-            PlanCampEvent   = 0x00000001,
-            CampEventTask   = 0x00000002,
-            BuildingFix     = 0x00000003,
-            GroundsFix      = 0x00000004,
-            NewAdditon      = 0x00000005,
-            RequiredTask    = 0x00000006,
-            CampEnhancement = 0x00000007,
-            Promotion       = 0x00000008,
-            CampMantTask    = 0x00000009,
+            // Amount   MASK= 0x00000FFF
 
-            // Flags    MASK= 0x00000FE0
-            Template        = 0x00000020,
-            unk1            = 0x00000040,
-            unk2            = 0x00000080,
-            unk3            = 0x00000100,
-            unk4            = 0x00000200,
-            unk5            = 0x00000400,
-            unk6            = 0x00000800,
+            // Area :   MASK= 0x0001F000     
+            PlanCampEvent   = 0x00001000,
+            CampEventTask   = 0x00002000,
+            BuildingFix     = 0x00003000,
+            GroundsFix      = 0x00004000,
+            NewAdditon      = 0x00005000,
+            RequiredTask    = 0x00006000,
+            CampEnhancement = 0x00007000,
+            Promotion       = 0x00008000,
+            CampMantTask    = 0x00009000,
 
-            //Occurance  MASK= 0x0001F000 
-            OneTime          = 0x00001000,
-            PerEvent         = 0x00002000,
-            StartEvent       = 0x00003000,
-            EndEvent         = 0x00004000,
-            Every_Event_Day  = 0x00005000,
-            Every_Work_Day   = 0x00006000,
-            Every_Day        = 0x00007000,
-            Every_Event_Week = 0x00008000,
-            Every_ChC_Month  = 0x00009000,
-            Every_Month      = 0x0000A000,
-            Every_Year_Qtr   = 0x0000B000,
-            Every_Year       = 0x0000C000,
-            StartSeason      = 0x0000B000,
-            EndSeason        = 0x0000C000,
-            Expires          = 0x0000D000
+            // Flags    MASK= 0x00FE0000
+            Template        = 0x00020000,
+            unk1            = 0x00040000,
+            unk2            = 0x00080000,
+            unk3            = 0x00100000,
+            unk4            = 0x00200000,
+            unk5            = 0x00400000,
+            unk6            = 0x00800000,
 
-            // Alert     MASK= 0x7FFE0000
-
+            //Occurance  MASK= 0x7F000000 
+            OneTime          = 0x01000000,
+            PerEvent         = 0x02000000,
+            StartEvent       = 0x03000000,
+            EndEvent         = 0x04000000,
+            Every_Event_Day  = 0x05000000,
+            Every_Work_Day   = 0x06000000,
+            Every_Day        = 0x07000000,
+            Every_Event_Week = 0x08000000,
+            Every_ChC_Month  = 0x09000000,
+            Every_Month_End  = 0x0A000000,
+            Every_Month_DueD = 0x0B000000,
+            Every_Qtr_Start  = 0x0C000000,
+            Every_Year_Start = 0x0D000000,
+            Every_Year_End   = 0x0E000000,
+            Every_Year_DueD  = 0x0F000000,
+            StartSeason      = 0x10000000,
+            EndSeason        = 0x11000000,
+            Expire_Year_Amt  = 0x12000000
         }
 
         public enum ePriority

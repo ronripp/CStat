@@ -176,6 +176,8 @@ namespace CStat.Pages.Tasks
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment hostEnv;
 
+        public bool IsTemplate = false;
+
         public TaskData taskData { get; set; }
 
         [BindProperty]

@@ -602,6 +602,13 @@
                 }
              });
 
+            $("#NewComment").focus(function () {
+                if (this.value === "<add a comment here>") {
+                    this.select();
+                }
+            });
+             
+
             $("#AddComment").click(function () {
                 let newCom = $("#NewComment").val();
                 if (!!newCom) {
@@ -612,12 +619,12 @@
                     var AtIdx = User.Identity.Name.IndexOf("@");
                     if (AtIdx == -1) AtIdx = 6;
                     var user = User.Identity.Name.Substring(0, AtIdx);
-                    var curDT = "--------[ " + user + " " + dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM") + " ]--------";
+                    var curDT = "===[ " + user + " " + dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM") + " ]===";
 }
                     let allComs = $("#AllComments").val();
                     allComs = "@curDT" + "\n" + newCom + "\n" + allComs;
                     $("#AllComments").val(allComs);
-                    $("#NewComment").val("");
+                    $("#NewComment").val("<add a comment here>");
                 }
             });
 
@@ -759,7 +766,7 @@
                         </div>
                         <div class="col-md-6">
                             <span>
-                                <input type="text" style="width:94%" id="NewComment" />
+                                <input type="text" style="width:90%" id="NewComment" value="<add a comment here>" />
                                 <button id="AddComment"><b>+</b></button>
                             </span>
                             <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="min-height:8em; color:black; background-color:white"></textarea>

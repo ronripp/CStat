@@ -24,16 +24,22 @@ namespace CStat.Pages.Tasks
         public List<CTask> GenTasks ()
         {
             // Get a List of Template Tasks
-            var task = _context.Task
-                .Include(t => t.Blocking1)
-                .Include(t => t.Blocking2)
-                .Include(t => t.Church)
-                .Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToList();
-
+            var TemplateTasks = _context.Task.Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToList();
 
             // Determine what needs to be Auto generated
+            foreach (var tmpl in TemplateTasks)
+            {
+                var AutoGenList = _context.Task.Include(t => t.Person).Where(t => (t.ParentTaskId == tmpl.Id)).ToList();
+
+            }
 
             // Filter out existing Auto generated Tasks having a parent task id that matches template task id and due date.
+            foreach (var tmpl in TemplateTasks)
+            {
+                var AutoGenList = _context.Task.Include(t => t.Person).Where(t => (t.ParentTaskId == tmpl.Id)).ToList();
+
+            }
+
 
             // Generate active tasks 
 

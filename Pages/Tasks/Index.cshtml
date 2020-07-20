@@ -22,6 +22,19 @@
             color: black;
         }
 
+        .split-para {
+            display: block;
+            margin: 10px;
+        }
+
+        .split-para span {
+            display: block;
+            float: right;
+            width: 50%;
+            margin-left: 5px;
+            text-align:right;
+        }
+
     </style>
 
     <script type="text/javascript">
@@ -39,69 +52,82 @@
 </head>
 
 <body>
-    <h4>
-        <b><a asp-page="Create">+ Create New</a></b>
-    </h4>
-    <table class="table">
-        <thead>
-            <tr style="background-color: lightgray;">
-                <th>
-                    ID
-                </th>
-                <th>
-                    Desc
-                </th>
-                <th>
-                    Stat
-                </th>
-                <th>
-                    Priority
-                </th>
-                <th>
-                    Person
-                </th>
-                <th>
-                    Due
-                </th>
-                <th style="text-align:center">X</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Task) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
-                </td>
-                <td>
-                    @{
-                    item.GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
-                    var stateStr = ((CTask.eTaskStatus)state).ToString().Replace("_", " ") + " (" + pctComp + "%)";
-                    }
-                    @stateStr
-                </td>
-                <td>
-                    @{
-                    var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
-                    }
-                    @priorityStr
-                </td>
-                <td>
-                    @{
-                    var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "none";
-                    }
-                    @nameStr
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DueDate)
-                </td>
-                <td>
-                    <a asp-page="./Delete" asp-route-id="@item.Id">[Delete]</a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+
+    <p class="split-para"><b><a asp-page="Create">Create New</a></b>
+        <span>
+            @{ if (Model.IsTemplate)
+                {
+                    <a asp-page="Index">Tasks</a>
+                }
+                else
+                {
+                    <a asp-page="Index" asp-route-showTemplates="true">Templates</a>
+                }
+            }
+        </span>
+    </p>
+
+     <table class="table">
+         <thead>
+             <tr style="background-color: lightgray;">
+                 <th>
+                     ID
+                 </th>
+                 <th>
+                     Desc
+                 </th>
+                 <th>
+                     Stat
+                 </th>
+                 <th>
+                     Priority
+                 </th>
+                 <th>
+                     Person
+                 </th>
+                 <th>
+                     Due
+                 </th>
+                 <th style="text-align:center">X</th>
+             </tr>
+         </thead>
+         <tbody>
+             @foreach (var item in Model.Task)
+             {
+                 <tr>
+                     <td>
+                         @Html.DisplayFor(modelItem => item.Id)
+                     </td>
+                     <td>
+                         <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
+                     </td>
+                     <td>
+                         @{
+                             item.GetTaskStatus(out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
+                             var stateStr = ((CTask.eTaskStatus)state).ToString().Replace("_", " ") + " (" + pctComp + "%)";
+                         }
+                         @stateStr
+                     </td>
+                     <td>
+                         @{
+                             var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
+                         }
+                         @priorityStr
+                     </td>
+                     <td>
+                         @{
+                             var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "none";
+                         }
+                         @nameStr
+                     </td>
+                     <td>
+                         @Html.DisplayFor(modelItem => item.DueDate)
+                     </td>
+                     <td>
+                         <a asp-page="./Delete" asp-route-id="@item.Id">[Delete]</a>
+                     </td>
+                 </tr>
+             }
+         </tbody>
+     </table>
 </body>

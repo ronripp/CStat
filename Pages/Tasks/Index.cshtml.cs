@@ -16,6 +16,8 @@ namespace CStat.Pages.Tasks
     {
         private readonly CStat.Models.CStatContext _context;
 
+        public bool IsTemplate = false;
+
         public IndexModel(CStat.Models.CStatContext context)
         {
             _context = context;
@@ -23,29 +25,41 @@ namespace CStat.Pages.Tasks
 
         public IList<CTask> Task { get;set; }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(bool showTemplates = false)
         {
-            Task = await _context.Task
-                .Include(t => t.Blocking1)
-                .Include(t => t.Blocking2)
-                .Include(t => t.Church)
-                .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) == 0).OrderBy(t => t.Priority).ToListAsync();
+            IsTemplate = showTemplates;
 
-            IList<CTask> CompTasks = await _context.Task
-                .Include(t => t.Blocking1)
-                .Include(t => t.Blocking2)
-                .Include(t => t.Church)
-                .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) != 0).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+            if (!IsTemplate)
+            {
+                Task = await _context.Task
+                    .Include(t => t.Blocking1)
+                    .Include(t => t.Blocking2)
+                    .Include(t => t.Church)
+                    .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) == 0).OrderBy(t => t.Priority).ToListAsync();
 
-           foreach (var ct in CompTasks) // Task = Task.Concat(CompTasks);
-           {
-                Task.Add(ct);
-           }
+                IList<CTask> CompTasks = await _context.Task
+                    .Include(t => t.Blocking1)
+                    .Include(t => t.Blocking2)
+                    .Include(t => t.Church)
+                    .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) != 0).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
 
-           // TBD : Add AutoGen
+                foreach (var ct in CompTasks) // Task = Task.Concat(CompTasks);
+                {
+                    Task.Add(ct);
+                }
 
-           // TBD : Set Normal(Green) Warning(Yellow),  Alert(Red) state
- 
+                // TBD : Add AutoGen
+
+                // TBD : Set Normal(Green) Warning(Yellow),  Alert(Red) state
+            }
+            else
+            {
+                Task = await _context.Task
+                    .Include(t => t.Blocking1)
+                    .Include(t => t.Blocking2)
+                    .Include(t => t.Church)
+                    .Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToListAsync();
+            }
         }
     }
 }

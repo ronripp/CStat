@@ -176,8 +176,6 @@ namespace CStat.Pages.Tasks
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment hostEnv;
 
-        public bool IsTemplate = false;
-
         public TaskData taskData { get; set; }
 
         [BindProperty]
@@ -212,6 +210,12 @@ namespace CStat.Pages.Tasks
         private void InitializeTask(int tid=0)
         {
             task = new CTask();
+            if (tid == -1)
+            {
+                task.Type |= (int)CTask.eTaskType.Template;
+                tid = 0;
+            }
+
             task.Description = "";
             task.EstimatedManHours = 0;
             task.Id = tid;

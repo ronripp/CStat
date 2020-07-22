@@ -181,6 +181,9 @@ namespace CStat.Pages.Tasks
         [BindProperty]
         public CTask task { get; set; }
 
+
+        public bool IsTemplate = false;
+
         public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
             _context = context;
@@ -213,6 +216,7 @@ namespace CStat.Pages.Tasks
             if (tid == -1)
             {
                 task.Type |= (int)CTask.eTaskType.Template;
+                IsTemplate = true;
                 tid = 0;
             }
 
@@ -234,7 +238,7 @@ namespace CStat.Pages.Tasks
              int tid = !id.HasValue ? tid = 0 : id.Value;
 
             int res = 0;
-            if (tid == 0)
+            if (tid <= 0)
             {
                 // Create new task
                 InitializeTask(tid);
@@ -246,6 +250,7 @@ namespace CStat.Pages.Tasks
                 task = _context.Task.FirstOrDefault(m => m.Id == tid);
                 if ((task != null) && (tid == task.Id))
                 {
+                    IsTemplate = (task.Type & (int)CTask.eTaskType.Template) != 0;
                     taskData = TaskData.ReadTaskData(hostEnv, tid);
                     if (task.DueDate == null)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
@@ -376,6 +381,7 @@ namespace CStat.Pages.Tasks
                     taskData.Title = task.Description = title;
                     fStr = "Task Id";
                     taskData.tid = task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                    task.Type = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskType").Value);
                     fStr = "Person Id";
                     task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
                     if (!task.PersonId.HasValue || (task.PersonId <= 0))

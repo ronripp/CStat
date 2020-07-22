@@ -35,13 +35,13 @@ namespace CStat.Pages.Tasks
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) == 0).OrderBy(t => t.Priority).ToListAsync();
+                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => t.Priority).ToListAsync();
 
                 IList<CTask> CompTasks = await _context.Task
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => (t.Status & (int)CTask.eTaskStatus.Completed) != 0).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
 
                 foreach (var ct in CompTasks) // Task = Task.Concat(CompTasks);
                 {

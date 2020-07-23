@@ -6,107 +6,108 @@
     ViewData["Title"] = "Task " + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
 }
 
-<head>
-    @using System.Web;
-    @using System.Globalization;
+    <head>
+        @using System;
+        @using System.Web;
+        @using System.Globalization;
 
-    <style>
-        #taskDetail {
-            overflow-y: scroll;
-            height: 400px;
-            font-family: "Verdana";
-            min-width: 90%;
-            resize: none; /* Remove this if you want the user to resize the textarea */
-        }
+        <style>
+            #taskDetail {
+                overflow-y: scroll;
+                height: 400px;
+                font-family: "Verdana";
+                min-width: 90%;
+                resize: none; /* Remove this if you want the user to resize the textarea */
+            }
 
-        .table th {
-            padding: 0.1rem;
-            color: lightgray;
-        }
+            .table th {
+                padding: 0.1rem;
+                color: lightgray;
+            }
 
-        .table td {
-            padding: 0.5rem;
-        }
+            .table td {
+                padding: 0.5rem;
+            }
 
-        .ljust {
-            text-align: left;
-        }
+            .ljust {
+                text-align: left;
+            }
 
-        .cjust {
-            text-align: center;
-        }
+            .cjust {
+                text-align: center;
+            }
 
-        .rjust {
-            text-align: right;
-        }
+            .rjust {
+                text-align: right;
+            }
 
-        .mhider {
-            display: none;
-            text-align: right;
-        }
+            .mhider {
+                display: none;
+                text-align: right;
+            }
 
-        .mhidec {
-            display: none;
-            text-align: center;
-        }
+            .mhidec {
+                display: none;
+                text-align: center;
+            }
 
-        .mhidel {
-            display: none;
-            text-align: right;
-        }
+            .mhidel {
+                display: none;
+                text-align: right;
+            }
 
-        .redit {
-            text-align: right;
-            max-width: 4em;
-        }
+            .redit {
+                text-align: right;
+                max-width: 4em;
+            }
 
-        .cedit {
-            text-align: left;
-            max-width: 4em;
-        }
+            .cedit {
+                text-align: left;
+                max-width: 4em;
+            }
 
-        .ledit {
-            text-align: left;
-            width: 100%;
-        }
+            .ledit {
+                text-align: left;
+                width: 100%;
+            }
 
-        .hdrBk {
-            background-color: #FFF090;
-        }
+            .hdrBk {
+                background-color: #FFF090;
+            }
 
-        .tborder {
-            padding: 4px 4px 4px 4px;
-            border: 2px solid #ffd800;
-            background-color: #fef4b9
-        }
+            .tborder {
+                padding: 4px 4px 4px 4px;
+                border: 2px solid #ffd800;
+                background-color: #fef4b9
+            }
 
-        .tcborder {
-            padding: 4px 4px 4px 4px;
-            border: 2px solid #008000;
-            background-color: #D0FFD0;
-            margin-top: 10px;
-        }
+            .tcborder {
+                padding: 4px 4px 4px 4px;
+                border: 2px solid #008000;
+                background-color: #D0FFD0;
+                margin-top: 10px;
+            }
 
-        #SaveAll {
-            background-color: #007272;
-            border: 2px solid #0000FF;
-            color: white;
-            margin-bottom: 6px;
-        }
+            #SaveAll {
+                background-color: #007272;
+                border: 2px solid #0000FF;
+                color: white;
+                margin-bottom: 6px;
+            }
 
-        #markDone {
-            background-color: #C0FFC0;
-            color: black;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-    </style>
+            #markDone {
+                background-color: #C0FFC0;
+                color: black;
+                font-weight: bold;
+                margin-left: 8px;
+            }
+        </style>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript">
+        <script type="text/javascript">
 
         var pics = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.url + "'")))];
         var picTitles = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.title + "'")))];
@@ -115,6 +116,30 @@
         var lastPic = -1;
         var inMarkDone = false;
         var dirtyTask = false;
+
+        function markTaskDirty(e) {
+            setDirtyTask();
+        }
+
+        function setDirtyTask() {
+            if (!dirtyTask) {
+                dirtyTask = true;
+                $("#saveDiv").show();
+            }
+        }
+
+        function clearDirtyTask() {
+            if (dirtyTask) {
+                dirtyTask = false;
+                $("#saveDiv").hide();
+            }
+        }
+
+        function initialView() {
+            if ($("#task_Description").val().trim() === "") {
+                $("#task_Description").focus();
+            }
+        }
 
         function saveTask() {
 
@@ -165,7 +190,7 @@
                 contentType: false,
                 success: function (res) {
                     if (res.indexOf("Success") === 0) {
-                        dirtyTask = false;
+                        clearDirtyTask();
                         $("#SaveAll").text("Success!");
                         $("#SaveAll").css("background-color", "#00C000");
                         setTimeout(function () {
@@ -312,6 +337,7 @@
             }
 
             setPicture();
+            $("#saveDiv").hide();
 
             $("#imgTitle").on('blur', "#editImgTitle", function () {
                 picTitles[curPic] = $("#editImgTitle").val().trim();
@@ -367,7 +393,7 @@
             });
 
             $('body').on('keydown', "[id^=me]", function (e) {
-                dirtyTask = true;
+                setDirtyTask();
                 if ((e.which == 9) || (e.which == 13)) {
                     e.preventDefault();
                     let eid = "#" + event.target.id;
@@ -410,7 +436,7 @@
             });
 
             $(document).on('click', "[id^=md]", function () {
-                dirtyTask = true;
+                setDirtyTask();
                 let did = "#" + event.target.id;
                 let field = did.substr(3, 1);
                 let line = did.substr(4);
@@ -561,7 +587,7 @@
                                     if (res.indexOf("Success:") === 0) {
                                         pics.push(res.substr(8));
                                         picTitles.push(picDesc);
-                                        dirtyTask = true;
+                                        setDirtyTask();
                                         setPicture();
                                     } else {
                                         alert("Image Save Failed : " + res);
@@ -590,7 +616,7 @@
                     if (curPic > (pics.length - 1)) {
                         curPic = Math.max(curPic - 1, 0);
                     }
-                    dirtyTask = true;
+                    setDirtyTask();
                     setPicture();
                 }
             });
@@ -608,7 +634,7 @@
                     this.select();
                 }
             });
-             
+
 
             $("#AddComment").click(function () {
                 let newCom = $("#NewComment").val();
@@ -630,24 +656,14 @@
             });
 
             $("input").change(function () {
-                dirtyTask = true;
+                setDirtyTask();
             });
             $("select").change(function () {
-                dirtyTask = true;
+                setDirtyTask();
             });
             $("textarea").change(function () {
-                dirtyTask = true;
+                setDirtyTask();
             });
-
-            function markTaskDirty(e) {
-                dirtyTask = true;
-            }
-
-            function initialView() {
-                if($("#task_Description").val().trim() === ""){
-                    $("#task_Description").focus();
-                }
-            }
 
             // Enable navigation prompt if task dirty
             window.onbeforeunload = function () {
@@ -667,9 +683,9 @@
             return str.replace(/\"/g, "^^").replace(/\'/g, "^");
         }
 
-    </script>
+        </script>
 
-</head>
+    </head>
 
 
 @{
@@ -691,7 +707,7 @@
                 <span asp-validation-for="task.Description" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2" id="saveDiv">
             <button id="SaveAll" onclick="saveTask()">@saveStr</button>
         </div>
     </div>
@@ -740,11 +756,19 @@
                                 var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
                                 var dueDateLabel = (Model.taskData.FixedDueDate) ? "Due Date:" : "Est. Done:";
                             }
-                            <div>
-                                <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
-                                <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                        <div>
+                            <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
+                            @{if((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
+                              {
+                                 <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
+                              }
+                              else
+                              {
+                                 <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                              }
+                            }
 
-                            </div>
+                        </div>
                             <div>
                                 <input type="checkbox" id="FixedDueDate" name="FixedDue" @checkedStr>
                                 <label id="FixedDueLabel" for="FixedDue">Fixed Date?</label>

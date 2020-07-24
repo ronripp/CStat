@@ -392,6 +392,11 @@
                 }
             });
 
+           /*******************************************************************************************
+           d mdd bl.desc     u mdu bl.ucost     s mds bl.units     q mdq bl.qty        t mdt bl.tcost
+             med bl.desc       meu bl.ucost       mes bl.units       meq bl.qty          met bl.tcost
+           ********************************************************************************************/
+
             $('body').on('keydown', "[id^=me]", function (e) {
                 setDirtyTask();
                 if ((e.which == 9) || (e.which == 13)) {
@@ -443,6 +448,8 @@
                 let eid = "#me" + field + line;
                 let iid = "#mi" + field + line;
 
+                console.log("CLICK Line=" + line + " Field=" + field);
+
                 $(did).hide();
                 $(eid).show();
                 $(iid).attr("value", $(did).text());
@@ -455,6 +462,14 @@
                 let line = iid.substr(4);
                 let did = "#md" + field + line;
                 let eid = "#me" + field + line;
+
+                if (field === 'u') {
+
+                }
+                if (field === 'q') {
+
+                }
+
 
                 $(eid).hide();
                 $(did).show();
@@ -871,20 +886,30 @@
                             </tr>
                             <tbody>
 
-                                @foreach (var bl in Model.taskData.bom)
+                                @{
+                                int i=1;
+                                foreach (var bl in Model.taskData.bom)
                                 {
+                                    var mid = "mid" + i;
+                                    var miu = "miu" + i;
+                                    var mis = "mis" + i;
+                                    var miq = "miq" + i;
+                                    var mit = "mit" + i;
+
                                     <tr>
                                         <td id="mdd@{@bl.id}">@bl.desc</td>
-                                        <td id="med@{@bl.id}" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
+                                        <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
                                         <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                        <td id="meu@{@bl.id}" class="mhider"><input id="miu1" type="text" class="redit"></td>
+                                        <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
                                         <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                        <td id="mes@{@bl.id} " class="mhidec"><input id="mis1" type="text" class="cedit"></td>
+                                        <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
                                         <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                        <td id="meq@{@bl.id}" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
+                                        <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
                                         <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                        <td id="met@{@bl.id}" class="mhider"><input id="mit1" type="text" class="redit"></td>
+                                        <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
                                     </tr>
+                                    ++i;
+                                }
                                 }
 
                                 @*<tr>

@@ -1,1 +1,1 @@
-{"Detail":"","FixedDueDate":false,"PercentComplete":0,"Title":"My Next Task","bom":[],"comments":"===[ ronripp Tue 7\/21\/20 @ 10:21 PM ]===\nqfefdqew ewqewqd\n","pics":[],"reason":67108864,"state":1024,"tid":26}
+{"Detail":"","FixedDueDate":false,"PercentComplete":0,"Title":"My Next Task","bom":[{"desc":"aaa","id":1,"qty":"4","tcost":"88","ucost":"22","units":"sq"},{"desc":"bbb","id":2,"qty":"2","tcost":"66","ucost":"33","units":"sq"}],"comments":"===[ ronripp Tue 7\/21\/20 @ 10:21 PM ]===\nqfefdqew ewqewqd\n","pics":[],"reason":67108864,"state":1024,"tid":26}

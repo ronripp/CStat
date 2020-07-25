@@ -116,6 +116,7 @@
         var lastPic = -1;
         var inMarkDone = false;
         var dirtyTask = false;
+        var inModCost = false;
 
         function markTaskDirty(e) {
             setDirtyTask();
@@ -392,10 +393,10 @@
                 }
             });
 
-           /*******************************************************************************************
-           d mdd bl.desc     u mdu bl.ucost     s mds bl.units     q mdq bl.qty        t mdt bl.tcost
-             med bl.desc       meu bl.ucost       mes bl.units       meq bl.qty          met bl.tcost
-           ********************************************************************************************/
+           //*******************************************************************************************
+           //d mdd bl.desc     u mdu bl.ucost     s mds bl.units     q mdq bl.qty        t mdt bl.tcost
+           //  med bl.desc       meu bl.ucost       mes bl.units       meq bl.qty          met bl.tcost
+           //********************************************************************************************/
 
             $('body').on('keydown', "[id^=me]", function (e) {
                 setDirtyTask();
@@ -430,6 +431,7 @@
                             ln = parseInt(line,10)+1;
                             break;
                     }
+
                     let ndid = "#md" + fld + ln;
                     $(ndid).hide();
                     let neid = "#me" + fld + ln;
@@ -460,22 +462,94 @@
                 let iid = "#" + event.target.id;
                 let field = iid.substr(3, 1);
                 let line = iid.substr(4);
-                let did = "#md" + field + line;
-                let eid = "#me" + field + line;
 
                 if (field === 'u') {
-
+                    let qt = parseFloat($("#" + "mdq" + line).text());
+                    let ucost = parseFloat(event.target.value);
+                    if (!isNaN(ucost)) {
+                        event.target.value = ucost.toFixed(2);
+                    }
+                    if (!isNaN(ucost) && (ucost > 0) && !isNaN(qt) && (qt > 0)) {
+                        let mit = "#" + "mit" + line;
+                        let mdt = "#" + "mdt" + line;
+                        if ($(mit).is(":visible")) {
+                            $(mit).val((ucost * qt).toFixed(2));
+                        } else {
+                            $(mdt).text((ucost * qt).toFixed(2));
+                        }
+                    }
+                } else if (field === 'q') {
+                    let ucost = parseFloat($("#" + "mdu" + line).text());
+                    let qt = parseFloat(event.target.value);
+                    if (!isNaN(ucost) && (ucost > 0) && !isNaN(qt) && (qt > 0)) {
+                        let mit = "#" + "mit" + line;
+                        let mdt = "#" + "mdt" + line;
+                        if ($(mit).is(":visible")) {
+                            $(mit).val((ucost * qt).toFixed(2));
+                        } else {
+                            $(mdt).text((ucost * qt).toFixed(2));
+                        }
+                    }
                 }
-                if (field === 'q') {
 
-                }
-
+                let did = "#md" + field + line;
+                let eid = "#me" + field + line;
 
                 $(eid).hide();
                 $(did).show();
                 $(did).text($(iid).val());
                 updateBOM();
             });
+
+            $(document).on("DOMSubtreeModified", "[id^=md]", function () {
+
+                if (inModCost) {
+                    return;
+                }
+                inModCost = true;
+                let id = "#" + event.target.id;
+                let field = id.substr(3, 1);
+                let line = id.substr(4);
+
+                if (field === 'u') {
+                    let ucost = parseFloat($("#" + "mdu" + line).text());
+                    if (isNaN(ucost)) {
+                        $(id).text("");
+                        inModCost = false;
+                        return;
+                    }
+                    let qt = parseFloat($("#" + "mdq" + line).text());
+                    if ((ucost > 0) && !isNaN(qt) && (qt > 0)) {
+                        $("#" + "mdu" + line).text(ucost.toFixed(2));
+                        $("#" + "mdt" + line).text((ucost * qt).toFixed(2));
+                    }
+                } else if (field === 'q') {
+                    let qt = parseFloat($("#" + "mdq" + line).text());
+                    if (isNaN(qt)) {
+                        $(id).text("");
+                        inModCost = false;
+                        return;
+                    }
+                    let ucost = parseFloat($("#" + "mdu" + line).text());                   
+                    if (!isNaN(ucost) && (ucost > 0) && (qt > 0)) {
+                        $("#" + "mdt" + line).text((ucost * qt).toFixed(2));
+                    }
+                } else if (field === 't') {
+                    let tcost = parseFloat($("#" + "mdt" + line).text());
+                    if (isNaN(tcost)) {
+                        $(id).text("");
+                        inModCost = false;
+                        return;
+                    }
+                    if (!isNaN(tcost) && (tcost > 0)) {
+                        $("#" + "mdt" + line).text(tcost.toFixed(2));
+                    }
+                }
+                updateBOM();
+                inModCost = false;
+            });
+
+
 
             var formdata = null;
             var fileInput = null;
@@ -1087,7 +1161,7 @@
             <input type="submit" value="Create" class="btn btn-primary" />
         </div>*@
     <div>
-        <a asp-page="Index"><p style="margin-top:1em;">Back to List</p></a>
+        <p style="margin-top:1em;"><a asp-page="Index">Back to List</a></p>
     </div>
 </body>
     @section Scripts {

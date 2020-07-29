@@ -1,1 +1,1 @@
-{"Detail":"df","FixedDueDate":false,"PercentComplete":100,"Title":"This is task 2","bom":[],"comments":"","pics":[{"picId":1,"taskId":2,"title":"My pic for 2.jpg","url":"Images\/Img_2_1.jpg"}],"reason":33554432,"state":4096,"tid":2}
+{"Detail":"df","FixedDueDate":false,"PercentComplete":100,"Title":"This is task's \"Hello\" 2","bom":[],"comments":"===[ ronripp Tue 7\/28\/20 @ 8:04 PM ]===\nThis is Ron's Comment \"Yep it is\"!\n","pics":[{"picId":1,"taskId":2,"title":"My pic's \"New Name\"! .jpg","url":"Images\/Img_2_1.jpg"}],"reason":33554432,"state":4096,"tid":2}

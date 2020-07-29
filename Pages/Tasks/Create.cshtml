@@ -10,6 +10,7 @@
         @using System;
         @using System.Web;
         @using System.Globalization;
+        @using CStat.Models;
 
         <style>
             #taskDetail {
@@ -109,8 +110,23 @@
 
         <script type="text/javascript">
 
+        function encodeQuotes(str) {
+            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+        }
+
+        function unEncodeQuotes(str) {
+            //return str.replace(/^^/g, "\"").replace(/^/g, "\'");
+            while (str.indexOf("^^") != -1) {
+                str = str.replace("^^", "\"");
+            }
+            while (str.indexOf("^") != -1) {
+                str = str.replace("^", "\'");
+            }
+            return str;
+        }
+
         var pics = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.url + "'")))];
-        var picTitles = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + p.title + "'")))];
+        var picTitles = [@Html.Raw(String.Join(",", Model.taskData.pics.Select(p => "'" + CCommon.EncodeQuotes(p.title) + "'")))];
 
         var curPic = 0;
         var lastPic = -1;
@@ -327,7 +343,7 @@
             function setPicture() {
                 if (pics.length > 0) {
                     $("#imgDiv").html('<image src="' + pics[curPic] + '" style="width:100%">');
-                    $("#imgTitle").html("<b>" + picTitles[curPic] + "</b>");
+                    $("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
                     lastPic = curPic;
                 } else {
                     $("#imgDiv").html('[No Pictures]');
@@ -341,13 +357,14 @@
             $("#saveDiv").hide();
 
             $("#imgTitle").on('blur', "#editImgTitle", function () {
-                picTitles[curPic] = $("#editImgTitle").val().trim();
-                $("#imgTitle").html("<b>" + picTitles[curPic] + "</b>");
+                picTitles[curPic] = encodeQuotes($("#editImgTitle").val().trim());
+                ("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
             });
 
             $("#imgTitle").click(function () {
                 if ($("#imgTitle").html().indexOf("<b>") === 0) {
-                    $("#imgTitle").html("<input type='text' id='editImgTitle' value='" + picTitles[curPic] + "'>");
+                    $("#imgTitle").html("<input type='text' id='editImgTitle' onchange='setDirtyTask()'>");
+                    $("#editImgTitle").val(unEncodeQuotes(picTitles[curPic]));
                     $("#editImgTitle").focus();
                 }
             });
@@ -652,12 +669,14 @@
                                 }
                                 picDesc = "";
                             }
+                            picDesc = encodeQuotes(picDesc);
+
                             let tid = $("#newImgDesc").attr("tid");
                             if (!tid) {
                                 tid = "-1"; // error condition
                             }
                             formdata.append("image", file);
-                            formdata.append("picTitle", encodeQuotes(picDesc));
+                            formdata.append("picTitle", picDesc);
                             formdata.append("taskId", tid);
                             formdata.append("picId", pics.length + 1);
 
@@ -727,7 +746,7 @@
 
             $("#AddComment").click(function () {
                 let newCom = $("#NewComment").val();
-                if (!!newCom) {
+                if (!!newCom && newCom !== "<add a comment here>") {
 @{
                     var dtLoc = DateTime.Now;
                     TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
@@ -767,10 +786,6 @@
                 }
             };
         });
-
-        function encodeQuotes(str) {
-            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
-        }
 
         </script>
 

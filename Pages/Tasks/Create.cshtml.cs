@@ -410,7 +410,7 @@ namespace CStat.Pages.Tasks
                     {
                         for (int i = 0; i < pics.Length; ++ i)
                         {
-                            Pic pobj = new Pic(task.Id, i+1, picTitles[i], pics[i]);
+                            Pic pobj = new Pic(task.Id, i+1, CCommon.UnencodeQuotes(picTitles[i]), pics[i]);
                             taskData.pics.Add(pobj);
                         }
                     }

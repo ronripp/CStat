@@ -102,6 +102,15 @@
                 font-weight: bold;
                 margin-left: 8px;
             }
+
+            #bomTable tbody tr:nth-child(even) {
+                background-color: #fff185;
+            }
+
+            #bomTable th {
+                background-color: lightgray;
+            }
+
         </style>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -664,7 +673,7 @@
                         if (formdata) {
                             let picDesc = $("#newImgDesc").val();
                             if (!picDesc) {
-                                if (confirm("Empty picture description. Add?")) {
+                                if (!confirm("Empty picture description. Add?")) {
                                     return;
                                 }
                                 picDesc = "";
@@ -838,7 +847,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" style="max-width:2.2em; text-align:center; font-weight:bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
+                            <input type="text" id="pctComp" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
                             <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
                                 <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                     <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>

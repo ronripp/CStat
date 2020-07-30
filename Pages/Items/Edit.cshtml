@@ -5,6 +5,12 @@
     ViewData["Title"] = "Edit";
 }
 
+<script>
+    window.addEventListener("popstate", function () {
+        location.replace("People/Find");
+    });
+</script>
+
 <h1>Edit</h1>
 
 <h4>Item</h4>

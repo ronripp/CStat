@@ -142,6 +142,7 @@
         var inMarkDone = false;
         var dirtyTask = false;
         var inModCost = false;
+        var taskDocVal = "";
 
         function markTaskDirty(e) {
             setDirtyTask();
@@ -375,6 +376,9 @@
 
             if (window.location.href.indexOf("TaskDoc=1") != -1) {
                 $("#TaskDoc").text(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
+                sessionStorage.setItem("TaskDocFolder", "");
+                sessionStorage.setItem("TaskDocFile", "");
+                sessionStorage.setItem("TaskDocReturn", "");
                 setDirtyTask();
             }
 

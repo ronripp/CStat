@@ -183,7 +183,7 @@
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskType", $("#task_Type").val());
-            let docVal = encodeQuotes($("#taskDoc").text());
+            let docVal = encodeQuotes($("#TaskDoc").text());
             if (docVal === "<Browse to Add Doc>") {
                 docVal = "";
             }
@@ -400,12 +400,19 @@
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
-                            window.location.href = response;
+                            window.location.href = "../" + response;
                         }
                     },
                 });
             }
 
+            $("#TaskDoc").click(function () {
+                openFileShare();
+            });
+
+            $("#OpenDoc").click(function () {
+                openFileShare();
+            });
 
             $("#taskDetail").click(function () {
                 if ($("#taskDetail").val().trim() === "<add Detail here>") {
@@ -975,15 +982,17 @@
             <div class="tab-pane" id="descTab">
 
                 <section class="row">
-                    <div class="col-md-12" style="margin-top:8px">
-                        <table width="100%" style="margin-top:4px">
+                    <div class="col-md-12">
+                        <table style="margin-top:8px; margin-bottom:4px">
                             <tr>
                                 @{
                                     var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "<Browse to Add Doc>";
                                 }
-                                <td><a id="TaskDoc" onclick="openFileShare()"></a>@TaskDocVal</td>
-                                <td><button id="OpenDoc" style="margin-right:6px"><b>Open Doc</b></button></td>
+                                <td>Doc:</td>
+                                <td id="TaskDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold">@TaskDocVal</td>
+                                <td><button id="OpenDoc" style="margin-left:6px; margin-right:6px"><b>Open Doc</b></button></td>
                                 <td><button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px">Browse</button></td>
+                                <td></td>
                             </tr>
                         </table>
                     </div>

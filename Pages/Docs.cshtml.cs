@@ -19,6 +19,7 @@ namespace CStat
         public CSDropBox dbox;
         private IWebHostEnvironment hostEnv;
         public String DescStr = "";
+        public bool IsSelect = false;
         private string DescFile = null;
         private Dictionary<string, string> DescMap=null;
         private const String RepStr = "~";
@@ -30,9 +31,10 @@ namespace CStat
             dbox = new CSDropBox(Startup.CSConfig);
         }
 
-        public void OnGet(string id)
+        public void OnGet(string id, int select = 0)
         {
             FolderName = id ?? "";
+            IsSelect = select == 1;
             dbox.GetFolderList(FolderName);
             ViewData["Title"] = "Docs" + FolderName;
             FillDescMap(FolderName);

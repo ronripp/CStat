@@ -398,6 +398,9 @@ namespace CStat.Pages.Tasks
                         task.TotalCost = decimal.Parse(tcostStr);
                     else
                         task.TotalCost = 0;
+
+                    fStr = "Task Doc";
+                    task.PlanLink = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoc").Value);
                     fStr = "Detail Text";
                     taskData.Detail = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDetail").Value);
                     fStr = "Comments";

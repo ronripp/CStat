@@ -182,6 +182,11 @@
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskType", $("#task_Type").val());
+            let docVal = encodeQuotes($("#taskDoc").text());
+            if (docVal === "<Browse to Add Doc>") {
+                docVal = "";
+            }
+            saveFormData.append("taskDoc", docVal); // Add Doc
             saveFormData.append("taskDetail", encodeQuotes($("#taskDetail").val())); // Add Description
             saveFormData.append("fixedDueDate", $("#FixedDueDate").is(":checked"));
             saveFormData.append("taskComments", encodeQuotes($("#AllComments").val()));
@@ -364,6 +369,45 @@
 
             setPicture();
             $("#saveDiv").hide();
+            if ($("#taskDetail").val().trim() === "") {
+                $("#taskDetail").val("<add Detail here>");
+            }
+
+            if (window.location.href.indexOf("TaskDoc=1") != -1) {
+                $("#TaskDoc").text(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
+                setDirtyTask();
+            }
+
+            function openFileShare() {
+                var docVal = $("#TaskDoc").text();
+                if (!docVal || docVal === "<Browse to Add Doc>") {
+                    return;
+                }
+                var dvp = docVal.split(" > ");
+                if (!dvp || dvp.length !== 2) {
+                    return;
+                }
+                
+                var parameters = "{'Folder':'" + dvp[0].trim() + "','File':'" + dvp[1].trim() + "'}";
+                $.ajax({
+                    url: "/Docs?handler=FileShare",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            window.location.href = response;
+                        }
+                    },
+                });
+            }
+
+
+            $("#taskDetail").click(function () {
+                if ($("#taskDetail").val().trim() === "<add Detail here>") {
+                    $("#taskDetail").val("");
+                }
+            });
 
             $("#imgTitle").on('blur', "#editImgTitle", function () {
                 picTitles[curPic] = encodeQuotes($("#editImgTitle").val().trim());
@@ -796,6 +840,12 @@
             };
         });
 
+        function getDoc() {
+            saveTask();
+            sessionStorage.setItem("TaskDocReturn", window.location.href + "&TaskDoc=1");
+            window.location.href = "/Docs?select=1";
+        }
+
         </script>
 
     </head>
@@ -921,6 +971,18 @@
             <div class="tab-pane" id="descTab">
 
                 <section class="row">
+                    <div class="col-md-12" style="margin-top:8px">
+                        <table width="100%" style="margin-top:4px">
+                            <tr>
+                                @{
+                                    var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "<Browse to Add Doc>";
+                                }
+                                <td><a id="TaskDoc" onclick="openFileShare()"></a>@TaskDocVal</td>
+                                <td><button id="OpenDoc" style="margin-right:6px"><b>Open Doc</b></button></td>
+                                <td><button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px">Browse</button></td>
+                            </tr>
+                        </table>
+                    </div>
                     <div class="col-md-12" width="100%" style="margin-top:8px">
                         <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>
                     </div>

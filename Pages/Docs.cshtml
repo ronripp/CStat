@@ -55,6 +55,14 @@
                 });
             }
 
+            function setSelected(folder, file) {
+                var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+                sessionStorage.setItem("TaskDocFolder", folder);
+                sessionStorage.setItem("TaskDocFile", file);
+                let retUrl = sessionStorage.getItem("TaskDocReturn");
+                window.location.href = retUrl;
+            }
+
             function updateFileDesc(idx) {
                 let scanEl = document.querySelector("#" + "sid" + idx);
                 let inputEl = document.querySelector("#" + "iid" + idx);
@@ -121,6 +129,7 @@
     @{
     var DocTitle = Model.FolderName.Replace('/', '>');
     if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
+    var SelVal = Model.IsSelect ? 1 : 0;
     }
     <h4><b>@DocTitle</b></h4>
 
@@ -145,7 +154,7 @@
                 @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
                 <tr>
                     <td>
-                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&select=@SelVal">@Html.DisplayFor(modelItem => item.Name)</a></b>
                     </td>
                     <td></td>
                     <td></td>
@@ -156,7 +165,15 @@
         {
                 <tr>
                     <td>
-                        <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                        @if (Model.IsSelect)
+                        {
+                            <a onclick='setSelected("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                        }
+                        else
+                        {
+                            <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                        }
+
                     </td>
                     <td>
                         @{

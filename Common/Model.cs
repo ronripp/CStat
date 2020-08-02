@@ -505,7 +505,7 @@ namespace CStat.Models
             unk2            = 0x00080000,
             unk3            = 0x00100000,
 
-            //Repeat MASK= 0x7C000000 
+            // Due MASK     = 0x7C000000 
             At_Start        = 0x00000001 << 26,
             At_End          = 0x00000002 << 26,
             Before_End      = 0x00000003 << 26,
@@ -526,7 +526,7 @@ namespace CStat.Models
             By_Month        = 0x00000012 << 26,
             At_Date         = 0x00000013 << 26,
 
-            // Every MASK= 0x0E300000 
+            // Every MASK   = 0x0E300000 
             Retreat_Event   = 0x00000001 << 21,
             Week_Event      = 0x00000002 << 21,
             Event_Day       = 0x00000003 << 21,
@@ -541,6 +541,7 @@ namespace CStat.Models
             Year            = 0x0000000C << 21,
             Season          = 0x0000000D << 21,
             Number_of_Years = 0x0000000E << 21,
+            Event           = 0x0000000F << 21
         }
 
         public enum ePriority

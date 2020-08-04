@@ -1,1 +1,1 @@
-{"Detail":"","FixedDueDate":false,"PercentComplete":0,"Title":"Template 1","bom":[],"comments":"","pics":[],"reason":67108864,"state":1024,"tid":27}
+{"Detail":"<add Detail here>","FixedDueDate":false,"PercentComplete":0,"Title":"Template 1","bom":[],"comments":"","pics":[{"picId":1,"taskId":27,"title":"banne2 desc","url":"Images\/Img_27_1.png"}],"reason":67108864,"state":1024,"tid":27}

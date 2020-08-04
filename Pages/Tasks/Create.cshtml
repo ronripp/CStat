@@ -142,7 +142,6 @@
         var inMarkDone = false;
         var dirtyTask = false;
         var inModCost = false;
-        var taskDocVal = "";
 
         function markTaskDirty(e) {
             setDirtyTask();
@@ -379,6 +378,8 @@
                 sessionStorage.setItem("TaskDocFolder", "");
                 sessionStorage.setItem("TaskDocFile", "");
                 sessionStorage.setItem("TaskDocReturn", "");
+                $("#statusTab").removeClass('active');
+                $("#descTab").addClass('active');
                 setDirtyTask();
             }
 
@@ -400,17 +401,28 @@
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
-                            window.location.href = "../" + response;
+                            if (response.indexOf("http") == 0) {
+                                window.location.href = response;
+                            }
+                            else {
+                                window.location.href = "../" + response;
+                            }
                         }
                     },
                 });
             }
 
             $("#TaskDoc").click(function () {
+                if (dirtyTask) {
+                    saveTask();
+                }
                 openFileShare();
             });
 
             $("#OpenDoc").click(function () {
+                if (dirtyTask) {
+                    saveTask();
+                }
                 openFileShare();
             });
 

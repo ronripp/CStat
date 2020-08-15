@@ -80,6 +80,9 @@ namespace CStat.Pages.Tasks
         [DataMember]
         public int reason { get; set; }
         [DataMember]
+        public int CreateTaskDue { get; set; }
+        [DataMember]
+        public int CreateTaskEach { get; set; }
         public int PercentComplete { get; set; }
         [DataMember]
         public string Title { get; set; }
@@ -97,7 +100,9 @@ namespace CStat.Pages.Tasks
         {
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
             state = (int)CTask.eTaskStatus.Not_Started; 
-            reason = (int)CTask.eTaskStatus.Unknown;    
+            reason = (int)CTask.eTaskStatus.Unknown;
+            CreateTaskDue = (int)CTask.eTaskType.Before_Start;
+            CreateTaskEach = (int)CTask.eTaskType.Event;
             PercentComplete = 0;                        
             Title = "";
             Detail = "";
@@ -106,7 +111,6 @@ namespace CStat.Pages.Tasks
             comments = "";
             FixedDueDate = false;
         }
-
         public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId)
         {
             TaskData taskData = null;
@@ -261,8 +265,15 @@ namespace CStat.Pages.Tasks
 
             IList<SelectListItem> sList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e < (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["State"] = sList;
-            IList<SelectListItem> rList = Enum.GetValues(typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e >= (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> rList = Enum.GetValues (typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e >= (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["Reason"] = rList;
+
+            IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Before_Start) && ((int)e <= (int)CTask.eTaskType.At_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["CreateTaskDue"] = dueList;
+
+            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Event)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["CreateTaskEach"] = eachList;
+
             IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["Priority"] = pList;
 
@@ -335,7 +346,6 @@ namespace CStat.Pages.Tasks
             }
             return this.Content("Fail");
         }
-
         public ActionResult OnPostSave()
         {
             if ((this.Request != null) && (this.Request.Form != null))

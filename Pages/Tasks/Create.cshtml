@@ -3,7 +3,7 @@
 @Html.AntiForgeryToken()
 
 @{
-    ViewData["Title"] = "Task " + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
+    ViewData["Title"] = (Model.IsTemplate ? "Template " : "Task ") + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
 }
 
     <head>
@@ -87,6 +87,12 @@
                 border: 2px solid #008000;
                 background-color: #D0FFD0;
                 margin-top: 10px;
+            }
+
+            .tccborder {
+                padding: 4px 4px 4px 4px;
+                border: 2px solid #ffd800;
+                background-color: #ffff80;
             }
 
             #SaveAll {
@@ -642,8 +648,6 @@
                 inModCost = false;
             });
 
-
-
             var formdata = null;
             var fileInput = null;
             $("#newPicBtn").click(function () {
@@ -696,7 +700,6 @@
             $("#Funded").change(function () {
                 updateFunded();
             });
-
 
             $("body").on('DOMSubtreeModified', "#TCostStat", function () {
                 updateFunded();
@@ -898,7 +901,7 @@
         </div>
     </div>
 
-    <div>
+    <div style="background-color:@bkColor">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
@@ -983,13 +986,30 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <span>
+                        @{
+                            var NewTTaskDisplay = Model.IsTemplate ? "inline-block" : "none";
+                            var ComSpanDisplay = Model.IsTemplate ? "none" : "inline";
+                            var ComTADisplay = Model.IsTemplate ? "none" : "inline-block";
+                        }
+                        <div class="tccborder" id="NewTTask" style="display:@NewTTaskDisplay; margin-top:10px">
+                            <b>Create a New Task ...</b>
+                            <div>
+                                <label asp-for="taskData.CreateTaskDue" class="control-label">due:</label>
+                                <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="display:inline;max-width:10em; margin-right:8px"></select>
+                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" />
+                            </div>
+                            <div>
+                                <label asp-for="taskData.CreateTaskEach" class="control-label" style="display:inline"> of each:</label>
+                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:10em; margin-right:8px"></select>
+                            </div>
+                        </div>
+                        <span style="display:@ComSpanDisplay">
                             <input type="text" style="width:90%" id="NewComment" value="<add a comment here>" />
                             <button id="AddComment"><b>+</b></button>
                         </span>
-                        <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="min-height:8em; color:black; background-color:white"></textarea>
+                        <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="display:@ComTADisplay; min-height:8em; color:black; background-color:white"></textarea>
                     </div>
-                </div>
+            </div>
             </div>
             <div class="tab-pane" id="descTab">
 
@@ -1096,43 +1116,6 @@
                                     ++i;
                                 }
                                 }
-
-                                @*<tr>
-                                    <td id="mdd1">Gypsum Sheet Rock 4 x 8</td>
-                                    <td id="med1" class="mhidel"><input id="mid1" type="text" class="ledit"></td>
-                                    <td id="mdu1" class="rjust">$12.00</td>
-                                    <td id="meu1" class="mhider"><input id="miu1" type="text" class="redit"></td>
-                                    <td id="mds1" class="cjust">piece</td>
-                                         <td id="mes1" class="mhidec"><input id="mis1" type="text" class="cedit"></td>
-                                         <td id="mdq1" class="rjust">9</td>
-                                         <td id="meq1" class="mhider"><input id="miq1" type="text" class="redit" style="max-width:2em;"></td>
-                                         <td id="mdt1" class="rjust">$108.00</td>
-                                         <td id="met1" class="mhider"><input id="mit1" type="text" class="redit"></td>
-                                     </tr>
-                                     <tr>
-                                         <td id="mdd2">Gypsum Sheet Rock 4 x 8</td>
-                                         <td id="med2" class="mhidel"><input id="mid2" type="text" class="ledit"></td>
-                                         <td id="mdu2" class="rjust">$12.00</td>
-                                         <td id="meu2" class="mhider"><input id="miu2" type="text" class="redit"></td>
-                                         <td id="mds2" class="cjust">piece</td>
-                                         <td id="mes2" class="mhidec"><input id="mis2" type="text" class="cedit"></td>
-                                         <td id="mdq2" class="rjust">9</td>
-                                         <td id="meq2" class="mhider"><input id="miq2" type="text" class="redit" style="max-width:2em;"></td>
-                                         <td id="mdt2" class="rjust">$108.00</td>
-                                         <td id="met2" class="mhider"><input id="mit2" type="text" class="redit"></td>
-                                     </tr>
-                                     <tr>
-                                         <td id="mdd3">Gypsum Sheet Rock 4 x 8</td>
-                                         <td id="med3" class="mhidel"><input id="mid3" type="text" class="ledit"></td>
-                                         <td id="mdu3" class="rjust">$12.00</td>
-                                         <td id="meu3" class="mhider"><input id="miu3" type="text" class="redit"></td>
-                                         <td id="mds3" class="cjust">piece</td>
-                                         <td id="mes3" class="mhidec"><input id="mis3" type="text" class="cedit"></td>
-                                         <td id="mdq3" class="rjust">9</td>
-                                         <td id="meq3" class="mhider"><input id="miq3" type="text" class="redit" style="max-width:2em;"></td>
-                                         <td id="mdt3" class="rjust">$108.00</td>
-                                         <td id="met3" class="mhider"><input id="mit3" type="text" class="redit"></td>
-                                     </tr>*@
                             </tbody>
                         </table>
                     </div>
@@ -1140,137 +1123,6 @@
             </div>
         </div>
     </div>
-
-    @*<section class="row">
-            <h3>Status</h3>
-            <div class="col-md-6">
-                <div class="form-group" style="margin-top:10px">
-                    <div class="form-group">
-                        <div class="progress" style="max-height:1.8em; max-width:12em">
-                            <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
-                                <span class="sr-only">70% Complete</span>
-                            </div>
-                        </div>
-                        <select asp-for="taskData.state" class="form-control" asp-items="ViewBag.State" style="max-width:10em"></select>
-                        <select asp-for="taskData.reason" class="form-control" asp-items="ViewBag.Reason" style="max-width:10em"></select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label asp-for="task.Status" class="control-label">% Complete:</label>
-                    <input asp-for="task.Status" class="form-control" style="max-height:1.2em; max-width:5em" />
-                    <span asp-validation-for="task.Status" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label asp-for="task.Status" class="control-label">Needed $:</label>
-                    <input asp-for="task.Status" class="form-control" />
-                    <span asp-validation-for="task.Status" class="text-danger"></span>
-                </div>
-            </div>
-        </section>
-        <section class="row">
-            <h3>Owner</h3>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
-                    <select asp-for="task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
-                    <span asp-validation-for="task.PersonId" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="task.Worker1Id" class="control-label">Workers</label>
-                    <input asp-for="task.DueDate" class="form-control" />
-                    <span asp-validation-for="task.DueDate" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label asp-for="task.DueDate" class="control-label">Est.Done: </label>
-                    <input asp-for="task.DueDate" class="form-control" />
-                    <span asp-validation-for="task.DueDate" class="text-danger"></span>
-                </div>
-            </div>
-        </section>*@
-
-    @*<div class="form-group">
-            <label asp-for="Task.Blocking1Id" class="control-label"></label>
-            <select asp-for="Task.Blocking1Id" class="form-control" asp-items="ViewBag.Blocking1Id"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.Blocking2Id" class="control-label"></label>
-            <select asp-for="Task.Blocking2Id" class="form-control" asp-items="ViewBag.Blocking2Id"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.Type" class="control-label"></label>
-            <input asp-for="Task.Type" class="form-control" />
-            <span asp-validation-for="Task.Type" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.TaskStatus" class="control-label"></label>
-            <input asp-for="Task.TaskStatus" class="form-control" />
-            <span asp-validation-for="Task.TaskStatus" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PersonId" class="control-label"></label>
-            <select asp-for="Task.PersonId" class="form-control" asp-items="ViewBag.PersonId"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTitle1" class="control-label"></label>
-            <input asp-for="Task.PositionTitle1" class="form-control" />
-            <span asp-validation-for="Task.PositionTitle1" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTile2" class="control-label"></label>
-            <input asp-for="Task.PositionTile2" class="form-control" />
-            <span asp-validation-for="Task.PositionTile2" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PositionTitle3" class="control-label"></label>
-            <input asp-for="Task.PositionTitle3" class="form-control" />
-            <span asp-validation-for="Task.PositionTitle3" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.DueDate" class="control-label"></label>
-            <input asp-for="Task.DueDate" class="form-control" />
-            <span asp-validation-for="Task.DueDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.CreationDate" class="control-label"></label>
-            <input asp-for="Task.CreationDate" class="form-control" />
-            <span asp-validation-for="Task.CreationDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.StartDate" class="control-label"></label>
-            <input asp-for="Task.StartDate" class="form-control" />
-            <span asp-validation-for="Task.StartDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.CompletionDate" class="control-label"></label>
-            <input asp-for="Task.CompletionDate" class="form-control" />
-            <span asp-validation-for="Task.CompletionDate" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.ChurchId" class="control-label"></label>
-            <select asp-for="Task.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.PlanLink" class="control-label"></label>
-            <input asp-for="Task.PlanLink" class="form-control" />
-            <span asp-validation-for="Task.PlanLink" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Task.RequiredSkills" class="control-label"></label>
-            <input asp-for="Task.RequiredSkills" class="form-control" />
-            <span asp-validation-for="Task.RequiredSkills" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Create" class="btn btn-primary" />
-        </div>*@
     <div>
         <p style="margin-top:1em;"><a asp-page="Index">Back to List</a></p>
     </div>

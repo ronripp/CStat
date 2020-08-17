@@ -197,6 +197,11 @@
             saveFormData.append("fixedDueDate", $("#FixedDueDate").is(":checked"));
             saveFormData.append("taskComments", encodeQuotes($("#AllComments").val()));
 
+            if (($("#task_Type").val() & 0x00020000) != 0) {
+                saveFormData.append("taskCreateDue", $("#taskData_CreateTaskDue").val());
+                saveFormData.append("taskCreateDueVal", $("#CreateTaskDueVal").val());
+                saveFormData.append("taskCreateEach", $("#taskData_CreateTaskEach").val());
+            }
             if (($("#task_ActualDoneDate").val() === "") && (inMarkDone || ($("#taskData_state").val() === 0x00001000))) {
                 $("#task_ActualDoneDate").val(Date.now().toString());
             }
@@ -996,7 +1001,7 @@
                             <div>
                                 <label asp-for="taskData.CreateTaskDue" class="control-label">due:</label>
                                 <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="display:inline;max-width:10em; margin-right:8px"></select>
-                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" />
+                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.CreateTaskDueVal"/>
                             </div>
                             <div>
                                 <label asp-for="taskData.CreateTaskEach" class="control-label" style="display:inline"> of each:</label>

@@ -524,7 +524,7 @@ namespace CStat.Models
             Before_Month    = 0x00000010 << 26,
             At_Date         = 0x00000011 << 26,
 
-            // Each MASK   = 0x0E300000 
+            // Each MASK   = 0x03E00000 
             Retreat_Event   = 0x00000001 << 21,
             Week_Event      = 0x00000002 << 21,
             Event_Day       = 0x00000003 << 21,
@@ -586,7 +586,20 @@ namespace CStat.Models
         }
         public void SetTaskStatus(CTask.eTaskStatus state, CTask.eTaskStatus reason, int pctComp)
         {
-            this.Status = ((int)state & 0x000FFF80) | ((int)reason & 0x7FF00000) | (pctComp & 0x0000007F);
+            Status = ((int)state & 0x000FFF80) | ((int)reason & 0x7FF00000) | (pctComp & 0x0000007F);
+        }
+
+        public void GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal)
+        {
+            dueType = (CTask.eTaskType)(this.Type & 0x7C000000);
+            eachType = (CTask.eTaskType)(this.Type & 0x03E00000);
+            dueVal = (int)(this.Type & 0x00000FFF);
+        }
+        public void SetTaskType(CTask.eTaskType dueType, CTask.eTaskType eachType, int dueVal)
+        {
+            Type = ((int)dueType & 0x7C000000) | ((int)eachType & 0x03E00000) | (dueVal & 0x00000FFF);
+            if (Type != 0)
+                Type |= (int)CTask.eTaskType.Template;
         }
 
         public String TaskString (CTask.eTaskStatus ts)

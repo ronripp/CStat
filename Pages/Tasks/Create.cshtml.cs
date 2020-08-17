@@ -82,6 +82,8 @@ namespace CStat.Pages.Tasks
         [DataMember]
         public int CreateTaskDue { get; set; }
         [DataMember]
+        public int CreateTaskDueVal { get; set; }
+        [DataMember]
         public int CreateTaskEach { get; set; }
         public int PercentComplete { get; set; }
         [DataMember]
@@ -101,8 +103,9 @@ namespace CStat.Pages.Tasks
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
             state = (int)CTask.eTaskStatus.Not_Started; 
             reason = (int)CTask.eTaskStatus.Unknown;
-            CreateTaskDue = (int)CTask.eTaskType.Before_Start;
-            CreateTaskEach = (int)CTask.eTaskType.Event;
+            CreateTaskDue = 0;
+            CreateTaskDueVal = 0;
+            CreateTaskEach = 0;
             PercentComplete = 0;                        
             Title = "";
             Detail = "";
@@ -217,11 +220,17 @@ namespace CStat.Pages.Tasks
         private void InitializeTask(int tid=0)
         {
             task = new CTask();
+            taskData = new TaskData();
             if (tid == -1)
             {
+                // Initialize Template
                 task.Type |= (int)CTask.eTaskType.Template;
                 IsTemplate = true;
                 tid = 0;
+            }
+            else
+            {
+                task.Type = 0;
             }
 
             task.Description = "";
@@ -234,12 +243,11 @@ namespace CStat.Pages.Tasks
             task.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
             task.Priority = (int)CTask.ePriority.High;
             task.RequiredSkills = "";
-            taskData = new TaskData();
         }
 
         public IActionResult OnGet(int? id)
         {
-             int tid = !id.HasValue ? tid = 0 : id.Value;
+            int tid = !id.HasValue ? tid = 0 : id.Value;
 
             int res = 0;
             if (tid <= 0)
@@ -258,6 +266,17 @@ namespace CStat.Pages.Tasks
                     taskData = TaskData.ReadTaskData(hostEnv, tid);
                     if (task.DueDate == null)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
+                    if ((task.Type & (int)CTask.eTaskType.Template) != 0)
+                    {
+                        // Initialize Template Type members
+                        CTask.eTaskType CreateTaskDue;
+                        CTask.eTaskType CreateTaskEach;
+                        int CreateTaskDueVal;
+                        task.GetTaskType(out CreateTaskDue, out CreateTaskEach, out CreateTaskDueVal);
+                        taskData.CreateTaskDue = (int)CreateTaskDue;
+                        taskData.CreateTaskEach = (int)CreateTaskEach;
+                        taskData.CreateTaskDueVal = CreateTaskDueVal;
+                    }
                 }
                 else
                     InitializeTask(tid);
@@ -408,6 +427,16 @@ namespace CStat.Pages.Tasks
                         task.TotalCost = decimal.Parse(tcostStr);
                     else
                         task.TotalCost = 0;
+
+                    // Make sure to initialize ABOVE and also get these HERE only for a Template Task.
+                    int dueType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDue").Value);
+                    if (dueType != 0)
+                    {
+                        // Get Template Type
+                        int dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
+                        int eachType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateEach").Value);
+                        task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
+                    }
 
                     fStr = "Task Doc";
                     task.PlanLink = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoc").Value);

@@ -432,8 +432,65 @@ namespace CStat.Pages.Tasks
                     int dueType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDue").Value);
                     if (dueType != 0)
                     {
+                        fStr = "Template Task";
                         // Get Template Type
-                        int dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
+
+                        int dueValue = 0;
+
+                        if ((dueType == (int)CTask.eTaskType.At_Hour) ||
+                            (dueType == (int)CTask.eTaskType.Before_Hour) ||
+                            (dueType == (int)CTask.eTaskType.On_Day) ||
+                            (dueType == (int)CTask.eTaskType.Before_Day) ||
+                            (dueType == (int)CTask.eTaskType.On_Week) ||
+                            (dueType == (int)CTask.eTaskType.Before_Week) ||
+                            (dueType == (int)CTask.eTaskType.In_Month) ||
+                            (dueType == (int)CTask.eTaskType.Before_Month))
+                        {
+                            dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
+                        }
+                        else if ((dueType == (int)CTask.eTaskType.On_Week_Day) || (dueType == (int)CTask.eTaskType.Before_Week_Day))
+                        {
+                            String dueStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value;
+                            if (dueStr.Length > 0)
+                            {
+                                dueStr = dueStr.Trim().ToLower();
+                                if (dueStr.IndexOf("su") == 0)
+                                    dueValue = 1;
+                                else if ((dueStr.IndexOf("m") == 0))
+                                    dueValue = 2;
+                                else if ((dueStr.IndexOf("tu") == 0))
+                                    dueValue = 3;
+                                else if ((dueStr.IndexOf("w") == 0))
+                                    dueValue = 4;
+                                else if ((dueStr.IndexOf("th") == 0))
+                                    dueValue = 5;
+                                else if ((dueStr.IndexOf("f") == 0))
+                                    dueValue = 6;
+                                else if ((dueStr.IndexOf("sa") == 0))
+                                    dueValue = 7;
+                                else
+                                    return this.Content("Fail: Week Day needs to start with M, Tu, W, Th, Fr, Sa or Su"); // Send back results
+                            }
+                        }
+                        else if (dueType == (int)CTask.eTaskType.At_Date)
+                        {
+                            String dueStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value;
+                            char[] delims = new char[] { ' ', '/', '-', '\\'};
+                            String[] dateArr = dueStr.Trim().Split(delims);
+                            if (dateArr.Length == 2)
+                            {
+                                int month = Int32.Parse(dateArr[0]);
+                                int day = Int32.Parse(dateArr[1]);
+                                if ((month > 0) && (month < 13) && (day > 0) && (day < 32))
+                                {
+                                    dueValue = (month << 5) + day;
+                                }
+                                else
+                                {
+                                    return this.Content("Fail: At Date needs to be in format Month/Day or Month-Day"); // Send back results
+                                }
+                            }
+                        }
                         int eachType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateEach").Value);
                         task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
                     }

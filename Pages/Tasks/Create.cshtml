@@ -116,7 +116,6 @@
             #bomTable th {
                 background-color: lightgray;
             }
-
         </style>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -384,6 +383,28 @@
                 $("#taskDetail").val("<add Detail here>");
             }
 
+            function updateDueVal() {
+
+                if ($("#taskData_CreateTaskDue").is(":visible")) {
+                    let ctDueVal = $("#taskData_CreateTaskDue").val();
+                    if ((ctDueVal == (0x00000007 << 26)) ||  // At_Hour        
+                        (ctDueVal == (0x00000008 << 26)) ||  // Before_Hour    
+                        (ctDueVal == (0x00000009 << 26)) ||  // On_Day         
+                        (ctDueVal == (0x0000000A << 26)) ||  // Before_Day     
+                        (ctDueVal == (0x0000000B << 26)) ||  // On_Week_Day    
+                        (ctDueVal == (0x0000000C << 26)) ||  // Before_Week_Day
+                        (ctDueVal == (0x0000000D << 26)) ||  // On_Week        
+                        (ctDueVal == (0x0000000E << 26)) ||  // Before_Week    
+                        (ctDueVal == (0x0000000F << 26)) ||  // In_Month       
+                        (ctDueVal == (0x00000010 << 26)) ||  // Before_Month   
+                        (ctDueVal == (0x00000011 << 26))) {  // At_Date        
+                        $("#CreateTaskDueVal").show();
+                    } else {
+                        $("#CreateTaskDueVal").hide();
+                    }
+                }
+            }
+
             if (window.location.href.indexOf("TaskDoc=1") != -1) {
                 $("#TaskDoc").text(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
                 sessionStorage.setItem("TaskDocFolder", "");
@@ -403,7 +424,7 @@
                 if (!dvp || dvp.length !== 2) {
                     return;
                 }
-                
+
                 var parameters = "{'Folder':'" + dvp[0].trim() + "','File':'" + dvp[1].trim() + "'}";
                 $.ajax({
                     url: "/Docs?handler=FileShare",
@@ -477,6 +498,10 @@
                 $("#pctComp").val(100);
                 $("#pctComp").trigger("change");
                 saveTask();
+            });
+
+            $("#taskData_CreateTaskDue").change(function () {
+                updateDueVal();
             });
 
             $("#taskData_state").change(function () {
@@ -634,7 +659,7 @@
                         inModCost = false;
                         return;
                     }
-                    let ucost = parseFloat($("#" + "mdu" + line).text());                   
+                    let ucost = parseFloat($("#" + "mdu" + line).text());
                     if (!isNaN(ucost) && (ucost > 0) && (qt > 0)) {
                         $("#" + "mdt" + line).text((ucost * qt).toFixed(2));
                     }

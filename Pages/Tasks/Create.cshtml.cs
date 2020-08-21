@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -19,6 +20,11 @@ using CTask = CStat.Models.Task;
 
 namespace CStat.Pages.Tasks
 {
+    static public class TaskArrs
+    {
+        static public string[] weekDays = { "", "Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat" };
+    }
+
     [DataContract]
     public class Pic
     {
@@ -82,7 +88,7 @@ namespace CStat.Pages.Tasks
         [DataMember]
         public int CreateTaskDue { get; set; }
         [DataMember]
-        public int CreateTaskDueVal { get; set; }
+        public string CreateTaskDueVal { get; set; }
         [DataMember]
         public int CreateTaskEach { get; set; }
         public int PercentComplete { get; set; }
@@ -104,7 +110,7 @@ namespace CStat.Pages.Tasks
             state = (int)CTask.eTaskStatus.Not_Started; 
             reason = (int)CTask.eTaskStatus.Unknown;
             CreateTaskDue = 0;
-            CreateTaskDueVal = 0;
+            CreateTaskDueVal = "";
             CreateTaskEach = 0;
             PercentComplete = 0;                        
             Title = "";
@@ -275,7 +281,28 @@ namespace CStat.Pages.Tasks
                         task.GetTaskType(out CreateTaskDue, out CreateTaskEach, out CreateTaskDueVal);
                         taskData.CreateTaskDue = (int)CreateTaskDue;
                         taskData.CreateTaskEach = (int)CreateTaskEach;
-                        taskData.CreateTaskDueVal = CreateTaskDueVal;
+                        switch (CreateTaskDue)
+                        {
+                            case CTask.eTaskType.On_Week_Day:
+                            case CTask.eTaskType.Before_Week_Day:
+                                taskData.CreateTaskDueVal = ((CreateTaskDueVal >= 1) && (CreateTaskDueVal <= 7)) ? TaskArrs.weekDays[CreateTaskDueVal] : "";
+                                break;
+
+                            case CTask.eTaskType.At_Date:
+                                if (CreateTaskDueVal > (1 << 5))
+                                {
+                                    int day = CreateTaskDueVal & 0x1F;
+                                    int month = CreateTaskDueVal >> 5;
+                                    taskData.CreateTaskDueVal = month.ToString() + "/" + day;
+                                }
+                                else
+                                    taskData.CreateTaskDueVal = "";
+                                break;
+
+                            default:
+                                taskData.CreateTaskDueVal = CreateTaskDueVal.ToString();
+                                break;
+                        }
                     }
                 }
                 else

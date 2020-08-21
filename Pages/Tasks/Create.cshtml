@@ -386,18 +386,18 @@
             function updateDueVal() {
 
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
-                    let ctDueVal = $("#taskData_CreateTaskDue").val();
-                    if ((ctDueVal == (0x00000007 << 26)) ||  // At_Hour        
-                        (ctDueVal == (0x00000008 << 26)) ||  // Before_Hour    
-                        (ctDueVal == (0x00000009 << 26)) ||  // On_Day         
-                        (ctDueVal == (0x0000000A << 26)) ||  // Before_Day     
-                        (ctDueVal == (0x0000000B << 26)) ||  // On_Week_Day    
-                        (ctDueVal == (0x0000000C << 26)) ||  // Before_Week_Day
-                        (ctDueVal == (0x0000000D << 26)) ||  // On_Week        
-                        (ctDueVal == (0x0000000E << 26)) ||  // Before_Week    
-                        (ctDueVal == (0x0000000F << 26)) ||  // In_Month       
-                        (ctDueVal == (0x00000010 << 26)) ||  // Before_Month   
-                        (ctDueVal == (0x00000011 << 26))) {  // At_Date        
+                    let ctDue = $("#taskData_CreateTaskDue").val();
+                    if ((ctDue == (0x00000007 << 26)) ||  // At_Hour        
+                        (ctDue == (0x00000008 << 26)) ||  // Before_Hour    
+                        (ctDue == (0x00000009 << 26)) ||  // On_Day         
+                        (ctDue == (0x0000000A << 26)) ||  // Before_Day     
+                        (ctDue == (0x0000000B << 26)) ||  // On_Week_Day    
+                        (ctDue == (0x0000000C << 26)) ||  // Before_Week_Day
+                        (ctDue == (0x0000000D << 26)) ||  // On_Week        
+                        (ctDue == (0x0000000E << 26)) ||  // Before_Week    
+                        (ctDue == (0x0000000F << 26)) ||  // In_Month       
+                        (ctDue == (0x00000010 << 26)) ||  // Before_Month   
+                        (ctDue == (0x00000011 << 26))) {  // At_Date        
                         $("#CreateTaskDueVal").show();
                     } else {
                         $("#CreateTaskDueVal").hide();

@@ -397,13 +397,16 @@
                         (ctDue == (0x0000000E << 26)) ||  // Before_Week    
                         (ctDue == (0x0000000F << 26)) ||  // In_Month       
                         (ctDue == (0x00000010 << 26)) ||  // Before_Month   
-                        (ctDue == (0x00000011 << 26))) {  // At_Date        
+                        (ctDue == (0x00000011 << 26))) {  // At_Date  
+                        $("#CreateTaskDueVal").val("");
                         $("#CreateTaskDueVal").show();
                     } else {
                         $("#CreateTaskDueVal").hide();
                     }
                 }
             }
+
+            updateDueVal();
 
             if (window.location.href.indexOf("TaskDoc=1") != -1) {
                 $("#TaskDoc").text(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));

@@ -88,11 +88,54 @@
                 color: black;
             }
 
+            .InvInput {
+                width: 2.5em;
+                border: solid;
+                border-color: Red;
+                border-width: 4px;
+            }
+
+            .NormInput {
+                width: 2.5em;
+            }
+
+            MenuTable {
+                table-layout: fixed;
+                width: 100%;
+            }
+
+            MenuTD {
+                min-width: 50%;
+                width: 50%;
+            }
+
+            .container {
+                display: flex;
+            }
+
+            .container.space-around {
+                justify-content: space-around;
+            }
+
+            .container.space-between {
+                justify-content: space-between;
+            }
+
         </style>
 
         <script type="text/javascript">
 
             var cur_StockInvItemId = -1;
+            var STOCKED_STATE = "0";
+            var STOCKED_ISTATE = 0;
+            var NEEDED_STATE = "1";
+            var NEEDED_ISTATE = 1;
+            var ASSIGNED_STATE = "2";
+            var ASSIGNED_ISTATE = 2;
+            var INV_STATE = "3";
+            var INV_ISTATE = 3;
+            var True = true;
+            var False = false;
 
             function onFocus(invItemId) {
                 cur_StockInvItemId = invItemId;
@@ -120,44 +163,58 @@
         }
         var loginPid = @LoginPid;
 
+            function updateInvButton(newState) {
+                $("body").css("cursor", "default");
+                let oldState = ($("#InvSt").text().startsWith("Start")) ? STOCKED_ISTATE : INV_ISTATE;
+                if (newState !== oldState) {
+                    window.location.reload(true);
+                }
+            }
+
             function itemStateChange(invItemId, fromStock) {
                 let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                let stateBtn = document.querySelector("#" + "sid" + invItemId);
+                let state = stateBtn.getAttribute("state");
                 if (fromStock) {
                     if (stockBtn.getAttribute("type") == "text") {
                         cur_StockInvItemId = invItemId;
-                        return;
+                        if (state !== INV_STATE) {
+                            return;
+                        }
                     }
                     cur_StockInvItemId = -1;
                 }
-                let stateBtn = document.querySelector("#" + "sid" + invItemId);
-                let state;
+               
                 let pid;
                 if (fromStock) {
-                    state = 0;
+                    state = STOCKED_STATE;
                     pid = -1;
                 }
                 else {
                     state = stateBtn.getAttribute("state");
                     pid = stateBtn.getAttribute("pid");
                     switch (state) {
-                        case "0":
-                            state = 1;
+                        case STOCKED_STATE:
+                        case INV_STATE:
+                            state = NEEDED_STATE;
                             break;
-                        case "1":
-                            state = 2;
+                        case NEEDED_STATE:
+                            state = ASSIGNED_STATE;
                             pid = loginPid;
                             break;
-                        case "2":
+                        case ASSIGNED_STATE:
                             if (pid == loginPid) {
-                                state = 1;
+                                state = NEEDED_STATE;
                                 pid = -1;
                             }
                             break;
                         default:
-                            state = 1;
+                            state = NEEDED_STATE;
                             break;
                     }
                 }
+
+                $("body").css("cursor", "progress");
                 var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
                 $.ajax({
                     url: "/Inventory?handler=ItemStateChange",
@@ -166,14 +223,16 @@
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
-                            var invIS = $.parseJSON(response);
-                            stateBtn.setAttribute("state", invIS.state);
-                            stateBtn.setAttribute("pid", invIS.pid);
-                            stateBtn.className = invIS.btnClass;
-                            stateBtn.innerHTML = invIS.displayName;
+                            var curState = $.parseJSON(response);
+                            updateInvButton(curState.allState);
+                            stateBtn.setAttribute("state", curState.invItemState.state);
+                            stateBtn.setAttribute("pid", curState.invItemState.pid);
+                            stateBtn.className = curState.invItemState.btnClass;
+                            stateBtn.innerHTML = curState.invItemState.displayName;
+                            stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
+
                             if (fromStock) {
                                 stockBtn.setAttribute("type", "text");
-                                stockBtn.className = "";
                                 if (stockBtn.value == "In?") {
                                     stockBtn.value = "";
                                 }
@@ -186,9 +245,9 @@
                                 stockBtn.onFocus = function () { onFocus(invItemId); }
                                 cur_StockInvItemId = invItemId;
                             } else {
-                                if (invIS.state == 2) {
+                                if (curState.invItemState.state == ASSIGNED_ISTATE) {
                                     stockBtn.setAttribute("type", "button");
-                                    stockBtn.className = "StockBtn";
+                                    stockBtn.className = "StockBtn" + " " + "NormInput";
                                     if (stockBtn.value == "") {
                                         stockBtn.value = "In?";
                                     }
@@ -196,9 +255,12 @@
                                     stockBtn.onFocus = function () { };
                                 }
                             }
+                        } else {
+                            $("body").css("cursor", "default");
                         }
                     },
                     fail: function (response) {
+                        $("body").css("cursor", "default");
                     }
                 });
             }
@@ -221,6 +283,7 @@
                     }
                 }
 
+                $("body").css("cursor", "progress");
                 var parameters = "{'invItemId':'" + invItemId + "','stock':'" + stock + "'}";
                 $.ajax({
                     url: "/Inventory?handler=ItemStockChange",
@@ -229,18 +292,47 @@
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") !== -1) {
+                            $("body").css("cursor", "default");
                             alert("Stock not updated.")
                         }
                         else {
+                            var curState = $.parseJSON(response);
+                            updateInvButton(curState.allState);
+                            stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
                             if (cur_StockInvItemId == invItemId) {
                                 cur_StockInvItemId = -1;
                             }
                         }
                     },
                     fail: function (response) {
+                        $("body").css("cursor", "default");
                     }
                 });
+            }
 
+            function setInvMode(bSet) {
+
+                $("body").css("cursor", "progress");
+                var parameters = "{'set':'" + bSet + "'}";
+                $.ajax({
+                    url: "/Inventory?handler=SetInvMode",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") !== -1) {
+                            $("body").css("cursor", "default");
+                            alert("Inv Mode not changed.")
+                        }
+                        else {
+                            var curState = $.parseJSON(response);
+                            updateInvButton(curState.allState);
+                        }
+                    },
+                    fail: function (response) {
+                        $("body").css("cursor", "default");
+                    }
+                });
             }
 
             function encodeQuotes(str) {
@@ -301,11 +393,11 @@
 
         </script>
     </head>
-
     <body onbeforeunload="invBeforeUnload()">
-        <p>
-            <a href="Inventory\Create"> <b>+</b> Add New Item</a>
-        </p>
+        <div class="container space-between">
+            <div><a href="Inventory\Create"> <b>+</b> Add New Item</a></div>
+            <div><button id="InvSt" onClick="setInvMode(@(Model.GetAllState() == IndexInvModel.STOCKED_STATE))">@((Model.GetAllState() == IndexInvModel.STOCKED_STATE) ? "Start INV" : "Abort INV")</button></div>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -345,7 +437,7 @@
                             string onFocusFunc;
                             string inputClass;
                             string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                            if (item.State == 2)
+                            if (item.State == IndexInvModel.ASSIGNED_STATE)
                             {
                                 inputType = "button";
                                 inputClass = "StockBtn";
@@ -359,7 +451,7 @@
                             {
                                 inputType = "text";
                                 onClickFunc = "";
-                                inputClass = "";
+                                inputClass = (item.State == IndexInvModel.INV_STATE) ? "InvInput" : "NormInput";
                                 onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
                                 onChangeFunc = "updateStock(" + item.ItemId + ")";
                                 onFocusFunc = "onFocus(" + item.ItemId + ")";
@@ -371,15 +463,15 @@
                                 var unitsStr = units.ToString();
                             }
                             <form id="@fid">
-                               <input style="width:2.5em" invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
+                                <input invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
                             </form>
                         </td>
                         <td style="background-color:@bcol">
                             @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.boxes))
                             {
-                            <div style="position: relative">
-                                <a data-toggle="popover" title="Pick Current amount :" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>
-                            </div>
+                                <div style="position: relative">
+                                    <a data-toggle="popover" title="Pick Current amount :" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>
+                                </div>
                             }
                             else
                             {

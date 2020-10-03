@@ -44,7 +44,7 @@ namespace CStat.Models
 
     public partial class InventoryItem
     {
-        public enum States { InStock = 0, OpenNeed = 1, TakenNeed = 2 };
+        public enum States { InStock = 0, OpenNeed = 1, TakenNeed = 2, InInv = 3 };
         public enum ItemUnits
         {
             unknown = 0,

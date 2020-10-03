@@ -8,12 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using Task = System.Threading.Tasks.Task;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace CStat
 {
     public class IndexInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+
+        public static int STOCKED_STATE = 0;
+        public static int NEEDED_STATE = 1;
+        public static int ASSIGNED_STATE = 2;
+        public static int INV_STATE = 3;
 
         public class InvItemState
         {
@@ -28,6 +34,13 @@ namespace CStat
             public int invItemId = -1;
             public float stock = 0;
         }
+
+        public class CurState
+        {
+            public InvItemState invItemState;
+            public int allState = STOCKED_STATE;
+        }
+
         public IndexInvModel(CStat.Models.CStatContext context)
         {
             _context = context;
@@ -82,6 +95,7 @@ namespace CStat
                 switch (invIS.state)
                 {
                     case (int)InventoryItem.States.InStock:
+                    case (int)InventoryItem.States.InInv:
                         invIS.btnClass = "InStockBtn";
                         invIS.displayName = "Need?";
                         break;
@@ -103,10 +117,6 @@ namespace CStat
             if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
-
-            //            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
-            //            if (NVPairs.TryGetValue("invItemId", out int invItmId) && NVPairs.TryGetValue("pid", out int pid) && NVPairs.TryGetValue("state", out int state))
-
             InvItemState invIS = JsonConvert.DeserializeObject<InvItemState>(jsonQS);
             if (invIS != null)
             {
@@ -128,10 +138,63 @@ namespace CStat
                     return new JsonResult("ERROR~:Update DB Failed"); // TBD
                 }
 
-                return new JsonResult(JsonConvert.SerializeObject(GetInvItemState(invItem)));
+                CurState cs = new CurState
+                {
+                    invItemState = GetInvItemState(invItem),
+                    allState = GetAllState()
+                };
+                return new JsonResult(JsonConvert.SerializeObject(cs));
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
+
+        public JsonResult OnGetSetInvMode()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            Dictionary<string, bool> setParam = JsonConvert.DeserializeObject<Dictionary<string, bool>>(jsonQS);
+            if (setParam.TryGetValue("set", out bool IsSet))
+            {
+                int TargetState = IsSet ? STOCKED_STATE : INV_STATE;
+                int NewState = IsSet ? INV_STATE : STOCKED_STATE;
+
+                if (IsSet)
+                    InventoryItems = _context.InventoryItem.Where(ii => (ii.State == TargetState) || (ii.State == null)).ToList();
+                else
+                    InventoryItems = _context.InventoryItem.Where(ii => ii.State == TargetState).ToList();
+
+                foreach (var ii in InventoryItems)
+                {
+                     ii.State = NewState;
+                    _context.Attach(ii).State = EntityState.Modified;
+
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        return new JsonResult("ERROR~:Update DB Failed"); // TBD
+                    }
+                }
+                CurState cs = new CurState
+                {
+                    invItemState = null,
+                    allState = GetAllState()
+                };
+                return new JsonResult(JsonConvert.SerializeObject(cs));
+            }
+            return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
+         public int GetAllState()
+        {
+            return (_context.InventoryItem.FirstOrDefault(ii => ii.State == INV_STATE) != null) ? INV_STATE : STOCKED_STATE;
+        }
+
         public JsonResult OnGetItemStockChange()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
@@ -146,6 +209,8 @@ namespace CStat
                 InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invItmStk.invItemId);
                 if (invItem != null)
                 {
+                    if (invItem.State == INV_STATE)
+                        invItem.State = STOCKED_STATE;
                     invItem.CurrentStock = Math.Max(invItmStk.stock, (float)0);
                     invItem.Date = DateTime.Now;
                 }
@@ -160,7 +225,12 @@ namespace CStat
                     return new JsonResult("ERROR~:Update DB Failed"); // TBD
                 }
 
-                return new JsonResult("OK");
+                CurState cs = new CurState
+                {
+                    invItemState = (invItem != null) ? GetInvItemState(invItem) : null,
+                    allState = GetAllState()
+                };
+                return new JsonResult(JsonConvert.SerializeObject(cs));
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
         }

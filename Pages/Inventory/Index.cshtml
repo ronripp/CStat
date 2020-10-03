@@ -184,7 +184,7 @@
                     }
                     cur_StockInvItemId = -1;
                 }
-               
+
                 let pid;
                 if (fromStock) {
                     state = STOCKED_STATE;
@@ -293,7 +293,7 @@
                     success: function (response) {
                         if (response.indexOf("ERROR~:") !== -1) {
                             $("body").css("cursor", "default");
-                            alert("Stock not updated.")
+                            alert("Stock not updated.");
                         }
                         else {
                             var curState = $.parseJSON(response);
@@ -322,11 +322,33 @@
                     success: function (response) {
                         if (response.indexOf("ERROR~:") !== -1) {
                             $("body").css("cursor", "default");
-                            alert("Inv Mode not changed.")
+                            alert("Inv Mode not changed.");
                         }
                         else {
                             var curState = $.parseJSON(response);
                             updateInvButton(curState.allState);
+                        }
+                    },
+                    fail: function (response) {
+                        $("body").css("cursor", "default");
+                    }
+                });
+            }
+
+            function emailInv() {
+
+                var parameters = "{'user':" + "'@User.Identity.Name'" + "}";
+                $.ajax({
+                    url: "/Inventory?handler=EMailInv",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") !== -1) {
+                            alert("Failed to E-Mail Inventory");
+                        }
+                        else {
+
                         }
                     },
                     fail: function (response) {
@@ -381,7 +403,7 @@
                         stockBtn.value = (row === 0) ? 0.8 : 2;
                     } else  {
                         stockBtn.value = (row === 0) ? 1 : 3;
-                    } 
+                    }
                     updateStock(invItemId);
                 }
                 $(this).popover('hide');
@@ -397,6 +419,7 @@
         <div class="container space-between">
             <div><a href="Inventory\Create"> <b>+</b> Add New Item</a></div>
             <div><button id="InvSt" onClick="setInvMode(@(Model.GetAllState() == IndexInvModel.STOCKED_STATE))">@((Model.GetAllState() == IndexInvModel.STOCKED_STATE) ? "Start INV" : "Abort INV")</button></div>
+            <div><button id="EMailId" onClick="emailInv()">E</button></div>
         </div>
         <table class="table">
             <thead>

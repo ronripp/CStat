@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
+using CStat.Common;
 using Task = System.Threading.Tasks.Task;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -190,7 +191,23 @@ namespace CStat
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
 
-         public int GetAllState()
+        public JsonResult OnGetEMailInv() 
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No user provided");
+            var jsonQS = rawQS.Substring(idx);
+            Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
+            if (setParam.TryGetValue("user", out string user))
+            {
+                InventoryItems = _context.InventoryItem.ToList();
+            }
+
+            return new JsonResult("ERROR~:Not Implemented");
+        }
+
+        public int GetAllState()
         {
             return (_context.InventoryItem.FirstOrDefault(ii => ii.State == INV_STATE) != null) ? INV_STATE : STOCKED_STATE;
         }

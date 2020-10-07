@@ -121,6 +121,14 @@
                 justify-content: space-between;
             }
 
+            #emailBtn {
+                background-image: url('/images/emailBtn.jpg');
+                background-repeat: no-repeat;
+                background-size: 100%;
+                width: 51px;
+                height: 30px;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -348,7 +356,7 @@
                             alert("Failed to E-Mail Inventory");
                         }
                         else {
-
+                            alert(response);
                         }
                     },
                     fail: function (response) {
@@ -419,7 +427,7 @@
         <div class="container space-between">
             <div><a href="Inventory\Create"> <b>+</b> Add New Item</a></div>
             <div><button id="InvSt" onClick="setInvMode(@(Model.GetAllState() == IndexInvModel.STOCKED_STATE))">@((Model.GetAllState() == IndexInvModel.STOCKED_STATE) ? "Start INV" : "Abort INV")</button></div>
-            <div><button id="EMailId" onClick="emailInv()">E</button></div>
+            <div><button id="emailBtn" onClick="emailInv()"></button></div>
         </div>
         <table class="table">
             <thead>

@@ -10,12 +10,15 @@ using CStat.Common;
 using Task = System.Threading.Tasks.Task;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Immutable;
 
 namespace CStat
 {
     public class IndexInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private readonly IConfiguration _configuration;
 
         public static int STOCKED_STATE = 0;
         public static int NEEDED_STATE = 1;
@@ -42,9 +45,10 @@ namespace CStat
             public int allState = STOCKED_STATE;
         }
 
-        public IndexInvModel(CStat.Models.CStatContext context)
+        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public IList<InventoryItem> InventoryItems { get;set; }
@@ -201,7 +205,25 @@ namespace CStat
             Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (setParam.TryGetValue("user", out string user))
             {
-                InventoryItems = _context.InventoryItem.ToList();
+                InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).OrderByDescending(i => (i.State!=null) ? i.State%3 : 0).ToList();
+                string[] StateStr = { "ok", "NEEDED", "NEEDED", "Not Checked" };
+
+                string report = "";
+                DateTime Now = DateTime.Now;
+                string subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
+                report += subject + "\n--------------------------------\n";
+                foreach (var i in InventoryItems)
+                {
+                    InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
+                    report += "[" + StateStr[i.State.HasValue ? i.State.Value : 0] + "] " + i.Item.Name.Trim() + " CUR: " + i.CurrentStock + " " + units.ToString() + "\n";
+                }
+
+                CSEMail csEMail = new CSEMail(_configuration);
+
+                if (csEMail.Send(user, user, subject, report))
+                {
+                    return new JsonResult("Inventory Successfully Sent to " + user);
+                }
             }
 
             return new JsonResult("ERROR~:Not Implemented");

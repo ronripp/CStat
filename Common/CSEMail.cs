@@ -21,7 +21,7 @@ namespace CStat.Common
 		public CSEMail(IConfiguration configuration)
 		{
 			Configuration = configuration;
-			fromPass = Configuration["CSEMail:SendPassword"];
+			fromPass = Configuration["CSEMail:SenderPassword"];
 		}
 		public IConfiguration Configuration { get; }
 
@@ -39,7 +39,7 @@ namespace CStat.Common
 					// For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS)
 					client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-					client.Connect("mail.ccaserve.org", 25, false);
+					client.Connect("mail.ccaserve.org", 587, false);
 
 					// Note: only needed if the SMTP server requires authentication
 					client.Authenticate(fromAdr, fromPass);

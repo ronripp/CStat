@@ -29,6 +29,10 @@
                 }
             }
 
+            function changePhoto() {
+                $("#itemPhoto").attr("src", "");
+                $("#itemPhoto").attr("alt", "_Photo Set");
+            }
 
             $(document).ready(function () {
                 jQuery('a.gallery').colorbox({ opacity: 0.5, rel: 'group1' });
@@ -120,11 +124,11 @@
             <div class="form-group ediv">
                 <div class="col-sm-12 IValue">
                     <div class="zoomin ediv" style="float:left">
-                        <img src="@photoPath" alt="?" asp-append-version="true" />
+                        <img id="itemPhoto" src="@photoPath" alt="&nbsp;X" asp-append-version="true" />
                     </div>
                     <div class="custom-file">
-                        <input asp-for="ItemPhoto" class="custom-file-input form-control" />
-                        <label class="custom-file-label">Click here to change photo</label>
+                        <input asp-for="ItemPhoto" onchange="changePhoto()" class="custom-file-input form-control" />
+                        <label class="custom-file-label">&nbsp;Click here to change photo</label>
                     </div>
                 </div>
             </div>

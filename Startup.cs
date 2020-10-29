@@ -53,7 +53,11 @@ namespace CStat
                 options.UseSqlServer(
                     Configuration.GetConnectionString("CStatConnection")));
 
-//            services.AddCors();
+            //RJR services.Configure<ApplicationDbContext>(op => 
+            //RJR      op.Database.Migrate()); // Make sure the identity database is created
+
+
+            //            services.AddCors();
 
             //RJR            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //RJR                .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -81,7 +85,7 @@ namespace CStat
                 options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(31);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 

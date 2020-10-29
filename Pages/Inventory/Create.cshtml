@@ -25,6 +25,26 @@
                 }
             }
 
+            function changePhoto() {
+                $("#picId").attr("src", "");
+                $("#picId").attr("alt", "_Photo Set");
+            }
+
+            $(document).ready(function () {
+
+                document.getElementById('SubmitId2').addEventListener('click', (e) => {
+
+                    if (($("#CreateItem_Upc").val().trim().length == 0) ||
+                        ($("#InventoryItem_Units").val() == 0) ||
+                        ($("#CreateItem_Size").val().trim().length == 0) ||
+                        ($("#CreateItem_Size").val() <= 0)) {
+                        e.preventDefault();
+                        alert("UPC, Units and Units per Item are needed to be set & valid first.");
+                        return;
+                    }
+                });
+            });
+
         </script>
 
     </head>
@@ -76,13 +96,13 @@
             }
         }
         <div class="ediv" style="float:left">
-            <img src="@photoPath" asp-append-version="true" class="itemPhoto" height="120">
+            <img src="@photoPath" alt="&nbsp;X" id="picId" asp-append-version="true" class="itemPhoto" height="120">
         </div>
         <form class="form-horizontal" method="post" enctype="multipart/form-data">
             <div class="form-group ediv">
                 <div class="col-sm-10 IValue">
                     <div class="custom-file">
-                        <input asp-for="ItemPhoto" class="custom-file-input form-control" />
+                        <input asp-for="ItemPhoto" onchange="changePhoto()" class="custom-file-input form-control" />
                         <label class="custom-file-label">Click here to change photo</label>
                     </div>
                 </div>
@@ -185,7 +205,7 @@
 
             <div class="form-group" style="text-align:center">
                 <span class="col-md-10">
-                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <input type="submit" value="Save" onclick="submitItem();" id="SubmitId2" class="btn btn-primary" />
                 </span>
                 <span class="col-md-2">
                     <input type="button" onclick="window.history.go(-1)" value="Cancel" />

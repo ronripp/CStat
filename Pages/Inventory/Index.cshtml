@@ -95,6 +95,16 @@
                 border-width: 4px;
             }
 
+            .InvBtn {
+            }
+
+            .AbortInvBtn {
+                border-color: Red;
+                color: #E00000;
+                font-weight: bold;
+                background-color: #FFE0E0; /* Pink */
+            }
+
             .NormInput {
                 width: 2.5em;
             }
@@ -426,7 +436,10 @@
     <body onbeforeunload="invBeforeUnload()">
         <div class="container space-between">
             <div><a href="Inventory\Create"> <b>+</b> Add New Item</a></div>
-            <div><button id="InvSt" onClick="setInvMode(@(Model.GetAllState() == IndexInvModel.STOCKED_STATE))">@((Model.GetAllState() == IndexInvModel.STOCKED_STATE) ? "Start INV" : "Abort INV")</button></div>
+            @{ 
+                bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
+            }
+            <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
             <div><button id="emailBtn" onClick="emailInv()"></button></div>
         </div>
         <table class="table">
@@ -442,7 +455,7 @@
                 @{ int LastZone = -1, CurZone, ZoneCnt = 0;
                     string[] bkRowColors = { "#FFD0D0", "#FFF2CE", "#FFFFC8", "#D8FFD0", "#D0F8FF", "#D0D8FF", "#F0D0FF" };
                 }
-                @foreach (var item in Model.InventoryItems.OrderBy(i => (i.Zone.HasValue && (i.Zone.Value > 0)) ? i.Zone.Value : 999))
+                @foreach (var item in Model.InventoryItems.OrderByDescending(i => (i.State.HasValue ? i.State%3 : 0)).ThenBy(i2 => (i2.Zone.HasValue && (i2.Zone.Value > 0)) ? i2.Zone.Value : 999))
                 {
                     <tr>
                         @{

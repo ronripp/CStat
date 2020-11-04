@@ -107,13 +107,13 @@ namespace CStat.Controllers
             }
             else if (raw.type == "Church")
             {
-                var settings = new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Objects,
-                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full
-                };
+                //var settings = new JsonSerializerSettings
+                //{
+                //    TypeNameHandling = TypeNameHandling.Objects,
+                //    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple
+                //};
 
-                var cv = JsonConvert.DeserializeObject<Church.ChurchData>(raw.data, settings);
+                var cv = JsonConvert.DeserializeObject<Church.ChurchData>(raw.data);
                 Church.ChurchData cd = (Church.ChurchData)cv;
                 ChurchMgr cmgr = new ChurchMgr(entities);
                 MgrStatus ms = cmgr.Update(cd);

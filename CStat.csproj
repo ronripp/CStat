@@ -6,12 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CCAChurch\**" />
     <Compile Remove="Common\CCAService\CCADataAccess\**" />
     <Compile Remove="Pages\NewFolder1\**" />
+    <Content Remove="CCAChurch\**" />
     <Content Remove="Common\CCAService\CCADataAccess\**" />
     <Content Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="CCAChurch\**" />
     <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
     <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <None Remove="CCAChurch\**" />
     <None Remove="Common\CCAService\CCADataAccess\**" />
     <None Remove="Pages\NewFolder1\**" />
   </ItemGroup>
@@ -40,7 +44,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 

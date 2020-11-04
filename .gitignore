@@ -357,3 +357,12 @@ healthchecksdb
 /wwwroot/tmpDBox/~ContactsFull-Old-CCA Churches.docx
 /wwwroot/tmpDBox/~ContactsProf. Engineers & Reg. Architechs (1 of 2).pdf
 /wwwroot/tmpDBox/~Empty Forms & Applications~OperationalNYSDH - Notice of Intent to Construct.pdf
+/CCAChurch
+/Migrations/CStat/20201031230113_CStatInit.cs
+/Migrations/CStat/20201031230113_CStatInit.Designer.cs
+/Migrations/CStat/CStatContextModelSnapshot.cs
+/Migrations/20201031230018_CSIInit.cs
+/Migrations/20201031230018_CSIInit.Designer.cs
+/Migrations/CSIContextModelSnapshot.cs
+/wwwroot/ContactsExecutive Committee Email Addresses.txt
+/SQLQuery1.sql

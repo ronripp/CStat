@@ -34,14 +34,22 @@
 
                 document.getElementById('SubmitId2').addEventListener('click', (e) => {
 
+                    if ($("#CreateItem_Upc").val().trim().length == 0) {
+                        $("#UPCErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                    } else {
+                        $("#UPCErrorId").removeClass("ErrorOn").addClass("ErrorOff");
+                    }
+
+
                     if (($("#CreateItem_Upc").val().trim().length == 0) ||
                         ($("#InventoryItem_Units").val() == 0) ||
                         ($("#CreateItem_Size").val().trim().length == 0) ||
                         ($("#CreateItem_Size").val() <= 0)) {
                         e.preventDefault();
-                        alert("UPC, Units and Units per Item are needed to be set & valid first.");
+                        $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
                         return;
                     }
+                    $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
                 });
             });
 
@@ -85,14 +93,30 @@
         margin-left: auto;
         margin-right: auto;
     }
+
+    .ErrorOn {
+        color: red;
+        display: block;
+    }
+
+    .ErrorOff {
+        color: red;
+        display: none;
+    }
+
 </style>
 
 <body>
 
     <div class="container">
 
-        @{ if (ItemErrors.Length > 0) {
-            <div style="color:red">@ItemErrors</div>
+        @{ if (ItemErrors.Length > 0)
+            {
+                <div style="color:red">@ItemErrors</div>
+            }
+            else
+            {
+                <div class="ErrorOff" id="GenErrorId">* UPC, Units and Units per Item are needed to be set & valid first.</div>
             }
         }
         <div class="ediv" style="float:left">
@@ -127,7 +151,11 @@
                     <span asp-validation-for="CreateItem.Upc" class="text-danger"></span>
                     @{if (UPCError.Length > 0)
                         {
-                        <div style="color:red">@UPCError</div>
+                            <div style="color:red">@UPCError</div>
+                        }
+                        else
+                        {
+                            <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
                         }
                     }
                 </div>
@@ -136,9 +164,9 @@
                 <label asp-for="InventoryItem.Units" class="control-label col-sm-2 ILabel">Units:</label>
                 <div class="col-sm-10 SValue">
                     @{
-                    IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                    SelectList data = new SelectList(list, "Value", "Text");
-                    var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
+                        IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+                        SelectList data = new SelectList(list, "Value", "Text");
+                        var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
                     }
                     <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
@@ -169,9 +197,9 @@
                 <label asp-for="InventoryItem.Zone" class="control-label col-sm-2 ILabel">Storage Loc.</label>
                 <div class="col-sm-10 SValue">
                     @{
-                    Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_"," "), Value = ((int)x).ToString() }).ToList();
-                    SelectList zdata = new SelectList(zlist, "Value", "Text");
+                        Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
+                        IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+                        SelectList zdata = new SelectList(zlist, "Value", "Text");
                     }
                     <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Zone" class="text-danger"></span>
@@ -179,10 +207,10 @@
             </div>
 
             @*InventoryItem
-        //ReorderThreshold
-        //Units
-        //UnitsPerDay
-        //Zone*@
+            //ReorderThreshold
+            //Units
+            //UnitsPerDay
+            //Zone*@
             @Html.HiddenFor(model => model.InventoryItem.ItemId)
             @Html.HiddenFor(model => model.InventoryItem.InventoryId)
             @Html.HiddenFor(model => model.InventoryItem.Id)
@@ -195,9 +223,9 @@
             @Html.HiddenFor(model => model.InventoryItem.Date)
 
             @*Item
-        //Name
-        //Upc
-        //Size*@
+            //Name
+            //Upc
+            //Size*@
             @Html.HiddenFor(model => model.CreateItem.MfgId)
             @Html.HiddenFor(model => model.CreateItem.Units)
             @Html.HiddenFor(model => model.CreateItem.Status)

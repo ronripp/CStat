@@ -14,7 +14,6 @@
     <head>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="css/colorbox.css">
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/jquery.colorbox-min.js"></script>
@@ -35,7 +34,26 @@
             }
 
             $(document).ready(function () {
-                jQuery('a.gallery').colorbox({ opacity: 0.5, rel: 'group1' });
+               
+                document.getElementById('SubmitId2').addEventListener('click', (e) => {
+
+                    if ($("#EditItem_Upc").val().trim().length == 0) {
+                        $("#UPCErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                    } else {
+                        $("#UPCErrorId").removeClass("ErrorOn").addClass("ErrorOff");
+                    }
+
+                    if (($("#EditItem_Upc").val().trim().length == 0) ||
+                        ($("#InventoryItem_Units").val() == 0) ||
+                        ($("#EditItem_Size").val().trim().length == 0) ||
+                        ($("#EditItem_Size").val() <= 0)) {
+                        e.preventDefault();
+                        $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                        return;
+                    }
+                    $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
+                });
+
             });
         </script>
 
@@ -105,6 +123,16 @@
             .alignRight {
                 float: right;
             }
+
+            .ErrorOn {
+                color: red;
+                display: block;
+            }
+
+            .ErrorOff {
+                color: red;
+                display: none;
+            }
         </style>
 
     </head>
@@ -116,6 +144,10 @@
         @{ if (ItemErrors.Length > 0)
             {
                 <div style="color:red">@ItemErrors</div>
+            }
+            else
+            {
+                <div class="ErrorOff" id="GenErrorId">* UPC, Units and Units per Item are needed to be set & valid first.</div>
             }
         }
 
@@ -153,6 +185,10 @@
                     @{if (UPCError.Length > 0)
                         {
                             <div style="color:red">@UPCError</div>
+                        }
+                        else
+                        {
+                            <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
                         }
                     }
                 </div>
@@ -258,7 +294,7 @@
 
             <div class="form-group" style="text-align:center">
                 <span class="col-md-8">
-                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <input type="submit" value="Save" onclick="submitItem();" id="SubmitId2" class="btn btn-primary" />
                 </span>
                 <span class="col-md-2">
                     <input type="button" onclick="window.history.go(-1)" value="Cancel" />

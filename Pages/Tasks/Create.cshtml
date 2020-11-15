@@ -6,123 +6,125 @@
     ViewData["Title"] = (Model.IsTemplate ? "Template " : "Task ") + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
 }
 
-    <head>
-        @using System;
-        @using System.Web;
-        @using System.Globalization;
-        @using CStat.Models;
+<head>
+    @using System;
+    @using System.Web;
+    @using System.Globalization;
+    @using CStat.Models;
 
-        <style>
-            #taskDetail {
-                overflow-y: scroll;
-                height: 400px;
-                font-family: "Verdana";
-                min-width: 90%;
-                resize: none; /* Remove this if you want the user to resize the textarea */
-            }
+    <style>
+        #taskDetail {
+            overflow-y: scroll;
+            height: 400px;
+            font-family: "Verdana";
+            min-width: 90%;
+            resize: none; /* Remove this if you want the user to resize the textarea */
+        }
 
-            .table th {
-                padding: 0.1rem;
-                color: lightgray;
-            }
+        .table th {
+            padding: 0.1rem;
+            color: lightgray;
+        }
 
-            .table td {
-                padding: 0.5rem;
-            }
+        .table td {
+            padding: 0.5rem;
+        }
 
-            .ljust {
-                text-align: left;
-            }
+        .ljust {
+            text-align: left;
+        }
 
-            .cjust {
-                text-align: center;
-            }
+        .cjust {
+            text-align: center;
+        }
 
-            .rjust {
-                text-align: right;
-            }
+        .rjust {
+            text-align: right;
+        }
 
-            .mhider {
-                display: none;
-                text-align: right;
-            }
+        .mhider {
+            display: none;
+            text-align: right;
+        }
 
-            .mhidec {
-                display: none;
-                text-align: center;
-            }
+        .mhidec {
+            display: none;
+            text-align: center;
+        }
 
-            .mhidel {
-                display: none;
-                text-align: right;
-            }
+        .mhidel {
+            display: none;
+            text-align: right;
+        }
 
-            .redit {
-                text-align: right;
-                max-width: 4em;
-            }
+        .redit {
+            text-align: right;
+            max-width: 4em;
+        }
 
-            .cedit {
-                text-align: left;
-                max-width: 4em;
-            }
+        .cedit {
+            text-align: left;
+            max-width: 4em;
+        }
 
-            .ledit {
-                text-align: left;
-                width: 100%;
-            }
+        .ledit {
+            text-align: left;
+            width: 100%;
+        }
 
-            .hdrBk {
-                background-color: #FFF090;
-            }
+        .hdrBk {
+            background-color: #FFF090;
+        }
 
-            .tborder {
-                padding: 4px 4px 4px 4px;
-                border: 2px solid #ffd800;
-                background-color: #fef4b9
-            }
+        .tborder {
+            padding: 4px 4px 4px 4px;
+            border: 2px solid #ffd800;
+            background-color: #fef4b9
+        }
 
-            .tcborder {
-                padding: 4px 4px 4px 4px;
-                border: 2px solid #008000;
-                background-color: #D0FFD0;
-                margin-top: 10px;
-            }
+        .tcborder {
+            padding: 4px 4px 4px 4px;
+            border: 2px solid #008000;
+            background-color: #D0FFD0;
+            margin-top: 10px;
+        }
 
-            .tccborder {
-                padding: 4px 4px 4px 4px;
-                border: 2px solid #ffd800;
-                background-color: #ffff80;
-            }
+        .tccborder {
+            padding: 4px 4px 4px 4px;
+            border: 2px solid #ffd800;
+            background-color: #ffff80;
+        }
 
-            #SaveAll {
-                background-color: #007272;
-                border: 2px solid #0000FF;
-                color: white;
-                margin-bottom: 6px;
-            }
+        #SaveAll {
+            background-color: #007272;
+            border: 2px solid #0000FF;
+            color: white;
+            margin-bottom: 6px;
+        }
 
-            #markDone {
-                background-color: #C0FFC0;
-                color: black;
-                font-weight: bold;
-                margin-left: 8px;
-            }
+        #markDone {
+            background-color: #C0FFC0;
+            color: black;
+            font-weight: bold;
+            margin-left: 8px;
+        }
 
-            #bomTable tbody tr:nth-child(even) {
-                background-color: #fff185;
-            }
+        #bomTable tbody tr:nth-child(even) {
+            background-color: #fff185;
+        }
 
-            #bomTable th {
-                background-color: lightgray;
-            }
-        </style>
+        #bomTable th {
+            background-color: lightgray;
+        }
+    </style>
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-        <script type="text/javascript">
+    <script type="text/javascript">
 
         function encodeQuotes(str) {
             return str.replace(/\"/g, "^^").replace(/\'/g, "^");
@@ -387,17 +389,17 @@
 
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
                     let ctDue = $("#taskData_CreateTaskDue").val();
-                    if ((ctDue == (0x00000007 << 26)) ||  // At_Hour        
-                        (ctDue == (0x00000008 << 26)) ||  // Before_Hour    
-                        (ctDue == (0x00000009 << 26)) ||  // On_Day         
-                        (ctDue == (0x0000000A << 26)) ||  // Before_Day     
-                        (ctDue == (0x0000000B << 26)) ||  // On_Week_Day    
+                    if ((ctDue == (0x00000007 << 26)) ||  // At_Hour
+                        (ctDue == (0x00000008 << 26)) ||  // Before_Hour
+                        (ctDue == (0x00000009 << 26)) ||  // On_Day
+                        (ctDue == (0x0000000A << 26)) ||  // Before_Day
+                        (ctDue == (0x0000000B << 26)) ||  // On_Week_Day
                         (ctDue == (0x0000000C << 26)) ||  // Before_Week_Day
-                        (ctDue == (0x0000000D << 26)) ||  // On_Week        
-                        (ctDue == (0x0000000E << 26)) ||  // Before_Week    
-                        (ctDue == (0x0000000F << 26)) ||  // In_Month       
-                        (ctDue == (0x00000010 << 26)) ||  // Before_Month   
-                        (ctDue == (0x00000011 << 26))) {  // At_Date  
+                        (ctDue == (0x0000000D << 26)) ||  // On_Week
+                        (ctDue == (0x0000000E << 26)) ||  // Before_Week
+                        (ctDue == (0x0000000F << 26)) ||  // In_Month
+                        (ctDue == (0x00000010 << 26)) ||  // Before_Month
+                        (ctDue == (0x00000011 << 26))) {  // At_Date
                         $("#CreateTaskDueVal").val("");
                         $("#CreateTaskDueVal").show();
                     } else {
@@ -905,9 +907,9 @@
             window.location.href = "/Docs?select=1";
         }
 
-        </script>
+    </script>
 
-    </head>
+</head>
 
 
 @{
@@ -935,18 +937,18 @@
     </div>
 
     <div style="background-color:@bkColor">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#statusTab" data-toggle="tab"><b>Status</b></a>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a href="#statusTab" class="nav-link active" data-toggle="tab" role="tab"><b>Status</b></a>
             </li>
-            <li role="presentation">
-                <a href="#descTab" data-toggle="tab"><b>Detail</b></a>
+            <li class="nav-item">
+                <a href="#descTab" class="nav-link" data-toggle="tab" role="tab"><b>Detail</b></a>
             </li>
-            <li role="presentation">
-                <a href="#picTab" data-toggle="tab"><b>Pictures</b></a>
+            <li class="nav-item">
+                <a href="#picTab" class="nav-link" data-toggle="tab" role="tab"><b>Pictures</b></a>
             </li>
-            <li role="presentation">
-                <a href="#bomTab" data-toggle="tab"><b>Costs</b></a>
+            <li class="nav-item">
+                <a href="#bomTab" class="nav-link" data-toggle="tab" role="tab"><b>Costs</b></a>
             </li>
         </ul>
 

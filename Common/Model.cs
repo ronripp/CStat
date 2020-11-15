@@ -486,9 +486,9 @@ namespace CStat.Models
     {
         public enum eTaskType
         {
-            // Amount   MASK= 0x00000FFF
+            // Amount  MASK = 0x00000FFF
 
-            // Area :   MASK= 0x0001F000     
+            // Area :  MASK = 0x0001F000     
             PlanCampEvent   = 0x00001000,
             CampEventTask   = 0x00002000,
             BuildingFix     = 0x00003000,
@@ -498,14 +498,15 @@ namespace CStat.Models
             CampEnhancement = 0x00007000,
             Promotion       = 0x00008000,
             CampMantTask    = 0x00009000,
+            // MAX          = 0x0001F000
 
-            // Flags    MASK= 0x001E0000
+            // Flags   MASK = 0x00180000
             Template        = 0x00020000,
             unk1            = 0x00040000,
             unk2            = 0x00080000,
             unk3            = 0x00100000,
 
-            // Due MASK     = 0x7C000000 
+            // Due     MASK = 0x7C000000 
             Before_Start    = 0x00000001 << 26,
             At_Start        = 0x00000002 << 26,
             After_Start     = 0x00000003 << 26,
@@ -523,23 +524,25 @@ namespace CStat.Models
             In_Month        = 0x0000000F << 26,
             Before_Month    = 0x00000010 << 26,
             At_Date         = 0x00000011 << 26,
+            // MAX          = 0x0000001F << 26, 
 
-            // Each MASK   = 0x03E00000 
+            // Each    MASK = 0x03E00000 
             Retreat_Event   = 0x00000001 << 21,
             Week_Event      = 0x00000002 << 21,
             Event_Day       = 0x00000003 << 21,
             Work_Day        = 0x00000004 << 21,
             Day             = 0x00000005 << 21,
             Event_Week      = 0x00000006 << 21,
-            Camp_Week_Month = 0x00000007 << 21,
-            Active_Month    = 0x00000008 << 21,
+            Summer_Camp     = 0x00000007 << 21,
+            ChildCamp_Month = 0x00000008 << 21,
             Month           = 0x00000009 << 21,
             Quarter         = 0x0000000A << 21,
             Active_Quarter  = 0x0000000B << 21,
             Year            = 0x0000000C << 21,
             Season          = 0x0000000D << 21,
             Number_of_Years = 0x0000000E << 21,
-            Event           = 0x0000000F << 21
+            Event           = 0x0000000F << 21,
+            // MAX          = 0x0000001F << 21 
         }
 
         public enum ePriority

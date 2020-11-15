@@ -7,6 +7,7 @@ using CStat.Models;
 using Microsoft.EntityFrameworkCore;
 using static CStat.Models.Church;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CStat
 {
@@ -996,6 +997,10 @@ namespace CStat
                 c = new Church();
 
             c.Name = cdata.Name.Trim();
+            if (c.Name.Length < 3)
+            {
+                return MgrStatus.Add_Church_Failed;
+            }
 
             c.Affiliation = AffiliationType.UNK.ToString();
             for (int i = 0; i < (int)AffiliationType.NumAffiliations; ++i)
@@ -1029,6 +1034,28 @@ namespace CStat
                 }
             }
 
+            AddressMgr am = new AddressMgr(ce);
+            if (am.Update(-1, cdata.Street, cdata.City, cdata.State, cdata.Zip, cdata.Phone, out Address newAdr) == MgrStatus.Add_Update_Succeeded)
+                c.AddressId = newAdr.Id;
+
+            if (Validate(ref c))
+            {
+                try
+                {
+                    if (!bChurchFound)
+                    {
+                        ce.Church.Add(c);
+                        ce.SaveChanges();
+                        bChurchFound = true;
+                        cdata.id = c.Id; // ensures people get new church id
+                    }
+                }
+                catch
+                {
+                    return MgrStatus.Add_Church_Failed;
+                }
+            }
+
             int id;
             if (GetPersonID(cdata.Minister_id, out id) || GetChurchPerson(ce, ref cdata, cdata.Minister_id, true, out id))
                 c.SeniorMinisterId = id;
@@ -1046,11 +1073,6 @@ namespace CStat
                 c.Alternate2Id = id;
             if (GetPersonID(cdata.Alt3_id, out id) || GetChurchPerson(ce, ref cdata, cdata.Alt3_id, false, out id))
                 c.Alternate3Id = id;
-
-            AddressMgr am = new AddressMgr(ce);
-            Address newAdr;
-            if (am.Update(-1, cdata.Street, cdata.City, cdata.State, cdata.Zip, cdata.Phone, out newAdr) == MgrStatus.Add_Update_Succeeded)
-                c.AddressId = newAdr.Id;
 
             if (Validate(ref c))
             {

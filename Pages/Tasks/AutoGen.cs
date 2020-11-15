@@ -111,11 +111,11 @@ namespace CStat.Pages.Tasks
                 /***************************/
                 switch (dueType)
                 {
-                    case CTask.eTaskType.Before_Start:
+                    case CTask.eTaskType.Before_Start: // -2 h
                         break;
-                    case CTask.eTaskType.At_Start:
+                    case CTask.eTaskType.At_Start: // 0
                         break;
-                    case CTask.eTaskType.After_Start:
+                    case CTask.eTaskType.After_Start: // +1 m
                         break;
                     case CTask.eTaskType.At_End:
                         break;
@@ -327,7 +327,7 @@ namespace CStat.Pages.Tasks
                 break;
 
                 /***************************/
-                case CTask.eTaskType.Camp_Week_Month:
+                case CTask.eTaskType.Summer_Camp:
                 /***************************/
                 switch (dueType)
                 {
@@ -371,7 +371,7 @@ namespace CStat.Pages.Tasks
                 break;
 
                 /***************************/
-                case CTask.eTaskType.Active_Month:
+                case CTask.eTaskType.ChildCamp_Month:
                 /***************************/
                 switch (dueType)
                 {

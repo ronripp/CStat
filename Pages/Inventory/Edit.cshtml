@@ -3,6 +3,7 @@
 @using CStat.Models
 
 @{
+    //Layout = "_LayoutAction";
     ViewData["Title"] = "Edit Item";
     var photoPath = "~/images/ItmImg_" +  ( ((Model.EditItem.Upc != null) && (Model.EditItem.Upc.Length > 0)) ? Model.EditItem.Upc.Trim() + ".jpg" : "noimage.jpg");
     string UPCError = (ViewData["UPCError"] != null) ? (string)ViewData["UPCError"] : "";
@@ -11,131 +12,132 @@
     ItemErrors = ItemErrors.Trim();
 }
 
-    <head>
+<head>
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.6.4/jquery.colorbox-min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-        <script>
+    <script>
 
-            function changeUnits(selObj) {
-                var selIdx = selObj.value;
-                if (selIdx != -1) {
-                    var selText = selObj.options[selIdx].text;
-                    $("[id^=unitsId]").text(selText);
+        function changeUnits(selObj) {
+            var selIdx = selObj.value;
+            if (selIdx != -1) {
+                var selText = selObj.options[selIdx].text;
+                $("[id^=unitsId]").text(selText);
+            }
+        }
+
+        function changePhoto() {
+            $("#itemPhoto").attr("src", "");
+            $("#itemPhoto").attr("alt", "_Photo Set");
+        }
+
+        $(document).ready(function () {
+
+            document.getElementById('SubmitId2').addEventListener('click', (e) => {
+
+                if ($("#EditItem_Upc").val().trim().length == 0) {
+                    $("#UPCErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                } else {
+                    $("#UPCErrorId").removeClass("ErrorOn").addClass("ErrorOff");
                 }
-            }
 
-            function changePhoto() {
-                $("#itemPhoto").attr("src", "");
-                $("#itemPhoto").attr("alt", "_Photo Set");
-            }
-
-            $(document).ready(function () {
-               
-                document.getElementById('SubmitId2').addEventListener('click', (e) => {
-
-                    if ($("#EditItem_Upc").val().trim().length == 0) {
-                        $("#UPCErrorId").removeClass("ErrorOff").addClass("ErrorOn");
-                    } else {
-                        $("#UPCErrorId").removeClass("ErrorOn").addClass("ErrorOff");
-                    }
-
-                    if (($("#EditItem_Upc").val().trim().length == 0) ||
-                        ($("#InventoryItem_Units").val() == 0) ||
-                        ($("#EditItem_Size").val().trim().length == 0) ||
-                        ($("#EditItem_Size").val() <= 0)) {
-                        e.preventDefault();
-                        $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
-                        return;
-                    }
-                    $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
-                });
-
+                if (($("#EditItem_Upc").val().trim().length == 0) ||
+                    ($("#InventoryItem_Units").val() == 0) ||
+                    ($("#EditItem_Size").val().trim().length == 0) ||
+                    ($("#EditItem_Size").val() <= 0)) {
+                    e.preventDefault();
+                    $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                    return;
+                }
+                $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
             });
-        </script>
 
-        <style>
+        });
+    </script>
 
-            .zoomin img {
-                height: 120px;
-                -webkit-transition: all 0.2s ease;
-                -moz-transition: all 0.2s ease;
-                -ms-transition: all 0.2s ease;
-                transition: all 0.2s ease;
-                z-index: 1000;
-            }
+    <style>
+
+        .zoomin img {
+            height: 120px;
+            -webkit-transition: all 0.2s ease;
+            -moz-transition: all 0.2s ease;
+            -ms-transition: all 0.2s ease;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
 
             .zoomin img:hover {
                 height: 240px;
             }
 
-            .ILabel {
-                padding-right: 2px;
-            }
+        .ILabel {
+            padding-right: 2px;
+        }
 
-            .IValue {
-                padding-top: 4px;
-                padding-left: 4px;
-            }
+        .IValue {
+            padding-top: 4px;
+            padding-left: 4px;
+        }
 
-            .SValue {
-                padding-top: 3px;
-                padding-left: 4px;
-                padding-right: 4px;
-            }
+        .SValue {
+            padding-top: 3px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
 
-            .ediv {
-                border-width: 1px;
-                border-style: solid;
-                border-color: #C0FFC0;
-                background-color: #F2FFF2;
-                padding-bottom: 3px;
-            }
+        .ediv {
+            border-width: 1px;
+            border-style: solid;
+            border-color: #C0FFC0;
+            background-color: #F2FFF2;
+            padding-bottom: 3px;
+        }
 
-            .pdiv {
-                border-width: 1px;
-                border-style: solid;
-                border-color: #C0FFC0;
-                background-color: #F2FFF2;
-                padding-bottom: 3px;
-            }
+        .pdiv {
+            border-width: 1px;
+            border-style: solid;
+            border-color: #C0FFC0;
+            background-color: #F2FFF2;
+            padding-bottom: 3px;
+        }
 
-            .idiv {
-                border-width: 3px;
-                border-style: solid;
-                border-color: #000000;
-                margin-bottom: 5px;
-            }
+        .idiv {
+            border-width: 3px;
+            border-style: solid;
+            border-color: #000000;
+            margin-bottom: 5px;
+        }
 
-            .itemPhoto {
-                margin-left: auto;
-                margin-right: auto;
-                height: 120px;
-            }
+        .itemPhoto {
+            margin-left: auto;
+            margin-right: auto;
+            height: 120px;
+        }
 
-            .alignLeft {
-                float: left;
-            }
+        .alignLeft {
+            float: left;
+        }
 
-            .alignRight {
-                float: right;
-            }
+        .alignRight {
+            float: right;
+        }
 
-            .ErrorOn {
-                color: red;
-                display: block;
-            }
+        .ErrorOn {
+            color: red;
+            display: block;
+        }
 
-            .ErrorOff {
-                color: red;
-                display: none;
-            }
-        </style>
+        .ErrorOff {
+            color: red;
+            display: none;
+        }
+    </style>
 
-    </head>
+</head>
 
 <body>
 

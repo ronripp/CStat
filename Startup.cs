@@ -55,12 +55,10 @@ namespace CStat
 
             //RJR services.Configure<ApplicationDbContext>(op => 
             //RJR      op.Database.Migrate()); // Make sure the identity database is created
-
-
             //            services.AddCors();
-
             //RJR            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //RJR                .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddRazorPages()
                 .AddRazorPagesOptions(options =>
                 {
@@ -68,11 +66,18 @@ namespace CStat
                     options.Conventions.AuthorizePage("/Docs");
                     options.Conventions.AuthorizePage("/Inventory/Index");
                     options.Conventions.AuthorizePage("/Index1");
+                    options.Conventions.AuthorizeFolder("/Inventory");
+                    options.Conventions.AuthorizeFolder("/Items");
+                    options.Conventions.AuthorizeFolder("/People");
+                    options.Conventions.AuthorizeFolder("/Tasks");
+                    options.Conventions.AuthorizeFolder("/Docs");
                     options.Conventions.AuthorizeFolder("/Private");
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
                     options.Conventions.AllowAnonymousToFolder("/api/CStat");
                 });
+
+            //services.AddDefaultIdentity<IdentityUser>()/*.AddDefaultUI(UIFramework.Bootstrap4)*/.AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -85,7 +90,7 @@ namespace CStat
                 options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(31);
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 

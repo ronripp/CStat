@@ -113,7 +113,7 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Id)
+                        <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
                     </td>
                     <td>
                         <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>

@@ -389,17 +389,7 @@
 
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
                     let ctDue = $("#taskData_CreateTaskDue").val();
-                    if ((ctDue == (0x00000007 << 26)) ||  // At_Hour
-                        (ctDue == (0x00000008 << 26)) ||  // Before_Hour
-                        (ctDue == (0x00000009 << 26)) ||  // On_Day
-                        (ctDue == (0x0000000A << 26)) ||  // Before_Day
-                        (ctDue == (0x0000000B << 26)) ||  // On_Week_Day
-                        (ctDue == (0x0000000C << 26)) ||  // Before_Week_Day
-                        (ctDue == (0x0000000D << 26)) ||  // On_Week
-                        (ctDue == (0x0000000E << 26)) ||  // Before_Week
-                        (ctDue == (0x0000000F << 26)) ||  // In_Month
-                        (ctDue == (0x00000010 << 26)) ||  // Before_Month
-                        (ctDue == (0x00000011 << 26))) {  // At_Date
+                    if ((ctDue >= (0x00000003 << 26)) && (ctDue <= (0x00000013 << 26))) { 
                         $("#CreateTaskDueVal").val("");
                         $("#CreateTaskDueVal").show();
                     } else {
@@ -1030,12 +1020,12 @@
                             <b>Create a New Task ...</b>
                             <div>
                                 <label asp-for="taskData.CreateTaskDue" class="control-label">due:</label>
-                                <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="display:inline;max-width:10em; margin-right:8px"></select>
-                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.CreateTaskDueVal"/>
+                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.CreateTaskDueVal" />
+                                <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="display:inline;max-width:12em; margin-right:8px"></select>
                             </div>
                             <div>
                                 <label asp-for="taskData.CreateTaskEach" class="control-label" style="display:inline"> of each:</label>
-                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:10em; margin-right:8px"></select>
+                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:12em; margin-right:8px"></select>
                             </div>
                         </div>
                         <span style="display:@ComSpanDisplay">

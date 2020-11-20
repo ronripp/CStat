@@ -283,21 +283,20 @@ namespace CStat.Pages.Tasks
                         taskData.CreateTaskEach = (int)CreateTaskEach;
                         switch (CreateTaskDue)
                         {
-                            case CTask.eTaskType.On_Week_Day:
-                            case CTask.eTaskType.Before_Week_Day:
+                            case CTask.eTaskType.Day_Of_Week_SunMon:
                                 taskData.CreateTaskDueVal = ((CreateTaskDueVal >= 1) && (CreateTaskDueVal <= 7)) ? TaskArrs.weekDays[CreateTaskDueVal] : "";
                                 break;
 
-                            case CTask.eTaskType.At_Date:
-                                if (CreateTaskDueVal > (1 << 5))
-                                {
-                                    int day = CreateTaskDueVal & 0x1F;
-                                    int month = CreateTaskDueVal >> 5;
-                                    taskData.CreateTaskDueVal = month.ToString() + "/" + day;
-                                }
-                                else
-                                    taskData.CreateTaskDueVal = "";
-                                break;
+                            //case CTask.eTaskType.At_Date:
+                            //    if (CreateTaskDueVal > (1 << 5))
+                            //    {
+                            //        int day = CreateTaskDueVal & 0x1F;
+                            //        int month = CreateTaskDueVal >> 5;
+                            //        taskData.CreateTaskDueVal = month.ToString() + "/" + day;
+                            //    }
+                            //    else
+                            //        taskData.CreateTaskDueVal = "";
+                            //    break;
 
                             default:
                                 taskData.CreateTaskDueVal = CreateTaskDueVal.ToString();
@@ -314,10 +313,10 @@ namespace CStat.Pages.Tasks
             IList<SelectListItem> rList = Enum.GetValues (typeof(CTask.eTaskStatus)).Cast<CTask.eTaskStatus>().Where(e => (int)e >= (int)CTask.eTaskStatus.Need_Funds).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["Reason"] = rList;
 
-            IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Before_Start) && ((int)e <= (int)CTask.eTaskType.At_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.At_Start) && ((int)e <= (int)CTask.eTaskType.Day_Of_Week_SunMon)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskDue"] = dueList;
 
-            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Event)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Day_Of_Year_MM_DD)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskEach"] = eachList;
 
             IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -467,18 +466,27 @@ namespace CStat.Pages.Tasks
 
                             int dueValue = 0;
 
-                            if ((dueType == (int)CTask.eTaskType.At_Hour) ||
-                                (dueType == (int)CTask.eTaskType.Before_Hour) ||
-                                (dueType == (int)CTask.eTaskType.On_Day) ||
-                                (dueType == (int)CTask.eTaskType.Before_Day) ||
-                                (dueType == (int)CTask.eTaskType.On_Week) ||
-                                (dueType == (int)CTask.eTaskType.Before_Week) ||
-                                (dueType == (int)CTask.eTaskType.In_Month) ||
-                                (dueType == (int)CTask.eTaskType.Before_Month))
+                            if ((dueType == (int)CTask.eTaskType.Hours_Before_Start) ||
+                                (dueType == (int)CTask.eTaskType.Hours_After_Start) ||
+                                (dueType == (int)CTask.eTaskType.Hours_Before_End) ||
+                                (dueType == (int)CTask.eTaskType.Hours_After_End) ||
+                                (dueType == (int)CTask.eTaskType.Days_Before_Start) ||
+                                (dueType == (int)CTask.eTaskType.Days_After_Start) ||
+                                (dueType == (int)CTask.eTaskType.Days_Before_End) ||
+                                (dueType == (int)CTask.eTaskType.Days_After_End) ||
+                                (dueType == (int)CTask.eTaskType.Weeks_Before_Start) ||
+                                (dueType == (int)CTask.eTaskType.Weeks_After_Start) ||
+                                (dueType == (int)CTask.eTaskType.Weeks_Before_End) ||
+                                (dueType == (int)CTask.eTaskType.Weeks_After_End) ||
+                                (dueType == (int)CTask.eTaskType.Months_Before_Start) ||
+                                (dueType == (int)CTask.eTaskType.Months_After_Start) ||
+                                (dueType == (int)CTask.eTaskType.Months_Before_End) ||
+                                (dueType == (int)CTask.eTaskType.Months_After_End) ||
+                                (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon)) 
                             {
                                 dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
                             }
-                            else if ((dueType == (int)CTask.eTaskType.On_Week_Day) || (dueType == (int)CTask.eTaskType.Before_Week_Day))
+                            else if (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon)
                             {
                                 String dueStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value;
                                 if (dueStr.Length > 0)
@@ -502,7 +510,7 @@ namespace CStat.Pages.Tasks
                                         return this.Content("Fail: Week Day needs to start with M, Tu, W, Th, Fr, Sa or Su"); // Send back results
                                 }
                             }
-                            else if (dueType == (int)CTask.eTaskType.At_Date)
+                            else if (dueType == (int)CTask.eTaskType.Day_Of_Year_MM_DD)
                             {
                                 String dueStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value;
                                 char[] delims = new char[] { ' ', '/', '-', '\\' };

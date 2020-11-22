@@ -316,7 +316,7 @@ namespace CStat.Pages.Tasks
             IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.At_Start) && ((int)e <= (int)CTask.eTaskType.Day_Of_Week_SunMon)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskDue"] = dueList;
 
-            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Day_Of_Year_MM_DD)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Num_Start_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskEach"] = eachList;
 
             IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -482,7 +482,8 @@ namespace CStat.Pages.Tasks
                                 (dueType == (int)CTask.eTaskType.Months_After_Start) ||
                                 (dueType == (int)CTask.eTaskType.Months_Before_End) ||
                                 (dueType == (int)CTask.eTaskType.Months_After_End) ||
-                                (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon)) 
+                                (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon) ||
+                                (dueType == (int)CTask.eTaskType.Every_Num_Years)) 
                             {
                                 dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
                             }
@@ -510,26 +511,16 @@ namespace CStat.Pages.Tasks
                                         return this.Content("Fail: Week Day needs to start with M, Tu, W, Th, Fr, Sa or Su"); // Send back results
                                 }
                             }
-                            else if (dueType == (int)CTask.eTaskType.Day_Of_Year_MM_DD)
-                            {
-                                String dueStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value;
-                                char[] delims = new char[] { ' ', '/', '-', '\\' };
-                                String[] dateArr = dueStr.Trim().Split(delims);
-                                if (dateArr.Length == 2)
-                                {
-                                    int month = Int32.Parse(dateArr[0]);
-                                    int day = Int32.Parse(dateArr[1]);
-                                    if ((month > 0) && (month < 13) && (day > 0) && (day < 32))
-                                    {
-                                        dueValue = (month << 5) + day;
-                                    }
-                                    else
-                                    {
-                                        return this.Content("Fail: At Date needs to be in format Month/Day or Month-Day"); // Send back results
-                                    }
-                                }
-                            }
                             int eachType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateEach").Value);
+
+                            if ((eachType == (int)CTask.eTaskType.Month_n_Day) || (eachType == (int)CTask.eTaskType.Num_Start_Date))
+                            {
+                                string mdStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
+                                if (mdStr.Length > 0)
+                                    task.DueDate = DateTime.ParseExact(mdStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                                else
+                                    return this.Content("Fail: A valid Due Date must be set with Every : Month n Day"); // Send back results
+                            }
                             task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
                         }
                     }

@@ -189,6 +189,7 @@ namespace CStat.Pages.Tasks
         {
             // Get a List of Template Tasks
             var TemplateTasks = _context.Task.Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToList();
+            List<CTask> taskList;
 
             // Determine what needs to be Auto generated
             foreach (var tmpl in TemplateTasks)
@@ -200,17 +201,10 @@ namespace CStat.Pages.Tasks
                 DateTime now = DateTime.Now;
                 DateTime startTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
                 DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
-                List<Event> evList = GetEvents(startTime, endTime);
+                DateRange lim = new DateRange(startTime, endTime);
+                List<Event> evList = GetEvents(lim);
 
-                // Create Tasks starting at the ActualDoneDate/Time which marks the date/time tasks were last created.
-                if (tmpl.ActualDoneDate == null)
-                {
-                    tmpl.ActualDoneDate = DateTime.Now.AddDays(-1);
-                }
-
-                // Add task creation here
-
-                tmpl.ActualDoneDate = DateTime.Now;
+                taskList = GetTemplateTasks(tmpl, evList, lim);
             }
 
             // Filter out existing Auto generated Tasks having a parent task id that matches template task id and due date.
@@ -220,22 +214,24 @@ namespace CStat.Pages.Tasks
 
             }
 
-            // Generate active tasks 
+            // Generate new tasks 
 
             return null;
         }
-
-        public List<Event> GetEvents(DateTime startDate, DateTime endDate)
+        public List<Event> GetEvents(DateRange range)
         {
-            return _context.Event.Where(e => (e.StartTime >= startDate) && (e.EndTime <= endDate)).ToList();
+            return _context.Event.Where(e => (e.StartTime >= range.Start) && (e.EndTime <= range.End)).ToList();
         }
-
-
-        public DateTime[] GetDueDates(CTask.eTaskType eachType, CTask.eTaskType dueType)
+        public List<CTask> GetTemplateTasks(CTask tmpl, List<Event> events, DateRange lim)
         {
-            DateTime[] dtArr = new DateTime[1];
-            dtArr[0] = DateTime.Now; // TBD replace
-            return dtArr;
+            List<CTask> taskList = new List<CTask>();
+
+            if (tmpl.GetDueDates(events, out List<DateTime> dueDates, lim))
+            {
+                // Create new task and add it to the list
+            }
+
+            return taskList;
         }
     }
 }

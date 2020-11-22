@@ -23,6 +23,28 @@ namespace CStat.Models
         }
     }
 
+    public class DateRange
+    {
+        public DateRange() { }
+        public DateRange(DateTime startDate, DateTime endDate)
+        {
+            Start = startDate;
+            End = endDate;
+        }
+
+        public bool In (DateRange range)
+        {
+            return !((this.Start > range.End) || (this.End < range.Start));
+        }
+        public double TotalHours()
+        {
+            TimeSpan diff = End - Start;
+            return diff.TotalHours;
+        }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+    }
+
     public class _CCADataEntities
     {
         private readonly CStat.Models.CStatContext _context;
@@ -526,6 +548,7 @@ namespace CStat.Models
             Months_Before_End   = 0x00000011 << 26,
             Months_After_End    = 0x00000012 << 26,
             Day_Of_Week_SunMon  = 0x00000013 << 26,
+            Every_Num_Years     = 0x00000014 << 26,
             // MAX              = 0x0000001F << 26, 
 
             // Each    MASK   = 0x03E00000 
@@ -533,17 +556,18 @@ namespace CStat.Models
             Week_Event        = 0x00000002 << 21,
             Event_Day         = 0x00000003 << 21,
             Work_Day          = 0x00000004 << 21,
-            Work_Weekend      = 0x00000005 << 21,
-            Work_Week         = 0x00000006 << 21,
-            Summer_Camp       = 0x00000007 << 21,
-            ChCamp_Month      = 0x00000008 << 21,
-            First_Quarter     = 0x00000009 << 21,
-            Second_Quarter    = 0x0000000A << 21,
-            Third_Quarter     = 0x0000000B << 21,
-            Fourth_Quarter    = 0x0000000C << 21,
-            Event             = 0x0000000D << 21,
-            Year              = 0x0000000E << 21,
-            Day_Of_Year_MM_DD = 0x0000000F << 21,
+            Work_Week         = 0x00000005 << 21,
+            Work_Event        = 0x00000006 << 21,
+            ChCamp_Month      = 0x00000007 << 21,
+            First_Quarter     = 0x00000008 << 21,
+            Second_Quarter    = 0x00000009 << 21,
+            Third_Quarter     = 0x0000000A << 21,
+            Fourth_Quarter    = 0x0000000B << 21,
+            Event             = 0x0000000C << 21,
+            Month             = 0x0000000E << 21,
+            Year              = 0x0000000F << 21,
+            Month_n_Day       = 0x00000010 << 21,
+            Num_Start_Date    = 0x00000011 << 21,
             // MAX            = 0x0000001F << 21 
         }
 
@@ -624,7 +648,267 @@ namespace CStat.Models
             }
             return resStr.Replace("_", " ");
         }
+        public bool GetDueDates(List<Event> events, out List<DateTime> dueDates, DateRange lim)
+        {
+            GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
+            dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, events, lim));
+            return dueDates.Count > 0;
+        }
+        public List<DateRange> GetEachTypeRange(CTask.eTaskType eachType, List<Event> events, DateRange lim)
+        {
+            List<DateRange> ranges = new List<DateRange>();
 
+            // TBD Lim In() needs to be applied AFTER ApplyDueType adjustment for some/all?.
+
+            switch (eachType)
+            {
+                case eTaskType.Retreat_Event:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (er.TotalHours() <= 72))
+                            {
+                                ranges.Add(er);
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Week_Event:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (er.TotalHours() > 72))
+                            {
+                                ranges.Add(er);
+                            }
+                        }
+                    }
+                    break;
+
+                case eTaskType.Event_Day:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er))
+                            {
+                                int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
+                                DateTime s = ev.StartTime;
+                                DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
+                                for (int d = 0; d < totalDays; ++d)
+                                {
+                                    if (e > ev.EndTime)
+                                        e = ev.EndTime;
+
+                                    ranges.Add(new DateRange(s,e));
+
+                                    t = s.AddDays(1);
+                                    s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);
+                                    e = new DateTime(t.Year, t.Month, t.Day, 23, 59, 59);
+                                }
+                                
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Work_Day:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
+                            {
+                                int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
+                                DateTime s = ev.StartTime;
+                                DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
+                                for (int d = 0; d < totalDays; ++d)
+                                {
+                                    if (e > ev.EndTime)
+                                        e = ev.EndTime;
+
+                                    ranges.Add(new DateRange(s, e));
+
+                                    t = s.AddDays(1);
+                                    s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);
+                                    e = new DateTime(t.Year, t.Month, t.Day, 23, 59, 59);
+                                }
+
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Work_Week:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
+                            {
+                                int totalWeeks = (int)Math.Ceiling(er.TotalHours() / (24*7));
+                                DateTime s = ev.StartTime;
+                                DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
+                                for (int d = 0; d < totalWeeks; ++d)
+                                {
+                                    if (e > ev.EndTime)
+                                        e = ev.EndTime;
+
+                                    ranges.Add(new DateRange(s, e));
+
+                                    t = s.AddDays(7);
+                                    s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);
+                                    e = new DateTime(t.Year, t.Month, t.Day, 23, 59, 59);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Work_Event:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
+                            {
+                                ranges.Add(er);
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.ChCamp_Month:
+                    {
+                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        {
+                            for (int m = 7; m < 9; ++m) // July & August
+                            {
+                                DateTime s = new DateTime(y, m, 1, 0, 0, 0);
+                                DateTime e = new DateTime(y, m, 31, 59, 59, 59);
+                                DateRange range = new DateRange(s, e);
+                                if (lim.In(range))
+                                    ranges.Add(range);
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.First_Quarter:
+                    {
+                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        {
+                            DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
+                            DateTime e = new DateTime(y, 3, 31, 59, 59, 59);
+                            DateRange range = new DateRange(s, e);
+                            if (lim.In(range))
+                                ranges.Add(range);
+                        }
+                    }
+                    break;
+                case eTaskType.Second_Quarter:
+                    {
+                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        {
+                            DateTime s = new DateTime(y, 4, 1, 0, 0, 0);
+                            DateTime e = new DateTime(y, 6, 30, 59, 59, 59);
+                            DateRange range = new DateRange(s, e);
+                            if (lim.In(range))
+                                ranges.Add(range);
+                        }
+                    }
+                    break;
+                case eTaskType.Third_Quarter:
+                    {
+                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        {
+                            DateTime s = new DateTime(y, 7, 1, 0, 0, 0);
+                            DateTime e = new DateTime(y, 9, 30, 59, 59, 59);
+                            DateRange range = new DateRange(s, e);
+                            if (lim.In(range))
+                                ranges.Add(range);
+                        }
+                    }
+                    break;
+                case eTaskType.Fourth_Quarter:
+                    {
+                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        {
+                            DateTime s = new DateTime(y, 10, 1, 0, 0, 0);
+                            DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                            DateRange range = new DateRange(s, e);
+                            if (lim.In(range))
+                                ranges.Add(range);
+                        }
+                    }
+                    break;
+
+                case eTaskType.Event:
+                    {
+                        foreach (var ev in events)
+                        {
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            if (lim.In(er) && (er.TotalHours() > 72))
+                            {
+                                ranges.Add(er);
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Month:
+                    for (int y = lim.Start.Year, m = lim.Start.Month; y < lim.End.Year; ++y)
+                    {
+                        DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
+                        DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                        DateRange range = new DateRange(s, e);
+                        if (lim.In(range))
+                            ranges.Add(range);
+                        else
+                            break;
+                        if (++m > 12)
+                            m = 1;
+                    }
+                    break;
+                case eTaskType.Year:
+                    for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                    {
+                        DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
+                        DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                        DateRange range = new DateRange(s, e);
+                        if (lim.In(range))
+                            ranges.Add(range);
+                    }
+                    break;
+                case eTaskType.Month_n_Day:
+                    {
+                        if (DueDate.HasValue)
+                        {
+                            for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                            {
+                                DateTime s = new DateTime(y, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0);
+                                DateTime e = new DateTime(y, DueDate.Value.Month, DueDate.Value.Day, 59, 59, 59);
+                                DateRange range = new DateRange(s, e);
+                                if (lim.In(range))
+                                    ranges.Add(range);
+                            }
+                        }
+                    }
+                    break;
+                case eTaskType.Num_Start_Date:
+                   {
+                        if (DueDate.HasValue)
+                        {
+                            DateTime s = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0);
+                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 59, 59, 59);
+                            ranges.Add(new DateRange(s, e));
+                        }
+                    }
+                    break;
+            }
+            return ranges;
+        }
+        public List<DateTime> ApplyDueType(CTask.eTaskType dueType, int dueVal, List<DateRange> eachTypeRanges)
+        {
+            List<DateTime> dtList = new List<DateTime>();
+            return dtList;
+        }
     }
 
 
@@ -774,6 +1058,11 @@ namespace CStat.Models
             Family_Retreat,
             Annual_Meeting,
             SignIn_Sheet,
+            Church_Event,
+            Private_Event,
+            Private_Retreat,
+            VOE_Retreat,
+            Work_Event,
             Other
         }
 

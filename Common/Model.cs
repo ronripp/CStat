@@ -544,6 +544,7 @@ namespace CStat.Models
             Weeks_Before_End    = 0x0000000D << 26,
             Weeks_After_End     = 0x0000000E << 26,
             Months_Before_Start = 0x0000000F << 26,
+
             Months_After_Start  = 0x00000010 << 26,
             Months_Before_End   = 0x00000011 << 26,
             Months_After_End    = 0x00000012 << 26,
@@ -651,7 +652,7 @@ namespace CStat.Models
         public bool GetDueDates(List<Event> events, out List<DateTime> dueDates, DateRange lim)
         {
             GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
-            dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, events, lim));
+            dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, events, lim), lim);
             return dueDates.Count > 0;
         }
         public List<DateRange> GetEachTypeRange(CTask.eTaskType eachType, List<Event> events, DateRange lim)
@@ -904,9 +905,126 @@ namespace CStat.Models
             }
             return ranges;
         }
-        public List<DateTime> ApplyDueType(CTask.eTaskType dueType, int dueVal, List<DateRange> eachTypeRanges)
+        public List<DateTime> ApplyDueType(CTask.eTaskType dueType, int dueVal, List<DateRange> eachTypeRanges, DateRange lim)
         {
             List<DateTime> dtList = new List<DateTime>();
+
+            foreach(var dr in eachTypeRanges)
+            {
+                switch (dueType)
+                {
+                    case CTask.eTaskType.At_Start:
+                        {
+                            dtList.Add(dr.Start);
+                        }
+                        break;
+                    case CTask.eTaskType.At_End:
+                        {
+                            dtList.Add(dr.Start);
+                        }
+                        break;
+                    case CTask.eTaskType.Hours_Before_Start:
+                        {
+                            dtList.Add(dr.Start.AddHours(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Hours_After_Start:
+                        {
+                            dtList.Add(dr.Start.AddHours(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Hours_Before_End:
+                        {
+                            dtList.Add(dr.End.AddHours(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Hours_After_End:
+                        {
+                            dtList.Add(dr.End.AddHours(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Days_Before_Start:
+                        {
+                            dtList.Add(dr.Start.AddDays(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Days_After_Start:
+                        {
+                            dtList.Add(dr.Start.AddDays(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Days_Before_End:
+                        {
+                            dtList.Add(dr.End.AddDays(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Days_After_End:
+                        {
+                            dtList.Add(dr.End.AddDays(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Weeks_Before_Start:
+                        {
+                            dtList.Add(dr.Start.AddDays(-dueVal*7));
+                        }
+                        break;
+                    case CTask.eTaskType.Weeks_After_Start:
+                        {
+                            dtList.Add(dr.Start.AddDays(dueVal * 7));
+                        }
+                        break;
+                    case CTask.eTaskType.Weeks_Before_End:
+                        {
+                            dtList.Add(dr.End.AddDays(-dueVal * 7));
+                        }
+                        break;
+                    case CTask.eTaskType.Weeks_After_End:
+                        {
+                            dtList.Add(dr.End.AddDays(dueVal * 7));
+                        }
+                        break;
+                    case CTask.eTaskType.Months_Before_Start:
+                        {
+                            dtList.Add(dr.Start.AddMonths(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Months_After_Start:
+                        {
+                            dtList.Add(dr.Start.AddMonths(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Months_Before_End:
+                        {
+                            dtList.Add(dr.End.AddMonths(-dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Months_After_End:
+                        {
+                            dtList.Add(dr.End.AddMonths(dueVal));
+                        }
+                        break;
+                    case CTask.eTaskType.Day_Of_Week_SunMon:
+                        {
+                            int sdow = (int)dr.Start.DayOfWeek + 1;
+                            if (dueVal < sdow)
+                                dtList.Add(dr.End.AddDays((7-sdow) + dueVal));
+                            else
+                                dtList.Add(dr.End.AddDays(dueVal - sdow));
+                        }
+                        break;
+                    case CTask.eTaskType.Every_Num_Years:
+                        {
+                            for (int mult = 1; true; ++mult)
+                            {
+                                DateTime dt = dr.Start.AddYears(mult*dueVal);
+                                dtList.Add(dt);
+                                if (!lim.In(new DateRange(dt, dt)))
+                                    break;
+                            }
+                        }
+                        break;
+                }
+            }
             return dtList;
         }
     }

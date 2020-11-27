@@ -560,11 +560,12 @@ namespace CStat.Models
             Work_Week         = 0x00000005 << 21,
             Work_Event        = 0x00000006 << 21,
             ChCamp_Month      = 0x00000007 << 21,
-            First_Quarter     = 0x00000008 << 21,
-            Second_Quarter    = 0x00000009 << 21,
-            Third_Quarter     = 0x0000000A << 21,
-            Fourth_Quarter    = 0x0000000B << 21,
-            Event             = 0x0000000C << 21,
+            Quarter           = 0x00000008 << 21,
+            First_Quarter     = 0x00000009 << 21,
+            Second_Quarter    = 0x0000000A << 21,
+            Third_Quarter     = 0x0000000B << 21,
+            Fourth_Quarter    = 0x0000000C << 21,
+            Event             = 0x0000000D << 21,
             Month             = 0x0000000E << 21,
             Year              = 0x0000000F << 21,
             Month_n_Day       = 0x00000010 << 21,
@@ -779,12 +780,12 @@ namespace CStat.Models
                     break;
                 case eTaskType.ChCamp_Month:
                     {
-                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                         {
                             for (int m = 7; m < 9; ++m) // July & August
                             {
                                 DateTime s = new DateTime(y, m, 1, 0, 0, 0);
-                                DateTime e = new DateTime(y, m, 31, 59, 59, 59);
+                                DateTime e = new DateTime(y, m, 31, 23, 59, 59);
                                 DateRange range = new DateRange(s, e);
                                 if (lim.In(range))
                                     ranges.Add(range);
@@ -794,10 +795,10 @@ namespace CStat.Models
                     break;
                 case eTaskType.First_Quarter:
                     {
-                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                         {
                             DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
-                            DateTime e = new DateTime(y, 3, 31, 59, 59, 59);
+                            DateTime e = new DateTime(y, 3, 31, 23, 59, 59);
                             DateRange range = new DateRange(s, e);
                             if (lim.In(range))
                                 ranges.Add(range);
@@ -806,10 +807,10 @@ namespace CStat.Models
                     break;
                 case eTaskType.Second_Quarter:
                     {
-                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                         {
                             DateTime s = new DateTime(y, 4, 1, 0, 0, 0);
-                            DateTime e = new DateTime(y, 6, 30, 59, 59, 59);
+                            DateTime e = new DateTime(y, 6, 30, 23, 59, 59);
                             DateRange range = new DateRange(s, e);
                             if (lim.In(range))
                                 ranges.Add(range);
@@ -818,10 +819,10 @@ namespace CStat.Models
                     break;
                 case eTaskType.Third_Quarter:
                     {
-                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                         {
                             DateTime s = new DateTime(y, 7, 1, 0, 0, 0);
-                            DateTime e = new DateTime(y, 9, 30, 59, 59, 59);
+                            DateTime e = new DateTime(y, 9, 30, 23, 59, 59);
                             DateRange range = new DateRange(s, e);
                             if (lim.In(range))
                                 ranges.Add(range);
@@ -830,10 +831,10 @@ namespace CStat.Models
                     break;
                 case eTaskType.Fourth_Quarter:
                     {
-                        for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                        for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                         {
                             DateTime s = new DateTime(y, 10, 1, 0, 0, 0);
-                            DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                            DateTime e = new DateTime(y, 12, 31, 23, 59, 59);
                             DateRange range = new DateRange(s, e);
                             if (lim.In(range))
                                 ranges.Add(range);
@@ -854,10 +855,10 @@ namespace CStat.Models
                     }
                     break;
                 case eTaskType.Month:
-                    for (int y = lim.Start.Year, m = lim.Start.Month; y < lim.End.Year; ++y)
+                    for (int y = lim.Start.Year, m = lim.Start.Month; y <= lim.End.Year; ++y)
                     {
                         DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
-                        DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                        DateTime e = new DateTime(y, 12, 31, 23, 59, 59);
                         DateRange range = new DateRange(s, e);
                         if (lim.In(range))
                             ranges.Add(range);
@@ -868,10 +869,10 @@ namespace CStat.Models
                     }
                     break;
                 case eTaskType.Year:
-                    for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                    for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                     {
                         DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
-                        DateTime e = new DateTime(y, 12, 31, 59, 59, 59);
+                        DateTime e = new DateTime(y, 12, 31, 23, 59, 59);
                         DateRange range = new DateRange(s, e);
                         if (lim.In(range))
                             ranges.Add(range);
@@ -881,10 +882,10 @@ namespace CStat.Models
                     {
                         if (DueDate.HasValue)
                         {
-                            for (int y = lim.Start.Year; y < lim.End.Year; ++y)
+                            for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
                             {
                                 DateTime s = new DateTime(y, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0);
-                                DateTime e = new DateTime(y, DueDate.Value.Month, DueDate.Value.Day, 59, 59, 59);
+                                DateTime e = new DateTime(y, DueDate.Value.Month, DueDate.Value.Day, 23, 59, 59);
                                 DateRange range = new DateRange(s, e);
                                 if (lim.In(range))
                                     ranges.Add(range);
@@ -897,7 +898,7 @@ namespace CStat.Models
                         if (DueDate.HasValue)
                         {
                             DateTime s = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0);
-                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 59, 59, 59);
+                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 23, 59, 59);
                             ranges.Add(new DateRange(s, e));
                         }
                     }

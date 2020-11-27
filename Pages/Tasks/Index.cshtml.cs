@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using CStat.Models;
 using CTask = CStat.Models.Task;
 using Task = System.Threading.Tasks.Task;
@@ -15,12 +16,14 @@ namespace CStat.Pages.Tasks
     public class IndexModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private IWebHostEnvironment hostEnv;
 
         public bool IsTemplate = false;
 
-        public IndexModel(CStat.Models.CStatContext context)
+        public IndexModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
-            _context = context;
+             _context = context;
+             hostEnv = hstEnv;
         }
 
         public IList<CTask> Task { get;set; }
@@ -61,5 +64,16 @@ namespace CStat.Pages.Tasks
                     .Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToListAsync();
             }
         }
+        public ActionResult OnPostAutoGen()
+        {
+            if (IsTemplate)
+            {
+                // Generate possibly new Tasks based on template add/changes
+                AutoGen ag = new AutoGen(_context, hostEnv);
+                ag.GenTasks();
+            }
+            return this.Content("Success");
+        }
     }
+
 }

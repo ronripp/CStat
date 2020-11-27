@@ -120,7 +120,7 @@ namespace CStat.Pages.Tasks
             comments = "";
             FixedDueDate = false;
         }
-        public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId)
+        public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId, int parentTaskId)
         {
             TaskData taskData = null;
             string folderName = @"Tasks";
@@ -130,18 +130,24 @@ namespace CStat.Pages.Tasks
             {
                 Directory.CreateDirectory(newPath);
             }
-            string fullPath = Path.Combine(newPath, "Task_" + taskId.ToString() + ".json");
-            if (File.Exists(fullPath))
+
+            for (int i = 0, tid = taskId; i < 2; ++i, tid=parentTaskId)
             {
-                using (StreamReader r = new StreamReader(fullPath))
+                string fullPath = Path.Combine(newPath, "Task_" + tid.ToString() + ".json");
+                if (File.Exists(fullPath))
                 {
-                    string json = r.ReadToEnd();
-                    var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
-                    DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
-                    taskData = (TaskData)deserializer.ReadObject(ms);
-                    taskData.tid = taskId;
+                    using (StreamReader r = new StreamReader(fullPath))
+                    {
+                        string json = r.ReadToEnd();
+                        var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
+                        DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
+                        taskData = (TaskData)deserializer.ReadObject(ms);
+                        taskData.tid = taskId;
+                    }
+                    break;
                 }
             }
+
             if (taskData == null)
                 taskData = new TaskData();
             return taskData;
@@ -269,7 +275,7 @@ namespace CStat.Pages.Tasks
                 if ((task != null) && (tid == task.Id))
                 {
                     IsTemplate = (task.Type & (int)CTask.eTaskType.Template) != 0;
-                    taskData = TaskData.ReadTaskData(hostEnv, tid);
+                    taskData = TaskData.ReadTaskData(hostEnv, tid, task.ParentTaskId.HasValue ? task.ParentTaskId.Value : -1);
                     if (task.DueDate == null)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
                     if ((task.Type & (int)CTask.eTaskType.Template) != 0)
@@ -395,6 +401,7 @@ namespace CStat.Pages.Tasks
         {
             if ((this.Request != null) && (this.Request.Form != null))
             {
+                bool IsTemplate = false;
 
                 /******************
 
@@ -454,7 +461,8 @@ namespace CStat.Pages.Tasks
                     else
                         task.TotalCost = 0;
 
-                    if ((task.Type & (int)CTask.eTaskType.Template) != 0)
+                    IsTemplate = (task.Type & (int)CTask.eTaskType.Template) != 0;
+                    if (IsTemplate)
                     {
                         fStr = "Template Task";
 
@@ -603,6 +611,14 @@ namespace CStat.Pages.Tasks
                     fStr = "DB Update";
                     _context.Attach(task).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     _context.SaveChanges();
+
+                    if (IsTemplate)
+                    {
+                        // Generate possibly new Tasks based on template add/changes
+                        AutoGen ag = new AutoGen(_context, hostEnv);
+                        ag.GenTasks(task.Id);
+                    }
+
                 }
                 catch(Exception e)
                 {

@@ -51,6 +51,38 @@
             }
         });
 
+        function autoGenAll() {
+
+            var autoGenFormData = new FormData();
+            jQuery.ajax({
+                url: "/Tasks/Index?handler=AutoGen",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: autoGenFormData,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.indexOf("Success") === 0) {
+                        alert("Template Tasks Successfully Regenerated");
+                    }
+                    else {
+                        alert("AutoGen Failed : " + res);
+                    }
+                },
+                error: function (res) {
+                    alert("AutoGen Failed : " + res);
+                },
+                complete: function (res) {
+
+                }
+            });
+
+        }
+
     </script>
 
 </head>
@@ -63,13 +95,14 @@
 <body style="background-color:@bkColor">
     <p class="split-para">
         @{ if (Model.IsTemplate)
-            {
+           {
                 <b><a asp-page="Create" asp-route-id="-1">@createLabel</a></b>
-            }
-            else
-            {
-                <b><a asp-page="Create">@createLabel</a></b>
-            }
+                <b><a href="javascript:void(0);" style="margin-left:10px" id="autogen" onclick="autoGenAll()">Re-Gen Tasks</a></b>
+           }
+           else
+           {
+    <b><a asp-page="Create">@createLabel</a></b>
+           }
         }
         <span>
             @{ if (Model.IsTemplate)

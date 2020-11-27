@@ -390,7 +390,9 @@
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
                     let ctDue = $("#taskData_CreateTaskDue").val();
                     if ((ctDue >= (0x00000003 << 26)) && (ctDue <= (0x00000014 << 26))) { 
-                        $("#CreateTaskDueVal").val("");
+                        if (!$("#CreateTaskDueVal").is(":visible")) {
+                            $("#CreateTaskDueVal").val("");
+                        }
                         $("#CreateTaskDueVal").show();
                     } else {
                         $("#CreateTaskDueVal").hide();

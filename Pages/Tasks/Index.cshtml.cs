@@ -66,12 +66,9 @@ namespace CStat.Pages.Tasks
         }
         public ActionResult OnPostAutoGen()
         {
-            if (IsTemplate)
-            {
-                // Generate possibly new Tasks based on template add/changes
-                AutoGen ag = new AutoGen(_context, hostEnv);
-                ag.GenTasks();
-            }
+            // Generate possibly new Tasks based on template add/changes
+            AutoGen ag = new AutoGen(_context, hostEnv);
+            ag.GenTasks();
             return this.Content("Success");
         }
     }

@@ -171,7 +171,32 @@
                         @nameStr
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.DueDate)
+                        @{
+                            string dateStr = "---";
+                            if (item.DueDate.HasValue)
+                            {
+                                 dateStr = item.DueDate.Value.Month + "/" + item.DueDate.Value.Day + "/" + item.DueDate.Value.Year%100;
+                                 if ((item.DueDate.Value.Hour != 23) || (item.DueDate.Value.Minute != 59))
+                                 {
+                                    if ((item.DueDate.Value.Hour == 0) && (item.DueDate.Value.Minute == 0))
+                                        dateStr += " START";
+                                    else
+                                    {
+                                        string ampm; 
+                                        int hr = item.DueDate.Value.Hour;
+                                        if (item.DueDate.Value.Hour >= 12)
+                                        {
+                                            hr -= 12;
+                                            ampm = " PM";
+                                        }
+                                        else
+                                            ampm = " AM";
+                                        dateStr = dateStr + " " + hr + ":" + item.DueDate.Value.Minute + ampm;
+                                    }
+                                }
+                            }
+                        }
+                        @dateStr
                     </td>
                     <td>
                         <a asp-page="./Delete" asp-route-id="@item.Id">[Delete]</a>

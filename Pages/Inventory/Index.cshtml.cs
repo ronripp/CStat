@@ -15,6 +15,43 @@ using System.Collections.Immutable;
 
 namespace CStat
 {
+    public class OrderedEvents
+    {
+        private readonly CStat.Models.CStatContext _context;
+        public OrderedEvents(CStat.Models.CStatContext ctx)
+        {
+            _context = ctx;
+            isSet = false;
+        }
+        public void GetEvents(DateTime chDate)
+        {
+            isSet = true;
+            eventRange = new DateRange(chDate.AddDays(1), DateTime.Now); //Skip "Last Item Changed" day but include today.
+            ascEvents = _context.Event.Where(e => !((e.StartTime > eventRange.End) || (e.EndTime < eventRange.Start))).OrderBy(ev => ev.StartTime).ToList(); //overlap full or part
+        }
+        public double getElapsedEventDays(DateTime chDate)
+        {
+            DateTime chDateP1 = chDate.AddDays(1);
+            var itemRange = new DateRange(chDateP1, DateTime.Now); //Skip "Last day item changed" day but include today.
+            if (!isSet || (eventRange.Start > chDateP1))
+                GetEvents(chDate);
+
+            double evDays = 0;
+            DateTime sd, ed;
+            foreach (var ev in ascEvents)
+            {
+                // Get applicable item Range
+                sd = (itemRange.Start > ev.StartTime) ? itemRange.Start : ev.StartTime;
+                ed = (itemRange.End < ev.EndTime) ? itemRange.End : ev.EndTime;
+                evDays += (ed - sd).TotalDays;
+            }
+            return evDays;
+        }
+
+        bool isSet;
+        DateRange eventRange;
+        private List<Event> ascEvents;
+    }
     public class IndexInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
@@ -51,7 +88,7 @@ namespace CStat
             _configuration = configuration;
         }
 
-        public IList<InventoryItem> InventoryItems { get;set; }
+        public IList<InventoryItem> InventoryItems { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -60,7 +97,7 @@ namespace CStat
                 .Include(i => i.Item).ToListAsync();
         }
 
-        public Person GetPersonFromEMail (string email)
+        public Person GetPersonFromEMail(string email)
         {
             Person person = _context.Person.FirstOrDefault(m => m.Email == email);
             return person;
@@ -79,7 +116,7 @@ namespace CStat
             return MakeAbbr(person);
         }
 
-        public InvItemState GetInvItemState (InventoryItem invItem)
+        public InvItemState GetInvItemState(InventoryItem invItem)
         {
             InvItemState invIS = new InvItemState();
 
@@ -173,7 +210,7 @@ namespace CStat
 
                 foreach (var ii in InventoryItems)
                 {
-                     ii.State = NewState;
+                    ii.State = NewState;
                     _context.Attach(ii).State = EntityState.Modified;
 
                     try
@@ -195,7 +232,7 @@ namespace CStat
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
 
-        public JsonResult OnGetEMailInv() 
+        public JsonResult OnGetEMailInv()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
@@ -205,7 +242,7 @@ namespace CStat
             Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (setParam.TryGetValue("user", out string user))
             {
-                InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).OrderByDescending(i => (i.State!=null) ? i.State%3 : 0).ToList();
+                InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).OrderByDescending(i => (i.State != null) ? i.State % 3 : 0).ToList();
                 string[] StateStr = { "ok", "NEEDED", "NEEDED", "Not Checked" };
 
                 string report = "";
@@ -244,7 +281,7 @@ namespace CStat
 
             InvItemStock invItmStk = JsonConvert.DeserializeObject<InvItemStock>(jsonQS);
             if (invItmStk != null)
-            { 
+            {
                 InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invItmStk.invItemId);
                 if (invItem != null)
                 {
@@ -272,6 +309,19 @@ namespace CStat
                 return new JsonResult(JsonConvert.SerializeObject(cs));
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
+        public bool MayNeedItem(InventoryItem invIt, OrderedEvents ordEvs = null)
+        {
+            if (!invIt.CurrentStock.HasValue || !invIt.Date.HasValue || !invIt.UnitsPerDay.HasValue || !invIt.ReorderThreshold.HasValue)
+                return false;
+
+            // Get the Event Days since last 
+            if (ordEvs == null)
+                ordEvs = new OrderedEvents(_context);
+            double totalDays = ordEvs.getElapsedEventDays(invIt.Date.Value);
+
+            return (invIt.CurrentStock.Value - (invIt.UnitsPerDay.Value * totalDays)) <= invIt.ReorderThreshold.Value;
         }
     }
 }

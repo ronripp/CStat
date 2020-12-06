@@ -26,6 +26,17 @@
     <Compile Remove="Common\CCAService\HomeController.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Pages\Inventory\favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\Inventory\favicon.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Dropbox.Api" Version="4.9.4" />

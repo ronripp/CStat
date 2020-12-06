@@ -18,6 +18,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.AspNetCore.Http.Features;
+using CStat.Common;
 //using System.Diagnostics;
 //using Microsoft.AspNetCore.DataProtection;
 //using System.IO;
@@ -111,7 +112,12 @@ namespace CStat
                 options.SlidingExpiration = true;
             });
 
+            services.AddHttpContextAccessor();
             services.AddControllers();
+            //services.AddSingleton<IWorker, Worker>();
+            services.AddHostedService<CSBkgService>();
+            services.AddScoped<IScopedProcessingService, CSProcService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

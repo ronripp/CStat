@@ -615,7 +615,7 @@ namespace CStat.Pages.Tasks
                     if (IsTemplate)
                     {
                         // Generate possibly new Tasks based on template add/changes
-                        AutoGen ag = new AutoGen(_context, hostEnv);
+                        AutoGen ag = new AutoGen(_context);
                         ag.GenTasks(task.Id);
                     }
 

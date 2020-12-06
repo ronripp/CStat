@@ -12,6 +12,9 @@ using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Immutable;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace CStat
 {
@@ -56,6 +59,8 @@ namespace CStat
     {
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpCA;
+        private CSSettings _csSettings;
 
         public static int STOCKED_STATE = 0;
         public static int NEEDED_STATE = 1;
@@ -82,10 +87,13 @@ namespace CStat
             public int allState = STOCKED_STATE;
         }
 
-        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration)
+        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration, IHttpContextAccessor httpCA)
         {
             _context = context;
             _configuration = configuration;
+            _httpCA = httpCA;
+            _csSettings = new CSSettings(_configuration);
+            var user = _csSettings.GetUser(_httpCA.HttpContext.User.Identity.Name);
         }
 
         public IList<InventoryItem> InventoryItems { get; set; }
@@ -125,6 +133,7 @@ namespace CStat
             invIS.displayName = "Need?";
             invIS.state = (int)InventoryItem.States.InStock;
             invIS.btnClass = "InStockBtn";
+            
             if (invItem.PersonId.HasValue)
             {
                 invIS.pid = invItem.PersonId.Value;
@@ -311,14 +320,14 @@ namespace CStat
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
 
-        public bool MayNeedItem(InventoryItem invIt, OrderedEvents ordEvs = null)
+        public static bool MayNeedItem(CStat.Models.CStatContext context, InventoryItem invIt, OrderedEvents ordEvs = null)
         {
             if (!invIt.CurrentStock.HasValue || !invIt.Date.HasValue || !invIt.UnitsPerDay.HasValue || !invIt.ReorderThreshold.HasValue)
                 return false;
 
             // Get the Event Days since last 
             if (ordEvs == null)
-                ordEvs = new OrderedEvents(_context);
+                ordEvs = new OrderedEvents(context);
             double totalDays = ordEvs.getElapsedEventDays(invIt.Date.Value);
 
             return (invIt.CurrentStock.Value - (invIt.UnitsPerDay.Value * totalDays)) <= invIt.ReorderThreshold.Value;

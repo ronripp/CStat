@@ -13,13 +13,10 @@ namespace CStat.Pages.Tasks
     public class AutoGen
     {
         private readonly CStat.Models.CStatContext _context;
-        private IWebHostEnvironment hostEnv;
 
-
-        public AutoGen(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
+        public AutoGen(CStat.Models.CStatContext context)
         {
             _context = context;
-            hostEnv = hstEnv;
         }
 
         public bool GenTasks (int tmplId = -1)

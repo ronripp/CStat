@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CStat.Data;
+using Microsoft.Extensions.DependencyInjection;
+using CStat.Common;
 
 namespace CStat
 {
@@ -19,9 +21,19 @@ namespace CStat
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddJsonFile("CStat.json",
+                        optional: true,
+                        reloadOnChange: true);
+                })
+
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+            
+                //.ConfigureServices(services => services.AddHostedService<CStatBkgService>());
     }
 }

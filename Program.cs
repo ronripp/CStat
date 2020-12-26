@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using CStat.Data;
 using Microsoft.Extensions.DependencyInjection;
 using CStat.Common;
+using System.IO;
 
 namespace CStat
 {
@@ -31,7 +32,11 @@ namespace CStat
 
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseContentRoot(Directory.GetCurrentDirectory())
+                       .UseKestrel()
+                       .UseIISIntegration()
+                       .UseIIS()
+                       .UseStartup<Startup>();
                 });
             
                 //.ConfigureServices(services => services.AddHostedService<CStatBkgService>());

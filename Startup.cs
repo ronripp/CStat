@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.AspNetCore.Http.Features;
 using CStat.Common;
+using Microsoft.AspNetCore.Authentication.Cookies;
 //using System.Diagnostics;
 //using Microsoft.AspNetCore.DataProtection;
 //using System.IO;
@@ -41,11 +42,6 @@ namespace CStat
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //// Allow credentials to persist by ensure same machine key. May causes problem with Dev / Rel mode
-            //services.AddDataProtection()
-            //    .SetApplicationName($"my-app-{WebHostEnv.EnvironmentName}")
-            //    .PersistKeysToFileSystem(new DirectoryInfo($@"{WebHostEnv.ContentRootPath}\keys"));
-
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -59,6 +55,11 @@ namespace CStat
             //            services.AddCors();
             //RJR            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //RJR                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.Configure<SecurityStampValidatorOptions>(options =>
+            {
+                options.ValidationInterval = TimeSpan.FromHours(1);
+            });
 
             services.AddRazorPages()
                 .AddRazorPagesOptions(options =>
@@ -112,6 +113,24 @@ namespace CStat
                 options.SlidingExpiration = true;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder
+                    //Allow host access from any source
+                    //Todo: the new CORS middleware has blocked allowing any origin, that is, setting allowanyorigin will not take effect
+                    //AllowAnyOrigin()
+                    //Set the domain allowed to access
+                    //Todo: Currently, there are bugs in. Net core 3.1, which can be temporarily solved by setisoriginallowed
+                    //.WithOrigins(Configuration["CorsConfig:Origin"])
+                    .SetIsOriginAllowed(t => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+                });
+            });
+
             services.AddHttpContextAccessor();
             services.AddControllers();
             //services.AddSingleton<IWorker, Worker>();
@@ -137,17 +156,22 @@ namespace CStat
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // after UseCors : app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
+            app.UseRouting();
+
+            app.UseCors();
             //app.UseCors(builder => builder
             //    .AllowAnyOrigin()
             //    .AllowAnyMethod()
             //    .AllowAnyHeader());
-            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseHttpsRedirection();
 
             app.UseEndpoints(endpoints =>
             {

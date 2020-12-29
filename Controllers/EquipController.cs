@@ -33,7 +33,7 @@ namespace CStat.Controllers
         public IEnumerable<string> Get()
         {
             string webRootPath = hostEnv.WebRootPath;
-            string newPath = Path.Combine(webRootPath, "tmpDBox");
+            string newPath = Path.Combine(webRootPath, "tmpDBox"); // Test
             if (!Directory.Exists(newPath))
                 Directory.CreateDirectory(newPath);
             string fullPath = Path.Combine(newPath, "EquipPost.txt");

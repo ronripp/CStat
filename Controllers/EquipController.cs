@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -73,7 +75,7 @@ namespace CStat.Controllers
             string fullPath = Path.Combine(newPath, "EquipPost.txt");
             using (StreamWriter sw = new StreamWriter(fullPath, true))
             {
-                sw.WriteLine("Posted from Arduino");
+                sw.WriteLine("Value=" + value);
                 sw.Close();
             }
             

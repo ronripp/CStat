@@ -131,6 +131,7 @@ namespace CStat
                 });
             });
 
+            services.AddControllers().AddNewtonsoftJson();
             services.AddHttpContextAccessor();
             services.AddControllers();
             //services.AddSingleton<IWorker, Worker>();

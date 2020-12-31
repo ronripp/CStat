@@ -128,7 +128,7 @@ namespace CStat.Controllers
         {
         }
 
-        static PropaneLevel GetTUPropaneLevel()
+        static PropaneLevel GetTUPropaneLevel() // Tank Utility Propane meter
         {
             var vals = EquipController.GetValues("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
 

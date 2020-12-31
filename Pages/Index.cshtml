@@ -141,7 +141,7 @@
 <body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
 
     @{
-        var dtLoc = DateTime.Now;
+        var dtLoc = DateTime.UtcNow;
         TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
         DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
         var curDT = dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM");

@@ -14,6 +14,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using CStat.Common;
+using System.Threading;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,6 +26,7 @@ namespace CStat.Controllers
     public class EquipController : ControllerBase
     {
         IWebHostEnvironment hostEnv;
+
 
         public EquipController (IWebHostEnvironment hstEnv)
         {
@@ -53,12 +55,12 @@ namespace CStat.Controllers
         public string Get(int id)
         {
             PropaneLevel pl = null;
-            var vals = EquipController.GetValues("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
+            var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
 
             string token = vals["token"];
             if (token != null)
             {
-                var readings = EquipController.GetValues("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
+                var readings = PropMgr.GetSiteProperties("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
 
                 double level;
                 double temp;
@@ -130,13 +132,13 @@ namespace CStat.Controllers
 
         static PropaneLevel GetTUPropaneLevel() // Tank Utility Propane meter
         {
-            var vals = EquipController.GetValues("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
+            var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
 
             string token = vals["token"];
             if (token == null)
                 return null;
 
-            var readings = EquipController.GetValues("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
+            var readings = PropMgr.GetSiteProperties("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
 
             double level;
             double temp;
@@ -147,54 +149,5 @@ namespace CStat.Controllers
             }
             return null;
         }
-
-        static Dictionary<string, string> GetValues(string url, string userName, string password, params string[] tokens)
-        {
-            List<string> names = tokens.ToList();
-            var dict = new Dictionary<string, string>();
-
-            WebRequest myReq = WebRequest.Create(url);
-            if ((userName != null) && (password != null))
-            {
-                string credentials = $"{userName}:{password}";
-                //CredentialCache mycache = new CredentialCache();
-                myReq.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
-            }
-            WebResponse wr = myReq.GetResponse();
-            Stream receiveStream = wr.GetResponseStream();
-            StreamReader reader = new StreamReader(receiveStream, Encoding.UTF8);
-            string content = reader.ReadToEnd();
-            var json = "[" + content + "]"; // change this to array
-            var objects = JArray.Parse(json); // parse as array  
-            int numFinds = names.Count();
-            foreach (JObject obj in objects.Children<JObject>())
-            {
-                if (EquipController.TraverseObject(obj, ref numFinds, names, dict))
-                    return dict;
-            }
-            return dict;
-        }
-
-        static bool TraverseObject (JObject obj, ref int numFinds, List<string> names, Dictionary<string, string> dict, string objPath="")
-        {
-            foreach (JProperty p in obj.Properties())
-            {
-                string fullName = (objPath.Length > 0) ? objPath + "." + p.Name : p.Name;
-                var nidx = names.FindIndex(n => (n == fullName));
-                if (nidx != -1)
-                {
-                    dict.Add(fullName, p.Value.ToString());
-                    names.RemoveAt(nidx);
-                    if (--numFinds == 0)
-                        return true;
-                }
-                if (p.Value.Type == JTokenType.Object)
-                {
-                    return TraverseObject(p.Value.ToObject<JObject>(), ref numFinds, names, dict, fullName);
-                }
-            }
-            return false;
-        }
-
     }
 }

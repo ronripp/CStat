@@ -854,7 +854,7 @@
                 let newCom = $("#NewComment").val();
                 if (!!newCom && newCom !== "<add a comment here>") {
 @{
-                    var dtLoc = DateTime.Now;
+                    var dtLoc = DateTime.UtcNow;
                     TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
                     DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
                     var AtIdx = User.Identity.Name.IndexOf("@");

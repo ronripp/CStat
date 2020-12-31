@@ -68,7 +68,7 @@ namespace CStat.Common
                 _logger.LogInformation("Scoped Processing Service completed pass. Count: {Count}", executionCount);
 
                 // Run again at 3:00 AM
-                DateTime now = DateTime.Now;
+                DateTime now = PropMgr.ESTNow;
                 DateTime tom = now.AddDays(1);
                 DateTime start = new DateTime(tom.Year, tom.Month, tom.Day, 3, 0, 0); // Restart at 3:00 AM tomorrow
                 int MSecsToStart = (int)Math.Round((start - now).TotalMilliseconds);

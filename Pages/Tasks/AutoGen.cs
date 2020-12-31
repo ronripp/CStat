@@ -34,7 +34,7 @@ namespace CStat.Pages.Tasks
                 List<CTask> curCreatedTasks = _context.Task.Include(t => t.Person).Where(t => (t.ParentTaskId == tmpl.Id)).ToList();
 
                 tmpl.GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
-                DateTime now = DateTime.Now;
+                DateTime now = PropMgr.ESTNow;
                 DateTime startTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
                 DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
                 DateRange lim = new DateRange(startTime, endTime);

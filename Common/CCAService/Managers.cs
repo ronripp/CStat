@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using static CStat.Models.Church;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using CStat.Common;
 
 namespace CStat
 {
@@ -1787,7 +1788,7 @@ namespace CStat
 
                 if (year < 100)
                 {
-                    int YNow = DateTime.Now.Year;
+                    int YNow = PropMgr.ESTNow.Year;
                     if (year > (YNow - 2000))
                         year += 1900;
                     else

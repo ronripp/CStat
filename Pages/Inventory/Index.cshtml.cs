@@ -29,13 +29,13 @@ namespace CStat
         public void GetEvents(DateTime chDate)
         {
             isSet = true;
-            eventRange = new DateRange(chDate.AddDays(1), DateTime.Now); //Skip "Last Item Changed" day but include today.
+            eventRange = new DateRange(chDate.AddDays(1), PropMgr.ESTNow); //Skip "Last Item Changed" day but include today.
             ascEvents = _context.Event.Where(e => !((e.StartTime > eventRange.End) || (e.EndTime < eventRange.Start))).OrderBy(ev => ev.StartTime).ToList(); //overlap full or part
         }
         public double getElapsedEventDays(DateTime chDate)
         {
             DateTime chDateP1 = chDate.AddDays(1);
-            var itemRange = new DateRange(chDateP1, DateTime.Now); //Skip "Last day item changed" day but include today.
+            var itemRange = new DateRange(chDateP1, PropMgr.ESTNow); //Skip "Last day item changed" day but include today.
             if (!isSet || (eventRange.Start > chDateP1))
                 GetEvents(chDate);
 
@@ -255,7 +255,7 @@ namespace CStat
                 string[] StateStr = { "ok", "NEEDED", "NEEDED", "Not Checked" };
 
                 string report = "";
-                DateTime Now = DateTime.Now;
+                DateTime Now = PropMgr.ESTNow;
                 string subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
                 report += subject + "\n--------------------------------\n";
                 foreach (var i in InventoryItems)
@@ -297,7 +297,7 @@ namespace CStat
                     if (invItem.State == INV_STATE)
                         invItem.State = STOCKED_STATE;
                     invItem.CurrentStock = Math.Max(invItmStk.stock, (float)0);
-                    invItem.Date = DateTime.Now;
+                    invItem.Date = PropMgr.ESTNow;
                 }
                 _context.Attach(invItem).State = EntityState.Modified;
 

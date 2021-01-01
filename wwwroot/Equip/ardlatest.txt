@@ -1,0 +1,1 @@
+freezerTemp:21,frigTemp:102,waterPres:48

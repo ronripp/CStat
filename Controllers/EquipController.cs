@@ -98,18 +98,11 @@ namespace CStat.Controllers
         [HttpPost]
         public HttpResponseMessage Post([FromBody] string raw)
         {
-            string webRootPath = hostEnv.WebRootPath;
-            string newPath = Path.Combine(webRootPath, "tmpDBox");
-            if (!Directory.Exists(newPath))
-                Directory.CreateDirectory(newPath);
-            string fullPath = Path.Combine(newPath, "EquipPost.txt");
+            ArdMgr ardMgr = new ArdMgr(hostEnv);
+            ardMgr.Set(raw);
 
-            using (StreamWriter sw = new StreamWriter(fullPath, true))
-            {
-                sw.WriteLine("Value=" + raw);
-                sw.Close();
-            }
-            
+            ArdRecord ar = ardMgr.GetLast();
+
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("Response from CStat PUT", System.Text.Encoding.UTF8, "text/plain"),

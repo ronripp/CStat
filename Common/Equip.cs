@@ -66,7 +66,7 @@ namespace CStat.Common
             FullAll = Path.Combine(newPath, "ardall.txt");
         }
 
-        int Set(string jsonStr)
+        public int Set(string jsonStr)
         {
             if (ArdMgr.fLock.TryEnterWriteLock(100))
             {
@@ -102,7 +102,7 @@ namespace CStat.Common
                 return -2;
             }
         }
-        ArdRecord GetLast()
+        public ArdRecord GetLast()
         {
             if (ArdMgr.fLock.TryEnterWriteLock(100))
             {
@@ -110,11 +110,16 @@ namespace CStat.Common
                 {
                     using (StreamReader sr = new StreamReader(FullLatest, System.Text.Encoding.UTF8))
                     {
-                        string latest = sr.ReadToEnd();
-                        Dictionary<string, string> props = PropMgr.GetProperties(latest, "freezerTemp", "frigTemp", "waterPres");
+                        string raw = sr.ReadToEnd();
                         sr.Close();
-                        return new ArdRecord(props["freezerTemp"], props["frigTemp"], props["waterPres"], PropMgr.ESTNow());
+                        if (raw.Length > 20)
+                        {
+                            string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                            Dictionary<string, string> props = PropMgr.GetProperties(latest, "freezerTemp", "frigTemp", "waterPres");
+                            return new ArdRecord(props["freezerTemp"], props["frigTemp"], props["waterPres"], PropMgr.ESTNow);
+                        }
                     }
+                    return null;
                 }
                 catch
                 {
@@ -132,7 +137,7 @@ namespace CStat.Common
             }
         }
 
-        ArdRecord[] Get(DateTime startDT, DateTime endDT)
+        public ArdRecord[] Get(DateTime startDT, DateTime endDT)
         {
             return null;
         }

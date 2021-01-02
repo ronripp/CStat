@@ -1,0 +1,74 @@
+﻿@page
+@model CStat.Pages.EquipModel
+@using CTask = CStat.Common;
+@{
+    ViewData["Title"] = "Equip";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Equipment
+            </th>
+            <th>
+                Measurement
+            </th>
+            <th>
+                Taken
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var lastArd = Model.GetLastArd();
+            var prTank = Model.GetLastTUTank();
+        }
+
+        <tr>
+            <td>
+                Walk-in Freezer
+            </td>
+            <td>
+                <b>@lastArd.FreezerTempF.ToString("0.#")</b> F
+            </td>
+            <td>
+                @lastArd.TimeStampStr()
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                Walk-in Frig.
+            </td>
+            <td>
+                <b>@lastArd.FridgeTempF.ToString("0.#")</b> F
+            </td>
+            <td>
+                @lastArd.TimeStampStr()
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Propane Tank
+            </td>
+            <td>
+                <b>@prTank.LevelPct.ToString("0.#")</b> %
+            </td>
+            <td>
+                @prTank.ReadingTimeStr()
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Water Plumbing
+            </td>
+            <td>
+                <b>@lastArd.WaterPress.ToString("0.#")</b> psi
+            </td>
+            <td>
+                @lastArd.TimeStampStr()
+            </td>
+        </tr>
+    </tbody>
+</table>

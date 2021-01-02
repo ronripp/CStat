@@ -46,6 +46,7 @@ namespace CStat.Models
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<TransactionItems> TransactionItems { get; set; }
+        public object CTask { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

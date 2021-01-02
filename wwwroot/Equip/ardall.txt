@@ -2,3 +2,4 @@ freezerTemp:21,frigTemp:102,waterPres:48
 freezerTemp:21,frigTemp:102,waterPres:48
 freezerTemp:21,frigTemp:102,waterPres:48
 freezerTemp:21,frigTemp:102,waterPres:48
+freezerTemp:21,frigTemp:102,waterPres:48,time:"1/1/21 6:53:37 PM"

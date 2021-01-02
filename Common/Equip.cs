@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,9 +21,14 @@ namespace CStat.Common
             OutsideTempF = outsideTempF;
         }
 
-        public double OutsideTempF = -40;
-        public double LevelPct = 0;
-        public DateTime ReadingTime;
+        public String ReadingTimeStr()
+        {
+            return ReadingTime.ToString("M/d/yy h:mm:ss tt");
+        }
+
+        public double OutsideTempF { get; set; } = -40;
+        public double LevelPct { get; set; } = 0;
+        public DateTime ReadingTime { get; set; }
     }
 
     public class ArdRecord
@@ -36,24 +42,35 @@ namespace CStat.Common
         }
         public ArdRecord(string freezerTempF, string fridgeTempF, string waterPress, DateTime timeStamp)
         {
-            double.TryParse(freezerTempF, out FreezerTempF);
-            double.TryParse(fridgeTempF, out FridgeTempF);
-            double.TryParse(waterPress, out WaterPress);
+            double _FreezerTempF = FreezerTempF;
+            if (double.TryParse(freezerTempF, out _FreezerTempF))
+                FreezerTempF = _FreezerTempF;
+            double _FridgeTempF = FridgeTempF;
+            if (double.TryParse(fridgeTempF, out _FridgeTempF))
+                FridgeTempF = _FridgeTempF;
+            double _WaterPress = WaterPress;
+            if (double.TryParse(waterPress, out _WaterPress))
+                WaterPress = _WaterPress;
             TimeStamp = timeStamp;
         }
 
-        public double FreezerTempF = -40;
-        public double FridgeTempF = -40;
-        public double WaterPress = 0;
-        public DateTime TimeStamp;
+        public String TimeStampStr()
+        {
+            return TimeStamp.ToString("M/d/yy h:mm:ss tt");
+        }
+
+        public double FreezerTempF { get; set; } = -40;
+        public double FridgeTempF { get; set; } = -40;
+        public double WaterPress { get; set; } = 0;
+        public DateTime TimeStamp { get; set; }
     }
 
     public class ArdMgr
     {
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
         private IWebHostEnvironment HostEnv;
-        string FullLatest = "";
-        string FullAll = "";
+        private string FullLatest = "";
+        private string FullAll = "";
 
         public ArdMgr(IWebHostEnvironment hostEnv)
         {
@@ -73,16 +90,18 @@ namespace CStat.Common
                 int retVal = -2;
                 try
                 {
+                    string fullJSON = jsonStr + ",time:\"" + PropMgr.ESTNowStr + "\"";
+
                     using (StreamWriter sw = new StreamWriter(FullLatest, false))
                     {
-                        sw.WriteLine(jsonStr);
+                        sw.WriteLine(fullJSON);
                         sw.Close();
 
                     }
 
                     using (StreamWriter sw = new StreamWriter(FullAll, true))
                     {
-                        sw.WriteLine(jsonStr);
+                        sw.WriteLine(fullJSON);
                         sw.Close();
                         retVal = 1;
                     }
@@ -115,8 +134,8 @@ namespace CStat.Common
                         if (raw.Length > 20)
                         {
                             string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
-                            Dictionary<string, string> props = PropMgr.GetProperties(latest, "freezerTemp", "frigTemp", "waterPres");
-                            return new ArdRecord(props["freezerTemp"], props["frigTemp"], props["waterPres"], PropMgr.ESTNow);
+                            Dictionary<string, string> props = PropMgr.GetProperties(latest, "freezerTemp", "frigTemp", "waterPres", "time");
+                            return new ArdRecord(props["freezerTemp"], props["frigTemp"], props["waterPres"], PropMgr.ParseEST(props["time"]));
                         }
                     }
                     return null;
@@ -141,11 +160,29 @@ namespace CStat.Common
         {
             return null;
         }
+    }
 
-        double FreezerTempF;
-        double FridgeTempF;
-        double WaterPress;
-        DateTime TimeStamp;
+    public static class PropaneMgr
+    {
+        public static PropaneLevel GetTUTank() // Tank Utility Propane meter
+        {
+            var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
+
+            string token = vals["token"];
+            if (token == null)
+                return null;
+
+            var readings = PropMgr.GetSiteProperties("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
+
+            double level;
+            double temp;
+            DateTime readTime;
+            if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
+            {
+                return new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+            }
+            return null;
+        }
     }
 
     public static class PropMgr
@@ -209,6 +246,27 @@ namespace CStat.Common
                 var timeUtc = DateTime.UtcNow;
                 TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
                 return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, easternZone);
+            }
+        }
+
+        public static DateTime ParseEST(string ESTStr)
+        {
+            return DateTime.ParseExact(ESTStr, "M/d/yy h:mm:ss tt", CultureInfo.InvariantCulture);
+        }
+
+        public static DateTime UTCtoEST(DateTime utcDT)
+        {
+            TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            return TimeZoneInfo.ConvertTimeFromUtc(utcDT, easternZone);
+        }
+
+        public static string ESTNowStr
+        {
+            get
+            {
+                var timeUtc = DateTime.UtcNow;
+                TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, easternZone).ToString("M/d/yy h:mm:ss tt");
             }
         }
     }

@@ -137,7 +137,10 @@ namespace CStat
             //services.AddSingleton<IWorker, Worker>();
             services.AddHostedService<CSBkgService>();
             services.AddScoped<IScopedProcessingService, CSProcService>();
-
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(1);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -173,6 +176,8 @@ namespace CStat
             app.UseAuthorization();
 
             app.UseHttpsRedirection();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

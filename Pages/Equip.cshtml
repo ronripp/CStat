@@ -5,70 +5,117 @@
     ViewData["Title"] = "Equip";
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Equipment
-            </th>
-            <th>
-                Measurement
-            </th>
-            <th>
-                Taken
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            var lastArd = Model.GetLastArd();
-            var prTank = Model.GetLastTUTank();
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
+    <style>
+        #container {
+            background-color: black;
+            color: greenyellow;
+            padding: 0px;
         }
 
-        <tr>
-            <td>
-                Walk-in Freezer
-            </td>
-            <td>
-                <b>@lastArd.FreezerTempF.ToString("0.#")</b> F
-            </td>
-            <td>
-                @lastArd.TimeStampStr()
-            </td>
-        </tr>
-        <tr>
+        .erow {
+            height: 12px;
+            max-height: 12px;
+        }
+    </style>
 
-            <td>
-                Walk-in Frig.
-            </td>
-            <td>
-                <b>@lastArd.FridgeTempF.ToString("0.#")</b> F
-            </td>
-            <td>
-                @lastArd.TimeStampStr()
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Propane Tank
-            </td>
-            <td>
-                <b>@prTank.LevelPct.ToString("0.#")</b> %
-            </td>
-            <td>
-                @prTank.ReadingTimeStr()
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Water Plumbing
-            </td>
-            <td>
-                <b>@lastArd.WaterPress.ToString("0.#")</b> psi
-            </td>
-            <td>
-                @lastArd.TimeStampStr()
-            </td>
-        </tr>
-    </tbody>
-</table>
+
+    <script>
+
+
+        function setRowHeight() {
+
+            let hdrDiv = document.querySelector("header");
+            let ftrDiv = document.querySelector("footer");
+            let hfHeight = 0;
+            if (!!hdrDiv) {
+                hfHeight += hdrDiv.clientHeight;
+            }
+            if (!!ftrDiv) {
+                hfHeight += ftrDiv.clientHeight;
+            }
+            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
+            let tblHeight = totH - hfHeight; 
+            let rowHeight = Math.round(tblHeight / 5)-4;
+            $(".erow").css("max-height", rowHeight + "px");
+            $(".erow").css("height", rowHeight + "px");
+        }
+
+    </script>
+
+</head>
+<body onload="setRowHeight()" onresize="setRowHeight()" bgcolor="black" margin="0">
+    <table class="table" id="container">
+        <tbody>
+            @{
+                var lastArd = Model.GetLastArd();
+                var prTank = Model.GetLastTUTank();
+            }
+
+            <tr class="erow">
+                <td class="erow">
+                    Walk-in Freezer
+                </td>
+                <td class="erow">
+                    <b>@lastArd.FreezerTempF.ToString("0.#")</b> F
+                </td>
+                <td class="erow">
+                    @lastArd.TimeStampStr()
+                </td>
+            </tr>
+            <tr class="erow">
+
+                <td>
+                    Walk-in Frig.
+                </td>
+                <td>
+                    <b>@lastArd.FridgeTempF.ToString("0.#")</b> F
+                </td>
+                <td>
+                    @lastArd.TimeStampStr()
+                </td>
+            </tr>
+            <tr  class="erow">
+                <td>
+                    Propane Tank
+                </td>
+                <td>
+                    <b>@prTank.LevelPct.ToString("0.#")</b> %
+                </td>
+                <td>
+                    @prTank.ReadingTimeStr()
+                </td>
+            </tr>
+            <tr class="erow">
+                <td>
+                    Water Plumbing
+                </td>
+                <td>
+                    <b>@lastArd.WaterPress.ToString("0.#")</b> psi
+                </td>
+                <td>
+                    @lastArd.TimeStampStr()
+                </td>
+            </tr>
+            <tr class="erow">
+                <td>
+                    Water Plumbing
+                </td>
+                <td>
+                    <b>@lastArd.WaterPress.ToString("0.#")</b> psi
+                </td>
+                <td>
+                    @lastArd.TimeStampStr()
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</body>

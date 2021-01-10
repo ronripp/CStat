@@ -34,6 +34,11 @@ namespace CStat.Areas.Identity
                     options.SlidingExpiration = true;
                 });
 
+                services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromHours(1);
+                });
+
             });
         }
     }

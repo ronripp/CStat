@@ -1,1 +1,1 @@
-freezerTemp:21,frigTemp:102,waterPres:48,time:"1/1/21 6:53:37 PM"
+freezerTemp:28,frigTemp:102,waterPres:45,time:"1/6/21 9:53:23 PM"

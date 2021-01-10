@@ -18,13 +18,20 @@ namespace CStat.Pages
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment _hostEnv;
         private readonly ArdMgr _ardMgr;
-
+        private ArdRecord _ar;
+        private PropaneLevel _pl;
 
         public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv)
         {
             _context = context;
             _hostEnv = hostEnv;
             _ardMgr = new ArdMgr(_hostEnv);
+            _ar = _ardMgr.GetLast();
+            if (_ar == null)
+                _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
+            _pl = PropaneMgr.GetTUTank();
+            if (_pl == null)
+                _pl = new PropaneLevel(0, PropMgr.ESTNow, -40);
         }
 
         public IList<CTask> Task { get;set; }
@@ -44,12 +51,20 @@ namespace CStat.Pages
 
         public ArdRecord GetLastArd()
         {
-            return _ardMgr.GetLast();
+            _ar = _ardMgr.GetLast();
+            if (_ar == null)
+                _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
+            return _ar;
         }
 
         public PropaneLevel GetLastTUTank()
         {
-            return PropaneMgr.GetTUTank();
+            return _pl;
         }
+        public string GetColorClass(string propStr)
+        {
+            return _ar.GetColor(propStr, true, _pl);
+        }
+
     }
 }

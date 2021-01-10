@@ -3,6 +3,8 @@
 @using CTask = CStat.Common;
 @{
     ViewData["Title"] = "Equip";
+    Layout = "_LayoutEquip";
+
 }
 
 <head>
@@ -24,11 +26,29 @@
             height: 12px;
             max-height: 12px;
         }
+
+        #container td {
+            vertical-align: middle;
+        }
+
+        .greenClass {
+            background-color: black;
+            color: greenyellow;
+        }
+
+        .yellowClass {
+            background-color: yellow;
+            color: black;
+        }
+
+        .redClass {
+            background-color: red;
+            color: black;
+        }
+
     </style>
 
-
     <script>
-
 
         function setRowHeight() {
 
@@ -43,7 +63,7 @@
             }
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
             let tblHeight = totH - hfHeight; 
-            let rowHeight = Math.round(tblHeight / 5)-4;
+            let rowHeight = Math.round(tblHeight / 5)-12;
             $(".erow").css("max-height", rowHeight + "px");
             $(".erow").css("height", rowHeight + "px");
         }
@@ -51,7 +71,7 @@
     </script>
 
 </head>
-<body onload="setRowHeight()" onresize="setRowHeight()" bgcolor="black" margin="0">
+<body onload="setRowHeight()" onresize="setRowHeight()">
     <table class="table" id="container">
         <tbody>
             @{
@@ -60,13 +80,13 @@
             }
 
             <tr class="erow">
-                <td class="erow">
+                <td>
                     Walk-in Freezer
                 </td>
-                <td class="erow">
-                    <b>@lastArd.FreezerTempF.ToString("0.#")</b> F
+                <td>
+                    <span class="@Model.GetColorClass("FreezerTempF")"><b>@lastArd.FreezerTempF.ToString("0.#")</b> F</span>
                 </td>
-                <td class="erow">
+                <td>
                     @lastArd.TimeStampStr()
                 </td>
             </tr>
@@ -76,7 +96,7 @@
                     Walk-in Frig.
                 </td>
                 <td>
-                    <b>@lastArd.FridgeTempF.ToString("0.#")</b> F
+                    <span class="@Model.GetColorClass("FridgeTempF")"><b>@lastArd.FridgeTempF.ToString("0.#")</b> F</span>
                 </td>
                 <td>
                     @lastArd.TimeStampStr()
@@ -87,7 +107,7 @@
                     Propane Tank
                 </td>
                 <td>
-                    <b>@prTank.LevelPct.ToString("0.#")</b> %
+                    <span class="@Model.GetColorClass("PropaneLevel")"><b>@prTank.LevelPct.ToString("0.#")</b> %</span>
                 </td>
                 <td>
                     @prTank.ReadingTimeStr()
@@ -98,7 +118,7 @@
                     Water Plumbing
                 </td>
                 <td>
-                    <b>@lastArd.WaterPress.ToString("0.#")</b> psi
+                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b> psi</span>
                 </td>
                 <td>
                     @lastArd.TimeStampStr()
@@ -106,10 +126,10 @@
             </tr>
             <tr class="erow">
                 <td>
-                    Water Plumbing
+                    Electric Power
                 </td>
                 <td>
-                    <b>@lastArd.WaterPress.ToString("0.#")</b> psi
+                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b>kwh</span>
                 </td>
                 <td>
                     @lastArd.TimeStampStr()

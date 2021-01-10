@@ -33,14 +33,15 @@ namespace CStat.Common
 
     public class ArdRecord
     {
-        public ArdRecord(double freezerTempF, double fridgeTempF, double waterPress, DateTime timeStamp)
+        public ArdRecord(double freezerTempF, double fridgeTempF, double kitchTempF, double waterPress, DateTime timeStamp)
         {
             FreezerTempF = freezerTempF;
             FridgeTempF = fridgeTempF;
+            KitchTempF = kitchTempF;
             WaterPress = waterPress;
             TimeStamp = timeStamp;
         }
-        public ArdRecord(string freezerTempF, string fridgeTempF, string waterPress, DateTime timeStamp)
+        public ArdRecord(string freezerTempF, string fridgeTempF, string kitchTempF, string waterPress, DateTime timeStamp)
         {
             double _FreezerTempF = FreezerTempF;
             if (double.TryParse(freezerTempF, out _FreezerTempF))
@@ -48,6 +49,9 @@ namespace CStat.Common
             double _FridgeTempF = FridgeTempF;
             if (double.TryParse(fridgeTempF, out _FridgeTempF))
                 FridgeTempF = _FridgeTempF;
+            double _KitchTempF = KitchTempF;
+            if (double.TryParse(kitchTempF, out _KitchTempF))
+                KitchTempF = _KitchTempF;
             double _WaterPress = WaterPress;
             if (double.TryParse(waterPress, out _WaterPress))
                 WaterPress = _WaterPress;
@@ -58,9 +62,74 @@ namespace CStat.Common
         {
             return TimeStamp.ToString("M/d/yy h:mm:ss tt");
         }
+        public string GetColor(string propName, bool returnClass = true, PropaneLevel prLevel = null)
+        {
+            string color;
+            switch (propName)
+            {
+                case "FreezerTempF":
+                    if (FreezerTempF > 30)
+                        color = "red";
+                    else if (FreezerTempF > 20)
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                case "FridgeTempF":
+                    if ((FridgeTempF > 40) || (FridgeTempF < 33))
+                        color = "red";
+                    else if ((FridgeTempF < 35) || (FridgeTempF > 39))
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                case "KitchTempF":
+                    if ((KitchTempF < 45) || (KitchTempF > 90))
+                        color = "red";
+                    else if ((KitchTempF < 50) || (KitchTempF > 85))
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                case "WaterPress":
+                    if ((WaterPress > 55) || (WaterPress < 35))
+                        color = "red";
+                    else if ((WaterPress > 50) || (WaterPress < 40))
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                case "PropaneLevel":
+                    if ((prLevel != null) && (prLevel.LevelPct <= 15))
+                        color = "red";
+                    else if ((prLevel != null) && (prLevel.LevelPct <= 20))
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                case "All":
+                    if ((FreezerTempF > 30) || (FridgeTempF > 40) || (FridgeTempF < 33) || (KitchTempF > 90))
+                        color = "red";
+                    else if ((prLevel != null) && (prLevel.LevelPct <= 15))
+                        color = "red";
+                    else if ((FreezerTempF > 20) || (FridgeTempF < 35) || (FridgeTempF > 39) || (KitchTempF > 85))
+                        color = "yellow";
+                    else if ((prLevel != null) && (prLevel.LevelPct <= 20))
+                        color = "yellow";
+                    else
+                        color = "green";
+                    break;
+                default:
+                    color = "green";
+                    break;
+            }
+            return returnClass ? color + "Class" : color;
+        }
+
 
         public double FreezerTempF { get; set; } = -40;
         public double FridgeTempF { get; set; } = -40;
+        public double KitchTempF { get; set; } = -40;
         public double WaterPress { get; set; } = 0;
         public DateTime TimeStamp { get; set; }
     }
@@ -81,6 +150,11 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             FullLatest = Path.Combine(newPath, "ardlatest.txt");
             FullAll = Path.Combine(newPath, "ardall.txt");
+        }
+
+        public string CheckValues(string jsonStr)
+        {
+            return "";
         }
 
         public int Set(string jsonStr)
@@ -134,8 +208,21 @@ namespace CStat.Common
                         if (raw.Length > 20)
                         {
                             string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
-                            Dictionary<string, string> props = PropMgr.GetProperties(latest, "freezerTemp", "frigTemp", "waterPres", "time");
-                            return new ArdRecord(props["freezerTemp"], props["frigTemp"], props["waterPres"], PropMgr.ParseEST(props["time"]));
+                            Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                                "freezerTemp",
+                                "frigTemp",
+                                "kitchTemp",
+                                "waterPres",
+                                "time"
+                                );
+
+                            DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
+
+                            return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : "-40",
+                                                 props.ContainsKey("frigTemp") ? props["frigTemp"] : "-40",
+                                                 props.ContainsKey("kitchTemp") ? props["kitchTemp"] : "-40",
+                                                 props.ContainsKey("waterPres") ? props["waterPres"] : "-40",
+                                                 arTime);
                         }
                     }
                     return null;
@@ -269,5 +356,22 @@ namespace CStat.Common
                 return TimeZoneInfo.ConvertTimeFromUtc(timeUtc, easternZone).ToString("M/d/yy h:mm:ss tt");
             }
         }
+
+        public static DateTime MissingDT
+        {
+            get
+            {
+                return DateTime.ParseExact("1/1/1900 12:00:00 AM", "M/d/yy h:mm:ss tt", CultureInfo.CurrentCulture);
+            }
+        }
+
+        public static string MissingDTStr
+        {
+            get
+            {
+                return "1/1/1900 12:00:00 AM";
+            }
+        }
+
     }
 }

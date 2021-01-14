@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+    <script type="text/javascript" src="jquery.svg.js"></script>
 
     <style>
         #container {
@@ -27,28 +28,55 @@
             max-height: 12px;
         }
 
-        #container td {
+        #container td, #container th {
             vertical-align: middle;
+            padding: 3px;
+        }
+
+        .table td, .table th {
+            padding: .75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .eqTitle {
+            font-size: 1.2em;
+            background-color: black;
+            color: #E8FFC0;
+        }
+
+        .eqDateTime {
+            white-space: pre-line;
         }
 
         .greenClass {
+            padding-left: 3px;
+            padding-right: 3px;
+            font-size: 1.5em;
             background-color: black;
             color: greenyellow;
         }
 
         .yellowClass {
+            padding-left: 3px;
+            padding-right: 3px;
+            font-size: 1.5em;
             background-color: yellow;
             color: black;
         }
 
         .redClass {
+            padding-left: 3px;
+            padding-right: 3px;
+            font-size: 1.5em;
             background-color: red;
             color: black;
         }
-
     </style>
 
     <script>
+
+        var gRowHeight = 0;
 
         function setRowHeight() {
 
@@ -61,77 +89,125 @@
             if (!!ftrDiv) {
                 hfHeight += ftrDiv.clientHeight;
             }
+            let totW = $("#tbodyId").width();
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
-            let tblHeight = totH - hfHeight; 
-            let rowHeight = Math.round(tblHeight / 5)-12;
-            $(".erow").css("max-height", rowHeight + "px");
-            $(".erow").css("height", rowHeight + "px");
+            let tblHeight = totH - hfHeight;
+            gRowHeight = Math.round(tblHeight / 5) - 12;
+            $(".erow").css("max-height", gRowHeight + "px");
+            $(".erow").css("height", gRowHeight + "px");
+
+            let w = 150;
+            if (totW > 500) {
+                w += Math.min(250, totW - 500);
+            }
+            console.log("w=" + w);
+            $(".ChartSVG").each(function (index) {
+                $(this).width(w);
+                $(this).height(Math.max(100, gRowHeight - 26));
+            });
+            $(".ChartRect").each(function (index) {
+                $(this).width(w);
+                $(this).height(Math.max(100, gRowHeight - 26));
+            });
         }
+
+        screen.orientation.addEventListener("change", function (e) { setRowHeight(); }, false);
+
+        $(document).ready(function () {
+
+         
+
+        });
 
     </script>
 
 </head>
 <body onload="setRowHeight()" onresize="setRowHeight()">
     <table class="table" id="container">
-        <tbody>
+        <tbody id="tbodyId">
             @{
                 var lastArd = Model.GetLastArd();
                 var prTank = Model.GetLastTUTank();
             }
 
             <tr class="erow">
-                <td>
+                <td class="eqTitle">
                     Walk-in Freezer
                 </td>
                 <td>
-                    <span class="@Model.GetColorClass("FreezerTempF")"><b>@lastArd.FreezerTempF.ToString("0.#")</b> F</span>
+                    <span class="@Model.GetColorClass("FreezerTempF")"><b>@lastArd.FreezerTempF.ToString("0.#")</b></span> F
                 </td>
                 <td>
+                    <svg class="ChartSVG" width="150" height="20">
+                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
+                    </svg>
+                </td>
+                <td class="eqDateTime">
                     @lastArd.TimeStampStr()
                 </td>
             </tr>
             <tr class="erow">
 
-                <td>
+                <td class="eqTitle">
                     Walk-in Frig.
                 </td>
                 <td>
-                    <span class="@Model.GetColorClass("FridgeTempF")"><b>@lastArd.FridgeTempF.ToString("0.#")</b> F</span>
+                    <span class="@Model.GetColorClass("FridgeTempF")"><b>@lastArd.FridgeTempF.ToString("0.#")</b></span> F
                 </td>
                 <td>
+                    <svg class="ChartSVG" width="150" height="20">
+                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
+                    </svg>
+                </td>
+                <td class="eqDateTime">
                     @lastArd.TimeStampStr()
                 </td>
             </tr>
-            <tr  class="erow">
-                <td>
+            <tr class="erow">
+                <td class="eqTitle">
                     Propane Tank
                 </td>
                 <td>
-                    <span class="@Model.GetColorClass("PropaneLevel")"><b>@prTank.LevelPct.ToString("0.#")</b> %</span>
+                    <span class="@Model.GetColorClass("PropaneLevel")"><b>@prTank.LevelPct.ToString("0.#")</b></span> %
                 </td>
                 <td>
+                    <svg class="ChartSVG" width="150" height="20">
+                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
+                    </svg>
+                </td>
+                <td class="eqDateTime">
                     @prTank.ReadingTimeStr()
                 </td>
             </tr>
             <tr class="erow">
-                <td>
+                <td class="eqTitle">
                     Water Plumbing
                 </td>
                 <td>
-                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b> psi</span>
+                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b></span> psi
                 </td>
                 <td>
+                    <svg class="ChartSVG" width="150" height="20">
+                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
+                    </svg>
+                </td>
+                <td class="eqDateTime">
                     @lastArd.TimeStampStr()
                 </td>
             </tr>
             <tr class="erow">
-                <td>
+                <td class="eqTitle">
                     Electric Power
                 </td>
                 <td>
-                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b>kwh</span>
+                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b></span> kwh
                 </td>
                 <td>
+                    <svg class="ChartSVG" width="150" height="20">
+                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
+                    </svg>
+                </td>
+                <td class="eqDateTime">
                     @lastArd.TimeStampStr()
                 </td>
             </tr>

@@ -23,7 +23,7 @@ namespace CStat.Common
 
         public String ReadingTimeStr()
         {
-            return ReadingTime.ToString("M/d/yy h:mm:ss tt");
+            return ReadingTime.ToString("M/d/yy h:mmt");
         }
 
         public double OutsideTempF { get; set; } = -40;
@@ -60,7 +60,7 @@ namespace CStat.Common
 
         public String TimeStampStr()
         {
-            return TimeStamp.ToString("M/d/yy h:mm:ss tt");
+            return TimeStamp.ToString("M/d/yy h:mmt");
         }
         public string GetColor(string propName, bool returnClass = true, PropaneLevel prLevel = null)
         {

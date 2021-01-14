@@ -91,8 +91,10 @@
             }
             let totW = $("#tbodyId").width();
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
-            let tblHeight = totH - hfHeight;
-            gRowHeight = Math.round(tblHeight / 5) - 12;
+            let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
+            let h = Math.round(totH - (1.6 * hdrH));
+            gRowHeight = Math.round(h / 5) - 12;
+
             $(".erow").css("max-height", gRowHeight + "px");
             $(".erow").css("height", gRowHeight + "px");
 
@@ -103,11 +105,11 @@
             console.log("w=" + w);
             $(".ChartSVG").each(function (index) {
                 $(this).width(w);
-                $(this).height(Math.max(100, gRowHeight - 26));
+                $(this).height(Math.max(30, Math.min(100, gRowHeight - 26)));
             });
             $(".ChartRect").each(function (index) {
                 $(this).width(w);
-                $(this).height(Math.max(100, gRowHeight - 26));
+                $(this).height(Math.max(30, Math.min(100, gRowHeight - 26)));
             });
         }
 

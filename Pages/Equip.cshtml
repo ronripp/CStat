@@ -8,7 +8,8 @@
 }
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+    <meta name="viewport" content="width=device-width, minimal-ui">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -80,20 +81,23 @@
 
         function setRowHeight() {
 
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen() }
+
             let hdrDiv = document.querySelector("header");
-            let ftrDiv = document.querySelector("footer");
+            //let ftrDiv = document.querySelector("footer");
             let hfHeight = 0;
             if (!!hdrDiv) {
                 hfHeight += hdrDiv.clientHeight;
             }
-            if (!!ftrDiv) {
-                hfHeight += ftrDiv.clientHeight;
-            }
+            //if (!!ftrDiv) {
+            //    hfHeight += ftrDiv.clientHeight;
+            //}
             let totW = $("#tbodyId").width();
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
             let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
             let h = Math.round(totH - (1.6 * hdrH));
-            gRowHeight = Math.round(h / 5) - 12;
+            gRowHeight = Math.round(h / 5.5) - 12;
 
             $(".erow").css("max-height", gRowHeight + "px");
             $(".erow").css("height", gRowHeight + "px");
@@ -102,7 +106,7 @@
             if (totW > 500) {
                 w += Math.min(250, totW - 500);
             }
-            console.log("w=" + w);
+
             $(".ChartSVG").each(function (index) {
                 $(this).width(w);
                 $(this).height(Math.max(30, Math.min(100, gRowHeight - 26)));
@@ -117,7 +121,8 @@
 
         $(document).ready(function () {
 
-         
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen() }
 
         });
 

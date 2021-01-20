@@ -18,16 +18,17 @@ namespace CStat.Common
     }
         internal class CSProcService : IScopedProcessingService
     {
-        private int executionCount = 0;
         private readonly ILogger _logger;
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
+        private readonly CSSettings _csSettings;
 
         public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
             _configuration = configuration;
+            _csSettings = new CSSettings(_configuration);
         }
 
         public async Task DoWork(CancellationToken stoppingToken)
@@ -50,6 +51,8 @@ namespace CStat.Common
                             try
                             {
                                 _context.SaveChanges();
+                                _csSettings.LastStockUpdate = PropMgr.ESTNow;
+                                _csSettings.Save();
                             }
                             catch (DbUpdateConcurrencyException)
                             {
@@ -61,11 +64,11 @@ namespace CStat.Common
 
                 // Check for new Tasks
                 AutoGen ag = new AutoGen(_context);
+                _csSettings.LastTaskUpdate = PropMgr.ESTNow;
+                _csSettings.Save();
                 ag.GenTasks();
 
-                Interlocked.Increment(ref executionCount);
-
-                _logger.LogInformation("Scoped Processing Service completed pass. Count: {Count}", executionCount);
+                 _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
 
                 // Run again at 3:00 AM
                 DateTime now = PropMgr.ESTNow;

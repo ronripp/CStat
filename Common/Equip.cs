@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,22 @@ namespace CStat.Common
         public double OutsideTempF { get; set; } = -40;
         public double LevelPct { get; set; } = 0;
         public DateTime ReadingTime { get; set; }
+    }
+
+    public class EquipProp
+    {
+        public enum EquipUnitsType { TemperatureF=0x10, TemperatureC=0x11, PSI=0x20, KWH = 0x30, PercentFull=0x40}
+        public string Title { get; set; }
+        public string PropName { get; set; }
+        public int EquipUnits { get; set; } // TBD enums with serialization with stable, supported api
+        public double ChartBottom { get; set; }
+        public double ChartTop { get; set; }
+        public double GreenBottom { get; set; }
+        public double GreenTop { get; set; }
+        public double RedBottom { get; set; }
+        public double RedTop { get; set; }
+
+        public double MinsPerSample { get; set; }
     }
 
     public class ArdRecord

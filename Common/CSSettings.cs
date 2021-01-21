@@ -11,8 +11,14 @@ namespace CStat.Common
 {
     public class CSSettings
     {
+        private readonly IConfiguration _config;
+
+        public CSSettings()
+        {
+        }
         public CSSettings (IConfiguration config)
         {
+            _config = config;
             var csect = config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");

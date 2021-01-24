@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -34,18 +38,30 @@ namespace CStat.Common
 
     public class EquipProp
     {
-        public enum EquipUnitsType { TemperatureF=0x10, TemperatureC=0x11, PSI=0x20, KWH = 0x30, PercentFull=0x40}
-        public string Title { get; set; }
-        public string PropName { get; set; }
-        public int EquipUnits { get; set; } // TBD enums with serialization with stable, supported api
-        public double ChartBottom { get; set; }
-        public double ChartTop { get; set; }
-        public double GreenBottom { get; set; }
-        public double GreenTop { get; set; }
-        public double RedBottom { get; set; }
-        public double RedTop { get; set; }
-
-        public double MinsPerSample { get; set; }
+        public enum EquipUnitsType {
+            [Display(Name = "Temp. Farenh.")]
+            TemperatureF =0x10,
+            [Display(Name = "Temp. Celc.")]
+            TemperatureC =0x11,
+            [Display(Name = "PSI")]
+            PSI =0x20,
+            [Display(Name = "KiloWatt Hrs.")]
+            KWH = 0x30,
+            [Display(Name = "Percent Full")]
+            PercentFull =0x40
+        }
+        public string Title { get; set; } = "* UNUSED *";
+        public string PropName { get; set; } = "";
+        [JsonConverter(typeof(StringEnumConverter))]
+        public EquipUnitsType EquipUnits { get; set; } = EquipUnitsType.TemperatureF; // TBD enums with serialization with stable, supported api
+        public double ChartBottom { get; set; } = 0;
+        public double ChartTop { get; set; } = 0;
+        public double GreenBottom { get; set; } = 0;
+        public double GreenTop { get; set; } = 0;
+        public double RedBottom { get; set; } = 0;
+        public double RedTop { get; set; } = 0;
+        public bool Active { get; set; } = false;
+        public double MinsPerSample { get; set; } = 0;
     }
 
     public class ArdRecord

@@ -7,8 +7,11 @@ namespace CStat.Common
 {
     public class CSUser
     {
-        public string Name;
-        public bool ShowAllTasks = false;
-        public bool SendEquipEMail = true;
+        public CSUser()
+        {
+        }
+        public string Name { get; set; }
+        public bool ShowAllTasks { get; set; }  = false;
+        public bool SendEquipEMail { get; set; } = true;
     }
 }

@@ -18,22 +18,41 @@ namespace CStat
     public class SettingsModel : PageModel
     {
         private readonly IConfiguration _config;
-        private readonly CSSettings _settings;
-        private string userId = "";
+
+        [BindProperty]
+        public CSSettings Settings { get; set; }
+        [BindProperty]
+        public CSUser UserSettings { get; set; }
+
         public SettingsModel(IConfiguration config, IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
-            _settings = new CSSettings(_config);
-            userId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            Settings = new CSSettings(_config);
+            string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            UserSettings = Settings.GetUser(UserId);
+            if (UserSettings == null)
+            {
+                UserSettings = new CSUser();
+                UserSettings.Name = UserId;
+                UserSettings.SendEquipEMail = false;
+                UserSettings.ShowAllTasks = false;
+                Settings.UserSettings.Add(UserSettings);
+            }
         }
         public IActionResult OnGet()
         {
-            ViewData["user"] = userId;
-            CSUser uset = _settings.GetUser(userId);
-            ViewData["ShowAllTasks"] = (uset != null) ? uset.ShowAllTasks : false;
-            ViewData["SendEquipEMail"] = (uset != null) ? uset.SendEquipEMail : false;
-            ViewData["EquipProps"] = _settings.EquipProps;
             return Page();
         }
+
+        public IActionResult OnPost()
+        {
+            CSSettings ModSettings = new CSSettings(_config);
+            ModSettings.SetUser(UserSettings.Name, UserSettings);
+            ModSettings.EquipProps = Settings.EquipProps;
+            ModSettings.Save();
+
+            return RedirectToPage("./Index");
+        }
+
     }
 }

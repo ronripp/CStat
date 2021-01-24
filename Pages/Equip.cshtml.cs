@@ -10,6 +10,7 @@ using CTask = CStat.Models.Task;
 using Task = System.Threading.Tasks.Task;
 using CStat.Common;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Pages
 {
@@ -18,14 +19,18 @@ namespace CStat.Pages
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment _hostEnv;
         private readonly ArdMgr _ardMgr;
+        private readonly IConfiguration _config;
         private ArdRecord _ar;
         private PropaneLevel _pl;
-
-        public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv)
+        [BindProperty]
+        public CSSettings _Settings { get; set; }
+        public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
         {
             _context = context;
             _hostEnv = hostEnv;
             _ardMgr = new ArdMgr(_hostEnv);
+            _config = config;
+            _Settings = new CSSettings(_config);
             _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);

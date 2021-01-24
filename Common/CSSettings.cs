@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static CStat.Common.EquipProp;
 
@@ -11,6 +12,7 @@ namespace CStat.Common
 {
     public class CSSettings
     {
+        private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
         private const int MAX_EQUIP = 8;
 
@@ -191,24 +193,44 @@ namespace CStat.Common
         {
             if (UserSettings == null)
                 return null;
-
-            for (int i = 0; i < UserSettings.Count; ++i)
+            int i = 0;
+            for (i = 0; i < UserSettings.Count; ++i)
             {
                 if (UserSettings[i].Name == userName)
                 {
-                    UserSettings[i] = modUser;
+                    UserSettings[i] = modUser; // Replace existing user
                     break;
                 }
             }
+            if (i == UserSettings.Count)
+                UserSettings.Add(modUser); // Add new user
+
             return null;
         }
 
-        public void Save()
+        public bool Save()
         {
-            //EquipProps.Clear();
+            for (int i = 0; i < 4; ++i)
+            {
+                if (sfLock.TryEnterWriteLock(250))
+                {
+                    try
+                    {
+                        var json = JsonConvert.SerializeObject(new { CSSettings = this });
+                        File.WriteAllText("CStat.json", json);
+                        return true;
+                    }
+                    catch
+                    {
 
-            var json =JsonConvert.SerializeObject(new { CSSettings = this });
-            File.WriteAllText("CStat.json", json);
+                    }
+                    finally
+                    {
+                        sfLock.ExitWriteLock();
+                    }
+                }
+            }
+            return false;
         }
 
         public DateTime LastTaskUpdate { get; set; }

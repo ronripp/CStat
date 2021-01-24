@@ -192,7 +192,7 @@ namespace CStat.Common
 
         public int Set(string jsonStr)
         {
-            if (ArdMgr.fLock.TryEnterWriteLock(100))
+            if (ArdMgr.fLock.TryEnterWriteLock(250))
             {
                 int retVal = -2;
                 try
@@ -230,7 +230,7 @@ namespace CStat.Common
         }
         public ArdRecord GetLast()
         {
-            if (ArdMgr.fLock.TryEnterWriteLock(100))
+            if (ArdMgr.fLock.TryEnterWriteLock(250))
             {
                 try
                 {

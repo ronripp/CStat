@@ -23,14 +23,15 @@ namespace CStat.Pages
         private ArdRecord _ar;
         private PropaneLevel _pl;
         [BindProperty]
-        public CSSettings _Settings { get; set; }
+        public CSSettings Settings { get; set; }
+
         public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
         {
             _context = context;
             _hostEnv = hostEnv;
             _ardMgr = new ArdMgr(_hostEnv);
             _config = config;
-            _Settings = new CSSettings(_config);
+            Settings = new CSSettings(_config);
             _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
@@ -39,7 +40,7 @@ namespace CStat.Pages
                 _pl = new PropaneLevel(0, PropMgr.ESTNow, -40);
         }
 
-        public IList<CTask> Task { get;set; }
+        public IList<CTask> Task { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -71,5 +72,18 @@ namespace CStat.Pages
             return _ar.GetColor(propStr, true, _pl);
         }
 
+        public List<EquipProp> ActEq { get{return Settings.ActiveEquip;} }
+
+        public string ActEqVal(int i)
+        {
+            EquipProp ep = Settings.ActiveEquip[i];
+            switch (ep.PropName)
+            {
+                default:
+                    break;
+            }
+
+            return "???";
+        }
     }
 }

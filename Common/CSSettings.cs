@@ -15,6 +15,11 @@ namespace CStat.Common
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
         private const int MAX_EQUIP = 8;
+        public DateTime LastTaskUpdate { get; set; }
+        public DateTime LastStockUpdate { get; set; }
+        public List<CSUser> UserSettings { get; set; }
+        public List<EquipProp> EquipProps { get; set; }
+        public List<EquipProp> ActiveEquip { get; set; }
 
         public CSSettings()
         {
@@ -37,6 +42,7 @@ namespace CStat.Common
             }
             var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
             EquipProps = new List<EquipProp>();
+            ActiveEquip = new List<EquipProp>();
             foreach (var e in eqProps)
             {
                 EquipProp eqProp = new EquipProp();
@@ -51,6 +57,8 @@ namespace CStat.Common
                 eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
                 eqProp.GreenTop = e.GetValue<double>("GreenTop");
                 eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
+                if (eqProp.Active)
+                    ActiveEquip.Add(eqProp);
                 EquipProps.Add(eqProp);
             }
 
@@ -232,10 +240,5 @@ namespace CStat.Common
             }
             return false;
         }
-
-        public DateTime LastTaskUpdate { get; set; }
-        public DateTime LastStockUpdate { get; set; }
-        public List<CSUser> UserSettings { get; set; }
-        public List<EquipProp> EquipProps { get; set; }
     }
 }

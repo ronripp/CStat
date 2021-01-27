@@ -93,11 +93,14 @@
             //if (!!ftrDiv) {
             //    hfHeight += ftrDiv.clientHeight;
             //}
+
+
             let totW = $("#tbodyId").width();
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
             let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
             let h = Math.round(totH - (1.6 * hdrH));
-            gRowHeight = Math.round(h / 5.5) - 12;
+            gRowHeight = Math.round((h / (@Model.ActEq.Count + .5)) - 12);
+            let rectHeight = Math.max(30, Math.min(100, gRowHeight - 26));
 
             $(".erow").css("max-height", gRowHeight + "px");
             $(".erow").css("height", gRowHeight + "px");
@@ -109,11 +112,11 @@
 
             $(".ChartSVG").each(function (index) {
                 $(this).width(w);
-                $(this).height(Math.max(30, Math.min(100, gRowHeight - 26)));
+                $(this).height(rectHeight);
             });
             $(".ChartRect").each(function (index) {
                 $(this).width(w);
-                $(this).height(Math.max(30, Math.min(100, gRowHeight - 26)));
+                $(this).height(rectHeight);
             });
         }
 
@@ -153,71 +156,7 @@
                     @lastArd.TimeStampStr()
                 </td>
             </tr>
-            <tr class="erow">
 
-                <td class="eqTitle">
-                    Walk-in Frig.
-                </td>
-                <td>
-                    <span class="@Model.GetColorClass("FridgeTempF")"><b>@lastArd.FridgeTempF.ToString("0.#")</b></span> F
-                </td>
-                <td>
-                    <svg class="ChartSVG" width="150" height="20">
-                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
-                    </svg>
-                </td>
-                <td class="eqDateTime">
-                    @lastArd.TimeStampStr()
-                </td>
-            </tr>
-            <tr class="erow">
-                <td class="eqTitle">
-                    Propane Tank
-                </td>
-                <td>
-                    <span class="@Model.GetColorClass("PropaneLevel")"><b>@prTank.LevelPct.ToString("0.#")</b></span> %
-                </td>
-                <td>
-                    <svg class="ChartSVG" width="150" height="20">
-                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
-                    </svg>
-                </td>
-                <td class="eqDateTime">
-                    @prTank.ReadingTimeStr()
-                </td>
-            </tr>
-            <tr class="erow">
-                <td class="eqTitle">
-                    Water Plumbing
-                </td>
-                <td>
-                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b></span> psi
-                </td>
-                <td>
-                    <svg class="ChartSVG" width="150" height="20">
-                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
-                    </svg>
-                </td>
-                <td class="eqDateTime">
-                    @lastArd.TimeStampStr()
-                </td>
-            </tr>
-            <tr class="erow">
-                <td class="eqTitle">
-                    Electric Power
-                </td>
-                <td>
-                    <span class="@Model.GetColorClass("WaterPress")"><b>@lastArd.WaterPress.ToString("0.#")</b></span> kwh
-                </td>
-                <td>
-                    <svg class="ChartSVG" width="150" height="20">
-                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
-                    </svg>
-                </td>
-                <td class="eqDateTime">
-                    @lastArd.TimeStampStr()
-                </td>
-            </tr>
 
         </tbody>
     </table>

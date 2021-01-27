@@ -64,43 +64,43 @@
                 <div class="UserSet">
                     <div>
                         <label asp-for="Settings.EquipProps[i].Title">Display Name:</label>
-                        <input asp-for="Settings.EquipProps[i].Title" />
+                        <input style="max-width: 8em;" asp-for="Settings.EquipProps[i].Title" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].PropName">Property Name:</label>
-                        <input asp-for="Settings.EquipProps[i].PropName" />
+                        <input style="max-width: 8em;" asp-for="Settings.EquipProps[i].PropName" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].MinsPerSample">Minutes per Sample:</label>
-                        <input asp-for="Settings.EquipProps[i].MinsPerSample" />
+                        <input style="max-width: 3em;" asp-for="Settings.EquipProps[i].MinsPerSample" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].EquipUnits">Units:</label>
-                        <select asp-for="Settings.EquipProps[i].EquipUnits" asp-items="Html.GetEnumSelectList<EquipProp.EquipUnitsType>()"></select>
+                        <select style="max-width: 8em;" asp-for="Settings.EquipProps[i].EquipUnits" asp-items="Html.GetEnumSelectList<EquipProp.EquipUnitsType>()"></select>
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].ChartTop">Highest Unit in Chart:</label>
-                        <input asp-for="Settings.EquipProps[i].ChartTop" />
+                        <input style="max-width: 3em;" asp-for="Settings.EquipProps[i].ChartTop" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].ChartBottom">Lowest Unit in Chart:</label>
-                        <input asp-for="Settings.EquipProps[i].ChartBottom" />
+                        <input style="max-width: 3em;" asp-for="Settings.EquipProps[i].ChartBottom" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].RedTop" style="color: darkred">Danger at or ABOVE Unit :</label>
-                        <input asp-for="Settings.EquipProps[i].RedTop" style="background-color: #FFE6E6; border:1px solid black" />
+                        <input asp-for="Settings.EquipProps[i].RedTop" style="max-width: 3em; background-color: #FFE6E6; border:1px solid black" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].GreenTop" style="color: darkgreen">Highest Good Unit:</label>
-                        <input asp-for="Settings.EquipProps[i].GreenTop" style="background-color:#D8FFD8; border:1px solid black" />
+                        <input asp-for="Settings.EquipProps[i].GreenTop" style="max-width: 3em; background-color: #D8FFD8; border: 1px solid black" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].GreenBottom" style="color: darkgreen">Lowest Good Unit:</label>
-                        <input asp-for="Settings.EquipProps[i].GreenBottom" style="background-color:#D8FFD8; border:1px solid black" />
+                        <input asp-for="Settings.EquipProps[i].GreenBottom" style="max-width: 3em; background-color:#D8FFD8; border:1px solid black" />
                     </div>
                     <div>
                         <label asp-for="Settings.EquipProps[i].RedBottom" style="color: darkred">Danger at or BELOW Unit :</label>
-                        <input asp-for="Settings.EquipProps[i].RedBottom" style="background-color:#FFE6E6; border:1px solid black" />
+                        <input asp-for="Settings.EquipProps[i].RedBottom" style="max-width: 3em; background-color:#FFE6E6; border:1px solid black" />
                     </div>
                 </div>
             </div>

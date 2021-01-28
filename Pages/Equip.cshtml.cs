@@ -11,6 +11,7 @@ using Task = System.Threading.Tasks.Task;
 using CStat.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using static CStat.Common.EquipProp;
 
 namespace CStat.Pages
 {
@@ -77,13 +78,49 @@ namespace CStat.Pages
         public string ActEqVal(int i)
         {
             EquipProp ep = Settings.ActiveEquip[i];
-            switch (ep.PropName)
+            if (ep == null)
+                return "???";
+            return ep.PropName switch
             {
-                default:
-                    break;
-            }
+                "freezerTemp" => _ar.FreezerTempF.ToString("0.#"),
+                "frigTemp" => _ar.FridgeTempF.ToString("0.#"),
+                "kitchTemp" => _ar.KitchTempF.ToString("0.#"),
+                "propaneTank" => _pl.LevelPct.ToString("0.#"),
+                "waterPres" => _ar.WaterPress.ToString("0.#"),
+                _ => "---",
+            };
+        }
 
-            return "???";
+        public string ActEqUnits(int i)
+        {
+            EquipProp ep = Settings.ActiveEquip[i];
+            if (ep == null)
+                return "???";
+            return ep.EquipUnits switch
+            {
+                EquipUnitsType.TemperatureF => "F",
+                EquipUnitsType.TemperatureC => "C",
+                EquipUnitsType.PSI => "psi",
+                EquipUnitsType.PercentFull => "%",
+                EquipUnitsType.KWH => "KWh",
+                _ => "",
+            };
+        }
+
+        public string ActEqDT(int i)
+        {
+            EquipProp ep = Settings.ActiveEquip[i];
+            if (ep == null)
+                return "???";
+            return ep.PropName switch
+            {
+                "freezerTemp" => _ar.TimeStampStr(),
+                "frigTemp" => _ar.TimeStampStr(),
+                "kitchTemp" => _ar.TimeStampStr(),
+                "propaneTank" => _pl.ReadingTimeStr(),
+                "waterPres" => _ar.TimeStampStr(),
+                _ => "---",
+            };
         }
     }
 }

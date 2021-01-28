@@ -48,12 +48,14 @@ namespace CStat.Common
             [Display(Name = "KiloWatt Hrs.")]
             KWH = 0x30,
             [Display(Name = "Percent Full")]
-            PercentFull =0x40
+            PercentFull =0x40,
+            [Display(Name = "Unknown")]
+            Unknown = 0x50
         }
         public string Title { get; set; } = "* UNUSED *";
         public string PropName { get; set; } = "";
         [JsonConverter(typeof(StringEnumConverter))]
-        public EquipUnitsType EquipUnits { get; set; } = EquipUnitsType.TemperatureF; // TBD enums with serialization with stable, supported api
+        public EquipUnitsType EquipUnits { get; set; } = EquipUnitsType.Unknown;
         public double ChartBottom { get; set; } = 0;
         public double ChartTop { get; set; } = 0;
         public double GreenBottom { get; set; } = 0;

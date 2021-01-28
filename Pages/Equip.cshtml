@@ -1,81 +1,82 @@
 ﻿@page
 @model CStat.Pages.EquipModel
-@using CTask = CStat.Common;
-@{
-    ViewData["Title"] = "Equip";
-    Layout = "_LayoutEquip";
+@using Common
 
-}
+    @{
+        ViewData["Title"] = "Equip";
+        Layout = "_LayoutEquip";
 
-<head>
-    @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
-    <meta name="viewport" content="width=device-width, minimal-ui">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
-    <script type="text/javascript" src="jquery.svg.js"></script>
+    }
 
-    <style>
-        #container {
-            background-color: black;
-            color: greenyellow;
-            padding: 0px;
-        }
+    <head>
+        @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+        <meta name="viewport" content="width=device-width, minimal-ui">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+        <script type="text/javascript" src="jquery.svg.js"></script>
 
-        .erow {
-            height: 12px;
-            max-height: 12px;
-        }
+        <style>
+            #container {
+                background-color: black;
+                color: greenyellow;
+                padding: 0px;
+            }
 
-        #container td, #container th {
-            vertical-align: middle;
-            padding: 3px;
-        }
+            .erow {
+                height: 12px;
+                max-height: 12px;
+            }
 
-        .table td, .table th {
-            padding: .75rem;
-            vertical-align: top;
-            border-top: 1px solid #dee2e6;
-        }
+            #container td, #container th {
+                vertical-align: middle;
+                padding: 3px;
+            }
 
-        .eqTitle {
-            font-size: 1.2em;
-            background-color: black;
-            color: #E8FFC0;
-        }
+            .table td, .table th {
+                padding: .75rem;
+                vertical-align: top;
+                border-top: 1px solid #dee2e6;
+            }
 
-        .eqDateTime {
-            white-space: pre-line;
-        }
+            .eqTitle {
+                font-size: 1.2em;
+                background-color: black;
+                color: #E8FFC0;
+            }
 
-        .greenClass {
-            padding-left: 3px;
-            padding-right: 3px;
-            font-size: 1.5em;
-            background-color: black;
-            color: greenyellow;
-        }
+            .eqDateTime {
+                white-space: pre-line;
+            }
 
-        .yellowClass {
-            padding-left: 3px;
-            padding-right: 3px;
-            font-size: 1.5em;
-            background-color: yellow;
-            color: black;
-        }
+            .greenClass {
+                padding-left: 3px;
+                padding-right: 3px;
+                font-size: 1.5em;
+                background-color: black;
+                color: greenyellow;
+            }
 
-        .redClass {
-            padding-left: 3px;
-            padding-right: 3px;
-            font-size: 1.5em;
-            background-color: red;
-            color: black;
-        }
-    </style>
+            .yellowClass {
+                padding-left: 3px;
+                padding-right: 3px;
+                font-size: 1.5em;
+                background-color: yellow;
+                color: black;
+            }
 
-    <script>
+            .redClass {
+                padding-left: 3px;
+                padding-right: 3px;
+                font-size: 1.5em;
+                background-color: red;
+                color: black;
+            }
+        </style>
+
+        <script>
 
         var gRowHeight = 0;
 
@@ -129,35 +130,37 @@
 
         });
 
-    </script>
+        </script>
 
-</head>
-<body onload="setRowHeight()" onresize="setRowHeight()">
-    <table class="table" id="container">
-        <tbody id="tbodyId">
-            @{
-                var lastArd = Model.GetLastArd();
-                var prTank = Model.GetLastTUTank();
+    </head>
+    <body onload="setRowHeight()" onresize="setRowHeight()">
+        <table class="table" id="container">
+            <tbody id="tbodyId">
+            @for (int i = 0; i < Model.ActEq.Count; ++i)
+            {
+                <tr class="erow">
+                    <td class="eqTitle">
+                        @Model.ActEq[i].Title
+                    </td>
+                    <td>
+                        <span class="@Model.GetColorClass(Model.ActEq[i].PropName)"><b>@Model.ActEqVal(i)</b></span> @Model.ActEqUnits(i)
+                    </td>
+                    <td>
+                        <svg class="ChartSVG" width="150" height="20">
+                            @{
+                                double ChartHeight = Model.ActEq[i].ChartTop - Model.ActEq[i].ChartBottom;
+                                double gY = 100 * (Model.ActEq[i].GreenBottom - Model.ActEq[i].ChartBottom) / ChartHeight;
+                                double gH = 100 * (Model.ActEq[i].GreenTop - Model.ActEq[i].GreenBottom) / ChartHeight;
+                            }
+                            <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,128);stroke-width:2;stroke:rgb(0,255,255)" />
+                            <rect class="ChartRect" x="0%" y="@gY%" width="100%" height="@gH%" style="fill:rgb(0,128,0);" />
+                        </svg>
+                    </td>
+                    <td class="eqDateTime">
+                        @Model.ActEqDT(i)
+                    </td>
+                </tr>
             }
-
-            <tr class="erow">
-                <td class="eqTitle">
-                    Walk-in Freezer
-                </td>
-                <td>
-                    <span class="@Model.GetColorClass("FreezerTempF")"><b>@lastArd.FreezerTempF.ToString("0.#")</b></span> F
-                </td>
-                <td>
-                    <svg class="ChartSVG" width="150" height="20">
-                        <rect class="ChartRect" width="150" height="10" style="fill:rgb(0,0,255);stroke-width:2;stroke:rgb(0,255,255)" />
-                    </svg>
-                </td>
-                <td class="eqDateTime">
-                    @lastArd.TimeStampStr()
-                </td>
-            </tr>
-
-
-        </tbody>
-    </table>
-</body>
+            </tbody>
+        </table>
+    </body>

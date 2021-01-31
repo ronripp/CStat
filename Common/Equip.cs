@@ -38,6 +38,7 @@ namespace CStat.Common
 
     public class EquipProp
     {
+        public const int UNDEFINED_TB = -4321;
         public enum EquipUnitsType {
             [Display(Name = "Temp. Farenh.")]
             TemperatureF =0x10,
@@ -64,6 +65,30 @@ namespace CStat.Common
         public double RedTop { get; set; } = 0;
         public bool Active { get; set; } = false;
         public double MinsPerSample { get; set; } = 0;
+
+        public string GetColor(double value, bool returnClass = true)
+        {
+            string color = "";
+            if ((RedTop > GreenTop) && (value > GreenTop))
+                color = (value >= RedTop) ? "red" : "yellow";
+            else if ((RedBottom < GreenBottom) && (value < GreenBottom))
+                color = (value <= RedBottom) ? "red" : "yellow";
+            else
+                color = "green";
+
+            if (returnClass)
+                return color + "Class";
+            else
+            {
+                return color switch
+                {
+                    "red" => CSSettings.red,
+                    "yellow" => CSSettings.yellow,
+                    "green" => CSSettings.green,
+                    _ => "",
+                };
+            }
+        }
     }
 
     public class ArdRecord
@@ -97,69 +122,6 @@ namespace CStat.Common
         {
             return TimeStamp.ToString("M/d/yy h:mmt");
         }
-        public string GetColor(string propName, bool returnClass = true, PropaneLevel prLevel = null)
-        {
-            string color;
-            switch (propName)
-            {
-                case "FreezerTempF":
-                    if (FreezerTempF > 30)
-                        color = "red";
-                    else if (FreezerTempF > 20)
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                case "FridgeTempF":
-                    if ((FridgeTempF > 40) || (FridgeTempF < 33))
-                        color = "red";
-                    else if ((FridgeTempF < 35) || (FridgeTempF > 39))
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                case "KitchTempF":
-                    if ((KitchTempF < 45) || (KitchTempF > 90))
-                        color = "red";
-                    else if ((KitchTempF < 50) || (KitchTempF > 85))
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                case "WaterPress":
-                    if ((WaterPress > 55) || (WaterPress < 35))
-                        color = "red";
-                    else if ((WaterPress > 50) || (WaterPress < 40))
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                case "PropaneLevel":
-                    if ((prLevel != null) && (prLevel.LevelPct <= 15))
-                        color = "red";
-                    else if ((prLevel != null) && (prLevel.LevelPct <= 20))
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                case "All":
-                    if ((FreezerTempF > 30) || (FridgeTempF > 40) || (FridgeTempF < 33) || (KitchTempF > 90))
-                        color = "red";
-                    else if ((prLevel != null) && (prLevel.LevelPct <= 15))
-                        color = "red";
-                    else if ((FreezerTempF > 20) || (FridgeTempF < 35) || (FridgeTempF > 39) || (KitchTempF > 85))
-                        color = "yellow";
-                    else if ((prLevel != null) && (prLevel.LevelPct <= 20))
-                        color = "yellow";
-                    else
-                        color = "green";
-                    break;
-                default:
-                    color = "green";
-                    break;
-            }
-            return returnClass ? color + "Class" : color;
-        }
 
 
         public double FreezerTempF { get; set; } = -40;
@@ -172,9 +134,11 @@ namespace CStat.Common
     public class ArdMgr
     {
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
-        private IWebHostEnvironment HostEnv;
+        private readonly IWebHostEnvironment HostEnv;
         private string FullLatest = "";
         private string FullAll = "";
+        private static int MAX_FILE_ARS = 200;
+        private static int MAX_USE_ARS = 100;
 
         public ArdMgr(IWebHostEnvironment hostEnv)
         {
@@ -278,15 +242,125 @@ namespace CStat.Common
             }
         }
 
+        public List<ArdRecord> GetAll(bool justCheckSize=false)
+        {
+            List<ArdRecord> arList = new List<ArdRecord>();
+            List<string> lineList = new List<string>();
+            int lineCount=0;
+            int startIndex=0;
+            if (ArdMgr.fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(FullAll, System.Text.Encoding.UTF8))
+                    {
+                        string raw;
+                        while ((raw = sr.ReadLine()) != null)
+                        {
+                            lineList.Add(raw);
+                        }
+                        sr.Close();
+
+                        lineCount = lineList.Count;
+                        startIndex = lineList.Count > MAX_USE_ARS ? lineCount - MAX_USE_ARS : 0;
+
+                        if (!justCheckSize)
+                        {
+                            for (int i = startIndex; i < lineCount; ++i)
+                            {
+                                if (raw.Length > 20)
+                                {
+                                    string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                                    Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                                        "freezerTemp",
+                                        "frigTemp",
+                                        "kitchTemp",
+                                        "waterPres",
+                                        "time"
+                                        );
+
+                                    DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
+
+                                    ArdRecord ar = new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : "-40",
+                                                         props.ContainsKey("frigTemp") ? props["frigTemp"] : "-40",
+                                                         props.ContainsKey("kitchTemp") ? props["kitchTemp"] : "-40",
+                                                         props.ContainsKey("waterPres") ? props["waterPres"] : "-40",
+                                                         arTime);
+                                    arList.Add(ar);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (lineCount > MAX_FILE_ARS)
+                    {
+                        using (StreamWriter sw = new StreamWriter(FullAll, false))
+                        {
+                            for (int i = startIndex; i < lineCount; ++i)
+                            {
+                                sw.WriteLine(lineList[i]);
+                            }
+                            sw.Close();
+                        }
+                    }
+
+                    return arList;
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    ArdMgr.fLock.ExitWriteLock();
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool RemoveFirstLinesFromFile(string filePath, int skip)
+        {
+            if (!File.Exists(filePath))
+                return false;
+            try
+            {
+                var filePathOld = Path.Combine(filePath, ".old");
+                File.Move(filePath, filePathOld);
+                File.WriteAllLines(filePath, File.ReadAllLines(filePathOld).Skip(skip));
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+        }
+
         public ArdRecord[] Get(DateTime startDT, DateTime endDT)
         {
             return null;
         }
     }
 
-    public static class PropaneMgr
-    {
-        public static PropaneLevel GetTUTank() // Tank Utility Propane meter
+
+    public class PropaneMgr
+    { 
+        private readonly IWebHostEnvironment HostEnv;
+        private readonly string FullAll;
+        public PropaneMgr(IWebHostEnvironment hostEnv)
+        {
+            HostEnv = hostEnv;
+            string webRootPath = hostEnv.WebRootPath;
+            string newPath = Path.Combine(webRootPath, "Equip");
+            if (!Directory.Exists(newPath))
+                Directory.CreateDirectory(newPath);
+            FullAll = Path.Combine(newPath, "propaneall.txt");
+        }
+
+        public PropaneLevel GetTUTank(bool onlyAppendToFile=false) // Tank Utility Propane meter
         {
             var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
 
@@ -301,7 +375,17 @@ namespace CStat.Common
             DateTime readTime;
             if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
             {
-                return new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                if (onlyAppendToFile)
+                {
+                    using (StreamWriter sw = new StreamWriter(FullAll, true))
+                    {
+                        sw.WriteLine(JsonConvert.SerializeObject(pl));
+                        sw.Close();
+                    }
+                }
+                else
+                    return pl;
             }
             return null;
         }

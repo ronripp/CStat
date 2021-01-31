@@ -1,5 +1,6 @@
 ﻿using CStat.Models;
 using CStat.Pages.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,9 +23,11 @@ namespace CStat.Common
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
         private readonly CSSettings _csSettings;
+        private readonly IWebHostEnvironment _hostEnv;
 
-        public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration)
+        public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration, IWebHostEnvironment hostEnv)
         {
+            _hostEnv = hostEnv;
             _logger = logger;
             _context = context;
             _configuration = configuration;
@@ -67,6 +70,14 @@ namespace CStat.Common
                 _csSettings.LastTaskUpdate = PropMgr.ESTNow;
                 _csSettings.Save();
                 ag.GenTasks();
+
+                // Persist Daily Reading for Propane
+                PropaneMgr pmgr = new PropaneMgr(_hostEnv);
+                pmgr.GetTUTank(true);
+
+                // Check/Truncate Size of Arduino file
+                ArdMgr amgr = new ArdMgr(_hostEnv);
+                amgr.GetAll(true);
 
                  _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
 

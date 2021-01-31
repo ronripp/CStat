@@ -15,6 +15,12 @@ namespace CStat.Common
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
         private const int MAX_EQUIP = 8;
+
+        public const string green = "#00FF00";
+        public const string yellow = "#FFFF00";
+        public const string red = "#FF0000";
+        public const string gray = "#C0C0C0";
+
         public DateTime LastTaskUpdate { get; set; }
         public DateTime LastStockUpdate { get; set; }
         public List<CSUser> UserSettings { get; set; }
@@ -239,6 +245,77 @@ namespace CStat.Common
                 }
             }
             return false;
+        }
+
+        public string GetColor(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        {
+           string ltPropName = propName.ToLower().Trim();
+           if (ltPropName == "all")
+                return GetEqColor(null, ar, pl, returnClass);
+            EquipProp ep = ActiveEquip.Find(e => e.PropName.ToLower().Trim() == ltPropName);
+            if (ep != null)
+                return GetEqColor(ep, ar, pl, returnClass);
+            return (returnClass) ? "greenClass" : CSSettings.green;
+        }
+
+        public double GetValue(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        {
+            string ltPropName = propName.ToLower().Trim();
+            return ltPropName switch
+            {
+                "freezerTemp" => ar.FreezerTempF,
+                "frigTemp" => ar.FridgeTempF,
+                "kitchTemp" => ar.KitchTempF,
+                "propaneTank" => pl.LevelPct,
+                "waterPres" => ar.WaterPress,
+                _ => 0,
+            };
+        }
+
+        public double GetEqValue(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        {
+            return (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : 0;
+        }
+
+        public string GetEqColor(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        {
+            string color = "green";
+
+            if (ep != null)
+            {
+                return ep.PropName switch
+                {
+                    "freezerTemp" => ep.GetColor(ar.FreezerTempF, returnClass),
+                    "frigTemp" => ep.GetColor(ar.FridgeTempF, returnClass),
+                    "kitchTemp" => ep.GetColor(ar.KitchTempF, returnClass),
+                    "propaneTank" => ep.GetColor(pl.LevelPct, returnClass),
+                    "waterPres" => ep.GetColor(ar.WaterPress, returnClass),
+                    _ => "",
+                };
+            }
+
+            // Perform All
+            if (ActiveEquip.Count > 0)
+            {
+                string[] colors = ActiveEquip.Select(e => e.GetColor(GetEqValue(e, ar, pl, returnClass), returnClass)).ToArray();
+                if (colors.Any(c => c == CSSettings.red))
+                    color = "red";
+                else if (colors.Any(c => c == CSSettings.yellow))
+                    color = "yellow";
+            }
+
+            if (returnClass)
+                return color + "Class";
+            else
+            {
+                return color switch
+                {
+                    "red" => CSSettings.red,
+                    "yellow" => CSSettings.yellow,
+                    "green" => CSSettings.green,
+                    _ => "",
+                };
+            }
         }
     }
 }

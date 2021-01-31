@@ -36,7 +36,9 @@ namespace CStat.Pages
             _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
-            _pl = PropaneMgr.GetTUTank();
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv);
+            _pl = pmgr.GetTUTank();
+
             if (_pl == null)
                 _pl = new PropaneLevel(0, PropMgr.ESTNow, -40);
         }
@@ -70,7 +72,7 @@ namespace CStat.Pages
         }
         public string GetColorClass(string propStr)
         {
-            return _ar.GetColor(propStr, true, _pl);
+            return Settings.GetColor(propStr, _ar, _pl, true);
         }
 
         public List<EquipProp> ActEq { get{return Settings.ActiveEquip;} }

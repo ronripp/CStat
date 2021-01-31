@@ -350,6 +350,9 @@ namespace CStat.Common
     { 
         private readonly IWebHostEnvironment HostEnv;
         private readonly string FullAll;
+        private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
+        private const int MAX_USE_PLS = 400;
+        private const int MAX_FILE_PLS = 600;
         public PropaneMgr(IWebHostEnvironment hostEnv)
         {
             HostEnv = hostEnv;
@@ -359,7 +362,6 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             FullAll = Path.Combine(newPath, "propaneall.txt");
         }
-
         public PropaneLevel GetTUTank(bool onlyAppendToFile=false) // Tank Utility Propane meter
         {
             var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
@@ -389,6 +391,82 @@ namespace CStat.Common
             }
             return null;
         }
+
+        public List<PropaneLevel> GetAll()
+        {
+            List<PropaneLevel> plList = new List<PropaneLevel>();
+            List<string> rLineList = new List<string>();
+            List<string> lineList = new List<string>();
+            int lineCount = 0;
+            int startIndex = 0;
+            if (fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(FullAll, System.Text.Encoding.UTF8))
+                    {
+                        string raw;
+                        while ((raw = sr.ReadLine()) != null)
+                        {
+                            rLineList.Add(raw);
+                        }
+                        sr.Close();
+
+                        lineList = rLineList.Distinct().ToList();
+                        lineCount = lineList.Count;
+                        startIndex = lineList.Count > MAX_USE_PLS ? lineCount - MAX_USE_PLS : 0;
+
+                        for (int i = startIndex; i < lineCount; ++i)
+                        {
+                            if (raw.Length > 20)
+                            {
+                                string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                                Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                                                            "device.lastReading.tank",
+                                                            "device.lastReading.temperature",
+                                                            "device.lastReading.time_iso");
+                                double level = 0;
+                                double temp = -40;
+                                DateTime readTime;
+                                if (double.TryParse(props["device.lastReading.tank"], out level) && DateTime.TryParse(props["device.lastReading.time_iso"], out readTime) && double.TryParse(props["device.lastReading.temperature"], out temp))
+                                {
+                                    PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                                    plList.Add(pl);
+                                }
+                            }
+                        }
+                    }
+
+                    if (rLineList.Count > MAX_FILE_PLS)
+                    {
+                        using (StreamWriter sw = new StreamWriter(FullAll, false))
+                        {
+                            for (int i = startIndex; i < lineCount; ++i)
+                            {
+                                sw.WriteLine(lineList[i]);
+                            }
+                            sw.Close();
+                        }
+                    }
+
+                    return plList;
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    PropaneMgr.fLock.ExitWriteLock();
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 
     public static class PropMgr

@@ -82,26 +82,19 @@
 
         function setRowHeight() {
 
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) { elem.requestFullscreen() }
-
-            let hdrDiv = document.querySelector("header");
-            //let ftrDiv = document.querySelector("footer");
-            let hfHeight = 0;
-            if (!!hdrDiv) {
-                hfHeight += hdrDiv.clientHeight;
-            }
-            //if (!!ftrDiv) {
-            //    hfHeight += ftrDiv.clientHeight;
-            //}
-
-
             let totW = $("#tbodyId").width();
-            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
-            let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
-            let h = Math.round(totH - (1.6 * hdrH));
-            gRowHeight = Math.round((h / (@Model.ActEq.Count + .5)) - 12);
-            let rectHeight = Math.max(30, Math.min(100, gRowHeight - 26));
+
+            //let hdrDiv = document.querySelector("header");
+            //let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
+            //let hdrH = !!hdrDiv ? hdrDiv.clientHeight : Math.round(totH / 10);
+            //let h = Math.round(totH - (1.6 * hdrH));
+
+            let hdrH = $("nav.navbar.navbar-expand-sm.navbar-toggleable-sm").outerHeight(true);
+            let totH = window.innerHeight;
+            //let totH = $("html").outerHeight(true);
+            let h = totH - hdrH - 12;
+
+            let gRowHeight = Math.max(80, Math.round(h / (@Model.ActEq.Count)));
 
             $(".erow").css("max-height", gRowHeight + "px");
             $(".erow").css("height", gRowHeight + "px");
@@ -111,10 +104,11 @@
                 w += Math.min(250, totW - 500);
             }
 
-            //$(".ChartSVG").each(function (index) {
-            //    $(this).width(w);
-            //    $(this).height(rectHeight);
-            //});
+            $(".ChartSVG").each(function (index) {
+                $(this).width(w);
+                $(this).height(gRowHeight-24);
+            });
+
             //$(".ChartRect").each(function (index) {
             //    $(this).width(w);
             //    $(this).height(rectHeight);
@@ -125,8 +119,8 @@
 
         $(document).ready(function () {
 
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) { elem.requestFullscreen() }
+            //const elem = document.documentElement;
+            //if (elem.requestFullscreen) { elem.requestFullscreen() }
 
         });
 

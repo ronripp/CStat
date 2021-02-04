@@ -23,24 +23,82 @@ namespace CStat.Pages
         private readonly IConfiguration _config;
         private ArdRecord _ar;
         private PropaneLevel _pl;
-        [BindProperty]
         public CSSettings Settings { get; set; }
+        private List<List<double>> ActiveEqHistory { get; set; }
 
-        public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
+    public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
         {
             _context = context;
             _hostEnv = hostEnv;
             _ardMgr = new ArdMgr(_hostEnv);
             _config = config;
             Settings = new CSSettings(_config);
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv);
             _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
-            PropaneMgr pmgr = new PropaneMgr(_hostEnv);
             _pl = pmgr.GetTUTank();
-
             if (_pl == null)
                 _pl = new PropaneLevel(0, PropMgr.ESTNow, -40);
+
+            ActiveEqHistory = new List<List<double>>();
+            int NumActive = Settings.ActiveEquip.Count;
+            if (NumActive > 0)
+            {
+                List<ArdRecord> ardHist = _ardMgr.GetAll();
+                if (ardHist == null)
+                    ardHist = new List<ArdRecord>();
+                List<PropaneLevel> propaneHist = pmgr.GetAll();
+                if (propaneHist == null)
+                    propaneHist = new List<PropaneLevel>();
+
+                // Ensure latest is at end of list
+                int ahCount = ardHist.Count;
+                if (ahCount > 0)
+                {
+                    if (ardHist[ahCount - 1].TimeStamp != _ar.TimeStamp)
+                    {
+                        if (ardHist[ahCount - 2].TimeStamp == _ar.TimeStamp)
+                            _ar = _ardMgr.GetLast(); // get latest
+                        else
+                        {
+                            ardHist.Add(_ar); // set latest
+                            if (ahCount >= ArdMgr.MAX_USE_ARS)
+                                ardHist.RemoveAt(0);
+                        }
+                    }
+                }
+                int plCount = propaneHist.Count;
+                if (plCount > 0)
+                {
+                    if (propaneHist[plCount - 1].ReadingTime != _pl.ReadingTime)
+                    {
+                        if (propaneHist[plCount - 2].ReadingTime == _pl.ReadingTime)
+                            _pl = pmgr.GetTUTank(); // get latest
+                        else
+                        {
+                            propaneHist.Add(_pl); // set latest
+                            if (plCount >= ArdMgr.MAX_USE_ARS)
+                                propaneHist.RemoveAt(0);
+                        }
+                    }
+                }
+
+                foreach (var ar in Settings.ActiveEquip)
+                {
+                    List<double> dlist;
+                    dlist = ar.PropName switch
+                    {
+                        "freezerTemp" => ardHist.Select(a => a.FreezerTempF).Reverse().ToList(),
+                        "frigTemp" => ardHist.Select(a => a.FridgeTempF).Reverse().ToList(),
+                        "kitchTemp" => ardHist.Select(a => a.KitchTempF).Reverse().ToList(),
+                        "propaneTank" => propaneHist.Select(p => p.LevelPct).Reverse().ToList(),
+                        "waterPres" => ardHist.Select(a => a.WaterPress).Reverse().ToList(),
+                        _ => new List<double>()
+                    };
+                    ActiveEqHistory.Add(dlist);
+                }
+            }
         }
 
         public IList<CTask> Task { get; set; }
@@ -60,7 +118,6 @@ namespace CStat.Pages
 
         public ArdRecord GetLastArd()
         {
-            _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
             return _ar;
@@ -108,7 +165,6 @@ namespace CStat.Pages
                 _ => "",
             };
         }
-
         public string ActEqDT(int i)
         {
             EquipProp ep = Settings.ActiveEquip[i];
@@ -124,5 +180,11 @@ namespace CStat.Pages
                 _ => "---",
             };
         }
+
+        public List<double> ActEqHistory(int i)
+        {
+            return ActiveEqHistory[i]; // in HTML, first is most recent : start at Width = 100 % and go backwards till empty.
+        }
+
     }
 }

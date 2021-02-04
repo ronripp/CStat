@@ -138,7 +138,7 @@ namespace CStat.Common
         private string FullLatest = "";
         private string FullAll = "";
         private static int MAX_FILE_ARS = 200;
-        private static int MAX_USE_ARS = 100;
+        public static int MAX_USE_ARS = 100;
 
         public ArdMgr(IWebHostEnvironment hostEnv)
         {
@@ -268,6 +268,7 @@ namespace CStat.Common
                         {
                             for (int i = startIndex; i < lineCount; ++i)
                             {
+                                raw = lineList[i];
                                 if (raw.Length > 20)
                                 {
                                     string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
@@ -322,27 +323,27 @@ namespace CStat.Common
             }
         }
 
-        public bool RemoveFirstLinesFromFile(string filePath, int skip)
-        {
-            if (!File.Exists(filePath))
-                return false;
-            try
-            {
-                var filePathOld = Path.Combine(filePath, ".old");
-                File.Move(filePath, filePathOld);
-                File.WriteAllLines(filePath, File.ReadAllLines(filePathOld).Skip(skip));
-                return true;
-            }
-            catch (System.Exception)
-            {
-                return false;
-            }
-        }
+        //public bool RemoveFirstLinesFromFile(string filePath, int skip)
+        //{
+        //    if (!File.Exists(filePath))
+        //        return false;
+        //    try
+        //    {
+        //        var filePathOld = Path.Combine(filePath, ".old");
+        //        File.Move(filePath, filePathOld);
+        //        File.WriteAllLines(filePath, File.ReadAllLines(filePathOld).Skip(skip));
+        //        return true;
+        //    }
+        //    catch (System.Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
 
-        public ArdRecord[] Get(DateTime startDT, DateTime endDT)
-        {
-            return null;
-        }
+        //public ArdRecord[] Get(DateTime startDT, DateTime endDT)
+        //{
+        //    return null;
+        //}
     }
 
 
@@ -351,7 +352,7 @@ namespace CStat.Common
         private readonly IWebHostEnvironment HostEnv;
         private readonly string FullAll;
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
-        private const int MAX_USE_PLS = 400;
+        public const int MAX_USE_PLS = 400;
         private const int MAX_FILE_PLS = 600;
         public PropaneMgr(IWebHostEnvironment hostEnv)
         {
@@ -418,19 +419,20 @@ namespace CStat.Common
 
                         for (int i = startIndex; i < lineCount; ++i)
                         {
+                            raw = lineList[i];
                             if (raw.Length > 20)
                             {
                                 string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
                                 Dictionary<string, string> props = PropMgr.GetProperties(latest,
-                                                            "device.lastReading.tank",
-                                                            "device.lastReading.temperature",
-                                                            "device.lastReading.time_iso");
+                                                            "LevelPct",
+                                                            "OutsideTempF",
+                                                            "ReadingTime");
                                 double level = 0;
                                 double temp = -40;
                                 DateTime readTime;
-                                if (double.TryParse(props["device.lastReading.tank"], out level) && DateTime.TryParse(props["device.lastReading.time_iso"], out readTime) && double.TryParse(props["device.lastReading.temperature"], out temp))
+                                if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
                                 {
-                                    PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                                    PropaneLevel pl = new PropaneLevel(level, readTime, temp);
                                     plList.Add(pl);
                                 }
                             }
@@ -468,7 +470,6 @@ namespace CStat.Common
         }
 
     }
-
     public static class PropMgr
     {
         public static Dictionary<string, string> GetSiteProperties(string url, string userName, string password, params string[] tokens)

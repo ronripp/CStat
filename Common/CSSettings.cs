@@ -260,8 +260,8 @@ namespace CStat.Common
 
         public double GetValue(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
-            string ltPropName = propName.ToLower().Trim();
-            return ltPropName switch
+            string tPropName = propName.Trim();
+            return tPropName switch
             {
                 "freezerTemp" => ar.FreezerTempF,
                 "frigTemp" => ar.FridgeTempF,

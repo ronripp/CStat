@@ -389,7 +389,7 @@
 
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
                     let ctDue = $("#taskData_CreateTaskDue").val();
-                    if ((ctDue >= (0x00000003 << 26)) && (ctDue <= (0x00000014 << 26))) { 
+                    if ((ctDue >= (0x00000003 << 26)) && (ctDue <= (0x00000014 << 26))) {
                         if (!$("#CreateTaskDueVal").is(":visible")) {
                             $("#CreateTaskDueVal").val("");
                         }
@@ -854,13 +854,13 @@
                 let newCom = $("#NewComment").val();
                 if (!!newCom && newCom !== "<add a comment here>") {
 @{
-                    var dtLoc = DateTime.UtcNow;
-                    TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-                    DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
-                    var AtIdx = User.Identity.Name.IndexOf("@");
-                    if (AtIdx == -1) AtIdx = 6;
-                    var user = User.Identity.Name.Substring(0, AtIdx);
-                    var curDT = "===[ " + user + " " + dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM") + " ]===";
+    var dtLoc = DateTime.UtcNow;
+    TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+    DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
+    var AtIdx = User.Identity.Name.IndexOf("@");
+    if (AtIdx == -1) AtIdx = 6;
+    var user = User.Identity.Name.Substring(0, AtIdx);
+    var curDT = "===[ " + user + " " + dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Month + "/" + dt.Day + "/" + dt.Year % 100 + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "PM" : "AM") + " ]===";
 }
                     let allComs = $("#AllComments").val();
                     allComs = "@curDT" + "\n" + newCom + "\n" + allComs;
@@ -907,7 +907,19 @@
 @{
     var bkColor = Model.IsTemplate ? "#FFC0C0" : "#FFFFFF";
     var saveStr = Model.IsTemplate ? "Save Template" : "Save Task";
- }
+    string disStr;
+    string doneColor;
+    if (Request.Query["id"] == (string)null)
+    {
+        disStr = "disabled";
+        doneColor = "lightgray";
+    }
+    else
+    {
+       disStr = "";
+       doneColor = "black";
+    }
+}
 
 <body style="background-color:@bkColor">
 
@@ -950,7 +962,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone">Mark Done</button>
+                            <input type="text" id="pctComp" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
                             <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
                                 <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                     <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
@@ -972,19 +984,19 @@
                                 var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
                                 var dueDateLabel = (Model.taskData.FixedDueDate) ? "Due Date:" : "Est. Done:";
                             }
-                        <div>
-                            <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
-                            @{if((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
-                              {
-                                 <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
-                              }
-                              else
-                              {
-                                 <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
-                              }
-                            }
+                            <div>
+                                <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
+                                @{if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
+                                    {
+                                        <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                                    }
+                                }
 
-                        </div>
+                            </div>
                             <div>
                                 <input type="checkbox" id="FixedDueDate" name="FixedDue" @checkedStr>
                                 <label id="FixedDueLabel" for="FixedDue">Fixed Date?</label>
@@ -1036,7 +1048,7 @@
                         </span>
                         <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="display:@ComTADisplay; min-height:8em; color:black; background-color:white"></textarea>
                     </div>
-            </div>
+                </div>
             </div>
             <div class="tab-pane" id="descTab">
 
@@ -1119,29 +1131,29 @@
                             <tbody>
 
                                 @{
-                                int i=1;
-                                foreach (var bl in Model.taskData.bom)
-                                {
-                                    var mid = "mid" + i;
-                                    var miu = "miu" + i;
-                                    var mis = "mis" + i;
-                                    var miq = "miq" + i;
-                                    var mit = "mit" + i;
+                                    int i = 1;
+                                    foreach (var bl in Model.taskData.bom)
+                                    {
+                                        var mid = "mid" + i;
+                                        var miu = "miu" + i;
+                                        var mis = "mis" + i;
+                                        var miq = "miq" + i;
+                                        var mit = "mit" + i;
 
-                                    <tr>
-                                        <td id="mdd@{@bl.id}">@bl.desc</td>
-                                        <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
-                                        <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                        <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
-                                        <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                        <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
-                                        <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                        <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
-                                        <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                        <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
-                                    </tr>
-                                    ++i;
-                                }
+                                        <tr>
+                                            <td id="mdd@{@bl.id}">@bl.desc</td>
+                                            <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
+                                            <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                            <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
+                                            <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
+                                            <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
+                                            <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                            <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
+                                            <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                            <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
+                                        </tr>
+                                        ++i;
+                                    }
                                 }
                             </tbody>
                         </table>
@@ -1154,6 +1166,6 @@
         <p style="margin-top:1em;"><a asp-page="Index">Back to List</a></p>
     </div>
 </body>
-    @section Scripts {
-        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    }
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

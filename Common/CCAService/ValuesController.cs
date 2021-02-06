@@ -491,7 +491,7 @@ namespace CStat
             {
             }
 
-            return "No one found with Name";
+            return "ERROR~:No one found with Name";
         }
 
         // PUT api/values/5

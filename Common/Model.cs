@@ -497,7 +497,7 @@ namespace CStat.Models
             {
             }
 
-            return "No one found with Name";
+            return "ERROR~:No one found with Name";
         }
     }
 

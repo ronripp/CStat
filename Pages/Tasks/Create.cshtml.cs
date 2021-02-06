@@ -16,6 +16,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using static CStat.Models.Person;
 using CTask = CStat.Models.Task;
 
 namespace CStat.Pages.Tasks
@@ -332,7 +333,7 @@ namespace CStat.Pages.Tasks
             ViewData["Blocking2Id"] = new SelectList(_context.Task, "Id", "Description");
             ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
 
-            IList<SelectListItem> personList = _context.Person.OrderBy(p => p.LastName).ThenBy(p1 => p1.FirstName).Select(p2 => new SelectListItem { Text = p2.FirstName + " " + p2.LastName, Value = p2.Id.ToString() } ).ToList<SelectListItem>();
+            IList<SelectListItem> personList = _context.Person.OrderBy(p => p.LastName).ThenBy(p1 => p1.FirstName).Where(p => (p.SkillSets & (long)eSkillsAbbr.WRK) != 0).Select(p2 => new SelectListItem { Text = p2.FirstName + " " + p2.LastName, Value = p2.Id.ToString() } ).ToList<SelectListItem>();
             personList.Insert(0, new SelectListItem(" ", "-1"));
             ViewData["PersonId"] = personList;
 

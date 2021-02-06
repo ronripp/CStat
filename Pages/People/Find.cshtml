@@ -132,10 +132,13 @@
                             });
                             strList += "<tr style=\"background-color:#FFFFFF;\"><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr>"; // extra blank To do : fix obscuring footer.
                             $("#ResultsDiv").html(strList);
-                            $('html,body').animate({scrollTop: $("#ResultsDiv").offset().top}, 'slow');
+                            $('html,body').animate({ scrollTop: $("#ResultsDiv").offset().top }, 'slow');
+                        } else {
+                            resDiv.html("No People Found");
                         }
                     },
                     fail: function (response) {
+                        resDiv.html("Find Failed.");
                     }
                 });
             }

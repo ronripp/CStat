@@ -709,6 +709,15 @@
             $("#pctComp").change(function () {
                 let comp = $("#pctComp").val();
                 let compVal = parseInt(comp);
+                if (compVal > 100) {
+                    $("#markDone").prop("disabled", false).css('opacity', 1.0);
+                    if ($("#taskData_state").val() === "4096") {
+                        $("#taskData_state").val("1024");
+                    }
+                    $("#taskData_reason").val(0x04000000);
+                    $("#pctComp").val("0");
+                    return;
+                }
                 if (!!compVal) {
                     if (compVal < 100) {
                         $("#markDone").prop("disabled", false).css('opacity', 1.0);
@@ -972,7 +981,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
+                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.3em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
                             <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; margin-bottom:4px; border: 2px solid black;">
                                 <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                     <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
@@ -998,11 +1007,11 @@
                                 <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
                                 @{if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
                                     {
-                                    <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
+                                    <input asp-for="task.DueDate" type="date" value="" style="max-height:1.6em; max-width:9.7em;" />
                                     }
                                     else
                                     {
-                                    <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                                    <input asp-for="task.DueDate" type="date" style="max-height:1.6em; max-width:9.7em;" />
                                     }
                                 }
 

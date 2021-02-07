@@ -17,6 +17,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using static CStat.Models.Person;
+using static CStat.Models.Task;
 using CTask = CStat.Models.Task;
 
 namespace CStat.Pages.Tasks
@@ -261,7 +262,6 @@ namespace CStat.Pages.Tasks
         public IActionResult OnGet(int? id)
         {
             int tid = !id.HasValue ? tid = 0 : id.Value;
-
             int res = 0;
             if (tid <= 0)
             {
@@ -279,6 +279,12 @@ namespace CStat.Pages.Tasks
                     taskData = TaskData.ReadTaskData(hostEnv, tid, task.ParentTaskId.HasValue ? task.ParentTaskId.Value : -1);
                     if (task.DueDate == null)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
+
+                    task.GetTaskStatus(out eTaskStatus state, out eTaskStatus reason, out int PercentComplete);
+                    taskData.state = (int)state;
+                    taskData.reason = (int)reason;
+                    taskData.PercentComplete = PercentComplete;
+
                     if ((task.Type & (int)CTask.eTaskType.Template) != 0)
                     {
                         // Initialize Template Type members
@@ -571,7 +577,11 @@ namespace CStat.Pages.Tasks
                     if (taskData.FixedDueDate)
                     {
                         if (msDueStr.Length > 0)
+                        {
+                            if (!task.DueDate.HasValue && (dueDateTime != null) && (dueDateTime.Hour == 0) && (dueDateTime.Minute == 0))
+                                dueDateTime = dueDateTime.AddHours(23).AddMinutes(59);
                             task.DueDate = dueDateTime;
+                        }
                         else
                             task.DueDate = null;
                         task.EstimatedDoneDate = null;

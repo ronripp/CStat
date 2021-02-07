@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = (Model.IsTemplate ? "Template " : "Task ") + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
+    Layout = "_LayoutTask";
 }
 
 <head>
@@ -11,6 +12,12 @@
     @using System.Web;
     @using System.Globalization;
     @using CStat.Models;
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
     <style>
         #taskDetail {
@@ -95,12 +102,12 @@
             background-color: #ffff80;
         }
 
-        #SaveAll {
+/*        #SaveAll {
             background-color: #007272;
             border: 2px solid #0000FF;
             color: white;
             margin-bottom: 6px;
-        }
+        }*/
 
         #markDone {
             background-color: #C0FFC0;
@@ -116,13 +123,12 @@
         #bomTable th {
             background-color: lightgray;
         }
-    </style>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+        #taskTabs a.nav-link.active {
+            border-bottom-color: transparent;
+            background-color: #FFFF80;
+        }
+    </style>
 
     <script type="text/javascript">
 
@@ -157,14 +163,14 @@
         function setDirtyTask() {
             if (!dirtyTask) {
                 dirtyTask = true;
-                $("#saveDiv").show();
+                //$("#saveDiv").show();
             }
         }
 
         function clearDirtyTask() {
             if (dirtyTask) {
                 dirtyTask = false;
-                $("#saveDiv").hide();
+                //$("#saveDiv").hide();
             }
         }
 
@@ -234,12 +240,12 @@
                 success: function (res) {
                     if (res.indexOf("Success") === 0) {
                         clearDirtyTask();
-                        $("#SaveAll").text("Success!");
-                        $("#SaveAll").css("background-color", "#00C000");
-                        setTimeout(function () {
-                            $("#SaveAll").text("Save Task");
-                            $("#SaveAll").css("background-color", "#007272");
-                        }, 1000);
+                        //$("#SaveAll").text("Success!");
+                        //$("#SaveAll").css("background-color", "#00C000");
+                        //setTimeout(function () {
+                        //    $("#SaveAll").text("Save Task");
+                        //    $("#SaveAll").css("background-color", "#007272");
+                        //}, 1000);
                         if (inMarkDone) {
                             $("#markDone").prop("disabled", true).css('opacity', 0.5);
                         }
@@ -380,7 +386,7 @@
             }
 
             setPicture();
-            $("#saveDiv").hide();
+//            $("#saveDiv").hide();
             if ($("#taskDetail").val().trim() === "") {
                 $("#taskDetail").val("<add Detail here>");
             }
@@ -706,8 +712,8 @@
                 if (!!compVal) {
                     if (compVal < 100) {
                         $("#markDone").prop("disabled", false).css('opacity', 1.0);
-                        if ($("#taskData_state").val() === 0x00001000) {
-                            $("#taskData_state").val(0x00000400);
+                        if ($("#taskData_state").val() === "4096") {
+                            $("#taskData_state").val("1024");
                         }
                         $("#taskData_reason").val(0x04000000);
                     } else {
@@ -886,9 +892,10 @@
                 let textFocus = !!focusEl && (focusEl.type === "text") || (focusEl.type === "textarea");
 
                 if (dirtyTask || textFocus) {
-                    return "Task NOT Saved";
-                } else {
-                    return;
+                    saveTask();
+                //    return "Task NOT Saved";
+                //} else {
+                //    return;
                 }
             };
         });
@@ -905,8 +912,8 @@
 
 
 @{
-    var bkColor = Model.IsTemplate ? "#FFC0C0" : "#FFFFFF";
-    var saveStr = Model.IsTemplate ? "Save Template" : "Save Task";
+    var bkColor = Model.IsTemplate ? "#FFD0D0" : "#FFFFFF";
+//    var saveStr = Model.IsTemplate ? "Save Template" : "Save Task";
     string disStr;
     string doneColor;
     if (Request.Query["id"] == (string)null)
@@ -927,21 +934,24 @@
     <input type="hidden" asp-for="task.Id" />
     <input type="hidden" asp-for="task.Type" />
     <input type="hidden" asp-for="task.ActualDoneDate" />
-    <div class="row" style="background-color:@bkColor">
-        <div class="col-md-10">
-            <div class="form-group">
+
+    <div class="container" style="margin-bottom:4px">
+        <div class="row" style="background-color:@bkColor;">
+            <div class="col-xs-2" style="margin-right: 4px">
                 <label asp-for="task.Description" class="control-label">Title:</label>
-                <input asp-for="task.Description" class="form-control" style="font-weight:bold" />
-                <span asp-validation-for="task.Description" class="text-danger"></span>
             </div>
-        </div>
-        <div class="col-md-2" id="saveDiv">
-            <button id="SaveAll" onclick="saveTask()">@saveStr</button>
+            <div class="col-xs-10">
+                <input asp-for="task.Description" style="font-weight:bold; min-width:20em" />
+            </div>
+            <span asp-validation-for="task.Description" class="text-danger"></span>
+            @*<div class="col-md-2" id="saveDiv">
+                <button id="SaveAll" onclick="saveTask()">@saveStr</button>
+                </div>*@
         </div>
     </div>
 
     <div style="background-color:@bkColor">
-        <ul class="nav nav-tabs" role="tablist">
+        <ul class="nav nav-tabs" role="tablist" id="taskTabs">
             <li class="nav-item">
                 <a href="#statusTab" class="nav-link active" data-toggle="tab" role="tab"><b>Status</b></a>
             </li>
@@ -962,8 +972,8 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
-                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; border: 2px solid black;">
+                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.2em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
+                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; margin-bottom:4px; border: 2px solid black;">
                                 <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                     <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
                                 </div>
@@ -988,11 +998,11 @@
                                 <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
                                 @{if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
                                     {
-                                        <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
+                                    <input asp-for="task.DueDate" type="date" value="" style="max-height:1.4em; max-width:9.7em;" />
                                     }
                                     else
                                     {
-                                        <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
+                                    <input asp-for="task.DueDate" type="date" style="max-height:1.4em; max-width:9.7em;" />
                                     }
                                 }
 
@@ -1140,18 +1150,18 @@
                                         var miq = "miq" + i;
                                         var mit = "mit" + i;
 
-                                        <tr>
-                                            <td id="mdd@{@bl.id}">@bl.desc</td>
-                                            <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
-                                            <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                            <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
-                                            <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                            <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
-                                            <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                            <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
-                                            <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                            <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
-                                        </tr>
+                                    <tr>
+                                        <td id="mdd@{@bl.id}">@bl.desc</td>
+                                        <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
+                                        <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                        <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
+                                        <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
+                                        <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
+                                        <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                        <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
+                                        <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                        <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
+                                    </tr>
                                         ++i;
                                     }
                                 }

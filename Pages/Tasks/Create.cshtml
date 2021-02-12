@@ -155,6 +155,7 @@
         var inMarkDone = false;
         var dirtyTask = false;
         var inModCost = false;
+        var goBackAfterSave = false;
 
         function markTaskDirty(e) {
             setDirtyTask();
@@ -261,6 +262,10 @@
                     $("#newPicId").hide();
                     $("#picHdrId").show();
                     inMarkDone = false;
+                    if (goBackAfterSave) {
+                        goBackAfterSave = false;
+                        window.history.back();
+                    }
                 }
             });
         }
@@ -901,10 +906,9 @@
                 let textFocus = !!focusEl && (focusEl.type === "text") || (focusEl.type === "textarea");
 
                 if (dirtyTask || textFocus) {
-                    saveTask();
-                //    return "Task NOT Saved";
-                //} else {
-                //    return;
+                    return "Task NOT Saved";
+                } else {
+                    return;
                 }
             };
         });
@@ -981,7 +985,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.3em; text-align: center; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
+                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.6em; text-align: left; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
                             <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; margin-bottom:4px; border: 2px solid black;">
                                 <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
                                     <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>

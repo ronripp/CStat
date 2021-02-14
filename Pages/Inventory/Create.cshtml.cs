@@ -78,7 +78,7 @@ namespace CStat
                     ViewData["UPCError"] = "Error : UPC Must be specified with Photo.";
                     return Page();
                 }
-                string destFile = Path.Combine(hostEnv.WebRootPath, "images", "ItmImg_" + CreateItem.Upc + ".jpg");
+                string destFile = Path.Combine(hostEnv.WebRootPath, "items", "ItmImg_" + CreateItem.Upc + ".jpg");
 
                 if (System.IO.File.Exists(destFile))
                     System.IO.File.Delete(destFile); // Delete any existing photo for this item

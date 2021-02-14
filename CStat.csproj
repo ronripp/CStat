@@ -10,18 +10,38 @@
     <Compile Remove="Common\CCAService\CCADataAccess\**" />
     <Compile Remove="EquipSrc\**" />
     <Compile Remove="Pages\NewFolder1\**" />
+    <Compile Remove="wwwroot\DropBox_\**" />
+    <Compile Remove="wwwroot\Equip\**" />
+    <Compile Remove="wwwroot\items\**" />
+    <Compile Remove="wwwroot\Tasks\**" />
+    <Compile Remove="wwwroot\tmpDBox\**" />
     <Content Remove="CCAChurch\**" />
     <Content Remove="Common\CCAService\CCADataAccess\**" />
     <Content Remove="EquipSrc\**" />
     <Content Remove="Pages\NewFolder1\**" />
+    <Content Remove="wwwroot\DropBox_\**" />
+    <Content Remove="wwwroot\Equip\**" />
+    <Content Remove="wwwroot\items\**" />
+    <Content Remove="wwwroot\Tasks\**" />
+    <Content Remove="wwwroot\tmpDBox\**" />
     <EmbeddedResource Remove="CCAChurch\**" />
     <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
     <EmbeddedResource Remove="EquipSrc\**" />
     <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\DropBox_\**" />
+    <EmbeddedResource Remove="wwwroot\Equip\**" />
+    <EmbeddedResource Remove="wwwroot\items\**" />
+    <EmbeddedResource Remove="wwwroot\Tasks\**" />
+    <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
     <None Remove="CCAChurch\**" />
     <None Remove="Common\CCAService\CCADataAccess\**" />
     <None Remove="EquipSrc\**" />
     <None Remove="Pages\NewFolder1\**" />
+    <None Remove="wwwroot\DropBox_\**" />
+    <None Remove="wwwroot\Equip\**" />
+    <None Remove="wwwroot\items\**" />
+    <None Remove="wwwroot\Tasks\**" />
+    <None Remove="wwwroot\tmpDBox\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +52,7 @@
 
   <ItemGroup>
     <None Remove="Pages\Inventory\favicon.ico" />
+    <None Remove="Pages\Required.html" />
     <None Remove="SQLQuery1.sql" />
   </ItemGroup>
 
@@ -40,6 +61,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Page Include="Pages\Required.html" />
   </ItemGroup>
 
 

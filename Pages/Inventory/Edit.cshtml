@@ -5,7 +5,7 @@
 @{
     //Layout = "_LayoutAction";
     ViewData["Title"] = "Edit Item";
-    var photoPath = "~/images/ItmImg_" +  ( ((Model.EditItem.Upc != null) && (Model.EditItem.Upc.Length > 0)) ? Model.EditItem.Upc.Trim() + ".jpg" : "noimage.jpg");
+    var photoPath = "~/items/ItmImg_" +  ( ((Model.EditItem.Upc != null) && (Model.EditItem.Upc.Length > 0)) ? Model.EditItem.Upc.Trim() + ".jpg" : "noimage.jpg");
     string UPCError = (ViewData["UPCError"] != null) ? (string)ViewData["UPCError"] : "";
     UPCError = UPCError.Trim();
     string ItemErrors = (ViewData["ItemErrors"] != null) ? (string)ViewData["ItemErrors"] : "";

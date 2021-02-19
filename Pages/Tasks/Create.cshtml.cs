@@ -1,4 +1,5 @@
 ﻿using CStat.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
@@ -192,6 +193,7 @@ namespace CStat.Pages.Tasks
         }
     }
 
+    //[Allow//Anonymous]
     public class CreateModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
@@ -404,6 +406,7 @@ namespace CStat.Pages.Tasks
             }
             return this.Content("Fail");
         }
+
         public ActionResult OnPostSave()
         {
             if ((this.Request != null) && (this.Request.Form != null))
@@ -640,5 +643,11 @@ namespace CStat.Pages.Tasks
             }
             return this.Content("Fail: Bad/Missing Request"); // Send back results
         }
+
+        public ActionResult OnPostPingCTask()
+        {
+            return this.Content("Success:");  // Response 
+        }
+
     }
 }

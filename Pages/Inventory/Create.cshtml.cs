@@ -10,9 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CStat
 {
+    //[Allow//Anonymous]
     public class CreateInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
@@ -105,6 +107,10 @@ namespace CStat
             }
 
             return RedirectToPage("./Index");
+        }
+        public ActionResult OnPostPingCInv()
+        {
+            return this.Content("Success:");  // Response 
         }
     }
 }

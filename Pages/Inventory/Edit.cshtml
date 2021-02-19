@@ -46,6 +46,33 @@
 
         $(document).ready(function () {
 
+            function keepSessionActive() {
+                setTimeout(function () { pingCSServer(); }, 15000);
+            }
+
+            function pingCSServer() {
+                jQuery.ajax({
+                    url: "/Tasks/Create?handler=PingEInv",
+                    type: "POST",
+                    data: "ping",
+                    async: true,
+                    headers: {
+                        RequestVerificationToken:
+                            $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    dataType: "text",
+                    success: function (res) {
+                        keepSessionActive()
+                    },
+                    error: function (res) {
+                    },
+                    complete: function (res) {
+                    }
+                });
+            }
+
+            keepSessionActive();
+
             document.getElementById('SubmitId2').addEventListener('click', (e) => {
 
                 if ($("#EditItem_Upc").val().trim().length == 0) {

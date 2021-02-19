@@ -1,4 +1,5 @@
 ﻿using CStat.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace CStat
 {
+    //[Allow//Anonymous]
     public class EditInvModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
@@ -162,6 +164,10 @@ namespace CStat
                 }
             }
             return new JsonResult("ERROR~: Delete Item Failed.");
+        }
+        public ActionResult OnPostPingEInv()
+        {
+            return this.Content("Success:");  // Response 
         }
     }
 }

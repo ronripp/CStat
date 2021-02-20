@@ -69,7 +69,7 @@
                 var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
 
                 $.ajax({
-                    url: "/Docs?handler=FileDesc",
+                    url: "Docs?handler=FileDesc",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,

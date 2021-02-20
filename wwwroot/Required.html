@@ -2,6 +2,9 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" type="text/javascript"></script>
+
     <style>
         .accordion {
             background-color: #E8E8FF;
@@ -29,10 +32,35 @@
         }
 
         .PContainer {
-           margin-top: 4px;
+            margin-top: 4px;
         }
 
+        body.waiting * {
+            cursor: wait;
+        }
     </style>
+    <script>
+        function openFileShare(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+            document.body.classList.add('waiting');
+            $.ajax({
+                url: "../Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    document.body.classList.remove('waiting');
+                    if (response.indexOf("ERROR~:") === -1) {
+                        window.location.href = response;
+                    }
+                },
+                complete: function (res) {
+                    document.body.classList.remove('waiting');
+                }
+            });
+        }
+    </script>
+
 </head>
 <body>
 
@@ -41,7 +69,8 @@
 
         <button class="accordion">+ Corporation</button>
         <div class="panel">
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p>CCA is incorporated and our <a href="javascript:openFileShare('/Corporate/Permits & Certifications/CCA', '1961 Certificate of Incorporation.pdf')">Certificate of Incorporation</a> is currently framed and mounted at camp.</p>
+            <p>It is NOT required to file a copy of our By-Laws with the New York Secretary of State but it is <a href="https://www.dmlp.org/legal-guide/forming-corporation-new-york">required</a> to keep a copy of our By-Laws at our principal place of business (camp).</p>
         </div>
 
         <button class="accordion">+ 501(c)(3) Organization</button>

@@ -1,6 +1,7 @@
 ﻿@page
 @model CStat.CreateInvModel
 @using CStat.Models
+@Html.AntiForgeryToken()
 
 @{
     //Layout = "_LayoutAction";
@@ -35,22 +36,21 @@
         }
 
         function lookupUPC() {
-
             let upc = $("#CreateItem_Upc").val().trim();
             if (upc.length == 12) {
-                window.open("https://www.upcitemdb.com/upc/" + upc);
+                window.open("https://www.upcindex.com/" + upc);
             }
         }
 
         $(document).ready(function () {
 
             function keepSessionActive() {
-                setTimeout(function () { pingCSServer(); }, 15000);
+                setTimeout(function () { pingCSServer(); }, 30000);
             }
 
             function pingCSServer() {
                 jQuery.ajax({
-                    url: "/Tasks/Create?handler=PingCInv",
+                    url: "/Inventory/Create?handler=PingCInv",
                     type: "POST",
                     data: "ping",
                     async: true,
@@ -141,7 +141,6 @@
         color: red;
         display: none;
     }
-
 </style>
 
 <body>
@@ -178,7 +177,7 @@
                 </div>
             </div>
             <div class="form-group ediv">
-                <label class="control-label col-sm-2 ILabel" asp-for="CreateItem.Upc"  onclick="lookupUPC()">UPC Barcode: </label>
+                <label class="control-label col-sm-2 ILabel" asp-for="CreateItem.Upc" onclick="lookupUPC()">UPC Barcode: </label>
                 <div class="col-sm-10 IValue">
                     @{if (Model.CreateItem.Upc == null)
                             Model.CreateItem.Upc = "";
@@ -245,10 +244,10 @@
             </div>
 
             @*InventoryItem
-            //ReorderThreshold
-            //Units
-            //UnitsPerDay
-            //Zone*@
+                //ReorderThreshold
+                //Units
+                //UnitsPerDay
+                //Zone*@
             @Html.HiddenFor(model => model.InventoryItem.ItemId)
             @Html.HiddenFor(model => model.InventoryItem.InventoryId)
             @Html.HiddenFor(model => model.InventoryItem.Id)
@@ -261,9 +260,9 @@
             @Html.HiddenFor(model => model.InventoryItem.Date)
 
             @*Item
-            //Name
-            //Upc
-            //Size*@
+                //Name
+                //Upc
+                //Size*@
             @Html.HiddenFor(model => model.CreateItem.MfgId)
             @Html.HiddenFor(model => model.CreateItem.Units)
             @Html.HiddenFor(model => model.CreateItem.Status)

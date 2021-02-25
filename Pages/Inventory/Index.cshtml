@@ -415,6 +415,8 @@
                         stockBtn.value = (row === 0) ? 0.2 : 1.4;
                     } else if (xrat < 0.4955) {
                         stockBtn.value = (row === 0) ? 0.4 : 1.6;
+                    } else if ((row === 0) && (xrat < 0.5414)) {
+                        stockBtn.value = 0.5;
                     } else if (xrat < 0.6486) {
                         stockBtn.value = (row === 0) ? 0.6 : 1.8;
                     } else if (xrat < 0.8018) {
@@ -453,7 +455,8 @@
             </thead>
             <tbody>
                 @{ int LastZone = -1, CurZone, ZoneCnt = 0;
-                    string[] bkRowColors = { "#FFD0D0", "#FFF2CE", "#FFFFC8", "#D8FFD0", "#D0F8FF", "#D0D8FF", "#F0D0FF" };
+                    string[] bkRowColors =   { "#FFD0D0", "#FFF2CE", "#FFFFC8", "#D8FFD0", "#D0F8FF", "#D0D8FF", "#F0D0FF" };
+                    string[] bkRowLiteCols = { "#FFE8E8", "#FFF9E5", "#FFFFE0", "#F0FFE8", "#E8FCFF", "#E8F0FF", "#F8E8FF" };
                     var LoginPID = -1;
                     Person prs = Model.GetPersonFromEMail(User.Identity.Name);
                     if (prs != null)
@@ -475,7 +478,8 @@
                             {
                                 ++ZoneCnt;
                             }
-                            var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[(CurZone - 1) % bkRowColors.Length] : "#FFFFFF";
+                            var bcolIdx = (CurZone - 1) % bkRowColors.Length;
+                            var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
 
                             string fid = "fid" + item.ItemId;
                             string iid = "iid" + item.ItemId;

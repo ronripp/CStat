@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using CStat.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace CStat
 {
@@ -23,11 +25,13 @@ namespace CStat
         public CSSettings Settings { get; set; }
         [BindProperty]
         public CSUser UserSettings { get; set; }
+        private UserManager<CStatUser> _userManager;
 
-        public SettingsModel(IConfiguration config, IHttpContextAccessor httpContextAccessor)
+        public SettingsModel(IConfiguration config, IHttpContextAccessor httpContextAccessor, UserManager<CStatUser> userManager)
         {
             _config = config;
-            Settings = new CSSettings(_config);
+            _userManager = userManager; 
+            Settings = new CSSettings(_config, userManager);
             string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
             UserSettings = Settings.GetUser(UserId);
             if (UserSettings == null)
@@ -46,13 +50,12 @@ namespace CStat
 
         public IActionResult OnPost()
         {
-            CSSettings ModSettings = new CSSettings(_config);
+            CSSettings ModSettings = new CSSettings(_config, _userManager);
             ModSettings.SetUser(UserSettings.Name, UserSettings);
             ModSettings.EquipProps = Settings.EquipProps;
             ModSettings.Save();
 
             return RedirectToPage("./Index");
         }
-
     }
 }

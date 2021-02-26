@@ -7,6 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static CStat.Common.EquipProp;
+using CStat.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace CStat.Common
 {
@@ -30,9 +33,10 @@ namespace CStat.Common
         public CSSettings()
         {
         }
-        public CSSettings (IConfiguration config)
+        public CSSettings (IConfiguration config, UserManager<CStatUser> userManager)
         {
             _config = config;
+            List<CStatUser> Users = GetUsersAsync(userManager).Result;
             var csect = config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
@@ -42,6 +46,12 @@ namespace CStat.Common
             {
                 var user = new CSUser();
                 user.Name = c.GetValue<string>("Name");
+                int cIndex = Users.FindIndex(u => u.UserName == user.Name);
+                if (cIndex != -1)
+                {
+                    string PhoneNum = Users[cIndex].PhoneNumber;
+                    user.PhoneNum = !String.IsNullOrEmpty(PhoneNum) ? PhoneNum : "";
+                }
                 user.ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
                 user.SendEquipEMail = c.GetValue<bool>("SendEquipEMail");
                 UserSettings.Add(user);
@@ -316,6 +326,11 @@ namespace CStat.Common
                     _ => "",
                 };
             }
+        }
+
+        public async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
+        {
+            return await userManager.Users.ToListAsync();
         }
     }
 }

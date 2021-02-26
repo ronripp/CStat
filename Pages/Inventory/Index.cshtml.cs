@@ -15,6 +15,7 @@ using System.Collections.Immutable;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using CStat.Areas.Identity.Data;
 
 namespace CStat
 {
@@ -87,12 +88,12 @@ namespace CStat
             public int allState = STOCKED_STATE;
         }
 
-        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration, IHttpContextAccessor httpCA)
+        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
             _context = context;
             _configuration = configuration;
             _httpCA = httpCA;
-            _csSettings = new CSSettings(_configuration);
+            _csSettings = new CSSettings(_configuration, userManager);
             var user = _csSettings.GetUser(_httpCA.HttpContext.User.Identity.Name);
         }
 

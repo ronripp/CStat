@@ -1,6 +1,8 @@
+using CStat.Areas.Identity.Data;
 using CStat.Common;
 using CStat.Models;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
@@ -14,11 +16,11 @@ namespace CStat.Pages
         private readonly IWebHostEnvironment _hostEnv;
         private readonly CSSettings Settings;
 
-        public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
+        public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             _hostEnv = hostEnv;
-            Settings = new CSSettings(config);
+            Settings = new CSSettings(config, userManager);
         }
 
         public void OnGet()

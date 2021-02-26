@@ -12,6 +12,8 @@ using CStat.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using static CStat.Common.EquipProp;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 
 namespace CStat.Pages
 {
@@ -26,13 +28,13 @@ namespace CStat.Pages
         public CSSettings Settings { get; set; }
         private List<List<double>> ActiveEqHistory { get; set; }
 
-    public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config)
+    public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             _hostEnv = hostEnv;
             _ardMgr = new ArdMgr(_hostEnv);
             _config = config;
-            Settings = new CSSettings(_config);
+            Settings = new CSSettings(_config, userManager);
             PropaneMgr pmgr = new PropaneMgr(_hostEnv);
             _ar = _ardMgr.GetLast();
             if (_ar == null)

@@ -1,6 +1,8 @@
-﻿using CStat.Models;
+﻿using CStat.Areas.Identity.Data;
+using CStat.Models;
 using CStat.Pages.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -25,13 +27,13 @@ namespace CStat.Common
         private readonly CSSettings _csSettings;
         private readonly IWebHostEnvironment _hostEnv;
 
-        public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration, IWebHostEnvironment hostEnv)
+        public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration, IWebHostEnvironment hostEnv, UserManager<CStatUser> userManager)
         {
             _hostEnv = hostEnv;
             _logger = logger;
             _context = context;
             _configuration = configuration;
-            _csSettings = new CSSettings(_configuration);
+            _csSettings = new CSSettings(_configuration, userManager);
         }
 
         public async Task DoWork(CancellationToken stoppingToken)

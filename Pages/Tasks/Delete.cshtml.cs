@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using CTask = CStat.Models.Task;
+using CStat.Common;
 
 namespace CStat.Pages.Tasks
 {
@@ -44,6 +45,9 @@ namespace CStat.Pages.Tasks
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
+            var sms = new CSSMS();
+            sms.SendMessage("12037700732", "I want you to have my baby!");
+
             if (id == null)
             {
                 return NotFound();

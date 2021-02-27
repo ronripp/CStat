@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using CTask = CStat.Models.Task;
+using CStat.Common;
 
 namespace CStat.Models
 {
@@ -534,10 +535,10 @@ namespace CStat.Models
             unk3            = 0x00100000,
 
             // Due     MASK = 0x7C000000 
-            At_Start            = 0x00000001 << 26,
-            At_End              = 0x00000002 << 26,
-            Hours_Before_Start  = 0x00000003 << 26,
-            Hours_After_Start   = 0x00000004 << 26,
+            At_Start            = 0x00000001 << 26, //  400 0000
+            At_End              = 0x00000002 << 26, //  800 0000
+            Hours_Before_Start  = 0x00000003 << 26, //  C00 0000
+            Hours_After_Start   = 0x00000004 << 26, // 1000 0000
             Hours_Before_End    = 0x00000005 << 26,
             Hours_After_End     = 0x00000006 << 26,
             Days_Before_Start   = 0x00000007 << 26,
@@ -558,7 +559,7 @@ namespace CStat.Models
             // MAX              = 0x0000001F << 26, 
 
             // Each    MASK   = 0x03E00000 
-            Retreat_Event     = 0x00000001 << 21,
+            Retreat_Event     = 0x00000001 << 21, // 20 0000
             Week_Event        = 0x00000002 << 21,
             Event_Day         = 0x00000003 << 21,
             Work_Day          = 0x00000004 << 21,
@@ -607,11 +608,41 @@ namespace CStat.Models
             Need_Inspection = 0x00800000,
             Need_Planning   = 0x01000000,
             Job_Done        = 0x02000000,
-            Unknown         = 0x04000000
+            Unknown         = 0x04000000,
         }
         public enum eAGFrequency
         {
 
+        }
+
+        public String ClassName(int i)
+        {
+            string name = IsDue() ? "DueStyle" : "NotDueStyle";
+            if ((i % 2) != 0)
+                name = name + "Odd";
+            return name;
+        }
+
+        public bool IsDue()
+        {
+            return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
+        }
+
+        public int DueOrder()
+        {
+            return (DueDate.HasValue && DueDate.Value < PropMgr.ESTNow) ? 1 : 2;
+        }
+
+        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context)
+        {
+            return _GetDueTasks(context).Result;
+        }
+
+        public static async System.Threading.Tasks.Task<List<CTask>> _GetDueTasks(CStat.Models.CStatContext context)
+        {
+            var dTasks = await context.Task
+              .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= PropMgr.ESTNow)).ToListAsync();
+            return dTasks;
         }
 
         public void GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp)

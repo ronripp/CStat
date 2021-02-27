@@ -48,6 +48,7 @@
     <Compile Remove="Common\CCAService\ChurchMgr.cs" />
     <Compile Remove="Common\CCAService\FileUploadController.cs" />
     <Compile Remove="Common\CCAService\HomeController.cs" />
+    <Compile Remove="Controllers\SmsController.cs" />
   </ItemGroup>
 
   <ItemGroup>

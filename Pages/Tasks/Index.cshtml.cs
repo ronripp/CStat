@@ -10,6 +10,7 @@ using CStat.Models;
 using CTask = CStat.Models.Task;
 using Task = System.Threading.Tasks.Task;
 using System.Runtime.CompilerServices;
+using CStat.Common;
 
 namespace CStat.Pages.Tasks
 {
@@ -38,7 +39,7 @@ namespace CStat.Pages.Tasks
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => t.Priority).ToListAsync();
+                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue && (t.DueDate < PropMgr.ESTNow)) ? 1 : 2).ThenBy(t => t.Priority).ToListAsync();
 
                 IList<CTask> CompTasks = await _context.Task
                     .Include(t => t.Blocking1)

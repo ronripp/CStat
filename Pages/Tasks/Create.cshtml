@@ -3,8 +3,11 @@
 @Html.AntiForgeryToken()
 
 @{
+    var bkColor = Model.IsTemplate ? "#C0FFFF" : "#FFFFFF";
+    ViewData["bkColor"] = bkColor;
     ViewData["Title"] = (Model.IsTemplate ? "Template " : "Task ") + ((Model.task.Id <= 0) ? "(New)" : Model.task.Id.ToString());
     Layout = "_LayoutTask";
+
 }
 
 <head>
@@ -248,7 +251,7 @@
                         //    $("#SaveAll").css("background-color", "#007272");
                         //}, 1000);
                         if (inMarkDone) {
-                            $("#markDone").prop("disabled", true).css('opacity', 0.5);
+                            $("#markDone").prop("disabled", true).css('opacity', 0.5).css("color", "lightgray");
                         }
                     }
                     else {
@@ -396,6 +399,7 @@
                         keepSessionActive()
                     },
                     error: function (res) {
+                        ;
                     },
                     complete: function (res) {
                     }
@@ -403,6 +407,15 @@
             }
 
             keepSessionActive();
+
+            $('#task_DueDate').click(function () {
+                let str = $("#task_DueDate").val();
+                if (str.trim().length == 0) {
+                    let dt = new Date(Date.now());
+                    str = dt.getFullYear() + "-" + (dt.getMonth() + 1).toString().padStart(2, '0') + "-" + dt.getDate().toString().padStart(2, '0') + "T23:59:00";
+                    $("#task_DueDate").val(str);
+                }
+            });
 
             function setPicture() {
                 if (pics.length > 0) {
@@ -742,7 +755,7 @@
                 let comp = $("#pctComp").val();
                 let compVal = parseInt(comp);
                 if (compVal > 100) {
-                    $("#markDone").prop("disabled", false).css('opacity', 1.0);
+                    $("#markDone").prop("disabled", false).css('opacity', 1.0).css("color", "black");
                     if ($("#taskData_state").val() === "4096") {
                         $("#taskData_state").val("1024");
                     }
@@ -752,7 +765,7 @@
                 }
                 if (!!compVal) {
                     if (compVal < 100) {
-                        $("#markDone").prop("disabled", false).css('opacity', 1.0);
+                        $("#markDone").prop("disabled", false).css('opacity', 1.0).css("color", "black");
                         if ($("#taskData_state").val() === "4096") {
                             $("#taskData_state").val("1024");
                         }
@@ -760,7 +773,7 @@
                     } else {
                         $("#taskData_state").val(0x00001000);
                         $("#taskData_reason").val(0x02000000);
-                        $("#markDone").prop("disabled", true).css('opacity', 0.5);
+                        $("#markDone").prop("disabled", true).css('opacity', 0.5).css("color", "lightgray");
                     }
                 } else {
                     return;
@@ -952,11 +965,10 @@
 
 
 @{
-    var bkColor = Model.IsTemplate ? "#FFD0D0" : "#FFFFFF";
-//    var saveStr = Model.IsTemplate ? "Save Template" : "Save Task";
+    //    var saveStr = Model.IsTemplate ? "Save Template" : "Save Task";
     string disStr;
     string doneColor;
-    if (Request.Query["id"] == (string)null)
+    if ((Request.Query["id"] == (string)null) || (Model.taskData.PercentComplete >= 100))
     {
         disStr = "disabled";
         doneColor = "lightgray";
@@ -972,10 +984,11 @@
 
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="task.Id" />
+    <input type="hidden" asp-for="task.ParentTaskId" />
     <input type="hidden" asp-for="task.Type" />
     <input type="hidden" asp-for="task.ActualDoneDate" />
 
-    <div class="container" style="margin-bottom:4px">
+    <div class="container" style="margin-bottom:4px;background-color:@bkColor">
         <div class="row" style="background-color:@bkColor;">
             <div class="col-xs-2" style="margin-right: 4px">
                 <label asp-for="task.Description" class="control-label">Title:</label>
@@ -1038,11 +1051,11 @@
                                 <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
                                 @{if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
                                     {
-                                    <input asp-for="task.DueDate" type="date" value="" style="max-height:1.6em; max-width:9.7em;" />
+                                        <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em;" />
                                     }
                                     else
                                     {
-                                    <input asp-for="task.DueDate" type="date" style="max-height:1.6em; max-width:9.7em;" />
+                                        <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em;" />
                                     }
                                 }
 
@@ -1190,18 +1203,18 @@
                                         var miq = "miq" + i;
                                         var mit = "mit" + i;
 
-                                    <tr>
-                                        <td id="mdd@{@bl.id}">@bl.desc</td>
-                                        <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
-                                        <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                        <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
-                                        <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                        <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
-                                        <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                        <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
-                                        <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                        <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
-                                    </tr>
+                                        <tr>
+                                            <td id="mdd@{@bl.id}">@bl.desc</td>
+                                            <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
+                                            <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                            <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
+                                            <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
+                                            <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
+                                            <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                            <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
+                                            <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                            <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
+                                        </tr>
                                         ++i;
                                     }
                                 }

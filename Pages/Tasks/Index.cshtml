@@ -14,9 +14,6 @@
     <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
     <style>
-        tr:nth-child(even) {
-            background-color: #fff185
-        }
 
         .table td {
             padding: 0.5rem;
@@ -32,13 +29,32 @@
             margin: 10px;
         }
 
-            .split-para span {
-                display: block;
-                float: right;
-                width: 50%;
-                margin-left: 5px;
-                text-align: right;
-            }
+        .split-para span {
+           display: block;
+           float: right;
+           width: 50%;
+           margin-left: 5px;
+           text-align: right;
+        }
+
+        .DueStyle {
+            background-color: #ffE0E0;
+            font-weight:bold;
+        }
+
+        .NotDueStyle {
+            background-color: #ffffff;
+        }
+
+        .DueStyleOdd {
+            background-color: #ffC8C8;
+            font-weight: bold;
+        }
+
+        .NotDueStyleOdd {
+            background-color: #fff185
+        }
+
     </style>
 
     <script type="text/javascript">
@@ -88,21 +104,21 @@
 </head>
 
 @{
-    var bkColor = Model.IsTemplate ? "#FFD0D0" : "#FFFFFF";
+    var bkColor = Model.IsTemplate ? "#C0FFFF" : "#FFFFFF";
     var createLabel = Model.IsTemplate ? "New Template" : "Create New";
 }
 
 <body style="background-color:@bkColor">
     <p class="split-para">
         @{ if (Model.IsTemplate)
-           {
+            {
                 <b><a asp-page="Create" asp-route-id="-1">@createLabel</a></b>
                 <b><a href="javascript:void(0);" style="margin-left:10px" id="autogen" onclick="autoGenAll()">Re-Gen Tasks</a></b>
-           }
-           else
-           {
+            }
+            else
+            {
     <b><a asp-page="Create">@createLabel</a></b>
-           }
+            }
         }
         <span>
             @{ if (Model.IsTemplate)
@@ -142,9 +158,12 @@
             </tr>
         </thead>
         <tbody>
+            @{
+                int i = 0;
+            }
             @foreach (var item in Model.Task)
             {
-                <tr>
+                <tr class="@item.ClassName(i++)">
                     <td>
                         <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
                     </td>

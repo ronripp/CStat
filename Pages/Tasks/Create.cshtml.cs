@@ -574,15 +574,14 @@ namespace CStat.Pages.Tasks
                     DateTime dueDateTime = new DateTime();
                     if (msDueStr.Length > 0)
                     {
-                        dueDateTime = DateTime.ParseExact(msDueStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                        //dueDateTime = DateTime.ParseExact(msDueStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                        dueDateTime = DateTime.Parse(msDueStr, System.Globalization.CultureInfo.CurrentCulture);
                     }
                     taskData.FixedDueDate = bool.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "fixedDueDate").Value);
                     if (taskData.FixedDueDate)
                     {
                         if (msDueStr.Length > 0)
                         {
-                            if (!task.DueDate.HasValue && (dueDateTime != null) && (dueDateTime.Hour == 0) && (dueDateTime.Minute == 0))
-                                dueDateTime = dueDateTime.AddHours(23).AddMinutes(59);
                             task.DueDate = dueDateTime;
                         }
                         else

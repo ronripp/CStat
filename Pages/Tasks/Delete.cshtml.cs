@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using CTask = CStat.Models.Task;
 using CStat.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Pages.Tasks
 {
     public class DeleteModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private readonly IConfiguration _configuration;
 
-        public DeleteModel(CStat.Models.CStatContext context)
+        public DeleteModel(CStat.Models.CStatContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [BindProperty]
@@ -45,8 +48,8 @@ namespace CStat.Pages.Tasks
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            var sms = new CSSMS();
-            sms.SendMessage("12037700732", "I want you to have my baby!");
+            var sms = new CSSMS(_configuration);
+            sms.SendMessage("12037700732", "Hello there Test2");
 
             if (id == null)
             {

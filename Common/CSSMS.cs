@@ -15,20 +15,22 @@ namespace CStat.Common
 {
     public class CSSMS
     {
-        public CSSMS ()
+        private readonly IConfiguration _configuration;
+        public CSSMS (IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
         public String SendMessage(string toPhone, string msg)
         {
-            var accountSid = "AC0f7677eaacbcd57b526caf812170880d";
-            var authToken = "379a2526209b39eaef149c24ee5968a9";
+            var accountSid = _configuration["Twilio:AccountSID"];
+            var authToken = _configuration["Twilio:AuthToken"];
 
             TwilioClient.Init(accountSid, authToken);
 
             var message = MessageResource.Create(
                 body: msg,
-                from: new Twilio.Types.PhoneNumber("+13606901260"),
+                from: new Twilio.Types.PhoneNumber(_configuration["Twilio:PhoneNum"]),
                 to: new Twilio.Types.PhoneNumber(toPhone)
             );
 

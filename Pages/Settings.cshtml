@@ -46,8 +46,20 @@
                     <label asp-for="UserSettings.ShowAllTasks" style="text-align:right"> Show All Tasks</label>
                 </div>
                 <div>
-                    <input asp-for="UserSettings.SendEquipEMail" />
-                    <label asp-for="UserSettings.SendEquipEMail" style="text-align:right"> Notify on Equip Alert</label>
+                    <input asp-for="UserSettings.SendEquipText" />
+                    <label asp-for="UserSettings.SendEquipText" style="text-align:right"> Text Notify on Equip Alert</label>
+                </div>
+                <div>
+                    <input asp-for="UserSettings.SendStockText" />
+                    <label asp-for="UserSettings.SendStockText" style="text-align:right"> Text Notify on Stock Need</label>
+                </div>
+                <div>
+                    <input asp-for="UserSettings.SendTaskText" />
+                    <label asp-for="UserSettings.SendTaskText" style="text-align:right"> Text Notify on Task Due</label>
+                </div>
+                <div>
+                    <input asp-for="UserSettings.SendEMailToo" />
+                    <label asp-for="UserSettings.SendEMailToo" style="text-align:right"> Notify by EMail too</label>
                 </div>
                 <div>
                     <input type="button" onclick="location.href='/Identity/Account/Manage';" value="Phone# / Username" />

@@ -13,7 +13,10 @@ namespace CStat.Common
         }
         public string Name { get; set; }
         public bool ShowAllTasks { get; set; }  = false;
-        public bool SendEquipEMail { get; set; } = true;
+        public bool SendEquipText { get; set; } = false;
+        public bool SendStockText { get; set; } = false;
+        public bool SendTaskText { get; set; } = false;
+        public bool SendEMailToo { get; set; } = false;
         [JsonIgnore]
         public string PhoneNum { get; set; } = "";
     }

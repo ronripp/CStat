@@ -625,6 +625,7 @@ namespace CStat.Models
 
         public bool IsDue()
         {
+            DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
             return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
         }
 
@@ -633,15 +634,16 @@ namespace CStat.Models
             return (DueDate.HasValue && DueDate.Value < PropMgr.ESTNow) ? 1 : 2;
         }
 
-        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context)
+        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, double hoursEarly=0)
         {
-            return _GetDueTasks(context).Result;
+            DateTime dtThreshold = (hoursEarly == 0) ? dtThreshold = PropMgr.ESTNow : PropMgr.ESTNow - TimeSpan.FromHours(hoursEarly);
+            return _GetDueTasks(context, dtThreshold).Result;
         }
 
-        public static async System.Threading.Tasks.Task<List<CTask>> _GetDueTasks(CStat.Models.CStatContext context)
+        public static async System.Threading.Tasks.Task<List<CTask>> _GetDueTasks(CStat.Models.CStatContext context, DateTime threshold)
         {
             var dTasks = await context.Task
-              .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= PropMgr.ESTNow)).ToListAsync();
+              .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).ToListAsync();
             return dTasks;
         }
 

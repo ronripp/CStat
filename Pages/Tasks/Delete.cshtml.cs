@@ -9,6 +9,7 @@ using CStat.Models;
 using CTask = CStat.Models.Task;
 using CStat.Common;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CStat.Pages.Tasks
 {
@@ -16,11 +17,13 @@ namespace CStat.Pages.Tasks
     {
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _hostEnv;
 
-        public DeleteModel(CStat.Models.CStatContext context, IConfiguration configuration)
+        public DeleteModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
+            _hostEnv = hostEnv;
         }
 
         [BindProperty]
@@ -48,8 +51,8 @@ namespace CStat.Pages.Tasks
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            var sms = new CSSMS(_configuration);
-            sms.SendMessage("12037700732", "Hello there Test2");
+            //var sms = new CSSMS(_hostEnv, _configuration);
+            //sms.SendMessage("12037700732", "Hello there Test2");
 
             if (id == null)
             {

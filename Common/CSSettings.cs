@@ -53,7 +53,11 @@ namespace CStat.Common
                     user.PhoneNum = !String.IsNullOrEmpty(PhoneNum) ? PhoneNum : "";
                 }
                 user.ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
-                user.SendEquipEMail = c.GetValue<bool>("SendEquipEMail");
+                user.SendEquipText = c.GetValue<bool>("SendEquipText");
+                user.SendStockText = c.GetValue<bool>("SendStockText");
+                user.SendTaskText = c.GetValue<bool>("SendTaskText");
+                user.SendEMailToo = c.GetValue<bool>("SendEMailToo");
+
                 UserSettings.Add(user);
             }
             var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
@@ -84,14 +88,20 @@ namespace CStat.Common
                 {
                     Name = "ronripp@outlook.com",
                     ShowAllTasks = true,
-                    SendEquipEMail = true
+                    SendEquipText = false,
+                    SendStockText = false,
+                    SendTaskText = false,
+                    SendEMailToo = false
                 };
                 UserSettings.Add(u1);
                 CSUser u2 = new CSUser
                 {
                     Name = "ellenripp@gmail.com",
                     ShowAllTasks = false,
-                    SendEquipEMail = false
+                    SendEquipText = false,
+                    SendStockText = false,
+                    SendTaskText = false,
+                    SendEMailToo = false
                 };
                 UserSettings.Add(u2);
             }
@@ -200,6 +210,7 @@ namespace CStat.Common
                 EquipProps.Add(new EquipProp());
             }
         }   
+
         public CSUser GetUser(string userName)
         {
             if (UserSettings == null)
@@ -328,7 +339,7 @@ namespace CStat.Common
             }
         }
 
-        public async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
+        public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
         {
             return await userManager.Users.ToListAsync();
         }

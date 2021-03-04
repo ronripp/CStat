@@ -38,8 +38,11 @@ namespace CStat
             {
                 UserSettings = new CSUser();
                 UserSettings.Name = UserId;
-                UserSettings.SendEquipEMail = false;
                 UserSettings.ShowAllTasks = false;
+                UserSettings.SendEquipText = false;
+                UserSettings.SendStockText = false;
+                UserSettings.SendTaskText = false;
+                UserSettings.SendEMailToo = false;
                 Settings.UserSettings.Add(UserSettings);
             }
         }

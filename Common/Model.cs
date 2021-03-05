@@ -9,6 +9,9 @@ using System.Reflection;
 using Newtonsoft.Json;
 using CTask = CStat.Models.Task;
 using CStat.Common;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CStat.Models
 {
@@ -645,6 +648,17 @@ namespace CStat.Models
             var dTasks = await context.Task
               .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).ToListAsync();
             return dTasks;
+        }
+
+        public bool NotifyUserTaskDue (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStatContext context, double hoursEarly, bool forceClean=false)
+        {
+            var sms = new CSSMS(hostEnv, config, userManager);
+            var tasks = GetDueTasks(context, hoursEarly);
+            foreach (var t in tasks)
+            {
+                sms.NotifyUser(t.Person.Email, CSSMS.NotifyType.TaskNT, "CStat: Task " + t.Id + "> " + t.Description + " is due " + t.DueDate.ToString(), forceClean);
+            }
+            return true;
         }
 
         public void GetTaskStatus (out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp)

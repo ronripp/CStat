@@ -55,7 +55,7 @@ namespace CStat.Common
             bool IsNeeded = true;
             DateTime baseDT = new DateTime(2010, 1, 1);
             double KeepSecs = PropMgr.ESTNow.AddHours(-25).Subtract(baseDT).TotalSeconds;
-            double NeedSecs = KeepSecs + 5400; // Sent 23.5 hours or less ago 
+            double NeedSecs = 2.5*3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
             using (StreamReader sr = new StreamReader(SMSSentFile))
             {
                 string line;
@@ -110,7 +110,6 @@ namespace CStat.Common
                     break;
             }
 
-
             int sentCount = 0;
             foreach (var u in nUsers)
             {
@@ -123,6 +122,21 @@ namespace CStat.Common
             CSResult csAllRes = new CSResult();
             csAllRes.Set(sentCount == nUsers.Count, "NotifyUsers", msg);
             return csAllRes;
+        }
+
+        public CSResult NotifyUser(string username, NotifyType nt, string msg, bool cleanLog = false)
+        {
+            var Settings = new CSSettings(_config, _userManager);
+
+            var u = Settings.GetUser(username);
+            if ((u == null) || (u.PhoneNum.Length < 7))
+            {
+                var csRes = new CSResult();
+                csRes.Set(false, "No user found or user has no phone #", nt.ToString() + ">" + username);
+                return csRes;
+            }
+
+            return SendMessage(u.PhoneNum, msg, cleanLog);
         }
 
         private object GetUsersAsync(UserManager<CStatUser> userManager)

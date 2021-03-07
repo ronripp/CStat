@@ -174,12 +174,12 @@ namespace CStat.Common
                 {
                     Active = true,
                     Title = "Propane Tank",
-                    PropName = "?",
+                    PropName = "propaneTank",
                     EquipUnits = EquipUnitsType.PercentFull,
                     ChartBottom = 0,
                     ChartTop = 100,
-                    RedBottom = 0,
-                    RedTop = 10,
+                    RedBottom = 10,
+                    RedTop = 0,
                     GreenBottom = 20,
                     GreenTop = 100,
                     MinsPerSample = 15

@@ -52,10 +52,7 @@ namespace CStat.Common
 
         public static void ResetCSSettings()
         {
-            if (_gCSet != null)
-            {
-                _gCSet = new CSSettings(_gCSet._config, _gCSet._userManager);
-            }
+            //_gCSet = null;
         }
 
         public CSSettings()
@@ -282,8 +279,14 @@ namespace CStat.Common
 
             return null;
         }
-
         public bool Save()
+        {
+            bool res = _Save();
+            ResetCSSettings();
+            return res;
+        }
+
+        private bool _Save()
         {
             for (int i = 0; i < 4; ++i)
             {

@@ -57,7 +57,6 @@ namespace CStat
             ModSettings.SetUser(UserSettings.Name, UserSettings);
             ModSettings.EquipProps = Settings.EquipProps;
             ModSettings.Save();
-            CSSettings.ResetCSSettings();
 
             return RedirectToPage("./Index");
         }

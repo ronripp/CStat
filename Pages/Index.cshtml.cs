@@ -15,12 +15,16 @@ namespace CStat.Pages
         private readonly CStat.Models.CStatContext _context;
         private readonly IWebHostEnvironment _hostEnv;
         private readonly CSSettings Settings;
+        private readonly UserManager<CStatUser> _userManager;
+        private readonly IConfiguration _config;
 
         public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             _hostEnv = hostEnv;
-            Settings = new CSSettings(config, userManager);
+            _userManager = userManager;
+            _config = config;
+            Settings = CSSettings.GetCSSettings(config, userManager);
         }
 
         public void OnGet()
@@ -53,11 +57,11 @@ namespace CStat.Pages
         }
         public string GetEquipColor()
         {
-            ArdMgr ardMgr = new ArdMgr(_hostEnv);
+            ArdMgr ardMgr = new ArdMgr(_hostEnv, _config, _userManager);
             ArdRecord ar = ardMgr.GetLast();
-            PropaneMgr pmgr = new PropaneMgr(_hostEnv);
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
             PropaneLevel pl = pmgr.GetTUTank();
-            return Settings.GetColor("All", ar, pl, false);
+            return CSSettings.GetColor(Settings.ActiveEquip, "All", ar, pl, false);
         }
     }
 }

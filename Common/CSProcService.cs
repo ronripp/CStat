@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
+using CTask = CStat.Models.Task;
 
 namespace CStat.Common
 {
@@ -26,6 +27,7 @@ namespace CStat.Common
         private readonly IConfiguration _configuration;
         private readonly CSSettings _csSettings;
         private readonly IWebHostEnvironment _hostEnv;
+        private readonly UserManager<CStatUser> _userManager;
 
         public CSProcService(ILogger<CSProcService> logger, CStat.Models.CStatContext context, IConfiguration configuration, IWebHostEnvironment hostEnv, UserManager<CStatUser> userManager)
         {
@@ -33,7 +35,8 @@ namespace CStat.Common
             _logger = logger;
             _context = context;
             _configuration = configuration;
-            _csSettings = new CSSettings(_configuration, userManager);
+            _userManager = userManager;
+            _csSettings = CSSettings.GetCSSettings(_configuration, userManager);
         }
 
         public async Task DoWork(CancellationToken stoppingToken)
@@ -73,15 +76,18 @@ namespace CStat.Common
                 _csSettings.Save();
                 ag.GenTasks();
 
-                // Persist Daily Reading for Propane
-                PropaneMgr pmgr = new PropaneMgr(_hostEnv);
-                pmgr.GetTUTank(true);
+                // Notify users Tasks Due
+                CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true);
+
+                // Persist Daily Reading and Notify if needed for Propane
+                PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
+                pmgr.CheckValue(pmgr.GetTUTank());
 
                 // Check/Truncate Size of Arduino file
-                ArdMgr amgr = new ArdMgr(_hostEnv);
+                ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                 amgr.GetAll(true);
 
-                 _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
+                _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
 
                 // Run again at 3:00 AM
                 DateTime now = PropMgr.ESTNow;

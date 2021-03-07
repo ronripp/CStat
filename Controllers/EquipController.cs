@@ -15,6 +15,9 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using CStat.Common;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,12 +28,15 @@ namespace CStat.Controllers
     [ApiController]
     public class EquipController : ControllerBase
     {
-        IWebHostEnvironment hostEnv;
+        private readonly IWebHostEnvironment HostEnv;
+        private readonly IConfiguration Config;
+        private readonly UserManager<CStatUser> UserManager;
 
-
-        public EquipController (IWebHostEnvironment hstEnv)
+        public EquipController (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
-            hostEnv = hstEnv;
+            HostEnv = hostEnv;
+            Config = config;
+            UserManager = userManager;
         }
 
         // GET: api/Equip
@@ -51,8 +57,9 @@ namespace CStat.Controllers
         [HttpPost]
         public HttpResponseMessage Post([FromBody] string raw)
         {
-            ArdMgr ardMgr = new ArdMgr(hostEnv);
+            ArdMgr ardMgr = new ArdMgr(HostEnv, Config, UserManager);
             HttpStatusCode hsCode = (ardMgr.Set(raw) > 0) ? HttpStatusCode.OK : HttpStatusCode.NotAcceptable;
+            ardMgr.CheckValues(raw);
             var response = new HttpResponseMessage(hsCode)
             {
                 Content = new StringContent("Response from CStat PUT", System.Text.Encoding.UTF8, "text/plain"),

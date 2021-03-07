@@ -19,6 +19,14 @@ namespace CStat.Common
 {
     public class CSResult
     {
+        public CSResult()
+        { 
+        }
+        public CSResult(bool succeeded, string respStr, string refStr)
+        {
+            Set(succeeded, respStr, refStr);
+        }
+
         public bool Succeeded;
         public string RespStr;
         public string RefStr;
@@ -51,11 +59,13 @@ namespace CStat.Common
 
         public bool NeededToSend(string SMSSentFile, string hashStr, bool cleanLog=false)
         {
+            if (!File.Exists(SMSSentFile))
+                return true;
             List<string> lines = new List<string>();
             bool IsNeeded = true;
             DateTime baseDT = new DateTime(2010, 1, 1);
             double KeepSecs = PropMgr.ESTNow.AddHours(-25).Subtract(baseDT).TotalSeconds;
-            double NeedSecs = 2.5*3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
+            double NeedSecs = KeepSecs + 2.5*3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
             using (StreamReader sr = new StreamReader(SMSSentFile))
             {
                 string line;
@@ -91,7 +101,7 @@ namespace CStat.Common
 
         public CSResult NotifyUsers(NotifyType nt, string msg, bool cleanLog = false)
         {
-            var Settings = new CSSettings(_config, _userManager);
+            var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
             List<CSUser> nUsers;
             switch (nt)
@@ -113,26 +123,24 @@ namespace CStat.Common
             int sentCount = 0;
             foreach (var u in nUsers)
             {
-                CSResult csRes = SendMessage(u.PhoneNum, msg, cleanLog);
+                CSResult csRes = NotifyUser(u.Name, nt, msg, cleanLog);
                 if (csRes.Succeeded)
                     ++sentCount;
                 cleanLog = false;
             }
 
-            CSResult csAllRes = new CSResult();
-            csAllRes.Set(sentCount == nUsers.Count, "NotifyUsers", msg);
-            return csAllRes;
+            return new CSResult(sentCount == nUsers.Count, "NotifyUsers", msg);
         }
 
         public CSResult NotifyUser(string username, NotifyType nt, string msg, bool cleanLog = false)
         {
-            var Settings = new CSSettings(_config, _userManager);
+            var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
             var u = Settings.GetUser(username);
             if ((u == null) || (u.PhoneNum.Length < 7))
             {
                 var csRes = new CSResult();
-                csRes.Set(false, "No user found or user has no phone #", nt.ToString() + ">" + username);
+                csRes.Set(false, ((u == null) ? "No user found" : "No phone # found."), nt.ToString() + ">" + username);
                 return csRes;
             }
 
@@ -150,7 +158,7 @@ namespace CStat.Common
             string SendHash = toPhone + "[" + msg + "]";
             if (!NeededToSend(SMSSentFile, SendHash, cleanLog))
             {
-
+                return new CSResult(false, "Same message to same phone recently", SendHash);
             }
 
             var accountSid = _config["Twilio:AccountSID"];

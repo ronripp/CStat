@@ -93,7 +93,7 @@ namespace CStat
             _context = context;
             _configuration = configuration;
             _httpCA = httpCA;
-            _csSettings = new CSSettings(_configuration, userManager);
+            _csSettings = CSSettings.GetCSSettings(_configuration, userManager);
             var user = _csSettings.GetUser(_httpCA.HttpContext.User.Identity.Name);
         }
 

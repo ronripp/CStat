@@ -32,16 +32,16 @@ namespace CStat.Pages
         {
             _context = context;
             _hostEnv = hostEnv;
-            _ardMgr = new ArdMgr(_hostEnv);
+            _ardMgr = new ArdMgr(_hostEnv, _config, userManager);
             _config = config;
-            Settings = new CSSettings(_config, userManager);
-            PropaneMgr pmgr = new PropaneMgr(_hostEnv);
+            Settings = CSSettings.GetCSSettings(_config, userManager);
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, userManager);
             _ar = _ardMgr.GetLast();
             if (_ar == null)
-                _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
+                _ar = new ArdRecord(PropMgr.NotSet, PropMgr.NotSet, PropMgr.NotSet, 0, PropMgr.ESTNow);
             _pl = pmgr.GetTUTank();
             if (_pl == null)
-                _pl = new PropaneLevel(0, PropMgr.ESTNow, -40);
+                _pl = new PropaneLevel(0, PropMgr.ESTNow, PropMgr.NotSet);
 
             ActiveEqHistory = new List<List<double>>();
             int NumActive = Settings.ActiveEquip.Count;
@@ -121,7 +121,7 @@ namespace CStat.Pages
         public ArdRecord GetLastArd()
         {
             if (_ar == null)
-                _ar = new ArdRecord(-40, -40, -40, 0, PropMgr.ESTNow);
+                _ar = new ArdRecord(PropMgr.NotSet, PropMgr.NotSet, PropMgr.NotSet, 0, PropMgr.ESTNow);
             return _ar;
         }
 
@@ -131,7 +131,7 @@ namespace CStat.Pages
         }
         public string GetColorClass(string propStr)
         {
-            return Settings.GetColor(propStr, _ar, _pl, true);
+            return CSSettings.GetColor(Settings.ActiveEquip, propStr, _ar, _pl, true);
         }
 
         public List<EquipProp> ActEq { get{return Settings.ActiveEquip;} }

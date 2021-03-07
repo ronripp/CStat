@@ -10,13 +10,17 @@ using static CStat.Common.EquipProp;
 using CStat.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static CStat.Common.ArdMgr;
 
 namespace CStat.Common
 {
     public class CSSettings
     {
+        static private CSSettings _gCSet = null;
+
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
+        private readonly UserManager<CStatUser> _userManager;
         private const int MAX_EQUIP = 8;
 
         public const string green = "#00FF00";
@@ -30,12 +34,37 @@ namespace CStat.Common
         public List<EquipProp> EquipProps { get; set; }
         public List<EquipProp> ActiveEquip { get; set; }
 
+        public static CSSettings GetCSSettings()
+        {
+            if (_gCSet != null)
+                return _gCSet;
+            _gCSet = new CSSettings();
+            return _gCSet;
+        }
+
+        public static CSSettings GetCSSettings(IConfiguration config, UserManager<CStatUser> userManager)
+        {
+            if (_gCSet != null)
+                return _gCSet;
+            _gCSet = new CSSettings(config, userManager);
+            return _gCSet;
+        }
+
+        public static void ResetCSSettings()
+        {
+            if (_gCSet != null)
+            {
+                _gCSet = new CSSettings(_gCSet._config, _gCSet._userManager);
+            }
+        }
+
         public CSSettings()
         {
         }
         public CSSettings (IConfiguration config, UserManager<CStatUser> userManager)
         {
             _config = config;
+            _userManager = userManager;
             List<CStatUser> Users = GetUsersAsync(userManager).Result;
             var csect = config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
@@ -60,27 +89,12 @@ namespace CStat.Common
 
                 UserSettings.Add(user);
             }
+
             var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
-            EquipProps = new List<EquipProp>();
-            ActiveEquip = new List<EquipProp>();
-            foreach (var e in eqProps)
-            {
-                EquipProp eqProp = new EquipProp();
-                eqProp.Active = e.GetValue<bool>("Active");
-                eqProp.Title = e.GetValue<string>("Title");
-                eqProp.PropName = e.GetValue<string>("PropName");
-                eqProp.EquipUnits = e.GetValue<EquipUnitsType>("EquipUnits"); // TBD enum with stable, supported api
-                eqProp.ChartBottom = e.GetValue<double>("ChartBottom");
-                eqProp.ChartTop = e.GetValue<double>("ChartTop");
-                eqProp.RedBottom = e.GetValue<double>("RedBottom");
-                eqProp.RedTop = e.GetValue<double>("RedTop");
-                eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
-                eqProp.GreenTop = e.GetValue<double>("GreenTop");
-                eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
-                if (eqProp.Active)
-                    ActiveEquip.Add(eqProp);
-                EquipProps.Add(eqProp);
-            }
+
+            GetEquipLists(config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
+            EquipProps = allEPs;
+            ActiveEquip = activeEPs;
 
             if (UserSettings.Count == 0)
             {
@@ -211,6 +225,32 @@ namespace CStat.Common
             }
         }   
 
+        public static bool GetEquipLists (IConfiguration config, out List<EquipProp>allEquipProps, out List<EquipProp> activeEquipProps)
+        {
+            var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
+            allEquipProps = new List<EquipProp>();
+            activeEquipProps = new List<EquipProp>();
+            foreach (var e in eqProps)
+            {
+                EquipProp eqProp = new EquipProp();
+                eqProp.Active = e.GetValue<bool>("Active");
+                eqProp.Title = e.GetValue<string>("Title");
+                eqProp.PropName = e.GetValue<string>("PropName");
+                eqProp.EquipUnits = e.GetValue<EquipUnitsType>("EquipUnits"); // TBD enum with stable, supported api
+                eqProp.ChartBottom = e.GetValue<double>("ChartBottom");
+                eqProp.ChartTop = e.GetValue<double>("ChartTop");
+                eqProp.RedBottom = e.GetValue<double>("RedBottom");
+                eqProp.RedTop = e.GetValue<double>("RedTop");
+                eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
+                eqProp.GreenTop = e.GetValue<double>("GreenTop");
+                eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
+                if (eqProp.Active)
+                    activeEquipProps.Add(eqProp);
+                allEquipProps.Add(eqProp);
+            }
+            return eqProps.Count() > 0;
+        }
+
         public CSUser GetUser(string userName)
         {
             if (UserSettings == null)
@@ -268,37 +308,43 @@ namespace CStat.Common
             return false;
         }
 
-        public string GetColor(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        public static string GetColor(List<EquipProp>equipProps, string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
            string ltPropName = propName.ToLower().Trim();
            if (ltPropName == "all")
-                return GetEqColor(null, ar, pl, returnClass);
-            EquipProp ep = ActiveEquip.Find(e => e.PropName.ToLower().Trim() == ltPropName);
+                return GetEqColor(equipProps, null, ar, pl, returnClass);
+            EquipProp ep = equipProps.Find(e => e.PropName.ToLower().Trim() == ltPropName);
             if (ep != null)
-                return GetEqColor(ep, ar, pl, returnClass);
+                return GetEqColor(equipProps, ep, ar, pl, returnClass);
             return (returnClass) ? "greenClass" : CSSettings.green;
         }
 
-        public double GetValue(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        public static double GetValue(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
             string tPropName = propName.Trim();
             return tPropName switch
             {
-                "freezerTemp" => ar.FreezerTempF,
-                "frigTemp" => ar.FridgeTempF,
-                "kitchTemp" => ar.KitchTempF,
-                "propaneTank" => pl.LevelPct,
-                "waterPres" => ar.WaterPress,
-                _ => 0,
+                "freezerTemp" => (ar != null) ? ar.FreezerTempF : PropMgr.NotSet,
+                "frigTemp" => (ar != null) ? ar.FridgeTempF : PropMgr.NotSet,
+                "kitchTemp" => (ar != null) ? ar.KitchTempF : PropMgr.NotSet,
+                "propaneTank" => (pl != null) ? pl.LevelPct : PropMgr.NotSet,
+                "waterPres" => (ar != null) ? ar.WaterPress : PropMgr.NotSet,
+                _ => PropMgr.NotSet,
             };
         }
 
-        public double GetEqValue(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        public static double GetEqValue(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
-            return (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : 0;
+            return (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : PropMgr.NotSet;
         }
 
-        public string GetEqColor(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        public static string GetEqValueStr(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
+        {
+            double value = (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : PropMgr.NotSet;
+            return value.ToString("0.##") + " " + ep.EquipUnits.ToString();
+        }
+
+        public static string GetEqColor(List<EquipProp> equipProps, EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
             string color = "green";
 
@@ -306,19 +352,19 @@ namespace CStat.Common
             {
                 return ep.PropName switch
                 {
-                    "freezerTemp" => ep.GetColor(ar.FreezerTempF, returnClass),
-                    "frigTemp" => ep.GetColor(ar.FridgeTempF, returnClass),
-                    "kitchTemp" => ep.GetColor(ar.KitchTempF, returnClass),
-                    "propaneTank" => ep.GetColor(pl.LevelPct, returnClass),
-                    "waterPres" => ep.GetColor(ar.WaterPress, returnClass),
+                    "freezerTemp" => (ar != null) ? ep.GetColor(ar.FreezerTempF, returnClass) : CSSettings.red,
+                    "frigTemp" => (ar != null) ? ep.GetColor(ar.FridgeTempF, returnClass) : CSSettings.red,
+                    "kitchTemp" => (ar != null) ? ep.GetColor(ar.KitchTempF, returnClass) : CSSettings.red,
+                    "propaneTank" => (pl != null) ? ep.GetColor(pl.LevelPct, returnClass) : CSSettings.red,
+                    "waterPres" => (ar != null) ? ep.GetColor(ar.WaterPress, returnClass) : CSSettings.red,
                     _ => "",
                 };
             }
 
             // Perform All
-            if (ActiveEquip.Count > 0)
+            if (equipProps.Count > 0)
             {
-                string[] colors = ActiveEquip.Select(e => e.GetColor(GetEqValue(e, ar, pl, returnClass), returnClass)).ToArray();
+                string[] colors = equipProps.Select(e => e.GetColor(GetEqValue(e, ar, pl, returnClass), returnClass)).ToArray();
                 if (colors.Any(c => c == CSSettings.red))
                     color = "red";
                 else if (colors.Any(c => c == CSSettings.yellow))

@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using CStat.Areas.Identity.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -31,14 +34,13 @@ namespace CStat.Common
             return ReadingTime.ToString("M/d/yy h:mmt");
         }
 
-        public double OutsideTempF { get; set; } = -40;
+        public double OutsideTempF { get; set; } = PropMgr.NotSet;
         public double LevelPct { get; set; } = 0;
         public DateTime ReadingTime { get; set; }
     }
 
     public class EquipProp
     {
-        public const int UNDEFINED_TB = -4321;
         public enum EquipUnitsType {
             [Display(Name = "Temp. Farenh.")]
             TemperatureF =0x10,
@@ -65,6 +67,10 @@ namespace CStat.Common
         public double RedTop { get; set; } = 0;
         public bool Active { get; set; } = false;
         public double MinsPerSample { get; set; } = 0;
+        public bool IsPropane ()
+        {
+            return (this.PropName == "propaneTank");
+        }
 
         public string GetColor(double value, bool returnClass = true)
         {
@@ -124,9 +130,9 @@ namespace CStat.Common
         }
 
 
-        public double FreezerTempF { get; set; } = -40;
-        public double FridgeTempF { get; set; } = -40;
-        public double KitchTempF { get; set; } = -40;
+        public double FreezerTempF { get; set; } = PropMgr.NotSet;
+        public double FridgeTempF { get; set; } = PropMgr.NotSet;
+        public double KitchTempF { get; set; } = PropMgr.NotSet;
         public double WaterPress { get; set; } = 0;
         public DateTime TimeStamp { get; set; }
     }
@@ -135,14 +141,19 @@ namespace CStat.Common
     {
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
         private readonly IWebHostEnvironment HostEnv;
+        private readonly IConfiguration Config;
+        private readonly UserManager<CStatUser> UserManager;
+
         private string FullLatest = "";
         private string FullAll = "";
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
 
-        public ArdMgr(IWebHostEnvironment hostEnv)
+        public ArdMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             HostEnv = hostEnv;
+            Config = config;
+            UserManager = userManager;
             string webRootPath = hostEnv.WebRootPath;
             string newPath = Path.Combine(webRootPath, "Equip");
             if (!Directory.Exists(newPath))
@@ -151,9 +162,22 @@ namespace CStat.Common
             FullAll = Path.Combine(newPath, "ardall.txt");
         }
 
-        public string CheckValues(string jsonStr)
+        public bool CheckValues(string jsonStr) // Ard only : No propane
         {
-            return "";
+            ArdRecord ar = GetArdRecord(jsonStr);
+            CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
+
+            foreach (var ep in cset.EquipProps)
+            {
+                if (ep.IsPropane())
+                    continue;
+                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+                {
+                    CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, ar, null, false), false);
+                }
+            }
+            return true;
         }
 
         public int Set(string jsonStr)
@@ -217,10 +241,10 @@ namespace CStat.Common
 
                             DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
 
-                            return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : "-40",
-                                                 props.ContainsKey("frigTemp") ? props["frigTemp"] : "-40",
-                                                 props.ContainsKey("kitchTemp") ? props["kitchTemp"] : "-40",
-                                                 props.ContainsKey("waterPres") ? props["waterPres"] : "-40",
+                            return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : PropMgr.sNotSet,
+                                                 props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
+                                                 props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
+                                                 props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
                                                  arTime);
                         }
                     }
@@ -241,6 +265,27 @@ namespace CStat.Common
                 return null;
             }
         }
+
+        public ArdRecord GetArdRecord (string raw)
+        {
+            string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+            Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                "freezerTemp",
+                "frigTemp",
+                "kitchTemp",
+                "waterPres",
+                "time"
+                );
+
+            DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
+
+            return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : PropMgr.sNotSet,
+                                 props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
+                                 props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
+                                 props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
+                                 arTime);
+        }
+
 
         public List<ArdRecord> GetAll(bool justCheckSize=false)
         {
@@ -271,23 +316,7 @@ namespace CStat.Common
                                 raw = lineList[i];
                                 if (raw.Length > 20)
                                 {
-                                    string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
-                                    Dictionary<string, string> props = PropMgr.GetProperties(latest,
-                                        "freezerTemp",
-                                        "frigTemp",
-                                        "kitchTemp",
-                                        "waterPres",
-                                        "time"
-                                        );
-
-                                    DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
-
-                                    ArdRecord ar = new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : "-40",
-                                                         props.ContainsKey("frigTemp") ? props["frigTemp"] : "-40",
-                                                         props.ContainsKey("kitchTemp") ? props["kitchTemp"] : "-40",
-                                                         props.ContainsKey("waterPres") ? props["waterPres"] : "-40",
-                                                         arTime);
-                                    arList.Add(ar);
+                                    arList.Add(GetArdRecord(raw));
                                 }
                             }
                         }
@@ -346,23 +375,43 @@ namespace CStat.Common
         //}
     }
 
-
     public class PropaneMgr
     { 
         private readonly IWebHostEnvironment HostEnv;
+        private readonly IConfiguration Config;
+        private readonly UserManager<CStatUser> UserManager;
         private readonly string FullAll;
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
         public const int MAX_USE_PLS = 400;
         private const int MAX_FILE_PLS = 600;
-        public PropaneMgr(IWebHostEnvironment hostEnv)
+        public PropaneMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             HostEnv = hostEnv;
+            Config = config;
+            UserManager = userManager;
             string webRootPath = hostEnv.WebRootPath;
             string newPath = Path.Combine(webRootPath, "Equip");
             if (!Directory.Exists(newPath))
                 Directory.CreateDirectory(newPath);
             FullAll = Path.Combine(newPath, "propaneall.txt");
         }
+
+        public bool CheckValue(PropaneLevel pl) // propane only
+        {
+            CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
+            foreach (var ep in cset.EquipProps)
+            {
+                if (!ep.IsPropane())
+                    continue;
+                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, null, pl, false) != CSSettings.green)
+                {
+                    CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, null, pl, false), false);
+                }
+            }
+            return true;
+        }
+
         public PropaneLevel GetTUTank(bool onlyAppendToFile=false) // Tank Utility Propane meter
         {
             var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
@@ -428,7 +477,7 @@ namespace CStat.Common
                                                             "OutsideTempF",
                                                             "ReadingTime");
                                 double level = 0;
-                                double temp = -40;
+                                double temp = PropMgr.NotSet;
                                 DateTime readTime;
                                 if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
                                 {
@@ -472,6 +521,8 @@ namespace CStat.Common
     }
     public static class PropMgr
     {
+        public const int NotSet = -99;
+        public const string sNotSet = "-99";
         public static Dictionary<string, string> GetSiteProperties(string url, string userName, string password, params string[] tokens)
         {
             List<string> names = tokens.ToList();

@@ -52,6 +52,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="CStat.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Pages\Inventory\favicon.ico" />
     <None Remove="Pages\Required.html" />
     <None Remove="SQLQuery1.sql" />
@@ -89,6 +93,13 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="CStat.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

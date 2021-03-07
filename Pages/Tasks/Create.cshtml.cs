@@ -1,11 +1,14 @@
-﻿using CStat.Models;
+﻿using CStat.Areas.Identity.Data;
+using CStat.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -197,7 +200,9 @@ namespace CStat.Pages.Tasks
     public class CreateModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
-        private IWebHostEnvironment hostEnv;
+        private readonly IConfiguration _config;
+        private readonly UserManager<CStatUser> _userManager;
+        private readonly IWebHostEnvironment hostEnv;
 
         public TaskData taskData { get; set; }
 
@@ -207,10 +212,12 @@ namespace CStat.Pages.Tasks
 
         public bool IsTemplate = false;
 
-        public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
+        public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             hostEnv = hstEnv;
+            _config = config;
+            _userManager = userManager;
             taskData = new TaskData();
             task = new CTask();
         }
@@ -448,7 +455,7 @@ namespace CStat.Pages.Tasks
                     taskData.PercentComplete = (int)pctComp;
                     fStr = "Title must be filled";
                     string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value).Trim();
-                    if  (title.Length == 0)
+                    if (title.Length == 0)
                         throw new ArgumentNullException("bad title");
                     taskData.Title = task.Description = title;
                     fStr = "Task Id";
@@ -501,7 +508,7 @@ namespace CStat.Pages.Tasks
                                 (dueType == (int)CTask.eTaskType.Months_Before_End) ||
                                 (dueType == (int)CTask.eTaskType.Months_After_End) ||
                                 (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon) ||
-                                (dueType == (int)CTask.eTaskType.Every_Num_Years)) 
+                                (dueType == (int)CTask.eTaskType.Every_Num_Years))
                             {
                                 dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
                             }
@@ -554,9 +561,9 @@ namespace CStat.Pages.Tasks
                     string[] picTitles = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitles").Value);
                     if (pics.Length == picTitles.Length)
                     {
-                        for (int i = 0; i < pics.Length; ++ i)
+                        for (int i = 0; i < pics.Length; ++i)
                         {
-                            Pic pobj = new Pic(task.Id, i+1, CCommon.UnencodeQuotes(picTitles[i]), pics[i]);
+                            Pic pobj = new Pic(task.Id, i + 1, CCommon.UnencodeQuotes(picTitles[i]), pics[i]);
                             taskData.pics.Add(pobj);
                         }
                     }
@@ -632,6 +639,8 @@ namespace CStat.Pages.Tasks
                         ag.GenTasks(task.Id);
                     }
 
+                    if (dueDateTime != DateTime.MinValue)
+                        NotifyUserTaskDue(hostEnv, _config, _userManager, _context, 24); // Send out notications if needed.
                 }
                 catch(Exception e)
                 {

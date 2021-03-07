@@ -639,7 +639,7 @@ namespace CStat.Models
 
         public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, double hoursEarly=0)
         {
-            DateTime dtThreshold = (hoursEarly == 0) ? dtThreshold = PropMgr.ESTNow : PropMgr.ESTNow - TimeSpan.FromHours(hoursEarly);
+            DateTime dtThreshold = (hoursEarly == 0) ? dtThreshold = PropMgr.ESTNow : PropMgr.ESTNow + TimeSpan.FromHours(hoursEarly);
             return _GetDueTasks(context, dtThreshold).Result;
         }
 

@@ -28,6 +28,8 @@
             height: 400px;
             font-family: "Verdana";
             min-width: 90%;
+            border: 2px solid black;
+            color: black;
             resize: none; /* Remove this if you want the user to resize the textarea */
         }
 
@@ -464,10 +466,7 @@
             }
 
             function openFileShare() {
-                var docVal = $("#TaskDoc").text();
-                if (!docVal || docVal === "<Browse to Add Doc>") {
-                    return;
-                }
+                var docVal = $("#TaskDoc").val();
                 var dvp = docVal.split(" > ");
                 if (!dvp || dvp.length !== 2) {
                     return;
@@ -1113,24 +1112,18 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane" id="descTab">
-
+            <div class="tab-pane" id="descTab" style="background-color: #FFFF80;">
                 <section class="row">
                     <div class="col-md-12">
-                        <table style="margin-top:8px; margin-bottom:4px">
-                            <tr>
-                                @{
-                                    var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "<Browse to Add Doc>";
-                                }
-                                <td>Doc:</td>
-                                <td id="TaskDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold">@TaskDocVal</td>
-                                <td><button id="OpenDoc" style="margin-left:6px; margin-right:6px"><b>Open Doc</b></button></td>
-                                <td><button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px">Browse</button></td>
-                                <td></td>
-                            </tr>
-                        </table>
+                        @{
+                            var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "";
+                            var disableStr = (TaskDocVal.Length == 0) ? "disabled" : "";
+                        }
+                        <input type="text" id="TaskDoc" style="display:none; padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" value='@TaskDocVal' />
+                        <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px; float: right;">Set Doc</button>
+                        <button id="OpenDoc" style="margin-left:6px; margin-right:6px; float: right;" @disableStr><b>Open Doc</b></button>
                     </div>
-                    <div class="col-md-12" width="100%" style="margin-top:8px">
+                    <div class="col-md-12" width="100%" style="margin-top:4px">
                         <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>
                     </div>
                 </section>

@@ -201,7 +201,7 @@
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
             saveFormData.append("taskType", $("#task_Type").val());
-            let docVal = encodeQuotes($("#TaskDoc").text());
+            let docVal = encodeQuotes($("#TaskDoc").val());
             if (docVal === "<Browse to Add Doc>") {
                 docVal = "";
             }
@@ -456,7 +456,7 @@
             updateDueVal();
 
             if (window.location.href.indexOf("TaskDoc=1") != -1) {
-                $("#TaskDoc").text(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
+                $("#TaskDoc").val(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
                 sessionStorage.setItem("TaskDocFolder", "");
                 sessionStorage.setItem("TaskDocFile", "");
                 sessionStorage.setItem("TaskDocReturn", "");

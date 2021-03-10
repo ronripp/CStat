@@ -169,12 +169,12 @@ namespace CStat.Common
 
             foreach (var ep in cset.EquipProps)
             {
-                if (ep.IsPropane())
+                if (ep.IsPropane() || !ep.Active)
                     continue;
                 if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
                 {
                     CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, ar, null, false), false);
+                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), false);
                 }
             }
             return true;
@@ -277,15 +277,17 @@ namespace CStat.Common
                 "time"
                 );
 
-            DateTime arTime = (props["time"] != null) ? PropMgr.ParseEST(props["time"]) : PropMgr.MissingDT;
-
+            DateTime arTime;
+            if (props.TryGetValue("time", out string arTimeStr))
+                arTime = PropMgr.ParseEST(arTimeStr);
+            else
+                arTime = PropMgr.ESTNow;
             return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : PropMgr.sNotSet,
                                  props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
                                  props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
                                  props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
                                  arTime);
         }
-
 
         public List<ArdRecord> GetAll(bool justCheckSize=false)
         {

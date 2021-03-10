@@ -73,6 +73,8 @@ namespace CStat.Common
                 while ((line = sr.ReadLine()) != null)
                 {
                     string[] fields = line.Split('~');
+                    if ((fields.Length < 2) || (fields[0].Trim().Length == 0))
+                        continue;
                     var secs = PropMgr.ParseEST(fields[0]).Subtract(baseDT).TotalSeconds;
                     if ((secs >= NeedSecs) && (fields[1] == hashStr))
                     {

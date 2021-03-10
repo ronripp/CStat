@@ -344,7 +344,8 @@ namespace CStat.Common
         public static string GetEqValueStr(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
             double value = (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : PropMgr.NotSet;
-            return value.ToString("0.##") + " " + ep.EquipUnits.ToString();
+            string unitsStr = ep.EquipUnits.ToString().Replace("Temperature", "").Replace("Percent", "%");
+            return value.ToString("0.##") + " " + unitsStr;
         }
 
         public static string GetEqColor(List<EquipProp> equipProps, EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)

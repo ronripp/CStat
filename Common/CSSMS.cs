@@ -203,5 +203,10 @@ namespace CStat.Common
 
             return csRes;
         }
+
+        internal void NotifyUsers(object notifyType, object nt, string v1, object msg, bool v2, object p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

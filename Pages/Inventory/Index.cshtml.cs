@@ -61,6 +61,9 @@ namespace CStat
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpCA;
+        private readonly IWebHostEnvironment _hostEnv;
+        private readonly UserManager<CStatUser> _userManager;
+
         private CSSettings _csSettings;
 
         public static int STOCKED_STATE = 0;
@@ -88,10 +91,12 @@ namespace CStat
             public int allState = STOCKED_STATE;
         }
 
-        public IndexInvModel(CStat.Models.CStatContext context, IConfiguration configuration, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
+        public IndexInvModel(IWebHostEnvironment hostEnv, CStat.Models.CStatContext context, IConfiguration configuration, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
             _context = context;
             _configuration = configuration;
+            _hostEnv = hostEnv;
+            _userManager = userManager;
             _httpCA = httpCA;
             _csSettings = CSSettings.GetCSSettings(_configuration, userManager);
             var user = _csSettings.GetUser(_httpCA.HttpContext.User.Identity.Name);
@@ -162,6 +167,10 @@ namespace CStat
             }
             return invIS;
         }
+
+
+
+
         public JsonResult OnGetItemStateChange()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
@@ -172,14 +181,18 @@ namespace CStat
             InvItemState invIS = JsonConvert.DeserializeObject<InvItemState>(jsonQS);
             if (invIS != null)
             {
-                InventoryItem invItem = _context.InventoryItem.FirstOrDefault(m => m.ItemId == invIS.invItemId);
+                InventoryItem invItem = (invIS.state == NEEDED_STATE) ?  
+                    _context.InventoryItem.Include(i => i.Item).FirstOrDefault(m => m.ItemId == invIS.invItemId) :
+                    _context.InventoryItem.FirstOrDefault(m => m.ItemId == invIS.invItemId);
+
                 if (invItem != null)
                 {
-                    invItem.State = invIS.state;
                     if (invIS.pid > 0)
                         invItem.PersonId = invIS.pid;
+
+                    invItem.State = invIS.state;
+                    _context.Attach(invItem).State = EntityState.Modified;
                 }
-                _context.Attach(invItem).State = EntityState.Modified;
 
                 try
                 {
@@ -190,6 +203,16 @@ namespace CStat
                     return new JsonResult("ERROR~:Update DB Failed"); // TBD
                 }
 
+                if ((invItem.State == NEEDED_STATE) && (invItem?.Item != null))
+                {
+                    // Notify Item is needed
+                    var Item = _context.Item.FirstOrDefault(m => m.Id == invIS.invItemId); // TBD optimize with a single 
+                    if (Item != null)
+                    {
+                        Task.Run(() => NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + Item.Name));
+                    }
+                }
+
                 CurState cs = new CurState
                 {
                     invItemState = GetInvItemState(invItem),
@@ -198,6 +221,12 @@ namespace CStat
                 return new JsonResult(JsonConvert.SerializeObject(cs));
             }
             return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
+        public static void NotifyNeedAsync (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, string msg)
+        {
+            var sms = new CStat.Common.CSSMS(hostEnv, config, userManager);
+            sms.NotifyUsers(CSSMS.NotifyType.StockNT, msg);
         }
 
         public JsonResult OnGetSetInvMode()

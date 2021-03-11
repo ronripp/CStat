@@ -265,7 +265,6 @@ namespace CStat.Common
                 return null;
             }
         }
-
         public ArdRecord GetArdRecord (string raw)
         {
             string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";

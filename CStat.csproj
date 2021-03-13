@@ -109,6 +109,9 @@
 
 
   <ItemGroup>
+    <Content Update="wwwroot\CCAByLaws2021.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Required.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

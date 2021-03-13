@@ -1,0 +1,411 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" type="text/javascript"></script>
+
+    <style>
+        .accordion {
+            background-color: #E8E8FF;
+            color: #000000;
+            cursor: pointer;
+            padding: 12px;
+            width: 100%;
+            border: 2px solid #E8E8FF;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .active, .accordion:hover {
+            background-color: #FFFFC8;
+            border: 2px ridge teal;
+        }
+
+        .centerImage {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+
+        .centerText {
+            text-align: center;
+        }
+
+        .panel {
+            padding: 0 12px;
+            display: none;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .PContainer {
+            margin-top: 4px;
+        }
+
+        body.waiting * {
+            cursor: wait;
+        }
+
+        .panel ul {
+            margin-left: 6px;
+            padding-left: 0px;
+            margin-bottom: 0px;
+            margin-top: 2px;
+        }
+
+        .panel li {
+            margin-left: 4px;
+            padding-left: 0px;
+            margin-top: 0px;
+            margin-bottom: 8px;
+        }
+    </style>
+    <script>
+        function openFileShare(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+            document.body.classList.add('waiting');
+            $.ajax({
+                url: "../Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    document.body.classList.remove('waiting');
+                    if (response.indexOf("ERROR~:") === -1) {
+                        window.location.href = response;
+                    }
+                },
+                complete: function (res) {
+                    document.body.classList.remove('waiting');
+                }
+            });
+        }
+    </script>
+
+</head>
+<body>
+
+    <div>
+        <img src="/images/LogoCCAgr.jpg" alt="CCA Logo" style="width:14%; max-width:140px;margin-bottom:0; margin-top:0; padding-bottom:0;" class="centerImage">
+    </div>
+    <div class="centerText" style="font-size:1em; font-weight:600; padding-top:0;">
+        Catskill Christian Assembly By-Laws
+    </div>
+    <div class="PContainer">
+        <button class="accordion">+ <b>Intro and Amendments</b></button>
+        <div class="panel">
+            <p>
+                The principal office of the Catskill Christian Assembly as incorporated under the laws of the state of New York shall be located at Route 1, Box 265 Prattville, New York 12468. The corporation may have other such offices as the Executive Committee may determine.<br />
+            </p>
+            <p>
+                Incorporated September 19, 1961<br />
+                By-Laws adopted May 12, 1961<br />
+                By-Laws Amended November 6, 1978<br />
+                By-Laws Amended November 2, 1981<br />
+                By-Laws Amended November 1, 1993<br />
+                By-Laws Amended November 2, 1998<br />
+                By-Laws Amended November 13, 2004<br />
+                According to section VIII, adjustments have been made to the By-Laws<br />
+                By-Laws Amended November 7, 2020<br />
+            </p>
+        </div>
+
+        <button class="accordion">+ <b>Article 1: Membership</b></button>
+        <div class="panel">
+            <button class="accordion">+ Section 1: Statement of Belief</button>
+            <div class="panel">
+                <p>
+                    The members of the Catskill Christian Assembly, Inc. shall be limited to congregations and members of free and independent Churches of Christ and/or Christian Churches; shall believe in the Holy Bible as the only inspired Word of God; shall accept all miracles of both the Old and New Testaments as having actually occurred; shall believe in the miraculous conception and birth of Jesus the Christ/Messiah by the virgin Mary; shall believe that Jesus is the Christ/Messiah, the only begotten Son of God, and that he is the way, the truth and the life, and that no man comes to the Father but by him; and that he is the Savior of the world; that he was crucified, buried and rose on the third day from the dead and is now alive and seated at the right hand of God; and shall believe that faith, repentance, confession and immersion are the only divinely appointed means of accepting Christ and entering his church, and that outside of Christ, God has not promised salvation.
+                </p>
+            </div>
+            <button class="accordion">+ Section 2: Dissension</button>
+            <div class="panel">
+                <p>
+                    Any congregation or individual causing dissension regarding matters of opinion will not be considered for membership in this corporation.
+                </p>
+            </div>
+            <button class="accordion">+ Section 3: Charter Members</button>
+            <div class="panel">
+                <p>
+                    Charter members of the Catskill Christian Assembly, Inc. are:<br />
+                </p>
+                <p>
+                    Church of Christ, Bridgeport, Connecticut<br />
+                    East Northport Church of Christ<br />
+                    First Church of Christ Maspeth<br />
+                    Glen Cove Church of Christ<br />
+                    Greenpoint Church of Christ<br />
+                    Hicksville Church of Christ<br />
+                    Nesconset Church of Christ<br />
+                    West Islip Church of Christ<br />
+                </p>
+            </div>
+            <button class="accordion">+ Section 4: Application of Membership</button>
+            <div class="panel">
+                <p>
+                    Application for membership by any other congregation must be made in writing and submitted to the secretary, who shall bring the matter to the attention of the Executive Committee at the next regular meeting following the receipt of such application.  If there is no secretary, the application may be presented to any member of the Executive Committee who shall bring the matter to the attention of the Executive Committee at the next regular meeting following the receipt of such application. The Executive Committee, after careful consideration, will decide to approve or disapprove the application.  A two-thirds (2/3) majority vote will be required for approval.
+                </p>
+            </div>
+            <button class="accordion">+ Section 5: Representatives</button>
+            <div class="panel">
+                <p>
+                    Member congregations of Catskill Christian Assembly shall be represented by three (3) delegates.  The delegates must be members of each member church of the corporation.  The assembled delegates shall constitute the body of representative members known as the body of trustees, hereinafter known as the Board of Directors. Each congregation may have an alternate for each of its delegates. Delegates and alternates must be listed by name on the Annual Membership Form. All vacancies in the body of representative members shall be filled by the member congregation in which the vacancies exist.  Each delegate or his or her alternate from a member congregation in good standing shall have one (1) vote in meetings of the Board of Trustees.
+                </p>
+            </div>
+            <button class="accordion">+ Section 6:  Membership in Good Standing</button>
+            <div class="panel">
+                <p>
+                    Member congregations shall be in good standing when said congregation has submitted an Annual Membership Form, paid the appropriate fee, has not missed the previous Annual Meeting, and has participated in at least one (1) general work project (a general work project is any function or task necessary to the basic operation of the camp, requiring the participation of the member churches. It would include cooking, S.W.A.T., nurse, staff member, faculty, workdays, etc.…) member congregations who are not in good standing will not be permitted to vote in the annual meeting.
+                </p>
+            </div>
+            <button class="accordion">+ Section 7: Maintaining Membership in Good Standing</button>
+            <div class="panel">
+                <p>An annual fee of $250.00 shall be charged each member congregation.  This is a only a $50 dollar increase since  . The fee must be received by the treasurer and shall be due thirty (30) days after receipt of notification sent by the treasurer.  Congregations failing to submit this fee shall not be considered members in good standing for voting purposes.  In the event of an oversight of payment of this fee, a congregation may pay the fee at the Annual Meeting and be restored to good standing.  If the payment of the annual fee in a lump sum presents a hardship for some member churches a schedule of payments can be arranged between the member church and the treasurer which is agreeable to both parties. This should be done soon after the annual meeting, so that the annual fee will have been paid before the deadline for the next annual meeting the following year.</p>
+                <p>An Annual Membership Form must be received by the Executive Committee no less than fourteen (14) days prior to the annual meeting. Member congregations will receive the membership form from the Executive Committee with enough time to complete the form and return it before the 14-day deadline. Congregations failing to submit this form shall not be considered members in good standing for voting purposes.  In the event of an oversight of the submission of this form, a congregation may submit the form at the annual meeting and be restored to good standing.</p>
+                <p>Attendance at the previous annual meeting is a requirement for membership.  Any member congregation who fails to attend the previous annual meeting shall no longer be considered a member in good standing of this corporation until reinstated by the Executive Committee, upon written application from said member congregation as stipulated in Article 1, Section 4.</p>
+                <p>Participation in at least one (1) general work project per camp fiscal year is a requirement for membership. A general work project is any function or task necessary to the basic operation of the camp, requiring the participation of the member churches. It would include cooking, S.W.A.T., nurse, staff member, faculty, workdays, etc.…Any member congregation who fails to participate in at least one (1) general work project per camp fiscal year as determined by the Executive Committee from records supplied by the camp manager, shall no longer be considered a member in good standing of this corporation until reinstated by the Executive Committee, upon written application from said member congregation as stipulated in Article 1, Section 4.</p>
+            </div>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE II: Expulsion and Reinstatement</b></button>
+        <div class="panel">
+            <p>
+                Any congregation may be expelled by the action of a two-thirds (2/3) majority vote of the Board of Directors at any special meeting called for such purpose.
+            </p>
+            <p>
+                Before any member congregation can be expelled written notice of the charges against said congregation shall be given to its representative members as well as the time and place of the meeting where the charges are to be considered.  The Board of Elders and Deacons of said congregation shall have the right to be present at any meetings held for such purposes by the Board of Directors and can have the opportunity to defend themselves at said meeting.
+            </p>
+            <p>
+                Expulsion of a congregation effects the forfeiting of all rights it may have acquired by virtue of previous membership.
+            </p>
+            <p>
+                Any congregation having been expelled from the corporation may make application as stipulated in Article 1, Section 4 for reinstatement, providing acceptable proof of compliance with the rules and By-laws of the Catskill Christian Assembly accompanies such application.
+            </p>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE III: Meetings</b></button>
+        <div class="panel">
+            <button class="accordion">+ Section 1: Annual Meeting</button>
+            <div class="panel">
+                <p>
+                    The annual meeting shall be held at such time and place as may be determined by the officers of the Executive Committee.
+                </p>
+                Notification of the annual meeting shall be made at least thirty (30) days in advance of the meeting.
+                </p>
+            </div>
+            <button class="accordion">+ Section 2: Special Meetings</button>
+            <div class="panel">
+                <p>
+                    Special meetings of the members of the corporation may be called at any time by the president.
+                </p>
+                <p>
+                    Special meetings of the members of the corporation may also be called by obtaining the signatures of any six (6) members of the Board of Directors on a petition.  This petition must be presented to the secretary, who will then call the meeting.  If there is no secretary, the petition can be presented to any member of the Executive Committee, who will then call the meeting.
+                </p>
+                <p>
+                    Notification of all special meetings shall be made at least two (2) weeks in advance of the meeting.
+                </p>
+            </div>
+            <button class="accordion">Section 3: Quorum</button>
+            <div class="panel">
+                <p>
+                    At all meetings provided for in these By-Laws, there shall be at least four (4) member congregations in good standing represented to constitute a quorum.
+                </p>
+            </div>
+            <button class="accordion">Section 4: Order of Business</button>
+            <div class="panel">
+                <p>The order of business for all meetings shall include, but not be limited to:</p>
+                <ul>
+                    <li>Scripture reading</li>
+                    <li>Prayer</li>
+                    <li>Role Call</li>
+                    <li>The reading of the last minutes of the membership meeting</li>
+                    <li>The reading of all reports and statements, including committee reports</li>
+                    <li>Disposition of any old or unfinished business</li>
+                    <li>Election of trustees or other officers if required</li>
+                    <li>New or miscellaneous business</li>
+                    <li>Adjournment</li>
+                    <li>Closing prayer</li>
+                </ul>
+            </div>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE IV: Officers and Elections</b></button>
+        <div class="panel">
+            <button class="accordion">+ Section 1: Elections</button>
+            <div class="panel">
+                <p>
+                    All elections shall be held at the annual meeting of the Board of Directors, except in the event of death, resignation, or removal from office. In such events the office (s) may be filled as per Article 1V, Section 3.
+                </p>
+                <p>
+                    All duly elected representatives of the member congregations shall be entitled to one (1) vote at the time and place of election.  The election of officers shall be by written ballot.
+                </p>
+            </div>
+            <button class="accordion">+ Section 2: Officers</button>
+            <div class="panel">
+                <p>
+                    Officers of the corporation should be chosen from the Board of directors.   If no candidates can be found from the board of Directors, it is permissible to nominate a candidate who is not a member of the board of directors if said candidate is a member of one of the member churches of the corporation in good standing. The following offices will be filled by general election:  President, Vice President, Secretary, Treasurer, and five (5) Members at Large. These members shall form the Executive Committee.
+                </p>
+                <p>
+                    The term of these offices shall be for three (3) years with one-third (1/3) of the Executive Committee to be voted on annually.  A majority vote will be required for election.
+                </p>
+                <p>
+                    On the Executive Committee there shall be no more than four (4) ministers, evangelists, or pastors (those officially paid by the congregation whether part time or full time or file under IRS clergy tax status) and no congregation may have more than two (2) representatives.
+                </p>
+            </div>
+            <button class="accordion">+ Section 3: Inability to Complete Term of Office</button>
+            <div class="panel">
+                <p>
+                    If an officer of the corporation cannot finish his or her term of office because of death, resignation, or removal, he or she may be replaced by an alternate.  This alternate must be approved by the majority of the Executive Committee.  The term of this alternate officer will run until the next annual meeting, at which time the officer in question will be up for election to complete the remainder of the term.
+                </p>
+            </div>
+            <button class="accordion">+ Section 4: Removal of an Officer</button>
+            <div class="panel">
+                <p>
+                    An officer of the corporation may be removed by the Executive Committee with a two-thirds (2/3) majority vote.  The office in question will then be filled per Article IV, Section 3.
+                </p>
+            </div>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE V: Duties of the Officers and Executive Committee</b></button>
+        <div class="panel">
+            <button class="accordion">+ Section 1: Duties of Officers</button>
+            <div class="panel">
+                <p>
+                    *The president can appoint any committees he or she decides are necessary for the operation of the camp.  The president can appoint any other non-voting officers (other than those already mentioned in Article IV) he or she decides are necessary for the operation of the camp.  The president can also conduct and preside over all meetings of the corporation. The president shall oversee, sign and submit all permits, certifications and inspections required by the State of New York prior to the camp season, unless otherwise assigned to another committee member.  The president shall support all other Executive Committee members and officers of the corporation and encourage them in each of their areas of service.
+                </p>
+                <p>
+                    *The vice president shall perform all the duties of the president in case of the absence of the latter. In case both the president and vice president are absent from the corporation meetings, or they become unable to perform their duties, the members may appoint a president pro-tempore.
+                </p>
+                <p>
+                    *The secretary shall keep minutes of all the proceedings of the corporation and make a proper record of the same.  He or she shall perform all secretarial duties as may be required by him or her by the members of the corporation. This may include disseminating minutes, ballots, letters from the president and upcoming event information, as well as, sympathy cards, thank you notes and other correspondences.
+                </p>
+                <p>
+                    *The treasure shall receive and oversee all monies and securities belonging to this corporation and shall disburse, or otherwise deal with, the same as shall be directed by the members of the corporation. He or she shall keep an accurate account of all monies received and disbursed by him or her and shall generally perform such duties as may be required by him or her by the members of the corporation.  He or she shall submit a report of the financial condition of the corporation at each meeting of the Board of Directors.  The books of the treasurer shall be audited each year on the expiration of his term of office.  He or she shall turn over to their successor of the Board of Directors all monies and property of this corporation that he or she has in their possession.
+                </p>
+                <p>
+                    *The five (5) members at large will be voting members of the Executive Committee and will have their responsibilities defined by the Executive Committee as a whole.   These duties could include, but are not limited to Committee Chairman, Director of Social Media, Director of Spiritual Education, Overseer of Cooks and SWAT, Overseer of Nurses and Nurse’s Station, Facilities manager, or any other duties the Executive Committee decides is necessary for the operation of the camp.
+                </p>
+            </div>
+            <button class="accordion">+ Section 2: Duties of the Executive Committee</button>
+            <div class="panel">
+                <p>
+                    The Executive Committee will be responsible for the business of the corporation and oversee the operation of the total program of the corporation.
+                </p>
+                <p>
+                    The Executive Committee is responsible to the Board of Directors.
+                </p>
+                <p>
+                    The Executive Committee shall be fiscally limited to the approved budget.
+                </p>
+                <p>
+                    The Executive Committee will be permitted to authorize and to approve short term emergency expenditures not specifically designated by the budget.  The authorization to engage the corporation in short term emergency expenditures will be permitted if they are required for the maintenance and protection of the camp property and programs.
+                </p>
+                <p>
+                    To obtain any long-term loans, the Executive committee must obtain the approval of the Board of Directors by a two-thirds 92/3) majority vote.
+                </p>
+                <p>
+                    The majority of the Executive committee will be required for a quorum.
+                </p>
+                <p>
+                    The Executive committee will meet no less than twice (2 times) annually.
+                </p>
+            </div>
+            <button class="accordion">+ Section 3: Identification of Directors, Officers and Employees</button>
+            <div class="panel">
+                <p>
+                    The Catskill Christian Assembly shall indemnify any director, officer or employee or former director, officer or employee of the Catskill Christian Assembly against expenses actually or necessarily incurred by him or her in connection with the
+                    defense of any action, suit or proceeding in which he or she is made party by reason of being or having been director, officer or employee, except in relation to matters as to which he or she shall be adjudged in such action, suit or proceeding to be liable of negligence or misconduct in the performance of duty. The Catskill Christian Assembly may also reimburse to any director officer or employee the reasonable costs of settlement of any such action, suit or proceeding if it shall be found by the majority of the board directors not involved in the controversy (whether or not a quorum) that it was to the best interest of Catskill Christian Assembly that such settlement be made and that such director, officer or employee was not guilty of negligence or misconduct. Such rights of indemnification and reimbursement shall be deemed exclusive of any other right to which such director, officer or employee may be entitled under any bylaw, agreement or otherwise.
+                </p>
+            </div>
+        </div>
+        <button class="accordion">+ <b>ARTICLE VI: The Camp Manager</b></button>
+        <div class="panel">
+            <p>
+                The position of camp manager can be a part time or full-time position as determined by the Executive Committee.
+            </p>
+            <p>
+                The salary and benefits package will likewise be determined by the Executive Committee and will be approved by the Board of directors at an official meeting by a majority vote.
+            </p>
+            <p>
+                Candidates for the position of camp manger will be presented to the board of directors by the Executive Committee at an official meeting of the Board of Directors. A two-thirds (2/3) majority vote will be required for approval.
+            </p>
+            <p>
+                Candidates for camp manager may be selected from anywhere within the Brotherhood of Christian Churches or Churches of Christ.
+            </p>
+            <p>
+                The camp managers term will be indefinite.
+            </p>
+            <p>
+                The camp manager will be considered an employee of the corporation.
+            </p>
+            <p>
+                The camp manager will be responsible to the Executive Committee and will have his duties and responsibilities as camp manager determined by the Executive Committee as well.
+            </p>
+            <p>
+                The camp manager will attend all Executive Committee meetings unless advised not to do so by the Executive Committee. He or she will serve as an advisor but will not have a vote at committee meetings.
+            </p>
+            <p>
+                The camp manager can be removed from his or her position with a two-thirds (2/3) majority vote at an official meeting of the Board of Trustees.
+            </p>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE VII: Committees</b></button>
+        <div class="panel">
+            <p>
+                The president may create any committees at his or her discretion and select the chairman for that committee. The camp manager will be considered a member of any committee formed and should be informed of any meetings or decisions made by the committee.
+            </p>
+        </div>
+        <button class="accordion">+ <b>ARTICLE VIII: Amendments</b></button>
+        <div class="panel">
+            <p>
+                The provisions contained in these By-Laws may be amended, supplemented, or appealed by a two-thirds (2/3) majority vote of the members present at the annual meeting.
+            </p>
+            <p>
+                No amendment may be made to Article 1, Section 1.
+            </p>
+        </div>
+
+        <button class="accordion">+ <b>ARTICLE VIIII: Dissolution of Property</b></button>
+        <div class="panel">
+            <p>
+                In the event of the dissolution of the corporation, the proceeds from the sale of the properties and equipment shall be dispersed per the direction of the Board of Directors by a majority vote at a special meeting called for such a purpose. Any dissolution of properties will be in accordance with Federal and New York State laws as pertaining to non-profit organizations.
+            </p>
+        </div>
+    </div>
+
+        <script>
+            var acc = document.getElementsByClassName("accordion");
+            var i;
+
+            for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    var panel = this.nextElementSibling;
+                    let text = this.firstChild.data;
+                    if (panel.style.display === "block") {
+                        this.firstChild.data = text.replace("-", "+");
+                        panel.style.display = "none";
+                    } else {
+                        this.firstChild.data = text.replace("+", "-");
+                        panel.style.display = "block";
+                    }
+                });
+            }
+        </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>

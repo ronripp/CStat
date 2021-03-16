@@ -197,7 +197,7 @@
 
                             @{
                                 int NumHist = Math.Min(100, Model.ActEqHistory(i).Count);
-                                int xp = 100;
+                                double xp = 98.5;
                                 for (int j = 0; j < NumHist; ++j, --xp)
                                 {
                                     double yp = 100 - (100 * (Model.ActEqHistory(i)[j] - CBot) / CH);

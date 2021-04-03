@@ -14,7 +14,6 @@ namespace CStat.Pages
 
         private readonly CStat.Models.CStatContext _context;
         private readonly IWebHostEnvironment _hostEnv;
-        private readonly CSSettings Settings;
         private readonly UserManager<CStatUser> _userManager;
         private readonly IConfiguration _config;
 
@@ -24,7 +23,7 @@ namespace CStat.Pages
             _hostEnv = hostEnv;
             _userManager = userManager;
             _config = config;
-            Settings = CSSettings.GetCSSettings(config, userManager);
+            CSSettings.GetCSSettings(config, userManager); // prime settings.
         }
 
         public void OnGet()
@@ -61,7 +60,7 @@ namespace CStat.Pages
             ArdRecord ar = ardMgr.GetLast();
             PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
             PropaneLevel pl = pmgr.GetTUTank();
-            return CSSettings.GetColor(Settings.ActiveEquip, "All", ar, pl, false);
+            return CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false);
         }
     }
 }

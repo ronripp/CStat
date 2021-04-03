@@ -76,7 +76,7 @@ namespace CStat.Common
                     if ((fields.Length < 2) || (fields[0].Trim().Length == 0))
                         continue;
                     var secs = PropMgr.ParseEST(fields[0]).Subtract(baseDT).TotalSeconds;
-                    if ((secs >= NeedSecs) && (fields[1] == hashStr))
+                    if ((secs >= NeedSecs) && (IsSimilarHash(fields[1], hashStr)))
                     {
                         IsNeeded = false;
                         if (!cleanLog)
@@ -99,6 +99,37 @@ namespace CStat.Common
             }
             return IsNeeded;
 
+        }
+        private bool IsSimilarHash (string target, string hash)
+        {
+            if (target.Contains("CStat.Equip") && hash.Contains("CStat.Equip"))
+            {
+                // See if Equip messages are the same and values are 4 or less from each other.
+                String[] tparts = target.Split(" ");
+                String[] hparts = hash.Split(" ");
+                if (tparts.Length != hparts.Length)
+                    return false;
+                int length = tparts.Length-2;
+                if (length < 0)
+                    return false;
+                for (int i=0; i < length; ++i)
+                {
+                    if (tparts[i] != hparts[i])
+                         return false;
+                }
+                if (tparts[length + 1] != hparts[length + 1])
+                    return false;
+                if (double.TryParse(tparts[length], out double tval) && double.TryParse(hparts[length], out double hval)) // See if values are close
+                {
+                    if (Math.Abs(tval - hval) > 4)
+                        return false;
+                }
+                return true;
+            }
+            else
+            {
+                return target == hash; // Just see if message matches exactlty
+            }
         }
 
         public CSResult NotifyUsers(NotifyType nt, string msg, bool cleanLog = false)

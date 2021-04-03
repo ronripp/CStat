@@ -56,8 +56,8 @@ namespace CStat
             CSSettings ModSettings = CSSettings.GetCSSettings(_config, _userManager);
             ModSettings.SetUser(UserSettings.Name, UserSettings);
             ModSettings.EquipProps = Settings.EquipProps;
+            ModSettings.ActiveEquip = ModSettings.EquipProps.Where(e => e.Active).ToList();
             ModSettings.Save();
-
             return RedirectToPage("./Index");
         }
     }

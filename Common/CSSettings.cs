@@ -34,6 +34,9 @@ namespace CStat.Common
         public List<EquipProp> EquipProps { get; set; }
         public List<EquipProp> ActiveEquip { get; set; }
 
+        //public static int _csi = 0;
+        //public int csi;
+
         public static CSSettings GetCSSettings()
         {
             if (_gCSet != null)
@@ -50,23 +53,35 @@ namespace CStat.Common
             return _gCSet;
         }
 
+        public static void SetCSSettings(CSSettings csset)
+        {
+            _gCSet = csset;
+        }
+
         public static void ResetCSSettings()
         {
-            //_gCSet = null;
+//            _gCSet = null;
         }
 
         public CSSettings()
         {
+            //csi = Interlocked.Increment(ref _csi);
         }
         public CSSettings (IConfiguration config, UserManager<CStatUser> userManager)
         {
+            //csi = Interlocked.Increment(ref _csi);
             _config = config;
             _userManager = userManager;
-            List<CStatUser> Users = GetUsersAsync(userManager).Result;
-            var csect = config.GetSection("CSSettings");
+            initialize();
+        }   
+
+        public void initialize ()
+        {
+            List<CStatUser> Users = GetUsersAsync(_userManager).Result;
+            var csect = _config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
-            var ch = config.GetSection("CSSettings:UserSettings").GetChildren();
+            var ch = _config.GetSection("CSSettings:UserSettings").GetChildren();
             UserSettings = new List<CSUser>();
             foreach (var c in ch)
             {
@@ -87,9 +102,9 @@ namespace CStat.Common
                 UserSettings.Add(user);
             }
 
-            var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
+            var eqProps = _config.GetSection("CSSettings:EquipProps").GetChildren();
 
-            GetEquipLists(config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
+            GetEquipLists(_config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
             EquipProps = allEPs;
             ActiveEquip = activeEPs;
 
@@ -220,7 +235,7 @@ namespace CStat.Common
             {
                 EquipProps.Add(new EquipProp());
             }
-        }   
+        }
 
         public static bool GetEquipLists (IConfiguration config, out List<EquipProp>allEquipProps, out List<EquipProp> activeEquipProps)
         {
@@ -283,6 +298,10 @@ namespace CStat.Common
         {
             bool res = _Save();
             ResetCSSettings();
+
+            //initialize(); // TBD : investigate how config updates with changes to CStat.json. Ensure CSSettings are in sync.
+            //SetCSSettings(this);
+
             return res;
         }
 

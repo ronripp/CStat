@@ -81,7 +81,7 @@ namespace CStat.Common
 
                 // Persist Daily Reading and Notify if needed for Propane
                 PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
-                pmgr.CheckValue(pmgr.GetTUTank());
+                pmgr.CheckValue(pmgr.GetTUTank(true)); // get value, log to file and check
 
                 // Check/Truncate Size of Arduino file
                 ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);

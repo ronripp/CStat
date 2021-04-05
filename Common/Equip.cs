@@ -413,7 +413,7 @@ namespace CStat.Common
             return true;
         }
 
-        public PropaneLevel GetTUTank(bool onlyAppendToFile=false) // Tank Utility Propane meter
+        public PropaneLevel GetTUTank(bool appendToFile=false) // Tank Utility Propane meter
         {
             var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
 
@@ -429,7 +429,7 @@ namespace CStat.Common
             if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
             {
                 PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
-                if (onlyAppendToFile)
+                if (appendToFile)
                 {
                     using (StreamWriter sw = new StreamWriter(FullAll, true))
                     {
@@ -437,8 +437,7 @@ namespace CStat.Common
                         sw.Close();
                     }
                 }
-                else
-                    return pl;
+                return pl;
             }
             return null;
         }

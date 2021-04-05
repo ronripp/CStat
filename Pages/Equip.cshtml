@@ -188,12 +188,10 @@
                             <rect class="ChartRect" x="0%" y="@GY.ToString("0.###")%" width="100%" height="@GH.ToString("0.###")%" style="fill:rgb(0,64,0);" />
 
                             @*<rect class="ChartRect" x="5%" y="45%" width="3" height="3" style="fill:rgb(255,255,255);" />
-                            <rect class="ChartRect" x="10%" y="48%" width="3" height="3" style="fill:rgb(255,255,255);" />
-                            <rect class="ChartRect" x="15%" y="46%" width="3" height="3" style="fill:rgb(255,255,255);" />*@
+        <rect class="ChartRect" x="10%" y="48%" width="3" height="3" style="fill:rgb(255,255,255);" />
+        <rect class="ChartRect" x="15%" y="46%" width="3" height="3" style="fill:rgb(255,255,255);" />*@
 
-                            <rect class="ChartRect" x="0%" y="@VY.ToString("0.###")%" width="100%" height="3" style="fill: @Model.ActEq[i].GetColor(ValRaw,false);" />
-
-                            <rect class="ChartRect" x="0%" y="0%" width="100%" height="100%" style="fill:none; stroke-width:1px; stroke: rgb(255,255,255);" />
+                            <rect class="ChartRect" x="0%" y="0%" width="100%" height="100%" style="fill:none; stroke-width:1px; stroke: rgb(100, 100, 100);" />
 
                             @{
                                 int NumHist = Math.Min(100, Model.ActEqHistory(i).Count);
@@ -204,6 +202,8 @@
                                     <rect class="ChartRect" x="@xp%" y="@yp%" width="3" height="3" style="fill:rgb(255,255,255);" />
                                 }
                             }
+
+                            <rect class="ChartRect" x="0%" y="@VY.ToString("0.###")%" width="100%" height="3" style="fill: @Model.ActEq[i].GetColor(ValRaw,false);" />
 
                             @*<text x="0%" y="@GY%" fill="#00FF00">@Model.ActEq[i].GreenTop</text>*@
                             @*<polyline points="0%,40% 10%,45% 20%,48% 30%,56% 40%,60% 50%,60% 60%,52% 70%,50%" style="fill:white;stroke:white;stroke-width:3" />*@

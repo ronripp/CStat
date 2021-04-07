@@ -146,7 +146,8 @@ namespace CStat.Common
                     RedTop = 30,
                     GreenBottom = 0,
                     GreenTop = 20,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e1);
 
@@ -162,7 +163,8 @@ namespace CStat.Common
                     RedTop = 45,
                     GreenBottom = 36,
                     GreenTop = 42,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e2);
 
@@ -178,7 +180,8 @@ namespace CStat.Common
                     RedTop = 95,
                     GreenBottom = 60,
                     GreenTop = 85,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e5);
 
@@ -194,7 +197,8 @@ namespace CStat.Common
                     RedTop = 0,
                     GreenBottom = 20,
                     GreenTop = 100,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e3);
 
@@ -210,7 +214,8 @@ namespace CStat.Common
                     RedTop = 55,
                     GreenBottom = 35,
                     GreenTop = 50,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e4);
 
@@ -226,7 +231,8 @@ namespace CStat.Common
                     RedTop = 70,
                     GreenBottom = 0,
                     GreenTop = 50,
-                    MinsPerSample = 15
+                    MinsPerSample = 15,
+                    Attributes = ""
                 };
                 EquipProps.Add(e6);
             }
@@ -256,6 +262,8 @@ namespace CStat.Common
                 eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
                 eqProp.GreenTop = e.GetValue<double>("GreenTop");
                 eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
+                var atts = e.GetValue<string>("Attributes");
+                eqProp.Attributes = atts ?? "";
                 if (eqProp.Active)
                     activeEquipProps.Add(eqProp);
                 allEquipProps.Add(eqProp);

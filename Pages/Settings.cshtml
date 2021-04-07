@@ -72,7 +72,7 @@
         }
         @for (int i = 0; i < Model.Settings.EquipProps.Count; ++i, ++j)
         {
-
+            <input type="hidden" asp-for="Settings.EquipProps[i].Attributes" />
             <div class="form-group ediv">
                 <h5><span class="UserSetHdr"><input asp-for="Settings.EquipProps[i].Active" /> Equip @j) @Model.Settings.EquipProps[i].Title</span></h5>
 

@@ -67,6 +67,7 @@ namespace CStat.Common
         public double RedTop { get; set; } = 0;
         public bool Active { get; set; } = false;
         public double MinsPerSample { get; set; } = 0;
+        public string Attributes { get; set; } = "";
         public bool IsPropane ()
         {
             return (this.PropName == "propaneTank");
@@ -96,7 +97,6 @@ namespace CStat.Common
             }
         }
     }
-
     public class ArdRecord
     {
         public ArdRecord(double freezerTempF, double fridgeTempF, double kitchTempF, double waterPress, DateTime timeStamp)
@@ -129,7 +129,6 @@ namespace CStat.Common
             return TimeStamp.ToString("M/d/yy h:mmt");
         }
 
-
         public double FreezerTempF { get; set; } = PropMgr.NotSet;
         public double FridgeTempF { get; set; } = PropMgr.NotSet;
         public double KitchTempF { get; set; } = PropMgr.NotSet;
@@ -145,7 +144,7 @@ namespace CStat.Common
         private readonly UserManager<CStatUser> UserManager;
 
         private string FullLatest = "";
-        private string FullAll = "";
+        private string ArdFullAll = "";
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
 
@@ -159,7 +158,7 @@ namespace CStat.Common
             if (!Directory.Exists(newPath))
                 Directory.CreateDirectory(newPath);
             FullLatest = Path.Combine(newPath, "ardlatest.txt");
-            FullAll = Path.Combine(newPath, "ardall.txt");
+            ArdFullAll = Path.Combine(newPath, "ardall.txt");
         }
 
         public bool CheckValues(string jsonStr) // Ard only : No propane
@@ -196,7 +195,7 @@ namespace CStat.Common
 
                     }
 
-                    using (StreamWriter sw = new StreamWriter(FullAll, true))
+                    using (StreamWriter sw = new StreamWriter(ArdFullAll, true))
                     {
                         sw.WriteLine(fullJSON);
                         sw.Close();
@@ -298,7 +297,7 @@ namespace CStat.Common
             {
                 try
                 {
-                    using (StreamReader sr = new StreamReader(FullAll, System.Text.Encoding.UTF8))
+                    using (StreamReader sr = new StreamReader(ArdFullAll, System.Text.Encoding.UTF8))
                     {
                         string raw;
                         while ((raw = sr.ReadLine()) != null)
@@ -325,7 +324,7 @@ namespace CStat.Common
                     
                     if (lineCount > MAX_FILE_ARS)
                     {
-                        using (StreamWriter sw = new StreamWriter(FullAll, false))
+                        using (StreamWriter sw = new StreamWriter(ArdFullAll, false))
                         {
                             for (int i = startIndex; i < lineCount; ++i)
                             {
@@ -381,7 +380,7 @@ namespace CStat.Common
         private readonly IWebHostEnvironment HostEnv;
         private readonly IConfiguration Config;
         private readonly UserManager<CStatUser> UserManager;
-        private readonly string FullAll;
+        private readonly string PropaneFullAll, PropaneHistAll;
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
         public const int MAX_USE_PLS = 400;
         private const int MAX_FILE_PLS = 600;
@@ -394,7 +393,8 @@ namespace CStat.Common
             string newPath = Path.Combine(webRootPath, "Equip");
             if (!Directory.Exists(newPath))
                 Directory.CreateDirectory(newPath);
-            FullAll = Path.Combine(newPath, "propaneall.txt");
+            PropaneFullAll = Path.Combine(newPath, "propaneall.txt");
+            PropaneHistAll = Path.Combine(newPath, "propaneHist.txt");
         }
 
         public bool CheckValue(PropaneLevel pl) // propane only
@@ -431,7 +431,12 @@ namespace CStat.Common
                 PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
                 if (appendToFile)
                 {
-                    using (StreamWriter sw = new StreamWriter(FullAll, true))
+                    using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
+                    {
+                        sw.WriteLine(JsonConvert.SerializeObject(pl));
+                        sw.Close();
+                    }
+                    using (StreamWriter sw = new StreamWriter(PropaneHistAll, true))
                     {
                         sw.WriteLine(JsonConvert.SerializeObject(pl));
                         sw.Close();
@@ -453,7 +458,7 @@ namespace CStat.Common
             {
                 try
                 {
-                    using (StreamReader sr = new StreamReader(FullAll, System.Text.Encoding.UTF8))
+                    using (StreamReader sr = new StreamReader(PropaneFullAll, System.Text.Encoding.UTF8))
                     {
                         string raw;
                         while ((raw = sr.ReadLine()) != null)
@@ -490,7 +495,7 @@ namespace CStat.Common
 
                     if (rLineList.Count > MAX_FILE_PLS)
                     {
-                        using (StreamWriter sw = new StreamWriter(FullAll, false))
+                        using (StreamWriter sw = new StreamWriter(PropaneFullAll, false))
                         {
                             for (int i = startIndex; i < lineCount; ++i)
                             {
@@ -518,6 +523,75 @@ namespace CStat.Common
             }
         }
 
+        public List<PropaneLevel> GetRange(DateTime sd, DateTime ed)
+        {
+            DateTime startDate = new DateTime(sd.Year, sd.Month, sd.Day, 0, 0, 0, 0);
+            DateTime endDate = new DateTime(ed.Year, ed.Month, ed.Day, 23, 59, 59, 999);
+
+            List<PropaneLevel> plList = new List<PropaneLevel>();
+            List<string> rLineList = new List<string>();
+            List<string> lineList = new List<string>();
+            int lineCount = 0;
+            int startIndex = 0;
+            if (fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(PropaneFullAll, System.Text.Encoding.UTF8))
+                    {
+                        string raw;
+                        while ((raw = sr.ReadLine()) != null)
+                        {
+                            rLineList.Add(raw);
+                        }
+                        sr.Close();
+
+                        lineList = rLineList.Distinct().ToList();
+                        lineCount = lineList.Count;
+                        startIndex = lineList.Count > MAX_USE_PLS ? lineCount - MAX_USE_PLS : 0;
+
+                        for (int i = startIndex; i < lineCount; ++i)
+                        {
+                            raw = lineList[i];
+                            if (raw.Length > 20)
+                            {
+                                string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                                Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                                                            "LevelPct",
+                                                            "OutsideTempF",
+                                                            "ReadingTime");
+                                double level = 0;
+                                double temp = PropMgr.NotSet;
+                                DateTime readTime;
+                                if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
+                                {
+                                    PropaneLevel pl = new PropaneLevel(level, readTime, temp);
+
+                                    if ((readTime >= startDate) && (readTime <= endDate))
+                                    {
+                                        plList.Add(pl);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return plList;
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    PropaneMgr.fLock.ExitWriteLock();
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     public static class PropMgr
     {

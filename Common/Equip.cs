@@ -523,11 +523,8 @@ namespace CStat.Common
             }
         }
 
-        public List<PropaneLevel> GetRange(DateTime sd, DateTime ed)
+        public double GetPropaneGallonsForDateRange(DateTime startDate, DateTime endDate, double maxGallons)
         {
-            DateTime startDate = new DateTime(sd.Year, sd.Month, sd.Day, 0, 0, 0, 0);
-            DateTime endDate = new DateTime(ed.Year, ed.Month, ed.Day, 23, 59, 59, 999);
-
             List<PropaneLevel> plList = new List<PropaneLevel>();
             List<string> rLineList = new List<string>();
             List<string> lineList = new List<string>();
@@ -550,6 +547,13 @@ namespace CStat.Common
                         lineCount = lineList.Count;
                         startIndex = lineList.Count > MAX_USE_PLS ? lineCount - MAX_USE_PLS : 0;
 
+                        DateTime MinDateTime = startDate.AddDays(-2);
+                        DateTime MaxDateTime = endDate.AddDays(2);
+                        PropaneLevel ClosestToMin = null;
+                        PropaneLevel ClosestToMax = null;
+                        TimeSpan ClosestToMinDiff = new TimeSpan(30, 0, 0, 0);
+                        TimeSpan ClosestToMaxDiff = new TimeSpan(30, 0, 0, 0);
+
                         for (int i = startIndex; i < lineCount; ++i)
                         {
                             raw = lineList[i];
@@ -566,16 +570,39 @@ namespace CStat.Common
                                 if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
                                 {
                                     PropaneLevel pl = new PropaneLevel(level, readTime, temp);
-
-                                    if ((readTime >= startDate) && (readTime <= endDate))
+                                   
+                                    if ((pl.ReadingTime >= MinDateTime) && (pl.ReadingTime <= MaxDateTime))
                                     {
+                                        TimeSpan minDiff = startDate - pl.ReadingTime;
+                                        if ((minDiff.TotalSeconds >= 0) && (minDiff.TotalSeconds < ClosestToMinDiff.TotalSeconds))
+                                        {
+                                            ClosestToMinDiff = minDiff;
+                                            ClosestToMin = pl;
+                                        } 
+                                        else
+                                        {
+                                            TimeSpan maxDiff = pl.ReadingTime - endDate;
+                                            if ((maxDiff.TotalSeconds >= 0) && (maxDiff.TotalSeconds < ClosestToMaxDiff.TotalSeconds))
+                                            {
+                                                ClosestToMaxDiff = maxDiff;
+                                                ClosestToMax = pl;
+                                            }
+                                        }
+
                                         plList.Add(pl);
                                     }
                                 }
+
                             }
                         }
+                        if ((ClosestToMin != null) && (ClosestToMax != null))
+                        {
+                            double galDiff = ClosestToMin.LevelPct - ClosestToMax.LevelPct;
+                            return (galDiff < 0) ? 0 : galDiff * maxGallons / 100;
+                        }
+                        return 0;
                     }
-                    return plList;
+                  
                 }
                 catch
                 {
@@ -585,11 +612,11 @@ namespace CStat.Common
                 {
                     PropaneMgr.fLock.ExitWriteLock();
                 }
-                return null;
+                return 0;
             }
             else
             {
-                return null;
+                return 0;
             }
         }
     }

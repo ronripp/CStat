@@ -130,7 +130,8 @@ namespace CStat
                     string destFName = Path.Combine("tmpDBox", (FolderName + FileName).Replace('/', '~').Replace('\\', '~'));
                     string destFile = Path.Combine(hostEnv.WebRootPath, destFName);
                     
-                    System.IO.File.Delete(destFile);
+                    if (System.IO.File.Exists(destFile))
+                        System.IO.File.Delete(destFile);
                     var task = dbox.DownloadToFile(FolderName, FileName, destFile);
                     task.Wait();
                     return new JsonResult(destFName);

@@ -1,0 +1,119 @@
+﻿@page
+@model CStat.Pages.EquipRptModel
+@using Common
+
+    @{
+        ViewData["Title"] = "Equip";
+    }
+
+    <head>
+        @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+        <meta name="viewport" content="width=device-width, minimal-ui">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+        <script type="text/javascript" src="jquery.svg.js"></script>
+
+        <style>
+
+            .NormRow{
+                background-color: #FFFFFF;
+            }
+
+            .SelRow {
+                 background-color: #C0C0C0;
+            }
+        </style>
+
+        <script>
+
+            function updateRows(id) {
+
+                $("#" + id).toggleClass("NormRow SelRow");
+
+                var SelRows = [];
+                $("table > tbody > tr").each(function () {
+                    if ($(this).attr('class') === "SelRow") {
+                        SelRows.push($(this));
+                        //alert($(this).attr('id'));
+                    }
+                });
+
+                if (SelRows.length > 2) {
+                    $(SelRows).each(function () {
+                        if ($(this).attr('id') !== id) {
+                            $(this).toggleClass("NormRow SelRow");
+                            //alert($(this).attr('id'));
+                        }
+                    });
+                } else if (SelRows.length == 2) {
+                    alert($(SelRows[0]).find('td:eq(0)').text() + " to " + $(SelRows[1]).find('td:eq(0)').text());
+                }
+
+                //alert(id);
+            }
+
+        $(document).ready(function () {
+            //const elem = document.documentElement;
+            //if (elem.requestFullscreen) { elem.requestFullscreen() }
+        });
+
+        </script>
+
+    </head>
+    <body>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                    <label for="StartPropane">Start:</label>
+                    <input id="StartPropane" type="datetime-local" style="max-height:1.6em;" />
+                </div>
+                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                    <label for="EndPropane">End:&nbsp;</label>
+                    <input id="EndPropane" type="datetime-local" style="max-height:1.6em;" />
+                </div>
+            </div>
+            <div id="ResultsDiv"></div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr style="background-color: lightgray;">
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Temp F
+                    </th>
+                    <th>
+                        Gallons
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i =0;
+                }
+                @foreach (var pl in Model.PList)
+                {
+                    var idVal = "pl" + i.ToString();
+
+                    <tr id="@idVal" class="NormRow">
+                    <td>
+                        <a href="javascript:updateRows('@idVal')">@pl.ReadingTimeStr()</a>
+                    </td>
+                    <td>
+                        @pl.OutsideTempF.ToString("0.")<sup>o</sup>F
+                    </td>
+                    <td>
+                        @((pl.LevelPct*500/100).ToString("0.#"))
+                    </td>
+                    </tr>
+                    ++i;
+                }
+            </tbody>
+        </table>
+    </body>

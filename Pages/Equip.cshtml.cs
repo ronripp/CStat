@@ -103,21 +103,6 @@ namespace CStat.Pages
             }
         }
 
-        public IList<CTask> Task { get; set; }
-
-        public async Task OnGetAsync()
-        {
-            Task = await _context.Task
-                .Include(t => t.Blocking1)
-                .Include(t => t.Blocking2)
-                .Include(t => t.Church)
-                .Include(t => t.ParentTask)
-                .Include(t => t.Person)
-                .Include(t => t.Worker1)
-                .Include(t => t.Worker2)
-                .Include(t => t.Worker3).ToListAsync();
-        }
-
         public ArdRecord GetLastArd()
         {
             if (_ar == null)

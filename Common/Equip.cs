@@ -523,6 +523,69 @@ namespace CStat.Common
             }
         }
 
+        public List<PropaneLevel> GetRecentToLastList()
+        {
+            List<PropaneLevel> plList = new List<PropaneLevel>();
+            List<string> rLineList = new List<string>();
+            List<string> lineList = new List<string>();
+            int lineCount = 0;
+            if (fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(PropaneFullAll, System.Text.Encoding.UTF8))
+                    {
+                        string raw;
+                        while ((raw = sr.ReadLine()) != null)
+                        {
+                            rLineList.Add(raw);
+                        }
+                        sr.Close();
+
+                        lineList = rLineList.Distinct().ToList();
+                        lineCount = lineList.Count;
+                        int startIndex = lineList.Count > MAX_USE_PLS ? lineCount - MAX_USE_PLS : 0;
+
+                        for (int i = startIndex; i < lineCount; ++i)
+                        {
+                            raw = lineList[i];
+                            if (raw.Length > 20)
+                            {
+                                string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                                Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                                                            "LevelPct",
+                                                            "OutsideTempF",
+                                                            "ReadingTime");
+                                double level = 0;
+                                double temp = PropMgr.NotSet;
+                                DateTime readTime;
+                                if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
+                                {
+                                    PropaneLevel pl = new PropaneLevel(level, readTime, temp);
+                                    plList.Add(pl);
+                                }
+
+                            }
+                        }
+                        DateTime baseDT = new DateTime(2020, 1, 1, 0, 0, 0, 0);
+                        return plList.OrderByDescending(p => p.ReadingTime.Subtract(baseDT).TotalSeconds).ToList();
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+                finally
+                {
+                    PropaneMgr.fLock.ExitWriteLock();
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public double GetPropaneGallonsForDateRange(DateTime startDate, DateTime endDate, double maxGallons)
         {
             List<PropaneLevel> plList = new List<PropaneLevel>();

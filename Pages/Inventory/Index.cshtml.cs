@@ -168,9 +168,6 @@ namespace CStat
             return invIS;
         }
 
-
-
-
         public JsonResult OnGetItemStateChange()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());

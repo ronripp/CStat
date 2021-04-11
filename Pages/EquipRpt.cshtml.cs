@@ -24,8 +24,6 @@ namespace CStat.Pages
         private readonly ArdMgr _ardMgr;
         PropaneMgr _pMgr;
         private readonly IConfiguration _config;
-        private ArdRecord _ar;
-        private PropaneLevel _pl;
         public CSSettings Settings { get; set; }
         public List<PropaneLevel> PList { get; set; }
 
@@ -49,5 +47,19 @@ namespace CStat.Pages
             }
             return Page();
         }
+
+        public JsonResult OnGetPropaneCost()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            //InvItemState invIS = JsonConvert.DeserializeObject<InvItemState>(jsonQS);
+            //return new JsonResult(JsonConvert.SerializeObject(cs));
+            return new JsonResult("ERROR~:Incorrect Parameters");
+        }
+
+
     }
 }

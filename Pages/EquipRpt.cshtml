@@ -25,9 +25,21 @@
             .SelRow {
                  background-color: #C0C0C0;
             }
+
+            .ResultsClass {
+                background-color: yellow;
+                margin-bottom: 10px;
+                border: groove;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
         </style>
 
         <script>
+
+            var ppg = 2.30;
 
             function updateRows(id) {
 
@@ -37,7 +49,6 @@
                 $("table > tbody > tr").each(function () {
                     if ($(this).attr('class') === "SelRow") {
                         SelRows.push($(this));
-                        //alert($(this).attr('id'));
                     }
                 });
 
@@ -45,14 +56,76 @@
                     $(SelRows).each(function () {
                         if ($(this).attr('id') !== id) {
                             $(this).toggleClass("NormRow SelRow");
-                            //alert($(this).attr('id'));
                         }
                     });
                 } else if (SelRows.length == 2) {
-                    alert($(SelRows[0]).find('td:eq(0)').text() + " to " + $(SelRows[1]).find('td:eq(0)').text());
+                    var dts0 = $(SelRows[0]).find('td:eq(0)').text();
+                    var dts1 = $(SelRows[1]).find('td:eq(0)').text();
+
+                    var dt0 = parseDateTime(dts0);
+                    var dt1 = parseDateTime(dts1);
+                    var fullP0 = parseFloat($(SelRows[0]).attr('fullGal'));
+                    var fullP1 = parseFloat($(SelRows[1]).attr('fullGal'));
+
+                    if (dt0 > dt1) {
+                        var gals = (fullP1 >= fullP0) ? fullP1 - fullP0 : 0;
+                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts1 + " to " + dts0 + "was " + gals.toFixed(1) + " gals. Cost $" + (ppg * gals).toFixed(2) + "&nbsp;");
+                    } else {
+                        var gals = (fullP0 >= fullP1) ? fullP0 - fullP1 : 0;
+                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts0 + " to " + dts1 + "was " + gals.toFixed(1) + " gals. Cost $" + (ppg * gals).toFixed(2) + "&nbsp;");
+                    }
+
+                    //var parameters = "{':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
+                    //$.ajax({
+                    //    url: "/EquipRpt?handler=GetPropaneCost",
+                    //    contentType: "application/json",
+                    //    dataType: "json",
+                    //    data: parameters,
+                    //    success: function (response) {
+                    //        if (response.indexOf("ERROR~:") === -1) {
+                    //            var curCost = $.parseJSON(response);
+                    //        } else {
+                                
+                    //        }
+                    //    },
+                    //    fail: function (response) {
+                            
+                    //    }
+                    //});
+
                 }
 
-                //alert(id);
+                //new Date(year, month, day, hours, minutes, seconds, milliseconds)
+                function parseDateTime(raw) {
+
+                    var str = raw.trim();
+
+                    var mflds = str.split(" ");
+                    if (mflds.length !== 3)
+                        return null;
+
+                    var dflds = mflds[1].split("/");
+                    if (dflds.length !== 3)
+                        return null;
+
+                    // Get Date
+                    var M = parseInt(dflds[0])-1;
+                    var d = parseInt(dflds[1]);
+                    var y = parseInt(dflds[2]);
+                    if (y < 2000)
+                        y += 2000;
+
+                    var tflds = mflds[2].split(":");
+                    if (tflds.length !== 2)
+                        return null;
+
+                    var h = parseInt(tflds[0]) % 12;
+                    var m = parseInt(tflds[1].substr(0, 2));
+                    if (tflds[1].substr(2, 1) == "P") {
+                        h += 12;
+                    } 
+                    return new Date(y, M, d, h, m);
+                 }
             }
 
         $(document).ready(function () {
@@ -76,7 +149,7 @@
                     <input id="EndPropane" type="datetime-local" style="max-height:1.6em;" />
                 </div>
             </div>
-            <div id="ResultsDiv"></div>
+            <div id="ResultsDiv" class="ResultsClass"></div>
         </div>
 
         <table class="table">
@@ -100,16 +173,17 @@
                 @foreach (var pl in Model.PList)
                 {
                     var idVal = "pl" + i.ToString();
+                    var fullGal = (pl.LevelPct*500/100);
 
-                    <tr id="@idVal" class="NormRow">
+                    <tr id="@idVal" fullGal="@fullGal" class="NormRow">
                     <td>
-                        <a href="javascript:updateRows('@idVal')">@pl.ReadingTimeStr()</a>
+                        <a href="javascript:updateRows('@idVal')">@pl.ReadingTimeStr(true)</a>
                     </td>
                     <td>
                         @pl.OutsideTempF.ToString("0.")<sup>o</sup>F
                     </td>
                     <td>
-                        @((pl.LevelPct*500/100).ToString("0.#"))
+                        @(fullGal.ToString("0.#"))
                     </td>
                     </tr>
                     ++i;

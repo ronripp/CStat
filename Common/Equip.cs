@@ -20,8 +20,11 @@ using System.Threading.Tasks;
 
 namespace CStat.Common
 {
+
+
     public class PropaneLevel
     {
+        static string[] DOWStr = { "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" };
         public PropaneLevel(double levelPct, DateTime readingTime, double outsideTempF)
         {
             LevelPct = levelPct;
@@ -29,9 +32,10 @@ namespace CStat.Common
             OutsideTempF = outsideTempF;
         }
 
-        public String ReadingTimeStr()
+        public String ReadingTimeStr(bool withDOW=false)
         {
-            return ReadingTime.ToString("M/d/yy h:mmt");
+            string str = ReadingTime.ToString("M/d/yy h:mmt");
+            return (withDOW) ? DOWStr[(int)ReadingTime.DayOfWeek] + " " + str : str;
         }
 
         public double OutsideTempF { get; set; } = PropMgr.NotSet;

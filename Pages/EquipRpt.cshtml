@@ -72,10 +72,10 @@
 
                     if (dt0 > dt1) {
                         var gals = (fullP1 >= fullP0) ? fullP1 - fullP0 : 0;
-                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts1 + " to " + dts0 + "was:&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
+                        $("#ResultsDiv").html("&nbsp;" + dts1 + " -> " + dts0 + "&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
                     } else {
                         var gals = (fullP0 >= fullP1) ? fullP0 - fullP1 : 0;
-                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts0 + " to " + dts1 + "was:&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
+                        $("#ResultsDiv").html("&nbsp;" + dts0 + " -> " + dts1 + "&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
                     }
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
 

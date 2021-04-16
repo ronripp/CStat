@@ -77,6 +77,48 @@ namespace CStat.Common
             return (this.PropName == "propaneTank");
         }
 
+        public List<KeyValuePair<string, double>> GetProps()
+        {
+            var kvList = new List<KeyValuePair<string, double>>();
+            if (Attributes.Length > 0)
+            {
+                string[] kvPairs = Attributes.Split(';');
+                foreach (var kvp in kvPairs)
+                {
+                    String[] vals = kvp.Split('=');
+                    if ((vals.Length == 2) && double.TryParse(vals[1], out double dval))
+                        kvList.Add(new KeyValuePair<string, double>(vals[0], dval));
+                }
+            }
+            return kvList;
+        }
+
+        public void UpdateAttributeValues (string[] attrVals, ref int curIdx, int NumAttrVals)
+        {
+            var kvList = new List<KeyValuePair<string, double>>();
+            if (Attributes.Length > 0)
+            {
+                string newAttributes = "";
+                string[] kvPairs = Attributes.Split(';');
+                int orgPairs = kvPairs.Length;
+                int newPairs = 0;
+                foreach (var kvp in kvPairs)
+                {
+                    String[] vals = kvp.Split('=');
+                    if ((vals.Length == 2) && double.TryParse(vals[1], out double dval) && (curIdx < NumAttrVals))
+                    {
+                        ++newPairs;
+                        if (newAttributes.Length == 0)
+                            newAttributes = vals[0] + "=" + attrVals[curIdx++];
+                        else
+                            newAttributes += (";" + vals[0] + "=" + attrVals[curIdx++]);
+                    }
+                }
+                if ((newAttributes.Length > 0) && (orgPairs == newPairs))
+                    Attributes = newAttributes;
+            }
+        }
+
         public string GetColor(double value, bool returnClass = true)
         {
             string color = "";

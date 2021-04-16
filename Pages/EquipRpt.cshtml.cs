@@ -25,7 +25,10 @@ namespace CStat.Pages
         PropaneMgr _pMgr;
         private readonly IConfiguration _config;
         public CSSettings Settings { get; set; }
+        public List<EquipProp> PEquip { get; set; }
         public List<PropaneLevel> PList { get; set; }
+        public double TankSize { get; set; } = 500;
+        public double PricePerGal { get; set; } = 0;
 
     public EquipRptModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -44,6 +47,20 @@ namespace CStat.Pages
             if (propName == "propaneTank")
             {
                 PList = _pMgr.GetRecentToLastList();
+                PEquip = Settings.ActiveEquip.Where(e => e.IsPropane()).ToList();
+                if (PEquip.Count > 0)
+                {
+                    var Props = PEquip[0].GetProps();
+                    if ((Props != null) && Props.Count >= 2)
+                    {
+                        KeyValuePair<string, double> kvp = Props.Find(k => k.Key.Contains("Tank"));
+                        if (!kvp.Equals(new KeyValuePair<string, double>()))
+                            TankSize = kvp.Value;
+                        kvp = Props.Find(k => k.Key.Contains("Price"));
+                        if (!kvp.Equals(new KeyValuePair<string, double>()))
+                            PricePerGal = kvp.Value;
+                    }
+                }
             }
             return Page();
         }
@@ -59,7 +76,5 @@ namespace CStat.Pages
             //return new JsonResult(JsonConvert.SerializeObject(cs));
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
-
-
     }
 }

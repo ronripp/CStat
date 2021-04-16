@@ -28,18 +28,21 @@
 
             .ResultsClass {
                 background-color: yellow;
+                margin: auto;
                 margin-bottom: 10px;
                 border: groove;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                text-align: center;
             }
 
         </style>
 
         <script>
 
-            var ppg = 2.30;
+            var pricePerGal = @Model.PricePerGal;
+            var tankSize = @Model.TankSize;
 
             function updateRows(id) {
 
@@ -69,11 +72,12 @@
 
                     if (dt0 > dt1) {
                         var gals = (fullP1 >= fullP0) ? fullP1 - fullP0 : 0;
-                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts1 + " to " + dts0 + "was " + gals.toFixed(1) + " gals. Cost $" + (ppg * gals).toFixed(2) + "&nbsp;");
+                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts1 + " to " + dts0 + "was:&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
                     } else {
                         var gals = (fullP0 >= fullP1) ? fullP0 - fullP1 : 0;
-                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts0 + " to " + dts1 + "was " + gals.toFixed(1) + " gals. Cost $" + (ppg * gals).toFixed(2) + "&nbsp;");
+                        $("#ResultsDiv").html("&nbsp;Propane Usage from " + dts0 + " to " + dts1 + "was:&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
                     }
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
 
                     //var parameters = "{':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
                     //$.ajax({
@@ -92,7 +96,6 @@
                             
                     //    }
                     //});
-
                 }
 
                 //new Date(year, month, day, hours, minutes, seconds, milliseconds)
@@ -139,15 +142,11 @@
     <body>
 
         <div class="row">
+            @{var props = Model.PEquip[0].GetProps();}
+
             <div class="col-md-12">
-                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                    <label for="StartPropane">Start:</label>
-                    <input id="StartPropane" type="datetime-local" style="max-height:1.6em;" />
-                </div>
-                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                    <label for="EndPropane">End:&nbsp;</label>
-                    <input id="EndPropane" type="datetime-local" style="max-height:1.6em;" />
-                </div>
+                <div style="display:inline-block; margin-right: 20px; margin-bottom: 6px;">Tank Size : @Model.TankSize gallons</div>
+                <div style="display:inline-block; margin-right: 10px; margin-bottom: 6px;">Price/Gallon $@Model.PricePerGal</div>
             </div>
             <div id="ResultsDiv" class="ResultsClass"></div>
         </div>
@@ -173,7 +172,7 @@
                 @foreach (var pl in Model.PList)
                 {
                     var idVal = "pl" + i.ToString();
-                    var fullGal = (pl.LevelPct*500/100);
+                    var fullGal = (pl.LevelPct*Model.TankSize/100);
 
                     <tr id="@idVal" fullGal="@fullGal" class="NormRow">
                     <td>

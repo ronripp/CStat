@@ -32,6 +32,8 @@ namespace CStat
             _config = config;
             _userManager = userManager; 
             Settings = CSSettings.GetCSSettings(_config, userManager);
+            Settings.EquipProps = Settings.EquipProps.Select(e => { if (e.Attributes == null) e.Attributes = ""; return e; }).ToList();
+
             string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
             UserSettings = Settings.GetUser(UserId);
             if (UserSettings == null)
@@ -51,12 +53,13 @@ namespace CStat
             return Page();
         }
 
-        public IActionResult OnPost()
+        public IActionResult OnPost(string[] dynamicField)
         {
             CSSettings ModSettings = CSSettings.GetCSSettings(_config, _userManager);
             ModSettings.SetUser(UserSettings.Name, UserSettings);
-            ModSettings.EquipProps = Settings.EquipProps;
+            ModSettings.EquipProps = Settings.EquipProps.Select(e => { if (e.Attributes == null) e.Attributes = ""; return e; }).ToList();
             ModSettings.ActiveEquip = ModSettings.EquipProps.Where(e => e.Active).ToList();
+            ModSettings.UpdateAttributeValues(dynamicField);
             ModSettings.Save();
             return RedirectToPage("./Index");
         }

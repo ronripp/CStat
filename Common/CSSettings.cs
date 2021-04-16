@@ -102,8 +102,6 @@ namespace CStat.Common
                 UserSettings.Add(user);
             }
 
-            var eqProps = _config.GetSection("CSSettings:EquipProps").GetChildren();
-
             GetEquipLists(_config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
             EquipProps = allEPs;
             ActiveEquip = activeEPs;
@@ -336,6 +334,20 @@ namespace CStat.Common
                 }
             }
             return false;
+        }
+
+        public void UpdateAttributeValues(string[] attrVals)
+        {
+            // match attrVals to each active Attributes in Active EquipProp order
+            int NumVals = attrVals.Length;
+            if (NumVals > 0)
+            {
+                int curIdx = 0;
+                foreach (var ae in this.ActiveEquip)
+                {
+                    ae.UpdateAttributeValues(attrVals, ref curIdx, NumVals);
+                }
+            }
         }
 
         public static string GetColor(List<EquipProp>equipProps, string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)

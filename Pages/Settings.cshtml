@@ -117,6 +117,21 @@
                         <label asp-for="Settings.EquipProps[i].RedBottom" style="color: darkred">Danger at or BELOW Unit :</label>
                         <input asp-for="Settings.EquipProps[i].RedBottom" style="max-width: 3em; background-color:#FFE6E6; border:1px solid black" />
                     </div>
+
+                    @if (Model.Settings.EquipProps[i].IsPropane())
+                    {
+                        var PropList = Model.Settings.EquipProps[i].GetProps();
+
+                        int k = 0;
+                        foreach (var p in PropList)
+                        {
+                            string prpId = "prpn" + k++;
+                        <div>
+                            <label for="@prpId">@p.Key:</label>
+                            <input id="@prpId" name="dynamicField" value="@p.Value.ToString()" style="max-width: 5em;"/>
+                        </div>
+                        }
+                    }
                 </div>
             </div>
         }

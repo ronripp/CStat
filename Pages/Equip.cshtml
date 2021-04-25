@@ -78,6 +78,27 @@
 
         <script>
 
+            var eqValsArr = [];
+            var eqPropsArr = [];
+            var eqMinArr = [];
+            var eqMaxArr = [];
+            var eqColorArr = [];
+            var eqCurValArr = [];
+            @for (int i = 0; i < Model.ActEq.Count; ++i)
+            {
+                string curValStr = Model.ActEqVal(i);
+                double curVal = (!curValStr.StartsWith("-") ? double.Parse(curValStr) : 0);
+                string colorStr = Model.ActEq[i].GetColor(curVal, false);
+                <text>
+                eqCurValArr.push(@curVal);
+                eqColorArr.push(@Html.Raw("\"" + colorStr + "\""));
+                eqValsArr.push(@Html.Raw(Json.Serialize(Model.ActEqHistory(i))));
+                eqPropsArr.push(@Html.Raw(Json.Serialize(Model.ActEq[i])));
+                eqMinArr.push( ((eqValsArr[@i].length > 0) ? Math.min(...eqValsArr[@i]) : 0) );
+                eqMaxArr.push(((eqValsArr[@i].length > 0) ? Math.max(...eqValsArr[@i]) : 0));
+                </text>
+            }
+
         var gRowHeight = 0;
 
         function setRowHeight() {
@@ -106,13 +127,98 @@
 
             $(".ChartSVG").each(function (index) {
                 $(this).width(w);
-                $(this).height(gRowHeight-24);
+                $(this).height(gRowHeight - 24);
+                updateChart(index, $(this));
+            });
+        }
+
+        function updateChart(idx, svg) {
+
+            //<svg width="vWidth" height="vHeight" viewBox="sOrgX sOrgY sWidth sHeight">
+
+            let cBot = eqPropsArr[idx].chartBottom;
+            let cTop = eqPropsArr[idx].chartTop;
+            let cH = cTop - cBot;
+            let vW = svg.width();
+            let vH = svg.height();
+
+            // Determine sub rect
+            let sOrgX = 0;
+            let sOrgY = (eqValsArr[idx].length > 0) ? eqMinArr[idx]-1 : cBot;
+            let sW = vW;
+            let sH = (eqValsArr[idx].length > 0) ? (eqMaxArr[idx] - eqMinArr[idx])+2 : cH;
+            svg.attr("viewBox", sOrgX + " " + sOrgY + " " + sW + " " + sH);
+            var sBox = { xo: sOrgX, yo: sOrgY, w: sW, h: sH };
+
+            let RTop = eqPropsArr[idx].redTop;
+            let RBot = eqPropsArr[idx].redBottom;
+            let GTop = eqPropsArr[idx].greenTop;
+            let GBot = eqPropsArr[idx].greenBottom;
+
+            let GH = GTop - GBot;
+            let GY = GTop;
+
+            let AY1 = 0, AH1 = 0;
+            let AY2 = 0, AH2 = 0;
+            let RY1 = 0, RH1 = 0;
+            let RY2 = 0, RH2 = 0;
+
+            if (RTop > GTop)
+            {
+                AH1 = RTop - GTop;
+                AY1 = RTop;
+                RH1 = cTop - RTop;
+                RY1 = cTop;
+            }
+
+            if (RBot < GBot)
+            {
+                AH2 = GBot - RBot;
+                AY2 = GBot;
+                RH2 = RBot - cBot;
+                RY2 = RBot;
+            }
+
+            svg.html(GetRectStr(0, AY1, vW, AH1, "fill:rgb(54,54,0);", sBox) +
+                GetRectStr(0, AY2, vW, AH2, "fill:rgb(54,54,0);", sBox) +
+                GetRectStr(0, RY1, vW, RH1, "fill:rgb(64,0,0);", sBox) +
+                GetRectStr(0, RY2, vW, RH2, "fill:rgb(64,0,0);", sBox) +
+                GetRectStr(0, GY, vW, GH, "fill:rgb(0,64,0);", sBox) +
+                GetPolylineStr(idx, "fill:none;stroke:white;stroke-width:2", sBox) +
+                GetLineStr(0, eqCurValArr[idx], vW, eqCurValArr[idx], "fill:none;stroke:" + eqColorArr[idx] + ";stroke-width:2", sBox));
+        }
+
+        function C2S(cx, cy, sBox) {
+            return { x: cx, y: sBox.h - (cy-sBox.yo) + sBox.yo };
+        }
+
+        function GetRectStr(cx, cy, w, h, styleStr, sBox) {
+            let p = C2S(cx, cy, sBox);
+            let x = p.x;
+            let y = p.y;
+            return "<polygon points=\"" + x + "," + y + " " + (x+w) + "," + y + " " + (x+w) + "," + (y+h) + " " + x + "," + (y+h) + "\" style=\"" + styleStr + "\" />";
+        }
+
+        function GetPolylineStr(idx, styleStr, sBox) {
+            let numIncs = eqValsArr[idx].length - 1;
+            if (numIncs < 0)
+                return "";
+
+            let polyStr = "<polyline vector-effect=\"non-scaling-stroke\" style=\"" + styleStr + "\" points=\"";
+
+            eqValsArr[idx].forEach((v,x) => {
+                let p = C2S((sBox.w * ((numIncs-x)/ numIncs)), v, sBox);
+                polyStr += ((x === 0)? "" : " ") + p.x.toFixed(3) + "," + p.y.toFixed(3);
             });
 
-            //$(".ChartRect").each(function (index) {
-            //    $(this).width(w);
-            //    $(this).height(rectHeight);
-            //});
+            polyStr += "\" />";
+            return polyStr;
+        }
+
+        function GetLineStr(cx1, cy1, cx2, cy2, styleStr, sBox) {
+            let s1 = C2S(cx1, cy1, sBox);
+            let s2 = C2S(cx2, cy2, sBox);
+            return "<polyline vector-effect=\"non-scaling-stroke\" style=\"" + styleStr + "\" points=\"" + s1.x.toFixed(3) + "," + s1.y.toFixed(3) + " " + s2.x.toFixed(3) + "," + s2.y.toFixed(3) + "\" />";
         }
 
         screen.orientation.addEventListener("change", function (e) { setRowHeight(); }, false);
@@ -140,78 +246,10 @@
                         <span class="@Model.GetColorClass(Model.ActEq[i].PropName)"><b>@Model.ActEqVal(i)</b></span> @Model.ActEqUnits(i)
                     </td>
                     <td>
-                        <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" width="100%" height="100%">
-                            @{
-                                double CH = Model.ActEq[i].ChartTop - Model.ActEq[i].ChartBottom;
-                                double CBot = Model.ActEq[i].ChartBottom;
-
-                                double RTop = 100 * (Model.ActEq[i].RedTop - CBot) / CH;
-                                double RBot = 100 * (Model.ActEq[i].RedBottom - CBot) / CH;
-                                double GTop = 100 * (Model.ActEq[i].GreenTop - CBot) / CH;
-                                double GBot = 100 * (Model.ActEq[i].GreenBottom - CBot) / CH;
-                                string ValStr = Model.ActEqVal(i);
-                                double ValRaw = (!ValStr.StartsWith("-") ? double.Parse(ValStr) : 0);
-                                double Val = 100 - (100 * (ValRaw - CBot) / CH);
-                                double VY = Math.Max(0, Math.Min(Val, 100));
-
-                                double GH = GTop - GBot;
-                                double GY = 100 - GTop;
-
-                                double AY1 = 0, AH1 = 0;
-                                double AY2 = 0, AH2 = 0;
-                                double RY1 = 0, RH1 = 0;
-                                double RY2 = 0, RH2 = 0;
-
-                                if (RTop > GTop)
-                                {
-                                    AH1 = RTop - GTop;
-                                    AY1 = 100 - RTop;
-                                    RH1 = 100 - RTop;
-                                    RY1 = 0;
-                                }
-
-                                if (RBot < GBot)
-                                {
-                                    AH2 = GBot - RBot;
-                                    AY2 = 100 - GBot;
-                                    RH2 = RBot;
-                                    RY2 = 100 - RBot;
-                                }
-                            }
-
-                            <rect class="ChartRect" x="0%" y="@AY1.ToString("0.###")%" width="100%" height="@AH1.ToString("0.###")%" style="fill:rgb(54,54,0);" />
-                            <rect class="ChartRect" x="0%" y="@AY2.ToString("0.###")%" width="100%" height="@AH2.ToString("0.###")%" style="fill:rgb(54,54,0);" />
-
-                            <rect class="ChartRect" x="0%" y="@RY1.ToString("0.###")%" width="100%" height="@RH1.ToString("0.###")%" style="fill:rgb(64,0,0);" />
-                            <rect class="ChartRect" x="0%" y="@RY2.ToString("0.###")%" width="100%" height="@RH2.ToString("0.###")%" style="fill:rgb(64,0,0);" />
-
-                            <rect class="ChartRect" x="0%" y="@GY.ToString("0.###")%" width="100%" height="@GH.ToString("0.###")%" style="fill:rgb(0,64,0);" />
-
-                            @*<rect class="ChartRect" x="5%" y="45%" width="3" height="3" style="fill:rgb(255,255,255);" />
-        <rect class="ChartRect" x="10%" y="48%" width="3" height="3" style="fill:rgb(255,255,255);" />
-        <rect class="ChartRect" x="15%" y="46%" width="3" height="3" style="fill:rgb(255,255,255);" />*@
-
-                            <rect class="ChartRect" x="0%" y="0%" width="100%" height="100%" style="fill:none; stroke-width:1px; stroke: rgb(100, 100, 100);" />
-
-                            @{
-                                int NumHist = Math.Min(100, Model.ActEqHistory(i).Count);
-                                double xp = 99;
-                                for (int j = 0; j < NumHist; ++j, --xp)
-                                {
-                                    double yp = 100 - (100 * (Model.ActEqHistory(i)[j] - CBot) / CH);
-                                    <rect class="ChartRect" x="@xp%" y="@yp%" width="3" height="3" style="fill:rgb(255,255,255);" />
-                                }
-                            }
-
-                            <rect class="ChartRect" x="0%" y="@VY.ToString("0.###")%" width="100%" height="3" style="fill: @Model.ActEq[i].GetColor(ValRaw,false);" />
-
-                            @*<text x="0%" y="@GY%" fill="#00FF00">@Model.ActEq[i].GreenTop</text>*@
-                            @*<polyline points="0%,40% 10%,45% 20%,48% 30%,56% 40%,60% 50%,60% 60%,52% 70%,50%" style="fill:white;stroke:white;stroke-width:3" />*@
-                        <a href="EquipRpt">
-                            <rect class="ChartRect" x="0" y="0" width="14" height="14" style="fill:none; stroke-width:2; stroke: rgb(128, 128, 255);" />
-                            <text x="2" y="12" font-weight="bold" fill=rgb(128,128,255)>=</text>
-                        </a>
+                        @if (Model.ActEq[i].IsPropane())@Html.Raw("<a href=\"EquipRpt\">");
+                        <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" preserveAspectRatio="none">
                         </svg>
+                        @if (Model.ActEq[i].IsPropane())@Html.Raw("</a>");
                     </td>
                     <td class="eqDateTime">
                         @Model.ActEqDT(i)

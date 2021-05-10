@@ -126,7 +126,7 @@
             }
 
             $(".ChartSVG").each(function (index) {
-                $(this).width(w)-22;
+                $(this).width(w)-24;
                 $(this).height(gRowHeight - 24);
                 updateChart(index, $(this));
             });
@@ -240,8 +240,8 @@
             }
 
             svg.html(
-                "<text style=\"fill:rgb(0,255,255);font-size:10\" x=\"0\" y=\"9\">" + (sOrgY+sH).toFixed(1) + "</text>" +
-                "<text style=\"fill:rgb(0,255,255);font-size:10\" x=\"0\" y=\"" + vH + "\">" + sOrgY.toFixed(1) + "</text>");
+                "<text style=\"fill:rgb(0,255,255);font-size:9\" x=\"0\" y=\"8\">" + (sOrgY+sH).toFixed(1) + "</text>" +
+                "<text style=\"fill:rgb(0,255,255);font-size:9\" x=\"0\" y=\"" + vH + "\">" + sOrgY.toFixed(1) + "</text>");
         }
 
         function C2S(cx, cy, sBox) {
@@ -303,9 +303,9 @@
                     </td>
                     <td>
                         @if (Model.ActEq[i].IsPropane())@Html.Raw("<a href=\"EquipRpt\">")
-                        <svg class="HdrSVG" style="padding-top:10px; padding-bottom:10px;" overflow="visible" preserveAspectRatio="none">
+                        <svg class="HdrSVG" style="padding-top:10px; padding-bottom:10px; padding-left:0px; padding-right:0px" overflow="visible" preserveAspectRatio="none">
                         </svg>
-                        <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" overflow="visible" preserveAspectRatio="none">
+                        <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px; padding-left:0px; padding-right:0px" overflow="visible" preserveAspectRatio="none">
                         </svg>
                         @if (Model.ActEq[i].IsPropane())@Html.Raw("</a>")
                     </td>

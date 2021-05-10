@@ -45,8 +45,6 @@
 
             function updateRows(id) {
 
-                $("#" + id).toggleClass("NormRow SelRow");
-
                 var SelRows = [];
                 $("table > tbody > tr").each(function () {
                     if ($(this).attr('class') === "SelRow") {
@@ -54,13 +52,26 @@
                     }
                 });
 
-                if (SelRows.length > 2) {
+                if (SelRows.length == 2) {
+                    // reset all rows
                     $(SelRows).each(function () {
                         if ($(this).attr('id') !== id) {
                             $(this).toggleClass("NormRow SelRow");
                         }
                     });
-                } else if (SelRows.length == 2) {
+                    $("#" + id).removeClass("NormRow").addClass("SelRow");
+                } else {
+                    $("#" + id).toggleClass("NormRow SelRow");
+                }
+
+                SelRows = [];
+                $("table > tbody > tr").each(function () {
+                    if ($(this).attr('class') === "SelRow") {
+                        SelRows.push($(this));
+                    }
+                });
+
+                if (SelRows.length == 2) {
                     var dts0 = $(SelRows[0]).find('td:eq(0)').text();
                     var dts1 = $(SelRows[1]).find('td:eq(0)').text();
 
@@ -77,59 +88,44 @@
                         $("#ResultsDiv").html("&nbsp;" + dts0 + " -> " + dts1 + "&nbsp;<br>&nbsp;" + gals.toFixed(1) + " gals @@ $" + pricePerGal + "= Cost $" + (pricePerGal * gals).toFixed(2) + "&nbsp;");
                     }
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
-
-                    //var parameters = "{':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
-                    //$.ajax({
-                    //    url: "/EquipRpt?handler=GetPropaneCost",
-                    //    contentType: "application/json",
-                    //    dataType: "json",
-                    //    data: parameters,
-                    //    success: function (response) {
-                    //        if (response.indexOf("ERROR~:") === -1) {
-                    //            var curCost = $.parseJSON(response);
-                    //        } else {
-                                
-                    //        }
-                    //    },
-                    //    fail: function (response) {
-                            
-                    //    }
-                    //});
                 }
-
-                //new Date(year, month, day, hours, minutes, seconds, milliseconds)
-                function parseDateTime(raw) {
-
-                    var str = raw.trim();
-
-                    var mflds = str.split(" ");
-                    if (mflds.length !== 3)
-                        return null;
-
-                    var dflds = mflds[1].split("/");
-                    if (dflds.length !== 3)
-                        return null;
-
-                    // Get Date
-                    var M = parseInt(dflds[0])-1;
-                    var d = parseInt(dflds[1]);
-                    var y = parseInt(dflds[2]);
-                    if (y < 2000)
-                        y += 2000;
-
-                    var tflds = mflds[2].split(":");
-                    if (tflds.length !== 2)
-                        return null;
-
-                    var h = parseInt(tflds[0]) % 12;
-                    var m = parseInt(tflds[1].substr(0, 2));
-                    if (tflds[1].substr(2, 1) == "P") {
-                        h += 12;
-                    } 
-                    return new Date(y, M, d, h, m);
-                 }
+                else {
+                    $("#ResultsDiv").html("&nbsp;Select 2 Date/Times&nbsp;");
+                }
             }
 
+            //new Date(year, month, day, hours, minutes, seconds, milliseconds)
+            function parseDateTime(raw) {
+
+                var str = raw.trim();
+
+                var mflds = str.split(" ");
+                if (mflds.length !== 3)
+                    return null;
+
+                var dflds = mflds[1].split("/");
+                if (dflds.length !== 3)
+                    return null;
+
+                // Get Date
+                var M = parseInt(dflds[0])-1;
+                var d = parseInt(dflds[1]);
+                var y = parseInt(dflds[2]);
+                if (y < 2000)
+                    y += 2000;
+
+                var tflds = mflds[2].split(":");
+                if (tflds.length !== 2)
+                    return null;
+
+                var h = parseInt(tflds[0]) % 12;
+                var m = parseInt(tflds[1].substr(0, 2));
+                if (tflds[1].substr(2, 1) == "P") {
+                    h += 12;
+                } 
+                return new Date(y, M, d, h, m);
+            }
+        
         $(document).ready(function () {
             //const elem = document.documentElement;
             //if (elem.requestFullscreen) { elem.requestFullscreen() }
@@ -147,7 +143,7 @@
                 <div style="display:inline-block; margin-right: 20px; margin-bottom: 6px;">Tank Size : @Model.TankSize gallons</div>
                 <div style="display:inline-block; margin-right: 10px; margin-bottom: 6px;">Price/Gallon $@Model.PricePerGal</div>
             </div>
-            <div id="ResultsDiv" class="ResultsClass"></div>
+            <div id="ResultsDiv" class="ResultsClass">&nbsp;Select 2 Date/Times&nbsp;</div>
         </div>
 
         <table class="table">

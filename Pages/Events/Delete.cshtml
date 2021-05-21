@@ -1,0 +1,94 @@
+﻿@page
+@model CStat.Pages.Events.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Event</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.StartTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.StartTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.EndTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.EndTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.Type)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.Type)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostChild)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostChild)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostAdult)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostAdult)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostFamily)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostFamily)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostCabin)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostCabin)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostLodge)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostLodge)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.CostTent)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.CostTent)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.ContractLink)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.ContractLink)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Event.Church)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Event.Church.Affiliation)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="Event.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

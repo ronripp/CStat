@@ -70,6 +70,7 @@ namespace CStat
                     options.Conventions.AuthorizePage("/Index1");
                     options.Conventions.AuthorizeFolder("/Inventory");
                     options.Conventions.AuthorizeFolder("/Items");
+                    options.Conventions.AuthorizeFolder("/Events");
                     options.Conventions.AuthorizeFolder("/People");
                     options.Conventions.AuthorizeFolder("/Tasks");
                     options.Conventions.AuthorizeFolder("/Docs");

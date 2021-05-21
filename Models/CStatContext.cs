@@ -1,10 +1,22 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 
 namespace CStat.Models
 {
+    //public class CStatContextFactory : IDesignTimeDbContextFactory<CStatContext>
+    //{
+    //    public CStatContext CreateDbContext(string[] args)
+    //    {
+    //        var optionsBuilder = new DbContextOptionsBuilder<CStatContext>();
+    //        optionsBuilder.UseSqlServer("Data Source=52.117.175.212,782;Initial Catalog=ronripp_CStat;User ID=ronripp_CStat;Password=Red35868!;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+    //        return new CStatContext(optionsBuilder.Options);
+    //    }
+    //}
+
     public partial class CStatContext : DbContext
     {
         public CStatContext(IConfiguration configuration)
@@ -19,6 +31,9 @@ namespace CStat.Models
         {
             Configuration = configuration;
         }
+        //public CStatContext([NotNullAttribute] DbContextOptions options) : base(options)
+        //{
+        //}
 
         public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Address> Address { get; set; }

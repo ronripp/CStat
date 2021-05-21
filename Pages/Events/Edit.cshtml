@@ -1,0 +1,90 @@
+﻿@page
+@model CStat.Pages.Events.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Event</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Event.Id" />
+            <div class="form-group">
+                <label asp-for="Event.StartTime" class="control-label"></label>
+                <input asp-for="Event.StartTime" class="form-control" />
+                <span asp-validation-for="Event.StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.EndTime" class="control-label"></label>
+                <input asp-for="Event.EndTime" class="form-control" />
+                <span asp-validation-for="Event.EndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.Type" class="control-label"></label>
+                <input asp-for="Event.Type" class="form-control" />
+                <span asp-validation-for="Event.Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.Description" class="control-label"></label>
+                <input asp-for="Event.Description" class="form-control" />
+                <span asp-validation-for="Event.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.ChurchId" class="control-label"></label>
+                <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
+                <span asp-validation-for="Event.ChurchId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostChild" class="control-label"></label>
+                <input asp-for="Event.CostChild" class="form-control" />
+                <span asp-validation-for="Event.CostChild" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostAdult" class="control-label"></label>
+                <input asp-for="Event.CostAdult" class="form-control" />
+                <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostFamily" class="control-label"></label>
+                <input asp-for="Event.CostFamily" class="form-control" />
+                <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostCabin" class="control-label"></label>
+                <input asp-for="Event.CostCabin" class="form-control" />
+                <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostLodge" class="control-label"></label>
+                <input asp-for="Event.CostLodge" class="form-control" />
+                <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.CostTent" class="control-label"></label>
+                <input asp-for="Event.CostTent" class="form-control" />
+                <span asp-validation-for="Event.CostTent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Event.ContractLink" class="control-label"></label>
+                <input asp-for="Event.ContractLink" class="form-control" />
+                <span asp-validation-for="Event.ContractLink" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

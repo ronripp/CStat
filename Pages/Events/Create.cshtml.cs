@@ -12,15 +12,21 @@ namespace CStat.Pages.Events
     public class CreateModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        public DateTime CreateStartDate;
 
         public CreateModel(CStat.Models.CStatContext context)
         {
             _context = context;
         }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet(string edate)
         {
-        ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
+            DateTime.TryParse(edate, out CreateStartDate);
+            var cList = new SelectList(_context.Church, "Id", "Name");
+
+            IList<SelectListItem> tList = Enum.GetValues(typeof(Event.EventType)).Cast<Event.EventType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
+            ViewData["Type"] = tList;
             return Page();
         }
 

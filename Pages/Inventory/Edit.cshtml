@@ -110,7 +110,9 @@
             }
 
         .ILabel {
+            padding-top: 7px;
             padding-right: 2px;
+            margin-bottom: 2px;
         }
 
         .IValue {
@@ -200,17 +202,17 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label class="control-label col-sm-4 ILabel" asp-for="EditItem.Name">Description: </label>
-                <div class="col-sm-8 IValue">
+            <div class="form-group ediv row">
+                <label class="control-label col-sm-3 ILabel" asp-for="EditItem.Name">Description: </label>
+                <div class="col-sm-9 IValue">
                     @{Model.EditItem.Name = Model.EditItem.Name.Trim();}
                     <input asp-for="EditItem.Name" size="60" />
                     <span asp-validation-for="EditItem.Name" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label class="control-label col-sm-4 ILabel" onclick="lookupUPC()" asp-for="EditItem.Upc">UPC Barcode: </label>
-                <div class="col-sm-8 IValue">
+            <div class="form-group ediv row">
+                <label class="control-label col-sm-3 ILabel" onclick="lookupUPC()" asp-for="EditItem.Upc">UPC Barcode: </label>
+                <div class="col-sm-9 IValue">
                     @{if (Model.EditItem.Upc == null)
                             Model.EditItem.Upc = "";
                         else
@@ -229,9 +231,9 @@
                     }
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label asp-for="InventoryItem.Units" class="control-label col-sm-4 ILabel">Units:</label>
-                <div class="col-sm-8 SValue">
+            <div class="form-group ediv row">
+                <label asp-for="InventoryItem.Units" class="control-label col-sm-3 ILabel">Units:</label>
+                <div class="col-sm-9 SValue">
                     @{
                         IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
                         SelectList data = new SelectList(list, "Value", "Text");
@@ -241,30 +243,30 @@
                     <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label asp-for="EditItem.Size" class="control-label col-sm-4 ILabel">Units per Item: </label>
-                <div class="col-sm-8 IValue">
+            <div class="form-group ediv row">
+                <label asp-for="EditItem.Size" class="control-label col-sm-3 ILabel">Units per Item: </label>
+                <div class="col-sm-9 IValue">
                     <input type="text" asp-for="EditItem.Size" size="5" />&nbsp;<span id="unitsId1">@Selected</span>
                     <span asp-validation-for="EditItem.Size" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label asp-for="InventoryItem.ReorderThreshold" class="control-label col-sm-4 ILabel">Reorder when: </label>
-                <div class="col-sm-8 IValue">
+            <div class="form-group ediv row">
+                <label asp-for="InventoryItem.ReorderThreshold" class="control-label col-sm-3 ILabel">Reorder when: </label>
+                <div class="col-sm-9 IValue">
                     <input type="text" asp-for="InventoryItem.ReorderThreshold" size="5" />&nbsp;<span id="unitsId2">@Selected</span>
                     <span asp-validation-for="InventoryItem.ReorderThreshold" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label asp-for="InventoryItem.UnitsPerDay" class="control-label col-sm-4 ILabel">Usage per Day: </label>
-                <div class="col-sm-8 IValue">
+            <div class="form-group ediv row">
+                <label asp-for="InventoryItem.UnitsPerDay" class="control-label col-sm-3 ILabel">Usage per Day: </label>
+                <div class="col-sm-9 IValue">
                     <input type="text" asp-for="InventoryItem.UnitsPerDay" size="5" />&nbsp;<span id="unitsId3">@Selected</span> / day consumed
                     <span asp-validation-for="InventoryItem.UnitsPerDay" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group ediv">
-                <label asp-for="InventoryItem.Zone" class="control-label col-sm-4 ILabel">Storage Loc.</label>
-                <div class="col-sm-8 SValue">
+            <div class="form-group ediv row">
+                <label asp-for="InventoryItem.Zone" class="control-label col-sm-3 ILabel">Storage Loc.</label>
+                <div class="col-sm-9 SValue">
                     @{
                         Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
                         IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();

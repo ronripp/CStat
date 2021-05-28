@@ -1235,6 +1235,11 @@ namespace CStat.Models
             Private_Retreat,
             VOE_Retreat,
             Work_Event,
+            Elementary_Retreat,
+            Intermediate_Retreat,
+            Senior_Retreat,
+            Leadership_Retreat,
+            SWAT_Training,
             Other
         }
 

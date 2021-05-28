@@ -491,12 +491,12 @@
                 });
             }
 
-            $("#TaskDoc").click(function () {
-                if (dirtyTask) {
-                    saveTask();
-                }
-                openFileShare();
-            });
+            //$("#TaskDoc").click(function () {
+            //    if (dirtyTask) {
+            //        saveTask();
+            //    }
+            //    openFileShare();
+            //});
 
             $("#OpenDoc").click(function () {
                 if (dirtyTask) {
@@ -955,7 +955,7 @@
         function getDoc() {
             saveTask();
             sessionStorage.setItem("TaskDocReturn", window.location.href + "&TaskDoc=1");
-            window.location.href = "/Docs?select=1";
+            window.location.href = "/Docs?selectStr=Task";
         }
 
     </script>
@@ -1117,11 +1117,11 @@
                     <div class="col-md-12">
                         @{
                             var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "";
-                            var disableStr = (TaskDocVal.Length == 0) ? "disabled" : "";
+                            var disableStr = ""; // (TaskDocVal.Length == 0) ? "disabled" : "";
                         }
-                        <input type="text" id="TaskDoc" style="display:none; padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" value='@TaskDocVal' />
-                        <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px; float: right;">Set Doc</button>
-                        <button id="OpenDoc" style="margin-left:6px; margin-right:6px; float: right;" @disableStr><b>Open Doc</b></button>
+                        <button id="BrowseDoc" onclick="getDoc()" style="margin-top: 4px; margin-right: 6px; float: right;">Set Doc</button>
+                        <button id="OpenDoc" style="margin-top: 4px; margin-left: 6px; margin-right: 6px; float: right;" @disableStr><b>Open Doc</b></button>
+                        <input type="text" id="TaskDoc" style="margin-top: 4px; width:60%; padding-left: 3px; padding-right: 3px; border-style: inset; font-weight: bold; float: right;" value='@TaskDocVal' />
                     </div>
                     <div class="col-md-12" width="100%" style="margin-top:4px">
                         <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>

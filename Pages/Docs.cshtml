@@ -57,9 +57,9 @@
 
             function setSelected(folder, file) {
                 var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
-                sessionStorage.setItem("TaskDocFolder", folder);
-                sessionStorage.setItem("TaskDocFile", file);
-                let retUrl = sessionStorage.getItem("TaskDocReturn");
+                sessionStorage.setItem("@Model.SelectStr" + "DocFolder", folder);
+                sessionStorage.setItem("@Model.SelectStr" + "DocFile", file);
+                let retUrl = sessionStorage.getItem("@Model.SelectStr" + "DocReturn");
                 window.location.href = retUrl;
             }
 
@@ -129,7 +129,7 @@
     @{
     var DocTitle = Model.FolderName.Replace('/', '>');
     if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
-    var SelVal = Model.IsSelect ? 1 : 0;
+    var SelStr = Model.IsSelect ? Model.SelectStr : "";
     }
     <h4><b>@DocTitle</b></h4>
 
@@ -154,7 +154,7 @@
                 @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
                 <tr>
                     <td>
-                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&select=@SelVal">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
                     </td>
                     <td></td>
                     <td></td>

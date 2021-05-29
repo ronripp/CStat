@@ -22,7 +22,9 @@ namespace CStat.Pages.Events
         public IActionResult OnGet(string edate)
         {
             DateTime.TryParse(edate, out CreateStartDate);
-            var cList = new SelectList(_context.Church, "Id", "Name");
+            IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c=>c.Text).ToList();
+            cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
+            ViewData["Church"] = cList;
 
             IList<SelectListItem> tList = Enum.GetValues(typeof(Event.EventType)).Cast<Event.EventType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });

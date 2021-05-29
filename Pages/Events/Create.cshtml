@@ -57,7 +57,31 @@
                 let desc = eYear + " " + eName;
                 $("#Event_Description").val(desc);
             }
+
+            let sdt = CreateStartDate.getFullYear().toString() + "-" + (CreateStartDate.getMonth() + 1).toString().padStart(2, 0) + "-" + CreateStartDate.getDate().toString().padStart(2, 0) + "T15:00";
+            $("#Event_StartTime").val(sdt);
+            $("#Event_StartTime").trigger('change');
         });
+
+        $("#Event_StartTime").change(function () {
+            let sDate = $("#Event_StartTime").val();
+            let eDate = $("#Event_EndTime").val();
+            let eType = $("#Event_Type option:selected").text();
+            if ((sDate.indexOf("T") != -1) && (eDate.trim().length == 0) && (eType.length > 5)) {
+                let sDT = new Date(Date.parse(sDate));
+                let eDT = new Date(sDT);
+                if (eType.indexOf(" Retreat") != -1) {
+                    eDT.setDate(eDT.getDate() + 3);
+                    let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth()+1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
+                    $("#Event_EndTime").val(dts);
+                } else if (eType.indexOf(" Week") != -1) {
+                    eDT.setDate(eDT.getDate() + 7);
+                    let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth()+1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
+                    $("#Event_EndTime").val(dts);
+                }
+            }
+        });
+
 
         if (window.location.href.indexOf("EventDoc=1") != -1) {
             $("#EventDoc").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));

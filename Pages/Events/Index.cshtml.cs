@@ -33,14 +33,15 @@ namespace CStat.Pages.Events
                 .Include(e => e.Church).Where(e => (e.EndTime >= sDT) && (e.StartTime <= eDT)).ToListAsync();
 
             DateTime day;
+            DateTime now = DateTime.Now;
+            DateTime today = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, 0);
             string dayStr;
-
             int monthCnt = 0;
             string curMon, lastMon = "";
 
             for (int i = -2; i < 367; ++i)
             {
-                day = DateTime.Now.AddDays(i);
+                day = today.AddDays(i);
                 curMon = monStr[day.Month - 1];
                 var dateStr = "edate=" + day.Month.ToString("D2") + "/" + day.Day.ToString("D2") + "/" + day.Year.ToString("D4");
                 string trStyle = "";

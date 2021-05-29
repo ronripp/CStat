@@ -44,6 +44,14 @@ namespace CStat.Pages.Events
                 return Page();
             }
 
+            if (Event.ChurchId == -1)
+                Event.ChurchId = null;
+
+            if (Event.StartTime >= Event.EndTime)
+            {
+                return Page();
+            }
+
             _context.Event.Add(Event);
             await _context.SaveChangesAsync();
 

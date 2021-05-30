@@ -73,19 +73,19 @@ namespace CStat.Pages.Events
                 switch (matches.Count)
                 {
                     case 0:
-                        dayStr += "<div class=\"rowAttrs col-md-12\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
                         curID = -1;
                         break;
                     case 1:
                         if (day.Date == matches[0].StartTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-2\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
                             dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].EndTime.Date)
                         {
                             dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-2\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
                         }
                         else
                         {
@@ -95,7 +95,15 @@ namespace CStat.Pages.Events
                         break;
                     default:
                     case 2:
-                        curID = matches[0].Id + (100000 * matches[0].Id);
+                        int sidx=0, eidx=1;
+                        if (matches[0].StartTime > matches[1].StartTime)
+                        {
+                            sidx = 1;
+                            eidx = 0;
+                        }
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc\"><a href=\"Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc\"><a href=\"Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
+
                         break;
                 }
                 dayStr += "</div></td></tr>";

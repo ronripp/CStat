@@ -18,10 +18,16 @@
         color: inherit;
     }
 
+    .AddDesc {
+        text-align: center;
+    }
+
+
     .EventDesc {
         background-color: lightblue;
         font-weight:bold;
         border: 2px solid blue;
+        text-align: center;
     }
 
     td {
@@ -43,10 +49,10 @@
 
 <body>
 
-    <h1>Index</h1>
+    <h1>Events</h1>
 
     <p>
-        <a asp-page="Create">Create New</a>
+        <a style="color:blue" asp-page="Create">Create New</a>
     </p>
     <table class="table">
         <tbody>

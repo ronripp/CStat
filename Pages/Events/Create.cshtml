@@ -49,6 +49,9 @@
 
     $(document).ready(function () {
 
+        let sdt = CreateStartDate.getFullYear().toString() + "-" + (CreateStartDate.getMonth() + 1).toString().padStart(2, 0) + "-" + CreateStartDate.getDate().toString().padStart(2, 0) + "T15:00";
+        $("#Event_StartTime").val(sdt);
+
         $("#Event_Type").change(function () {
             let eName = $("#Event_Type option:selected").text();
             let eYear = CreateStartDate.getFullYear();
@@ -58,8 +61,6 @@
                 $("#Event_Description").val(desc);
             }
 
-            let sdt = CreateStartDate.getFullYear().toString() + "-" + (CreateStartDate.getMonth() + 1).toString().padStart(2, 0) + "-" + CreateStartDate.getDate().toString().padStart(2, 0) + "T15:00";
-            $("#Event_StartTime").val(sdt);
             $("#Event_StartTime").trigger('change');
         });
 

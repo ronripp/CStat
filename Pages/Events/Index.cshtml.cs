@@ -38,10 +38,12 @@ namespace CStat.Pages.Events
             string dayStr;
             int monthCnt = 0;
             string curMon, lastMon = "";
+            int curID = -1;
 
             for (int i = -2; i < 367; ++i)
             {
                 day = today.AddDays(i);
+                var eod = day.AddMinutes((23 * 60) + 59);
                 curMon = monStr[day.Month - 1];
                 var dateStr = "edate=" + day.Month.ToString("D2") + "/" + day.Day.ToString("D2") + "/" + day.Year.ToString("D4");
                 string trStyle = "";
@@ -62,27 +64,41 @@ namespace CStat.Pages.Events
                     trStyle = "style=\"" + trStyle + "\"";
                 }
 
-                var matches = Events.Where(e => (day >= e.StartTime) && (day <= e.EndTime)).ToList();
+                var matches = Events.Where(e => (eod >= e.StartTime) && (day <= e.EndTime)).ToList();
 
-
-                dayStr = "<tr " + trStyle + " " + dateStr + ">" +
-                            "<td id=\"DateField\">" + dowStr[(int)day.DayOfWeek] + "</td><td  id=\"DateField\"><b>" + curMon + " " + day.Day.ToString() + "</b></td>";
+                dayStr = "<tr class=\"rowAttrs\"" + trStyle + " " + dateStr + ">" +
+                            "<td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\">" + dowStr[(int)day.DayOfWeek] + "</td><td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\"><b>" + curMon + " " + day.Day.ToString() + "</b></td>" +
+                            "<td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\"><div class=\"row rowAttrs\">";
 
                 switch (matches.Count)
                 {
                     case 0:
-                        dayStr += "<td width=\"90%\" eid =\"-1\"><a href=\"Create?" + dateStr + "\">Add Event</a></td>";
-                        dayStr += "<td width=\"10%\" eid =\"-1\">Add</td>";
+                        dayStr += "<div class=\"rowAttrs col-md-12\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                        curID = -1;
                         break;
                     case 1:
-                        dayStr += "<td width=\"100%\" eid =\"1\">Event 1</td>";
+                        if (day.Date == matches[0].StartTime.Date)
+                        {
+                            dayStr += "<div class=\"rowAttrs col-md-2\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
+                        }
+                        else if (day.Date == matches[0].EndTime.Date)
+                        {
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                        }
+                        else
+                        {
+                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
+                        }
+                        curID = matches[0].Id;
                         break;
                     default:
                     case 2:
-                        dayStr += "<td width=\"100%\" eid =\"1\">Event 2</td>";
+                        curID = matches[0].Id + (100000 * matches[0].Id);
                         break;
                 }
-                dayStr += "</tr>";
+                dayStr += "</div></td></tr>";
                 Calendar.Add(dayStr);
             }
         }

@@ -22,11 +22,44 @@
         text-align: center;
     }
 
+    .EVCol0 {
+        background-color: @Model.ECol[0];
+        border: 2px solid @Model.EBord[0];
+    }
+
+    .EVCol1 {
+        background-color: @Model.ECol[1];
+        border: 2px solid @Model.EBord[1];
+    }
+
+    .EVCol2 {
+        background-color: @Model.ECol[2];
+        border: 2px solid @Model.EBord[2];
+    }
+
+    .EVCol3 {
+        background-color: @Model.ECol[3];
+        border: 2px solid @Model.EBord[3];
+    }
+
+    .EVCol4 {
+        background-color: @Model.ECol[4];
+        border: 2px solid @Model.EBord[4];
+    }
+
+    .EVCol5 {
+        background-color: @Model.ECol[5];
+        border: 2px solid @Model.EBord[5];
+    }
+
+    .EVCol6 {
+        background-color: @Model.ECol[6];
+        border: 2px solid @Model.EBord[6];
+
+    }
 
     .EventDesc {
-        background-color: lightblue;
         font-weight:bold;
-        border: 2px solid blue;
         text-align: center;
     }
 
@@ -51,9 +84,9 @@
 
     <h1>Events</h1>
 
-    <p>
+    @*<p>
         <a style="color:blue" asp-page="Create">Create New</a>
-    </p>
+    </p>*@
     <table class="table">
         <tbody>
             @{

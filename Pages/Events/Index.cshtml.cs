@@ -13,6 +13,11 @@ namespace CStat.Pages.Events
     {
         public readonly string[] dowStr = {"Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"};
         public readonly string[] monStr = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        public readonly string[] ECol =  { "#ffb3ba", "#ffdfba", "#baffc9", "#bae1ff", "#E0BBE4", "#9CECFF", "#94FA92"};
+        public readonly string[] EBord = { "#b30000", "#e62e00", "#008000", "#0000ff", "#b30000", "#0000ff", "#008000" };
+
+        public List<KeyValuePair<int, string>> ECList;
+        public int ECIndex = 0;
 
         private readonly CStat.Models.CStatContext _context;
         public List<string> Calendar;
@@ -22,8 +27,19 @@ namespace CStat.Pages.Events
         {
             _context = context;
             Calendar = new List<string>();
+            ECList = new List<KeyValuePair<int, string>>();
         }
 
+        private string GetEC (int eid)
+        {
+            var kvpRes = ECList.Where(kvp => kvp.Key == eid).ToArray();
+            if ((kvpRes.Count() > 0) && (kvpRes[0].Key == eid))
+                return kvpRes[0].Value;
+            KeyValuePair<int, string> newKVP = new KeyValuePair<int, string>(eid, "EVCol"+ECIndex.ToString());
+            ECIndex = (ECIndex + 1) % ECol.Length;
+            ECList.Add(newKVP);
+            return newKVP.Value;
+        }
 
         public async System.Threading.Tasks.Task OnGetAsync()
         {
@@ -80,16 +96,16 @@ namespace CStat.Pages.Events
                         if (day.Date == matches[0].StartTime.Date)
                         {
                             dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].EndTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
                             dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
                         }
                         else
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
                         }
                         curID = matches[0].Id;
                         break;
@@ -101,8 +117,8 @@ namespace CStat.Pages.Events
                             sidx = 1;
                             eidx = 0;
                         }
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc\"><a href=\"Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc\"><a href=\"Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[sidx].Id) + "\"><a href=\"Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[eidx].Id) + "\"><a href=\"Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
 
                         break;
                 }

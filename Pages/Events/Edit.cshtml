@@ -5,85 +5,265 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-<h4>Event</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Event.Id" />
-            <div class="form-group">
-                <label asp-for="Event.StartTime" class="control-label"></label>
-                <input asp-for="Event.StartTime" class="form-control" />
-                <span asp-validation-for="Event.StartTime" class="text-danger"></span>
+<style>
+
+    .center {
+        text-align: center
+    }
+
+    .TRight {
+        text-align: right
+    }
+
+    .ediv {
+        border-width: 1px;
+        border-style: solid;
+        border-color: #C0FFC0;
+        background-color: #F2FFF2;
+        padding-bottom: 3px;
+    }
+
+    .ILabel {
+        padding-right: 2px;
+        padding-top: 7px;
+        padding-bottom: 2px;
+        margin-bottom: 2px;
+    }
+
+    .IValue {
+        padding-top: 2px;
+        padding-left: 4px;
+    }
+</style>
+
+<script>
+
+    var EditStartDate = new Date("@Model.Event.StartTime.ToString()");
+
+    $(document).ready(function () {
+
+        $("#Event_Type").change(function () {
+            let eName = $("#Event_Type option:selected").text();
+            let eYear = EditStartDate.getFullYear();
+            let eDesc = $("#Event_Description").val().trim();
+            if (!eDesc && ((eName.indexOf(" Retreat") != -1) || (eName.indexOf(" Week") != -1) || (eName.indexOf(" Meeting") != -1))) {
+                let desc = eYear + " " + eName;
+                $("#Event_Description").val(desc);
+            }
+
+            $("#Event_StartTime").trigger('change');
+        });
+
+        $("#Event_StartTime").change(function () {
+            let sDate = $("#Event_StartTime").val();
+            let eDate = $("#Event_EndTime").val();
+            let eType = $("#Event_Type option:selected").text();
+            if ((sDate.indexOf("T") != -1) && (eDate.trim().length == 0) && (eType.length > 5)) {
+                let sDT = new Date(Date.parse(sDate));
+                let eDT = new Date(sDT);
+                if (eType.indexOf(" Retreat") != -1) {
+                    eDT.setDate(eDT.getDate() + 3);
+                    let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth() + 1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
+                    $("#Event_EndTime").val(dts);
+                } else if (eType.indexOf(" Week") != -1) {
+                    eDT.setDate(eDT.getDate() + 7);
+                    let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth() + 1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
+                    $("#Event_EndTime").val(dts);
+                }
+            }
+        });
+
+        if (window.location.href.indexOf("EventDoc=1") != -1) {
+            $("#EventDoc").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
+            sessionStorage.setItem("EventDocFolder", "");
+            sessionStorage.setItem("EventDocFile", "");
+            sessionStorage.setItem("EventDocReturn", "");
+        }
+
+        function openFileShare() {
+            var docVal = $("#EvenDoc").val();
+            var dvp = docVal.split(" > ");
+            if (!dvp || dvp.length !== 2) {
+                return;
+            }
+
+            var parameters = "{'Folder':'" + dvp[0].trim() + "','File':'" + dvp[1].trim() + "'}";
+            $.ajax({
+                url: "/Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        if (response.indexOf("http") == 0) {
+                            window.location.href = response;
+                        }
+                        else {
+                            window.location.href = "../" + response;
+                        }
+                    }
+                },
+            });
+        }
+
+        $("#EventDoc").click(function () {
+            openFileShare();
+        });
+
+        $("#OpenDoc").click(function () {
+            openFileShare();
+        });
+
+        function getDoc() {
+            sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
+            window.location.href = "/Docs?selectStr=Event";
+        }
+
+        $("#DelBtn").click(function () {
+            if (confirm("Delete Event : " +  $("#Event_Description").val() + "?")) {
+                var parameters = "{'invItemId':'" + @Model.Event.Id + "}";
+                $.ajax({
+                    url: "/Event/Edit?handler=DeleteEvent",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            alert("Item deleted from Inventory.");
+                        }
+                    },
+                    fail: function (response) {
+                       alert("ERROR : Item NOT deleted from Inventory.");
+                    }
+                });
+                window.history.go(-1);
+            }
+        });
+    });
+
+</script>
+
+<body>
+
+    <h4>Edit Event</h4>
+
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Event.Id" />
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.Type" class="control-label col-md-2 ILabel">Type:</label>
+            <div class="col-md-10 IValue">
+                <select asp-for="Event.Type" class="form-control" asp-items="ViewBag.Type"></select>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.EndTime" class="control-label"></label>
-                <input asp-for="Event.EndTime" class="form-control" />
-                <span asp-validation-for="Event.EndTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Event.Type" class="control-label"></label>
-                <input asp-for="Event.Type" class="form-control" />
-                <span asp-validation-for="Event.Type" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Event.Description" class="control-label"></label>
+        </div>
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.Description" class="control-label col-md-2 ILabel">Description:</label>
+            <div class="col-md-10 IValue">
                 <input asp-for="Event.Description" class="form-control" />
                 <span asp-validation-for="Event.Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.ChurchId" class="control-label"></label>
-                <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
-                <span asp-validation-for="Event.ChurchId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.StartTime" class="control-label col-md-2 ILabel">Start Time:</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.StartTime" class="form-control" />
+                <span asp-validation-for="Event.StartTime" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostChild" class="control-label"></label>
-                <input asp-for="Event.CostChild" class="form-control" />
+        </div>
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.EndTime" class="control-label col-md-2 ILabel">End Time:</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.EndTime" class="form-control" />
+                <span asp-validation-for="Event.EndTime" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.ContractLink" class="control-label col-md-2 ILabel" ;padding-right:3px;">Contract Link:</label>
+            <div class="col-md-10 IValue">
+                <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
+                <button id="OpenDoc" style="margin-left:6px; margin-right:6px;"><b>Open Doc</b></button>
+                <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;">Set Doc</button>
+            </div>
+        </div>
+
+        <div class="form-group row ediv">
+            <label asp-for="Event.ChurchId" class="control-label col-md-2 ILabel">Church:</label>
+            <div class="col-md-10 IValue">
+                <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>
+            </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostChild" class="control-label col-md-2 ILabel">Child $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostChild" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostChild" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostAdult" class="control-label"></label>
-                <input asp-for="Event.CostAdult" class="form-control" />
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostAdult" class="control-label col-md-2 ILabel">Adult $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostAdult" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostFamily" class="control-label"></label>
-                <input asp-for="Event.CostFamily" class="form-control" />
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostFamily" class="control-label col-md-2 ILabel">Family $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostFamily" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostCabin" class="control-label"></label>
-                <input asp-for="Event.CostCabin" class="form-control" />
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostCabin" class="control-label col-md-2 ILabel">Cabin $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostCabin" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostLodge" class="control-label"></label>
-                <input asp-for="Event.CostLodge" class="form-control" />
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostLodge" class="control-label col-md-2 ILabel">Lodge $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostLodge" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.CostTent" class="control-label"></label>
-                <input asp-for="Event.CostTent" class="form-control" />
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostTent" class="form-control style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostTent" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Event.ContractLink" class="control-label"></label>
-                <input asp-for="Event.ContractLink" class="form-control" />
-                <span asp-validation-for="Event.ContractLink" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
+        <div class="form-group center">
+            <span class="col-md-8">
+                <input type="submit" value="Update" class="btn btn-primary" />
+            </span>
+            <span class="col-md-2">
+                <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+            </span>
+            <span class="col-md-2">
+                <input type="button" id="DelBtn" value="Delete" class="alignRight" style="background-color: #FFCCCC" />
+            </span>
+        </div>
+    </form>
+
+    <div>
+        <a asp-page="./Index">Back to List</a>
+    </div>
+
+</body>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

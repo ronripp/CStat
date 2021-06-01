@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
+using Newtonsoft.Json;
 
 namespace CStat.Pages.Events
 {
@@ -36,15 +37,43 @@ namespace CStat.Pages.Events
             {
                 return NotFound();
             }
-           ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
+
+            UpdateSelectBoxes();
+
             return Page();
+        }
+        private void UpdateSelectBoxes()
+        {
+            IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c => c.Text).ToList();
+            cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
+            ViewData["Church"] = cList;
+
+            IList<SelectListItem> tList = Enum.GetValues(typeof(Event.EventType)).Cast<Event.EventType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
+            ViewData["Type"] = tList;
+
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type == null) || (Event.Type <= 0))
+            {
+                UpdateSelectBoxes();
+                return Page();
+            }
+
             if (!ModelState.IsValid)
+            {
+                UpdateSelectBoxes();
+                return Page();
+            }
+
+            if (Event.ChurchId == -1)
+                Event.ChurchId = null;
+
+            if (Event.StartTime >= Event.EndTime)
             {
                 return Page();
             }
@@ -74,5 +103,38 @@ namespace CStat.Pages.Events
         {
             return _context.Event.Any(e => e.Id == id);
         }
+
+        public JsonResult OnGetDeleteEvent()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            if (NVPairs.TryGetValue("eventId", out int eventId))
+            {
+                Event = _context.Event.Find(eventId);
+
+                if (Event != null)
+                {
+                    try
+                    {
+                        // Delete Event
+                        _context.Event.Remove(Event);
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        return new JsonResult("ERROR~: Exception : Delete Event Failed.");
+                    }
+                    return new JsonResult("SUCCESS~:Delete Event Succeeded.");
+                }
+            }
+            return new JsonResult("ERROR~: Delete Event Failed.");
+        }
+
+
     }
 }

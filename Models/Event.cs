@@ -51,6 +51,8 @@ namespace CStat.Models
         [InverseProperty("Event")]
         public virtual ICollection<Medical> Medical { get; set; }
         [InverseProperty("Event")]
+        public virtual ICollection<Task> Task { get; set; }
+        [InverseProperty("Event")]
         public virtual ICollection<Registration> Registration { get; set; }
     }
 }

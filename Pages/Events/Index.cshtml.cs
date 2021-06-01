@@ -89,23 +89,23 @@ namespace CStat.Pages.Events
                 switch (matches.Count)
                 {
                     case 0:
-                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
                         curID = -1;
                         break;
                     case 1:
                         if (day.Date == matches[0].StartTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].EndTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
                         }
                         else
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
                         }
                         curID = matches[0].Id;
                         break;
@@ -117,8 +117,8 @@ namespace CStat.Pages.Events
                             sidx = 1;
                             eidx = 0;
                         }
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[sidx].Id) + "\"><a href=\"Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[eidx].Id) + "\"><a href=\"Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[sidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[eidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
 
                         break;
                 }

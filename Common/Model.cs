@@ -30,10 +30,11 @@ namespace CStat.Models
     public class DateRange
     {
         public DateRange() { }
-        public DateRange(DateTime startDate, DateTime endDate)
+        public DateRange(DateTime startDate, DateTime endDate, int? eventID = null)
         {
             Start = startDate;
             End = endDate;
+            EventID = eventID;
         }
 
         public bool In (DateRange range)
@@ -52,6 +53,18 @@ namespace CStat.Models
         }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        public int? EventID { get; set; } = null;
+    }
+    public class DateTimeEv
+    {
+        public DateTimeEv(DateTime _dt, int? _eventID = null)
+        {
+            dt = _dt;
+            eventID = _eventID;
+        }
+
+        public DateTime dt { get; set; }
+        public int? eventID { get; set; } = null;
     }
 
     public class _CCADataEntities
@@ -703,7 +716,7 @@ namespace CStat.Models
             }
             return resStr.Replace("_", " ");
         }
-        public bool GetDueDates(List<Event> events, out List<DateTime> dueDates, DateRange lim)
+        public bool GetDueDates(List<Event> events, out List<DateTimeEv> dueDates, DateRange lim)
         {
             GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
             dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, events, lim), lim);
@@ -721,7 +734,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (er.TotalHours() <= 72))
                             {
                                 ranges.Add(er);
@@ -733,7 +746,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (er.TotalHours() > 72))
                             {
                                 ranges.Add(er);
@@ -746,7 +759,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er))
                             {
                                 int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
@@ -772,7 +785,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
                             {
                                 int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
@@ -798,7 +811,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
                             {
                                 int totalWeeks = (int)Math.Ceiling(er.TotalHours() / (24*7));
@@ -823,7 +836,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
                             {
                                 ranges.Add(er);
@@ -899,7 +912,7 @@ namespace CStat.Models
                     {
                         foreach (var ev in events)
                         {
-                            DateRange er = new DateRange(ev.StartTime, ev.EndTime);
+                            DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (er.TotalHours() > 72))
                             {
                                 ranges.Add(er);
@@ -959,9 +972,9 @@ namespace CStat.Models
             }
             return ranges;
         }
-        public List<DateTime> ApplyDueType(CTask.eTaskType dueType, int dueVal, List<DateRange> eachTypeRanges, DateRange lim)
+        public List<DateTimeEv> ApplyDueType(CTask.eTaskType dueType, int dueVal, List<DateRange> eachTypeRanges, DateRange lim)
         {
-            List<DateTime> dtList = new List<DateTime>();
+            List<DateTimeEv> dtList = new List<DateTimeEv>();
 
             foreach(var dr in eachTypeRanges)
             {
@@ -969,101 +982,101 @@ namespace CStat.Models
                 {
                     case CTask.eTaskType.At_Start:
                         {
-                            dtList.Add(dr.Start);
+                            dtList.Add(new DateTimeEv(dr.Start, dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.At_End:
                         {
-                            dtList.Add(dr.Start);
+                            dtList.Add(new DateTimeEv(dr.End, dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Hours_Before_Start:
                         {
-                            dtList.Add(dr.Start.AddHours(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddHours(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Hours_After_Start:
                         {
-                            dtList.Add(dr.Start.AddHours(dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddHours(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Hours_Before_End:
                         {
-                            dtList.Add(dr.End.AddHours(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddHours(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Hours_After_End:
                         {
-                            dtList.Add(dr.End.AddHours(dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddHours(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Days_Before_Start:
                         {
-                            dtList.Add(dr.Start.AddDays(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddDays(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Days_After_Start:
                         {
-                            dtList.Add(dr.Start.AddDays(dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddDays(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Days_Before_End:
                         {
-                            dtList.Add(dr.End.AddDays(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddDays(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Days_After_End:
                         {
-                            dtList.Add(dr.End.AddDays(dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddDays(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Weeks_Before_Start:
                         {
-                            dtList.Add(dr.Start.AddDays(-dueVal*7));
+                            dtList.Add(new DateTimeEv(dr.Start.AddDays(-dueVal*7), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Weeks_After_Start:
                         {
-                            dtList.Add(dr.Start.AddDays(dueVal * 7));
+                            dtList.Add(new DateTimeEv(dr.Start.AddDays(dueVal * 7), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Weeks_Before_End:
                         {
-                            dtList.Add(dr.End.AddDays(-dueVal * 7));
+                            dtList.Add(new DateTimeEv(dr.End.AddDays(-dueVal * 7), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Weeks_After_End:
                         {
-                            dtList.Add(dr.End.AddDays(dueVal * 7));
+                            dtList.Add(new DateTimeEv(dr.End.AddDays(dueVal * 7), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Months_Before_Start:
                         {
-                            dtList.Add(dr.Start.AddMonths(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddMonths(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Months_After_Start:
                         {
-                            dtList.Add(dr.Start.AddMonths(dueVal));
+                            dtList.Add(new DateTimeEv(dr.Start.AddMonths(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Months_Before_End:
                         {
-                            dtList.Add(dr.End.AddMonths(-dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddMonths(-dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Months_After_End:
                         {
-                            dtList.Add(dr.End.AddMonths(dueVal));
+                            dtList.Add(new DateTimeEv(dr.End.AddMonths(dueVal), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Day_Of_Week_SunMon:
                         {
                             int sdow = (int)dr.Start.DayOfWeek + 1;
                             if (dueVal < sdow)
-                                dtList.Add(dr.End.AddDays((7-sdow) + dueVal));
+                                dtList.Add(new DateTimeEv(dr.End.AddDays((7-sdow) + dueVal), dr.EventID));
                             else
-                                dtList.Add(dr.End.AddDays(dueVal - sdow));
+                                dtList.Add(new DateTimeEv(dr.End.AddDays(dueVal - sdow), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.Every_Num_Years:
@@ -1071,7 +1084,7 @@ namespace CStat.Models
                             for (int mult = 1; true; ++mult)
                             {
                                 DateTime dt = dr.Start.AddYears(mult*dueVal);
-                                dtList.Add(dt);
+                                dtList.Add(new DateTimeEv(dt, dr.EventID));
                                 if (!lim.In(new DateRange(dt, dt)))
                                     break;
                             }

@@ -62,9 +62,9 @@ namespace CStat.Pages.Tasks
         {
             List<CTask> taskList = new List<CTask>();
 
-            if (tmpl.GetDueDates(events, out List<DateTime> dueDates, lim))
+            if (tmpl.GetDueDates(events, out List<DateTimeEv> dueDateEvs, lim))
             {
-                foreach (var dueDate in dueDates)
+                foreach (var dueDateEv in dueDateEvs)
                 {
                     // Create new task and add it to the list
                     CTask task = new CTask();
@@ -79,7 +79,8 @@ namespace CStat.Pages.Tasks
                     task.TotalCost = tmpl.TotalCost;
                     task.EstimatedDoneDate = new DateTime(1900, 1, 1);
                     task.CommittedCost = 0;
-                    task.DueDate = dueDate;
+                    task.DueDate = dueDateEv.dt;
+                    task.EventId = dueDateEv.eventID;
                     task.SetTaskStatus(CTask.eTaskStatus.Not_Started, CTask.eTaskStatus.Unknown, 0);
                     task.Priority = (int)tmpl.Priority;
                     task.RequiredSkills = tmpl.RequiredSkills;

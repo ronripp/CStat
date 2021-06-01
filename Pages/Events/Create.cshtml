@@ -83,7 +83,6 @@
             }
         });
 
-
         if (window.location.href.indexOf("EventDoc=1") != -1) {
             $("#EventDoc").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
             sessionStorage.setItem("EventDocFolder", "");
@@ -124,6 +123,7 @@
         $("#OpenDoc").click(function () {
             openFileShare();
         });
+
     });
 
     function getDoc() {
@@ -171,65 +171,71 @@
         </div>
 
         <span style="color:red; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
-            <div class="form-group">
-                <label asp-for="Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
-                <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
-                <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
-                <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
-            </div>
+        <div class="form-group">
+            <label asp-for="Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
+            <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
+            <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
+            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
+        </div>
 
-            <div class="form-group row ediv">
-                <label asp-for="Event.ChurchId" class="control-label col-md-2 ILabel">Church:</label>
-                <div class="col-md-10 IValue">
-                    <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>
-                </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.ChurchId" class="control-label col-md-2 ILabel">Church:</label>
+            <div class="col-md-10 IValue">
+                <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostChild" class="control-label col-md-2 ILabel">Child $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostChild" class="form-control" />
-                    <span asp-validation-for="Event.CostChild" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostChild" class="control-label col-md-2 ILabel">Child $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostChild" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostChild" class="text-danger"></span>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostAdult" class="control-label col-md-2 ILabel">Adult $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostAdult" class="form-control" />
-                    <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostAdult" class="control-label col-md-2 ILabel">Adult $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostAdult" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostFamily" class="control-label col-md-2 ILabel">Family $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostFamily" class="form-control" />
-                    <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostFamily" class="control-label col-md-2 ILabel">Family $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostFamily" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostCabin" class="control-label col-md-2 ILabel">Cabin $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostCabin" class="form-control" />
-                    <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostCabin" class="control-label col-md-2 ILabel">Cabin $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostCabin" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostLodge" class="control-label col-md-2 ILabel">Lodge $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostLodge" class="form-control" />
-                    <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostLodge" class="control-label col-md-2 ILabel">Lodge $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostLodge" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
             </div>
-            <div class="form-group row ediv">
-                <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
-                <div class="col-md-10 IValue">
-                    <input asp-for="Event.CostTent" class="form-control" />
-                    <span asp-validation-for="Event.CostTent" class="text-danger"></span>
-                </div>
+        </div>
+        <div class="form-group row ediv">
+            <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
+            <div class="col-md-10 IValue">
+                <input asp-for="Event.CostTent" class="form-control style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostTent" class="text-danger"></span>
             </div>
-            <div class="center">
+        </div>
+
+        <div class="form-group center">
+            <span class="col-md-8">
                 <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-</form>
+            </span>
+            <span class="col-md-2">
+                <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+            </span>
+        </div>
+    </form>
 
         <div>
             <a asp-page="Index">Back to List</a>

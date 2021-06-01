@@ -39,6 +39,11 @@ namespace CStat.Pages.Events
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type == null) || (Event.Type <= 0))
+            {
+                return Page();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();

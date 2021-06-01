@@ -40,6 +40,8 @@ namespace CStat.Models
         public DateTime? ActualDoneDate { get; set; }
         [Column("Church_id")]
         public int? ChurchId { get; set; }
+        [Column("Event_id")]
+        public int? EventId { get; set; }
         [Column("Plan_Link")]
         [StringLength(255)]
         public string PlanLink { get; set; }
@@ -77,6 +79,9 @@ namespace CStat.Models
         [ForeignKey(nameof(ChurchId))]
         [InverseProperty("Task")]
         public virtual Church Church { get; set; }
+        [ForeignKey(nameof(EventId))]
+        [InverseProperty("Task")]
+        public virtual Event Event { get; set; }
         [ForeignKey(nameof(ParentTaskId))]
         [InverseProperty(nameof(Task.InverseParentTask))]
         public virtual Task ParentTask { get; set; }

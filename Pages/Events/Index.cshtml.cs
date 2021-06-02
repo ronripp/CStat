@@ -29,7 +29,6 @@ namespace CStat.Pages.Events
             Calendar = new List<string>();
             ECList = new List<KeyValuePair<int, string>>();
         }
-
         private string GetEC (int eid)
         {
             var kvpRes = ECList.Where(kvp => kvp.Key == eid).ToArray();
@@ -40,7 +39,6 @@ namespace CStat.Pages.Events
             ECList.Add(newKVP);
             return newKVP.Value;
         }
-
         public async System.Threading.Tasks.Task OnGetAsync()
         {
             var sDT = DateTime.Now.AddDays(-2);
@@ -117,8 +115,40 @@ namespace CStat.Pages.Events
                             sidx = 1;
                             eidx = 0;
                         }
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[sidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + " (ends " + matches[sidx].EndTime.ToString("h:mm tt") + ")</a></div>";
-                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[eidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + " (st. " + matches[eidx].StartTime.ToString("h:mm tt") + ")</a></div>";
+
+                        String sidxExtra = "";
+                        if (day.Date == matches[sidx].StartTime.Date)
+                        {
+                            sidxExtra = " (st. " + matches[sidx].StartTime.ToString("h: mm tt") + ")";
+                        }
+                        else
+                        {
+                            if (day.Date == matches[sidx].EndTime.Date)
+                            {
+                                sidxExtra = " (ends " + matches[sidx].EndTime.ToString("h: mm tt") + ")";
+                            }
+                        }
+                        String eidxExtra = "";
+                        if (day.Date == matches[eidx].StartTime.Date)
+                        {
+                            eidxExtra = " (st. " + matches[eidx].StartTime.ToString("h: mm tt") + ")";
+                        }
+                        else
+                        {
+                            if (day.Date == matches[eidx].EndTime.Date)
+                            {
+                                eidxExtra = " (ends " + matches[eidx].EndTime.ToString("h: mm tt") + ")";
+                            }
+                        }
+
+                        if (matches.Count > 2)
+                        {
+                            sidxExtra = "More than 2 Events. " + sidx;
+                            eidxExtra = "More than 2 Events. " + eidx;
+                        }
+
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[sidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[sidx].Id + "\">" + matches[sidx].Description + sidxExtra + "</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-6 EventDesc " + GetEC(matches[eidx].Id) + "\"><a href=\"/Events/Edit?id=" + matches[eidx].Id + "\">" + matches[eidx].Description + eidxExtra + "</a></div>";
 
                         break;
                 }

@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Edit";
 }
+@Html.AntiForgeryToken()
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -127,19 +128,19 @@
 
         $("#DelBtn").click(function () {
             if (confirm("Delete Event : " +  $("#Event_Description").val() + "?")) {
-                var parameters = "{'invItemId':'" + @Model.Event.Id + "}";
+                var parameters = "{'eventId':'" + @Model.Event.Id + "'}";
                 $.ajax({
-                    url: "/Event/Edit?handler=DeleteEvent",
+                    url: "/Events/Edit?handler=DeleteEvent",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") === -1) {
-                            alert("Item deleted from Inventory.");
+                            alert("Event deleted.");
                         }
                     },
                     fail: function (response) {
-                       alert("ERROR : Item NOT deleted from Inventory.");
+                       alert("ERROR : Event NOT deleted.");
                     }
                 });
                 window.history.go(-1);

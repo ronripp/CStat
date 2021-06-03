@@ -1,53 +1,63 @@
 ﻿@page
 @model CStat.Pages.Events.EditModel
-
-@{
-    ViewData["Title"] = "Edit";
-}
 @Html.AntiForgeryToken()
+@{
+    ViewData["Title"] = "Edit Event";
+}
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+<head>
+    @using System;
+    @using System.Web;
+    @using System.Globalization;
+    @using CStat.Models;
 
-<style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-    .center {
-        text-align: center
-    }
+    <style>
 
-    .TRight {
-        text-align: right
-    }
+        .center {
+            text-align: center
+        }
 
-    .ediv {
-        border-width: 1px;
-        border-style: solid;
-        border-color: #C0FFC0;
-        background-color: #F2FFF2;
-        padding-bottom: 3px;
-    }
+        .TRight {
+            text-align: right
+        }
 
-    .ILabel {
-        padding-right: 2px;
-        padding-top: 7px;
-        padding-bottom: 2px;
-        margin-bottom: 2px;
-    }
+        .ediv {
+            border-width: 1px;
+            border-style: solid;
+            border-color: #C0FFC0;
+            background-color: #F2FFF2;
+            padding-bottom: 3px;
+        }
 
-    .IValue {
-        padding-top: 2px;
-        padding-left: 4px;
-    }
-</style>
+        .ILabel {
+            padding-right: 2px;
+            padding-top: 7px;
+            padding-bottom: 2px;
+            margin-bottom: 2px;
+        }
 
-<script>
+        .IValue {
+            padding-top: 2px;
+            padding-left: 4px;
+        }
+    </style>
+
+    <script>
 
     var EditStartDate = new Date("@Model.Event.StartTime.ToString()");
 
     $(document).ready(function () {
+
+        costTent = $("#Event_CostTent").val();
+        if (!!costTent && (costTent.indexOf("~~~") === 0)) {
+            $("#Event_CostTent").val(costTent.substr(3));
+        }
 
         $("#Event_Type").change(function () {
             let eName = $("#Event_Type option:selected").text();
@@ -81,14 +91,20 @@
         });
 
         if (window.location.href.indexOf("EventDoc=1") != -1) {
-            $("#EventDoc").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
+            $("#Event_ContractLink").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
             sessionStorage.setItem("EventDocFolder", "");
             sessionStorage.setItem("EventDocFile", "");
             sessionStorage.setItem("EventDocReturn", "");
+
+            let costTent = $("#Event_CostTent").val();
+            if (!!costTent && (costTent.indexOf("~~~") === 0)) {
+                $("#Event_CostTent").val(costTent.substr(3));
+            }
+            $("#OpenDoc").prop("disabled", true);
         }
 
         function openFileShare() {
-            var docVal = $("#EvenDoc").val();
+            var docVal = $("#Event_ContractLink").val();
             var dvp = docVal.split(" > ");
             if (!dvp || dvp.length !== 2) {
                 return;
@@ -110,21 +126,23 @@
                         }
                     }
                 },
+                complete: function (data) {
+                    costTent = $("#Event_CostTent").val();
+                    if (!!costTent && (costTent.indexOf("~~~") === 0)) {
+                        $("#Event_CostTent").val(costTent.substr(3));
+                    }
+                }
             });
         }
 
-        $("#EventDoc").click(function () {
-            openFileShare();
-        });
-
         $("#OpenDoc").click(function () {
+            let costTent = $("#Event_CostTent").val();
+            if (!costTent || (costTent.indexOf("~~~") != 0)) {
+                costTent = "~~~" + (!!costTent ? costTent : "");
+                $("#Event_CostTent").val(costTent);
+            }
             openFileShare();
         });
-
-        function getDoc() {
-            sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
-            window.location.href = "/Docs?selectStr=Event";
-        }
 
         $("#DelBtn").click(function () {
             if (confirm("Delete Event : " +  $("#Event_Description").val() + "?")) {
@@ -143,16 +161,32 @@
                        alert("ERROR : Event NOT deleted.");
                     }
                 });
+                localStorage.setItem("refreshEvs", "true");
                 window.history.go(-1);
             }
         });
     });
 
-</script>
+    function getDoc() {
+        $("#OpenDoc").prop("disabled", true);
+        let costTent = $("#Event_CostTent").val();
+        if (!costTent || (costTent.indexOf("~~~") != 0)) {
+            costTent = "~~~" + (!!costTent ? costTent : "");
+            $("#Event_CostTent").val(costTent);
+        }
+       sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
+       window.location.href = "/Docs?selectStr=Event";
+    }
+
+    </script>
+</head>
 
 <body>
 
-    <h4>Edit Event</h4>
+    @if (ViewData["EventError"].ToString().Length > 0)
+    {
+        <span style="color:red">@Html.Raw(ViewData["EventError"])</span>
+    }
 
     <form method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -192,7 +226,7 @@
         <div class="form-group row ediv">
             <label asp-for="Event.ContractLink" class="control-label col-md-2 ILabel" ;padding-right:3px;">Contract Link:</label>
             <div class="col-md-10 IValue">
-                <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
+                <input asp-for="Event.ContractLink" class="form-control" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
                 <button id="OpenDoc" style="margin-left:6px; margin-right:6px;"><b>Open Doc</b></button>
                 <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;">Set Doc</button>
             </div>
@@ -242,7 +276,7 @@
         <div class="form-group row ediv">
             <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
             <div class="col-md-10 IValue">
-                <input asp-for="Event.CostTent" class="form-control style="max-width: 6em;" />
+                <input asp-for="Event.CostTent" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostTent" class="text-danger"></span>
             </div>
         </div>

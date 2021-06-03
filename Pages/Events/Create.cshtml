@@ -135,6 +135,11 @@
 
 <body>
 
+    @if (ViewData["EventError"].ToString().Length > 0)
+    {
+        <span style="color:red">@Html.Raw(ViewData["EventError"])</span>
+    }
+
     <form class="form-horizontal" method="post" enctype="multipart/form-data">
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -175,7 +180,7 @@
             <label asp-for="Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
             <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
-            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
+            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;">Set Doc</button>
         </div>
 
         <div class="form-group row ediv">
@@ -222,7 +227,7 @@
         <div class="form-group row ediv">
             <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
             <div class="col-md-10 IValue">
-                <input asp-for="Event.CostTent" class="form-control style="max-width: 6em;" />
+                <input asp-for="Event.CostTent" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostTent" class="text-danger"></span>
             </div>
         </div>
@@ -237,9 +242,9 @@
         </div>
     </form>
 
-        <div>
-            <a asp-page="Index">Back to List</a>
-        </div>
+    <div>
+        <a asp-page="Index">Back to List</a>
+    </div>
 
 </body>
 

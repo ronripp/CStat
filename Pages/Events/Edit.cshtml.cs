@@ -38,11 +38,11 @@ namespace CStat.Pages.Events
                 return NotFound();
             }
 
-            UpdateSelectBoxes();
+            UpdateViewData();
 
             return Page();
         }
-        private void UpdateSelectBoxes()
+        private void UpdateViewData(string err="")
         {
             IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c => c.Text).ToList();
             cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
@@ -52,21 +52,28 @@ namespace CStat.Pages.Events
             tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
             ViewData["Type"] = tList;
 
+            ViewData["EventError"] = err;
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type == null) || (Event.Type <= 0))
+            if (Event.ContractLink.StartsWith("~~~"))
             {
-                UpdateSelectBoxes();
+                UpdateViewData("Browsing for a Contract Link : ~~~");
+                return NotFound();
+            }
+
+            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type <= 0))
+            {
+                UpdateViewData("Event Type and/or Event Description must be set.");
                 return Page();
             }
 
             if (!ModelState.IsValid)
             {
-                UpdateSelectBoxes();
+                UpdateViewData("One or more fields are not valid.");
                 return Page();
             }
 
@@ -75,6 +82,7 @@ namespace CStat.Pages.Events
 
             if (Event.StartTime >= Event.EndTime)
             {
+                UpdateViewData("End Date/Time must be later than Start Date/Time.");
                 return Page();
             }
 
@@ -134,7 +142,5 @@ namespace CStat.Pages.Events
             }
             return new JsonResult("ERROR~: Delete Event Failed.");
         }
-
-
     }
 }

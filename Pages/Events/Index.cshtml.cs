@@ -81,25 +81,30 @@ namespace CStat.Pages.Events
                 var matches = Events.Where(e => (eod >= e.StartTime) && (day <= e.EndTime)).ToList();
 
                 dayStr = "<tr class=\"rowAttrs\"" + trStyle + " " + dateStr + ">" +
-                            "<td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\">" + dowStr[(int)day.DayOfWeek] + "</td><td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\"><b>" + curMon + " " + day.Day.ToString() + "</b></td>" +
+                            "<td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\">" + dowStr[(int)day.DayOfWeek] + "</td><td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\" id=\"DateField\"><a href=\"/Events/Create?" + dateStr + "\"><b>" + curMon + " " + day.Day.ToString() + "</b></a></td>" +
                             "<td style=\"padding: 2px 2px 2px 2px;\" class=\"rowAttrs\"><div class=\"row rowAttrs\">";
 
                 switch (matches.Count)
                 {
                     case 0:
-                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
+                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
                         curID = -1;
                         break;
                     case 1:
-                        if (day.Date == matches[0].StartTime.Date)
+                        if ((day.Date == matches[0].StartTime.Date) && (day.Date == matches[0].EndTime.Date))
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (" + matches[0].StartTime.ToString("h:mm tt") + " - " + matches[0].EndTime.ToString("h: mm tt") + ")</a></div>";
+                        }
+                        else if (day.Date == matches[0].StartTime.Date)
+                        {
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
                             dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].EndTime.Date)
                         {
                             dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\">Add Event</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
                         }
                         else
                         {
@@ -119,7 +124,10 @@ namespace CStat.Pages.Events
                         String sidxExtra = "";
                         if (day.Date == matches[sidx].StartTime.Date)
                         {
-                            sidxExtra = " (st. " + matches[sidx].StartTime.ToString("h: mm tt") + ")";
+                            if (day.Date == matches[sidx].EndTime.Date)
+                                sidxExtra = " (" + matches[sidx].StartTime.ToString("h: mm tt") + " - " + matches[sidx].EndTime.ToString("h: mm tt") + ")";
+                            else
+                                sidxExtra = " (st. " + matches[sidx].StartTime.ToString("h: mm tt") + ")";
                         }
                         else
                         {
@@ -131,7 +139,11 @@ namespace CStat.Pages.Events
                         String eidxExtra = "";
                         if (day.Date == matches[eidx].StartTime.Date)
                         {
-                            eidxExtra = " (st. " + matches[eidx].StartTime.ToString("h: mm tt") + ")";
+                            if (day.Date == matches[eidx].EndTime.Date)
+                                eidxExtra = " (" + matches[eidx].StartTime.ToString("h: mm tt") + " - " + matches[eidx].EndTime.ToString("h: mm tt") + ")";
+                            else
+                                eidxExtra = " (st. " + matches[eidx].StartTime.ToString("h: mm tt") + ")";
+
                         }
                         else
                         {

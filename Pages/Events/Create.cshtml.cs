@@ -22,30 +22,41 @@ namespace CStat.Pages.Events
         public IActionResult OnGet(string edate)
         {
             DateTime.TryParse(edate, out CreateStartDate);
-            IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c=>c.Text).ToList();
-            cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
-            ViewData["Church"] = cList;
-
-            IList<SelectListItem> tList = Enum.GetValues(typeof(Event.EventType)).Cast<Event.EventType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
-            tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
-            ViewData["Type"] = tList;
+            UpdateViewData();
             return Page();
         }
 
         [BindProperty]
         public Event Event { get; set; }
 
+        private void UpdateViewData(string err = "")
+        {
+            IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c => c.Text).ToList();
+            cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
+            ViewData["Church"] = cList;
+
+            IList<SelectListItem> tList = Enum.GetValues(typeof(Event.EventType)).Cast<Event.EventType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
+            ViewData["Type"] = tList;
+
+            ViewData["EventError"] = err;
+        }
+
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type == null) || (Event.Type <= 0))
+            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type <= 0))
             {
+                CreateStartDate = Event.StartTime;
+                UpdateViewData("Event Type and/or Event Description must be set.");
                 return Page();
             }
 
             if (!ModelState.IsValid)
             {
+                CreateStartDate = Event.StartTime;
+                UpdateViewData("One or more fields are not valid.");
                 return Page();
             }
 
@@ -54,6 +65,8 @@ namespace CStat.Pages.Events
 
             if (Event.StartTime >= Event.EndTime)
             {
+                CreateStartDate = Event.StartTime;
+                UpdateViewData("End Date/Time must be later than Start Date/Time.");
                 return Page();
             }
 

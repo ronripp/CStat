@@ -73,8 +73,9 @@ namespace CStat
                         }
                     }
                 }
-                catch
+                catch (Exception e)
                 {
+                    string msg = e.Message;
                 }
             }
         }

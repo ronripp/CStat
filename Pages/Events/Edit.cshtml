@@ -159,10 +159,12 @@
                     },
                     fail: function (response) {
                        alert("ERROR : Event NOT deleted.");
+                    },
+                    complete: function (response) {
+                        localStorage.setItem("refreshEvs", "true");
+                        window.history.go(-1);
                     }
                 });
-                localStorage.setItem("refreshEvs", "true");
-                window.history.go(-1);
             }
         });
     });

@@ -921,17 +921,20 @@ namespace CStat.Models
                     }
                     break;
                 case eTaskType.Month:
-                    for (int y = lim.Start.Year, m = lim.Start.Month; y <= lim.End.Year; ++y)
+                    for (int y = lim.Start.Year, m = lim.Start.Month; y <= lim.End.Year;)
                     {
-                        DateTime s = new DateTime(y, 1, 1, 0, 0, 0);
-                        DateTime e = new DateTime(y, 12, 31, 23, 59, 59);
+                        DateTime s = new DateTime(y, m, 1, 0, 0, 0);
+                        DateTime e = s.AddMonths(1).AddSeconds(-1);
                         DateRange range = new DateRange(s, e);
                         if (lim.In(range))
                             ranges.Add(range);
                         else
                             break;
                         if (++m > 12)
+                        {
+                            ++y;
                             m = 1;
+                        }
                     }
                     break;
                 case eTaskType.Year:

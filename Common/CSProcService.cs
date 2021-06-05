@@ -43,51 +43,62 @@ namespace CStat.Common
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Check Stock for possibly needed items
-                OrderedEvents ordEvs = new OrderedEvents(_context);
-                IList<InventoryItem> InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).ToList();
-                foreach (var invIt in InventoryItems)
+                DateTime enow = PropMgr.ESTNow;
+                DateTime expected = new DateTime(enow.Year, enow.Month, enow.Day, 3, 0, 0);
+                DateTime lastW = (_csSettings.LastTaskUpdate != null) ? _csSettings.LastTaskUpdate : new DateTime(2020, 1, 1);
+#if DEBUG
+                double MinWait = 0; // for testing
+#else
+                double MinWait = 720; // 12 hrs
+#endif
+                if (((enow - lastW).TotalMinutes >= MinWait) || (Math.Abs((enow - expected).TotalMinutes) < 65))  // done not more than twice a day and covers DST change with delay/offset
                 {
-                    if (IndexInvModel.MayNeedItem(_context, invIt, ordEvs))
+                    // Check Stock for possibly needed items
+                    OrderedEvents ordEvs = new OrderedEvents(_context);
+                    IList<InventoryItem> InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).ToList();
+                    foreach (var invIt in InventoryItems)
                     {
-                        // Item likely needs to be ordered. Mark as needed.
-                        if (invIt.State == IndexInvModel.STOCKED_STATE)
+                        if (IndexInvModel.MayNeedItem(_context, invIt, ordEvs))
                         {
-                            invIt.State = IndexInvModel.NEEDED_STATE;
-                            _context.Attach(invIt).State = EntityState.Modified;
+                            // Item likely needs to be ordered. Mark as needed.
+                            if (invIt.State == IndexInvModel.STOCKED_STATE)
+                            {
+                                invIt.State = IndexInvModel.NEEDED_STATE;
+                                _context.Attach(invIt).State = EntityState.Modified;
 
-                            try
-                            {
-                                _context.SaveChanges();
-                                _csSettings.LastStockUpdate = PropMgr.ESTNow;
-                                _csSettings.Save();
-                            }
-                            catch (DbUpdateConcurrencyException)
-                            {
-                                continue;
+                                try
+                                {
+                                    _context.SaveChanges();
+                                    _csSettings.LastStockUpdate = PropMgr.ESTNow;
+                                    _csSettings.Save();
+                                }
+                                catch (DbUpdateConcurrencyException)
+                                {
+                                    continue;
+                                }
                             }
                         }
                     }
+
+                    // Check for new Tasks
+                    AutoGen ag = new AutoGen(_context);
+                    _csSettings.LastTaskUpdate = PropMgr.ESTNow;
+                    _csSettings.Save();
+                    ag.GenTasks();
+
+                    // Notify users Tasks Due
+                    CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true);
+
+                    // Persist Daily Reading and Notify if needed for Propane
+                    PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
+                    pmgr.CheckValue(pmgr.GetTUTank(true)); // get value, log to file and check
+
+                    // Check/Truncate Size of Arduino file
+                    ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
+                    amgr.GetAll(true);
+
+                    _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
                 }
-
-                // Check for new Tasks
-                AutoGen ag = new AutoGen(_context);
-                _csSettings.LastTaskUpdate = PropMgr.ESTNow;
-                _csSettings.Save();
-                ag.GenTasks();
-
-                // Notify users Tasks Due
-                CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true);
-
-                // Persist Daily Reading and Notify if needed for Propane
-                PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
-                pmgr.CheckValue(pmgr.GetTUTank(true)); // get value, log to file and check
-
-                // Check/Truncate Size of Arduino file
-                ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
-                amgr.GetAll(true);
-
-                _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
 
                 // Run again at 3:00 AM
                 DateTime now = PropMgr.ESTNow;

@@ -86,6 +86,9 @@ namespace CStat.Pages.Events
                 return Page();
             }
 
+            // Check if Start or End Dates have changed and delete tasks associated with event.
+            RemoveChangedEventTasks(_context, Event);
+
             _context.Attach(Event).State = EntityState.Modified;
 
             try
@@ -105,6 +108,30 @@ namespace CStat.Pages.Events
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public static int RemoveChangedEventTasks (CStat.Models.CStatContext context, Event newEvent)
+        {
+            int NumDeleted = 0;
+            var oldEvent = context.Event.FirstOrDefaultAsync(e => e.Id == newEvent.Id).Result;
+            if ((oldEvent != null) && ((newEvent.StartTime != oldEvent.StartTime) || (newEvent.EndTime != oldEvent.EndTime)))
+            {
+                var evTasks = context.Task.Where(t => (t.EventId.HasValue && t.EventId == newEvent.Id));
+                foreach (var t in evTasks)
+                {
+                    try
+                    {
+                        context.Task.Remove(t);
+                        context.SaveChangesAsync();
+                        ++NumDeleted;
+                    }
+                    catch
+                    { 
+                        // TBD : log these errors
+                    }
+                }
+            }
+            return NumDeleted;
         }
 
         private bool EventExists(int id)

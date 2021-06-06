@@ -51,6 +51,14 @@ namespace CStat.Models
             TimeSpan diff = End - Start;
             return diff.TotalHours;
         }
+        public int NumUniqueDates()
+        {
+            int NumDates = 1;
+            var fd = new DateTime(Start.Year, Start.Month, Start.Day, 1, 0, 0);
+            var ld = new DateTime(End.Year, End.Month, End.Day, 1, 0, 0);
+            for (var d = fd; (d.Year != ld.Year) || (d.Month != ld.Month) || (d.Day != ld.Day); d = d.AddDays(1), ++NumDates);
+            return NumDates;
+        }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public int? EventID { get; set; } = null;
@@ -551,27 +559,28 @@ namespace CStat.Models
             unk3            = 0x00100000,
 
             // Due     MASK = 0x7C000000 
-            At_Start            = 0x00000001 << 26, //  400 0000
-            At_End              = 0x00000002 << 26, //  800 0000
-            Hours_Before_Start  = 0x00000003 << 26, //  C00 0000
-            Hours_After_Start   = 0x00000004 << 26, // 1000 0000
-            Hours_Before_End    = 0x00000005 << 26,
-            Hours_After_End     = 0x00000006 << 26,
-            Days_Before_Start   = 0x00000007 << 26,
-            Days_After_Start    = 0x00000008 << 26,
-            Days_Before_End     = 0x00000009 << 26,
-            Days_After_End      = 0x0000000A << 26,
-            Weeks_Before_Start  = 0x0000000B << 26,
-            Weeks_After_Start   = 0x0000000C << 26,
-            Weeks_Before_End    = 0x0000000D << 26,
-            Weeks_After_End     = 0x0000000E << 26,
-            Months_Before_Start = 0x0000000F << 26,
-
-            Months_After_Start  = 0x00000010 << 26,
-            Months_Before_End   = 0x00000011 << 26,
-            Months_After_End    = 0x00000012 << 26,
-            Day_Of_Week_SunMon  = 0x00000013 << 26,
-            Every_Num_Years     = 0x00000014 << 26,
+            Before_Start        = 0x00000001 << 26, //  400 0000
+            At_Start            = 0x00000002 << 26, //  800 0000
+            Before_End          = 0x00000003 << 26, //  C00 0000
+            At_End              = 0x00000004 << 26, // 1000 0000
+            Hours_Before_Start  = 0x00000005 << 26,
+            Hours_After_Start   = 0x00000006 << 26,
+            Hours_Before_End    = 0x00000007 << 26,
+            Hours_After_End     = 0x00000008 << 26,
+            Days_Before_Start   = 0x00000009 << 26,
+            Days_After_Start    = 0x0000000A << 26,
+            Days_Before_End     = 0x0000000B << 26,
+            Days_After_End      = 0x0000000C << 26,
+            Weeks_Before_Start  = 0x0000000D << 26,
+            Weeks_After_Start   = 0x0000000E << 26,
+            Weeks_Before_End    = 0x0000000F << 26,
+            Weeks_After_End     = 0x00000010 << 26,
+            Months_Before_Start = 0x00000011 << 26,
+            Months_After_Start  = 0x00000012 << 26,
+            Months_Before_End   = 0x00000013 << 26,
+            Months_After_End    = 0x00000014 << 26,
+            Day_Of_Week_SunMon  = 0x00000015 << 26,
+            Every_Num_Years     = 0x00000016 << 26,
             // MAX              = 0x0000001F << 26, 
 
             // Each    MASK   = 0x03E00000 
@@ -762,7 +771,7 @@ namespace CStat.Models
                             DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er))
                             {
-                                int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
+                                int totalDays = er.NumUniqueDates();
                                 DateTime s = ev.StartTime;
                                 DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
                                 for (int d = 0; d < totalDays; ++d)
@@ -788,7 +797,7 @@ namespace CStat.Models
                             DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
                             {
-                                int totalDays = (int)Math.Ceiling(er.TotalHours() / 24);
+                                int totalDays = er.NumUniqueDates();
                                 DateTime s = ev.StartTime;
                                 DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
                                 for (int d = 0; d < totalDays; ++d)
@@ -814,7 +823,7 @@ namespace CStat.Models
                             DateRange er = new DateRange(ev.StartTime, ev.EndTime, ev.Id);
                             if (lim.In(er) && (ev.Type == (int)Event.EventType.Work_Event))
                             {
-                                int totalWeeks = (int)Math.Ceiling(er.TotalHours() / (24*7));
+                                int totalWeeks = er.NumUniqueDates();
                                 DateTime s = ev.StartTime;
                                 DateTime e = new DateTime(s.Year, s.Month, s.Day, 23, 59, 59), t;
                                 for (int d = 0; d < totalWeeks; ++d)
@@ -983,9 +992,19 @@ namespace CStat.Models
             {
                 switch (dueType)
                 {
+                    case CTask.eTaskType.Before_Start:
+                        {
+                            dtList.Add(new DateTimeEv(dr.Start.AddMinutes(-1), dr.EventID));
+                        }
+                        break;
                     case CTask.eTaskType.At_Start:
                         {
                             dtList.Add(new DateTimeEv(dr.Start, dr.EventID));
+                        }
+                        break;
+                    case CTask.eTaskType.Before_End:
+                        {
+                            dtList.Add(new DateTimeEv(dr.End.AddMinutes(-1).AddSeconds(1), dr.EventID));
                         }
                         break;
                     case CTask.eTaskType.At_End:

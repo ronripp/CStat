@@ -37,7 +37,8 @@ namespace CStat.Pages.Tasks
                 tmpl.GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
                 DateTime now = PropMgr.ESTNow;
                 DateTime startTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-                DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
+                DateTime endTime = startTime.AddMonths(6);
+                //DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
                 DateRange lim = new DateRange(startTime, endTime);
                 List<Event> evList = GetEvents(lim);
                 List<CTask> newCreatedTasks = GetTemplateTasks(tmpl, evList, lim);
@@ -69,7 +70,6 @@ namespace CStat.Pages.Tasks
                     // Create new task and add it to the list
                     CTask task = new CTask();
                     task.ParentTaskId = tmpl.Id;
-                    TaskData taskData = new TaskData();
                     task.Type = 0;
                     task.Description = tmpl.Description;
                     task.PlanLink = tmpl.PlanLink;

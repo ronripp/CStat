@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using Newtonsoft.Json;
+using CStat.Pages.Tasks;
 
 namespace CStat.Pages.Events
 {
@@ -86,8 +87,12 @@ namespace CStat.Pages.Events
                 return Page();
             }
 
-            // Check if Start or End Dates have changed and delete tasks associated with event.
-            RemoveChangedEventTasks(_context, Event);
+            // Check if Start or End Dates have changed and delete tasks associated with event and generate new ones.
+            if (RemoveChangedEventTasks(_context, Event) > 0)
+            {
+                // Regenerate tasks based on event now
+                var autogen = new AutoGen(_context);
+            }
 
             _context.Attach(Event).State = EntityState.Modified;
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
+using CStat.Pages.Tasks;
 
 namespace CStat.Pages.Events
 {
@@ -72,6 +73,9 @@ namespace CStat.Pages.Events
 
             _context.Event.Add(Event);
             await _context.SaveChangesAsync();
+
+            // Generate any tasks based on events
+            var autogen = new AutoGen(_context);
 
             return RedirectToPage("./Index");
         }

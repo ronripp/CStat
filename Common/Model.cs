@@ -779,7 +779,7 @@ namespace CStat.Models
                                     if (e > ev.EndTime)
                                         e = ev.EndTime;
 
-                                    ranges.Add(new DateRange(s,e));
+                                    ranges.Add(new DateRange(s, e, ev.Id));
 
                                     t = s.AddDays(1);
                                     s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);
@@ -805,7 +805,7 @@ namespace CStat.Models
                                     if (e > ev.EndTime)
                                         e = ev.EndTime;
 
-                                    ranges.Add(new DateRange(s, e));
+                                    ranges.Add(new DateRange(s, e, ev.Id));
 
                                     t = s.AddDays(1);
                                     s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);
@@ -831,7 +831,7 @@ namespace CStat.Models
                                     if (e > ev.EndTime)
                                         e = ev.EndTime;
 
-                                    ranges.Add(new DateRange(s, e));
+                                    ranges.Add(new DateRange(s, e, ev.Id));
 
                                     t = s.AddDays(7);
                                     s = new DateTime(t.Year, t.Month, t.Day, 0, 0, 0);

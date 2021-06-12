@@ -60,12 +60,6 @@ namespace CStat.Pages.Events
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (Event.ContractLink.StartsWith("~~~"))
-            {
-                UpdateViewData("Browsing for a Contract Link : ~~~");
-                return NotFound();
-            }
-
             if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type <= 0))
             {
                 UpdateViewData("Event Type and/or Event Description must be set.");
@@ -88,11 +82,7 @@ namespace CStat.Pages.Events
             }
 
             // Check if Start or End Dates have changed and delete tasks associated with event and generate new ones.
-            if (RemoveChangedEventTasks(_context, Event) > 0)
-            {
-                // Regenerate tasks based on event now
-                var autogen = new AutoGen(_context);
-            }
+            int NumTasksRemoved = RemoveChangedEventTasks(_context, Event);
 
             _context.Attach(Event).State = EntityState.Modified;
 
@@ -112,13 +102,20 @@ namespace CStat.Pages.Events
                 }
             }
 
+            if (NumTasksRemoved > 0)
+            {
+                // Regenerate tasks based on event now
+                var autogen = new AutoGen(_context);
+                autogen.GenTasks();
+            }
+
             return RedirectToPage("./Index");
         }
 
         public static int RemoveChangedEventTasks (CStat.Models.CStatContext context, Event newEvent)
         {
             int NumDeleted = 0;
-            var oldEvent = context.Event.FirstOrDefaultAsync(e => e.Id == newEvent.Id).Result;
+            var oldEvent = context.Event.AsNoTracking().FirstOrDefaultAsync(e => e.Id == newEvent.Id).Result;
             if ((oldEvent != null) && ((newEvent.StartTime != oldEvent.StartTime) || (newEvent.EndTime != oldEvent.EndTime)))
             {
                 var evTasks = context.Task.Where(t => (t.EventId.HasValue && t.EventId == newEvent.Id));

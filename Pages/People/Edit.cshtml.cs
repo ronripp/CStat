@@ -96,6 +96,9 @@ namespace CStat
                                 (_Address.State != null) && (_Address.State.Length > 0));
                 if ((_Person.AddressId == null) && isValidAdr)
                 {
+                    if (_Address.Country == null)
+                        _Address.Country = "USA"; // Assume USA if not specified.
+
                     _context.Address.Add(_Address);
                     _context.SaveChanges();
                     _Person.AddressId = _Address.Id;
@@ -114,7 +117,7 @@ namespace CStat
                 _context.Attach(_Person).State = EntityState.Modified;
                 _context.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return Page();
             }

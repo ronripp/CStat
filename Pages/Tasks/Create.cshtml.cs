@@ -287,6 +287,8 @@ namespace CStat.Pages.Tasks
                     taskData = TaskData.ReadTaskData(hostEnv, tid, task.ParentTaskId.HasValue ? task.ParentTaskId.Value : -1);
                     if (task.DueDate == null)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
+                    else
+                        taskData.FixedDueDate = true;
 
                     task.GetTaskStatus(out eTaskStatus state, out eTaskStatus reason, out int PercentComplete);
                     taskData.state = (int)state;

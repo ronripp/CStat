@@ -37,6 +37,7 @@
 
         var CCAServer = "localhost";
 //      var CCAServer = "192.168.1.126";
+        var gClearAdrId = false;
 
             $(document).ready(function () {
 
@@ -52,7 +53,25 @@
                     }
                     $("#zPerson_SkillSets").attr("value", skills);
                 });
+
+                $("[id^=zAddress_]").change(function () {
+
+                    if ($("#HandleAdrId").css("display") === "none") {
+                        $("#HandleAdrId").css("display", "block");
+                    }
+                    //alert("Address has been changed.");
+                });
+
+                $("#SubmitId").click(function (event) {
+
+                    if (($("#HandleAdrId").css("display") != "none") && !$('#KeepOld').is(':checked') && !$('#ChangeOld').is(':checked')) {
+                        $("#AdrIdWarn").css("display", "block");
+                        event.preventDefault();
+                    }
+               });
+
             });
+
 
     </script>
 
@@ -63,7 +82,7 @@
             <form method="post">
                 <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
 
-                <div style=" display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
                     <label asp-for="_Person.FirstName">First:</label>
                     <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" />
                 </div>
@@ -99,6 +118,15 @@
                     <label asp-for="_Address.ZipCode" +":">Zip:</label>
                     <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
                 </div>
+
+                <div id="HandleAdrId" style="color:darkred; font-weight:bold ;display:none; margin-right:10px; margin-bottom:10px; border: 2px groove red; padding: 2px 2px 2px 2px;">
+                    <span id="AdrIdWarn" style="color:red; display:none">Select how the new address is to be handle (add new for this person but keep original address for others  ...or... replace original address with this new one for all)</span>
+                    <input type="radio" id="KeepOld" asp-for="_HandleAdrId" value="KeepOld">
+                    <label for="KeepOld">Add address but keep old address for others still there.</label><br>
+                    <input type="radio" id="ChangeOld" asp-for="_HandleAdrId" value="ChangeOld">
+                    <label for="ChangeOld">Change address for this person and others there.</label><br>
+                </div>
+
                 <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                     <label asp-for="_Person.CellPhone" +":">Cell:</label>
                     <input asp-for="_Person.CellPhone" style="max-width:7em" data-val="false" />
@@ -121,7 +149,7 @@
                 <div class="form-group">
                     <input type="hidden" asp-for="_Person.Id" />
                     <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
                     </div>
                 </div>
 

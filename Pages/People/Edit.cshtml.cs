@@ -85,15 +85,28 @@ namespace CStat
         [BindProperty]
         public Address _Address { get; set; }
 
+        [BindProperty]
+        public string _HandleAdrId { get; set; }
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public IActionResult OnPost()
         {
             try
             {
+                if (_Person.ChurchId == -1)
+                    _Person.ChurchId = null;
+
                 bool isValidAdr = ((_Address.Street != null) && (_Address.Street.Length > 0) &&
                                 (_Address.Town != null) && (_Address.Town.Length > 0) &&
                                 (_Address.State != null) && (_Address.State.Length > 0));
+
+                if (isValidAdr && (_HandleAdrId == "KeepOld"))
+                {
+                    _Address.Id = 0;
+                    _Person.AddressId = null;
+                }
+
                 if ((_Person.AddressId == null) && isValidAdr)
                 {
                     if (_Address.Country == null)
@@ -112,8 +125,6 @@ namespace CStat
                     }
                 }
 
-                if (_Person.ChurchId == -1)
-                    _Person.ChurchId = null;
                 _context.Attach(_Person).State = EntityState.Modified;
                 _context.SaveChanges();
             }

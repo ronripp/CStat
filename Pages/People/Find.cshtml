@@ -101,6 +101,11 @@
 
                 props = props.replace(/\*/g, "@@");
 
+                if (props === "%7BFName=&LName=&Gender=0&Church=-1&Church=-1&SkillSets=0%7D") {
+                    resDiv.html("No filter. Select one or more skills and/or a Church and/or a gender and/or a full/part First Name and/or a full/part Last Name.");
+                    return;
+                }
+
                 resDiv.html("Executing : Waiting on DB");
 
                 $.ajax({
@@ -170,7 +175,7 @@
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Person.AgeRange" +":">Age(s):</label>
-                <input asp-for="_Person.AgeRange" style="max-width:9em" data-val="false" />
+                <input asp-for="_Person.AgeRange" style="max-width:9em" data-val="false" disabled/>
             </div>
             <div class="form-group">
                 <input type="button" onclick="findPeople()" value="Find People" class="btn btn-primary" />

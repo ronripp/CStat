@@ -200,6 +200,7 @@
             saveFormData.append("taskTotalCost", !!$("#TCostStat").html() ? $("#TCostStat").html() : "");
             saveFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
             saveFormData.append("taskId", $("#task_Id").val());
+            saveFormData.append("parentTaskId", $("#task_ParentTaskId").val());
             saveFormData.append("taskType", $("#task_Type").val());
             let docVal = encodeQuotes($("#TaskDoc").val());
             if (docVal === "<Browse to Add Doc>") {

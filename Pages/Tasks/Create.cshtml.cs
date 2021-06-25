@@ -248,6 +248,7 @@ namespace CStat.Pages.Tasks
                 // Initialize Template
                 task.Type |= (int)CTask.eTaskType.Template;
                 IsTemplate = true;
+                taskData.FixedDueDate = true;
                 tid = 0;
             }
             else
@@ -339,7 +340,7 @@ namespace CStat.Pages.Tasks
             IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Before_Start) && ((int)e <= (int)CTask.eTaskType.Day_Of_Week_SunMon)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskDue"] = dueList;
 
-            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Num_Start_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e < (int)CTask.eTaskType.Num_Start_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " ").Replace(" n ", "/"), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskEach"] = eachList;
 
             IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -461,6 +462,10 @@ namespace CStat.Pages.Tasks
                     taskData.Title = task.Description = title;
                     fStr = "Task Id";
                     taskData.tid = task.Id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+                    fStr = "Parent Task Id";
+                    string ptid = this.Request.Form.FirstOrDefault(kv => kv.Key == "parentTaskId").Value;
+                    task.ParentTaskId = ((ptid.Length > 0) ? int.Parse(ptid) : (int ?)null);
+                    fStr = "Task Type";
                     task.Type = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskType").Value);
                     fStr = "Person Id";
                     task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
@@ -542,8 +547,11 @@ namespace CStat.Pages.Tasks
                             if ((eachType == (int)CTask.eTaskType.Month_n_Day) || (eachType == (int)CTask.eTaskType.Num_Start_Date))
                             {
                                 string mdStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
-                                if (mdStr.Length > 0)
-                                    task.DueDate = DateTime.ParseExact(mdStr, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                                if (mdStr.Length >= 10)
+                                {
+                                    string dateOnly = mdStr.Substring(0, 10);
+                                    task.DueDate = DateTime.ParseExact(dateOnly, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                                }
                                 else
                                     return this.Content("Fail: A valid Due Date must be set with Every : Month n Day"); // Send back results
                             }

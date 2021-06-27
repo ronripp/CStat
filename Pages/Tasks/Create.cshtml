@@ -1115,14 +1115,14 @@
             </div>
             <div class="tab-pane" id="descTab" style="background-color: #FFFF80;">
                 <section class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12" width="100%">
                         @{
                             var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "";
                             var disableStr = ""; // (TaskDocVal.Length == 0) ? "disabled" : "";
                         }
-                        <button id="BrowseDoc" onclick="getDoc()" style="margin-top: 4px; margin-right: 6px; float: right;">Set Doc</button>
-                        <button id="OpenDoc" style="margin-top: 4px; margin-left: 6px; margin-right: 6px; float: right;" @disableStr><b>Open Doc</b></button>
-                        <input type="text" id="TaskDoc" style="margin-top: 4px; width:60%; padding-left: 3px; padding-right: 3px; border-style: inset; font-weight: bold; float: right;" value='@TaskDocVal' />
+                        <input type="text" class="col-md-10" id="TaskDoc" style="padding-left: 3px; padding-right: 3px; border-style: inset; font-weight: bold;" value='@TaskDocVal' />
+                        <button id="OpenDoc" style="max-width:4em;" @disableStr><b>Open</b></button>
+                        <button id="BrowseDoc" onclick="getDoc()" style="max-width:3em;">Set</button>
                     </div>
                     <div class="col-md-12" width="100%" style="margin-top:4px">
                         <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>

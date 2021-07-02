@@ -133,6 +133,9 @@ namespace CStat.Models
 
     public partial class Person
     {
+        public enum TitleRoles { Unknown = 0, Blds_Grnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
+                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, ECMember = 0x8000 };
+
         public enum eGender
         {
             M = (int)(uint)(byte)'M',

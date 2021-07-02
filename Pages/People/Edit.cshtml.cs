@@ -47,6 +47,10 @@ namespace CStat
             gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
             ViewData["Gender"] = new SelectList(gList, "Value", "Text");
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
+            long Roles = _Person.Roles.HasValue ? _Person.Roles.Value : 0;
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString()}).ToList();
+            int[] selIDs = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Where(x => ((long)x & Roles) != 0).Select(x => (int)x).ToArray<int>();
+            ViewData["TitleRoles"] = new MultiSelectList(trList, "Value", "Text", selIDs);
 
             List<SelectListItem> csl = new SelectList(_context.Church.OrderBy(c => c.Name), "Id", "Name").ToList();
             csl.Insert(0, (new SelectListItem { Text = "none", Value = "-1" }));
@@ -82,6 +86,10 @@ namespace CStat
 
         [BindProperty]
         public Person _Person { get; set; }
+
+        [BindProperty]
+        public int [] _TitleRoles { get; set; }
+
         [BindProperty]
         public Address _Address { get; set; }
 
@@ -105,6 +113,12 @@ namespace CStat
                 {
                     _Address.Id = 0;
                     _Person.AddressId = null;
+                }
+
+                _Person.Roles = 0;
+                foreach( var i in  _TitleRoles)
+                {
+                    _Person.Roles |= (long)i;
                 }
 
                 if ((_Person.AddressId == null) && isValidAdr)

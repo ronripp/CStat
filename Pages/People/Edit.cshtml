@@ -7,6 +7,12 @@
 
 <head>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
     <style>
         [id^='BtnId'] {
             margin: 2px 1px 2px 1px;
@@ -36,145 +42,145 @@
     <script>
 
         var CCAServer = "localhost";
-//      var CCAServer = "192.168.1.126";
+        //      var CCAServer = "192.168.1.126";
         var gClearAdrId = false;
 
-            $(document).ready(function () {
+        $(document).ready(function () {
 
-                $("button[id^='BtnId']").click(function () {
-                    var skill = $(this).attr("value");
-                    var skills = $("#zPerson_SkillSets").attr("value");
-                    if ($(this).hasClass("BtnOn")) {
-                        $(this).removeClass("BtnOn").addClass("BtnOff");
-                        skills &= ~skill;
-                    } else {
-                        $(this).removeClass("BtnOff").addClass("BtnOn");
-                        skills |= skill;
-                    }
-                    $("#zPerson_SkillSets").attr("value", skills);
-                });
-
-                $("[id^=zAddress_]").change(function () {
-
-                    if ($("#HandleAdrId").css("display") === "none") {
-                        $("#HandleAdrId").css("display", "block");
-                    }
-                    //alert("Address has been changed.");
-                });
-
-                $("#SubmitId").click(function (event) {
-
-                    if (($("#HandleAdrId").css("display") != "none") && !$('#KeepOld').is(':checked') && !$('#ChangeOld').is(':checked')) {
-                        $("#AdrIdWarn").css("display", "block");
-                        event.preventDefault();
-                    }
-               });
-
+            $("button[id^='BtnId']").click(function () {
+                var skill = $(this).attr("value");
+                var skills = $("#zPerson_SkillSets").attr("value");
+                if ($(this).hasClass("BtnOn")) {
+                    $(this).removeClass("BtnOn").addClass("BtnOff");
+                    skills &= ~skill;
+                } else {
+                    $(this).removeClass("BtnOff").addClass("BtnOn");
+                    skills |= skill;
+                }
+                $("#zPerson_SkillSets").attr("value", skills);
             });
+
+            $("[id^=zAddress_]").change(function () {
+
+                if ($("#HandleAdrId").css("display") === "none") {
+                    $("#HandleAdrId").css("display", "block");
+                }
+                //alert("Address has been changed.");
+            });
+
+            $("#SubmitId").click(function (event) {
+
+                if (($("#HandleAdrId").css("display") != "none") && !$('#KeepOld').is(':checked') && !$('#ChangeOld').is(':checked')) {
+                    $("#AdrIdWarn").css("display", "block");
+                    event.preventDefault();
+                }
+            });
+
+        });
 
 
     </script>
 
 </head>
 <body>
-    <div class="row">
-        <div class="col-md-12">
-            <form method="post">
-                <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
+    <div>
+        <form method="post">
+            <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
 
-                <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                    <label asp-for="_Person.FirstName">First:</label>
-                    <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px">
-                    <label asp-for="_Person.LastName">Last:</label>
-                    <input asp-for="_Person.LastName" data-val="false" style="max-width:8em" />
-                </div>
-                <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
-                    <label asp-for="_Person.Gender">Gender</label>
-                    <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Person.ChurchId" +":">Church:</label>
-                    <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em" data-val="false"></select>
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_TitleRoles" +":">Roles:</label>
-                    <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em" data-val="false" multiple></select>
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Person.Dob" +":">DOB:</label>
-                    <input type="date" asp-for="_Person.Dob" style="max-width:9.7em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Address.Street" +":">Street:</label>
-                    <input asp-for="_Address.Street" style="max-width:12em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Address.Town" +":">Town/C:</label>
-                    <input asp-for="_Address.Town" style="max-width:6em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Address.State" +":">State:</label>
-                    <input asp-for="_Address.State" style="max-width:6em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Address.ZipCode" +":">Zip:</label>
-                    <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
-                </div>
+            <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                <label asp-for="_Person.FirstName">First:</label>
+                <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px">
+                <label asp-for="_Person.LastName">Last:</label>
+                <input asp-for="_Person.LastName" data-val="false" style="max-width:8em" />
+            </div>
+            <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
+                <label asp-for="_Person.Gender">Gender</label>
+                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.ChurchId" +":">Church:</label>
+                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em" data-val="false"></select>
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.Dob" +":">DOB:</label>
+                <input type="date" asp-for="_Person.Dob" style="max-width:9.7em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Address.Street" +":">Street:</label>
+                <input asp-for="_Address.Street" style="max-width:12em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Address.Town" +":">Town/C:</label>
+                <input asp-for="_Address.Town" style="max-width:6em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Address.State" +":">State:</label>
+                <input asp-for="_Address.State" style="max-width:6em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Address.ZipCode" +":">Zip:</label>
+                <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
+            </div>
 
-                <div id="HandleAdrId" style="color:darkred; font-weight:bold ;display:none; margin-right:10px; margin-bottom:10px; border: 2px groove red; padding: 2px 2px 2px 2px;">
-                    <span id="AdrIdWarn" style="color:red; display:none">Select how the new address is to be handle (add new for this person but keep original address for others  ...or... replace original address with this new one for all)</span>
-                    <input type="radio" id="KeepOld" asp-for="_HandleAdrId" value="KeepOld">
-                    <label for="KeepOld">Add address but keep old address for others still there.</label><br>
-                    <input type="radio" id="ChangeOld" asp-for="_HandleAdrId" value="ChangeOld">
-                    <label for="ChangeOld">Change address for this person and others there.</label><br>
-                </div>
+            <div id="HandleAdrId" style="color:darkred; font-weight:bold ;display:none; margin-right:10px; margin-bottom:10px; border: 2px groove red; padding: 2px 2px 2px 2px;">
+                <span id="AdrIdWarn" style="color:red; display:none">Select how the new address is to be handle (add new for this person but keep original address for others  ...or... replace original address with this new one for all)</span>
+                <input type="radio" id="KeepOld" asp-for="_HandleAdrId" value="KeepOld">
+                <label for="KeepOld">Add address but keep old address for others still there.</label><br>
+                <input type="radio" id="ChangeOld" asp-for="_HandleAdrId" value="ChangeOld">
+                <label for="ChangeOld">Change address for this person and others there.</label><br>
+            </div>
 
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Person.CellPhone" +":">Cell:</label>
-                    <input asp-for="_Person.CellPhone" style="max-width:7em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Address.Phone" +":">Home Phone:</label>
-                    <input asp-for="_Address.Phone" style="max-width:7em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Person.Email" +":">EMail:</label>
-                    <input asp-for="_Person.Email" style="max-width:12em" data-val="false" />
-                </div>
-                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                    <label asp-for="_Person.Notes" +":">Comments:</label>
-                    <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" />
-                </div>
-                <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
-                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
-                </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.CellPhone" +":">Cell:</label>
+                <input asp-for="_Person.CellPhone" style="max-width:7em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Address.Phone" +":">Home Phone:</label>
+                <input asp-for="_Address.Phone" style="max-width:7em" data-val="false" />
+            </div>
+
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.Email" +":">EMail:</label>
+                <input asp-for="_Person.Email" style="max-width:12em" data-val="false" />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_TitleRoles" +":">Roles:</label>
+                <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em" data-val="false" multiple></select>
+            </div>
+
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.Notes" +":">Comments:</label>
+                <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" />
+            </div>
+            <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="_Person.Id" />
                 <div class="form-group">
-                    <input type="hidden" asp-for="_Person.Id" />
-                    <div class="form-group">
-                        <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
-                    </div>
+                    <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
                 </div>
+            </div>
 
-                @Html.HiddenFor(model => model._Person.Alias)
-                @Html.HiddenFor(model => model._Person.Status)
-                @Html.HiddenFor(model => model._Person.Ssnum)
-                @Html.HiddenFor(model => model._Person.AddressId)
-                @Html.HiddenFor(model => model._Person.Pg1PersonId)
-                @Html.HiddenFor(model => model._Person.Pg2PersonId)
-                @Html.HiddenFor(model => model._Person.ContactPref)
-                @Html.HiddenFor(model => model._Person.Roles)
+            @Html.HiddenFor(model => model._Person.Alias)
+            @Html.HiddenFor(model => model._Person.Status)
+            @Html.HiddenFor(model => model._Person.Ssnum)
+            @Html.HiddenFor(model => model._Person.AddressId)
+            @Html.HiddenFor(model => model._Person.Pg1PersonId)
+            @Html.HiddenFor(model => model._Person.Pg2PersonId)
+            @Html.HiddenFor(model => model._Person.ContactPref)
+            @Html.HiddenFor(model => model._Person.Roles)
 
-                @Html.HiddenFor(model => model._Address.Id)
-                @Html.HiddenFor(model => model._Address.Country)
-                @Html.HiddenFor(model => model._Address.WebSite)
-                @Html.HiddenFor(model => model._Address.Fax)
+            @Html.HiddenFor(model => model._Address.Id)
+            @Html.HiddenFor(model => model._Address.Country)
+            @Html.HiddenFor(model => model._Address.WebSite)
+            @Html.HiddenFor(model => model._Address.Fax)
 
-            </form>
-        </div>
-        <div id="ResultsDiv"></div>
+        </form>
     </div>
+    <div id="ResultsDiv"></div>
 </body>
 
 <div>

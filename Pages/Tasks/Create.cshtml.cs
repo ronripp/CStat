@@ -110,6 +110,12 @@ namespace CStat.Pages.Tasks
         public List<BOMLine> bom { get; set; }
         [DataMember]
         public string comments { get; set; }
+        [DataMember]
+        public long Role1 { get; set; } = 0;
+        [DataMember]
+        public long Role2 { get; set; } = 0;
+        [DataMember]
+        public long Role3 { get; set; } = 0;
         public TaskData(int taskId = -1)
         {
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
@@ -354,6 +360,9 @@ namespace CStat.Pages.Tasks
             personList.Insert(0, new SelectListItem(" ", "-1"));
             ViewData["PersonId"] = personList;
 
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
+            ViewData["TitleRoles"] = new SelectList(trList, "Value", "Text");
+
             return Page();
         }
 
@@ -557,6 +566,11 @@ namespace CStat.Pages.Tasks
                             }
                             task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
                         }
+
+                        fStr = "Role123";
+                        taskData.Role1 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole1").Value);
+                        taskData.Role2 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole2").Value);
+                        taskData.Role3 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole3").Value);
                     }
                     fStr = "Task Doc";
      

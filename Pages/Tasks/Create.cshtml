@@ -211,6 +211,10 @@
             saveFormData.append("fixedDueDate", $("#FixedDueDate").is(":checked"));
             saveFormData.append("taskComments", encodeQuotes($("#AllComments").val()));
 
+            saveFormData.append("taskRole1", $("#taskData_Role1").val());
+            saveFormData.append("taskRole2", $("#taskData_Role2").val());
+            saveFormData.append("taskRole3", $("#taskData_Role3").val());
+
             if (($("#task_Type").val() & 0x00020000) != 0) {
                 saveFormData.append("taskCreateDue", $("#taskData_CreateTaskDue").val());
                 saveFormData.append("taskCreateDueVal", $("#CreateTaskDueVal").val());
@@ -1105,14 +1109,31 @@
                                 <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:12em; margin-right:8px"></select>
                             </div>
                         </div>
-                        <span style="display:@ComSpanDisplay">
-                            <input type="text" style="width:90%" id="NewComment" value="<add a comment here>" />
-                            <button id="AddComment"><b>+</b></button>
-                        </span>
-                        <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="display:@ComTADisplay; min-height:8em; color:black; background-color:white"></textarea>
                     </div>
                 </div>
-            </div>
+                <div class="row tborder" style="display:@NewTTaskDisplay; margin-top:10px; margin-left:0px;">
+                    <div class="col-md-3">
+                        <label asp-for="taskData.Role1" class="control-label" style="display:inline">Role 1:</label>
+                        <select asp-for="taskData.Role1" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="taskData.Role2" class="control-label" style="display:inline">Role 2:</label>
+                        <select asp-for="taskData.Role2" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="taskData.Role3" class="control-label" style="display:inline">Role 3:</label>
+                        <select asp-for="taskData.Role3" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+                    </div>
+                </div>
+
+                <span style="display:@ComSpanDisplay">
+                    <input type="text" style="width:90%" id="NewComment" value="<add a comment here>" />
+                    <button id="AddComment"><b>+</b></button>
+                </span>
+                <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="display:@ComTADisplay; min-height:8em; color:black; background-color:white"></textarea>
+
+                </div>
             <div class="tab-pane" id="descTab" style="background-color: #FFFF80;">
                 <section class="row">
                     <div class="col-md-12" width="100%">

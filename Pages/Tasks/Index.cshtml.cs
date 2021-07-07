@@ -69,7 +69,7 @@ namespace CStat.Pages.Tasks
         {
             // Generate possibly new Tasks based on template add/changes
             AutoGen ag = new AutoGen(_context);
-            ag.GenTasks();
+            ag.GenTasks(hostEnv);
             return this.Content("Success");
         }
     }

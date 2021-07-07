@@ -84,7 +84,7 @@ namespace CStat.Common
                     AutoGen ag = new AutoGen(_context);
                     _csSettings.LastTaskUpdate = PropMgr.ESTNow;
                     _csSettings.Save();
-                    ag.GenTasks();
+                    ag.GenTasks(_hostEnv);
 
                     // Notify users Tasks Due
                     CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true);

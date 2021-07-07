@@ -9,16 +9,19 @@ using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using Newtonsoft.Json;
 using CStat.Pages.Tasks;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CStat.Pages.Events
 {
     public class EditModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private readonly IWebHostEnvironment _hostEnv;
 
-        public EditModel(CStat.Models.CStatContext context)
+        public EditModel(IWebHostEnvironment hostEnv, CStat.Models.CStatContext context)
         {
             _context = context;
+            _hostEnv = hostEnv;
         }
 
         [BindProperty]
@@ -106,7 +109,7 @@ namespace CStat.Pages.Events
             {
                 // Regenerate tasks based on event now
                 var autogen = new AutoGen(_context);
-                autogen.GenTasks();
+                autogen.GenTasks(_hostEnv);
             }
 
             return RedirectToPage("./Index");

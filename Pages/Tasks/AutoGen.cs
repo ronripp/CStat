@@ -20,7 +20,7 @@ namespace CStat.Pages.Tasks
             _context = context;
         }
 
-        public bool GenTasks (int tmplId = -1)
+        public bool GenTasks (IWebHostEnvironment hstEnv, int tmplId = -1)
         {
             // Get a List of Template Tasks
 
@@ -41,11 +41,44 @@ namespace CStat.Pages.Tasks
                 //DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
                 DateRange lim = new DateRange(startTime, endTime);
                 List<Event> evList = GetEvents(lim);
-                List<CTask> newCreatedTasks = GetTemplateTasks(tmpl, evList, lim);
+                List<CTask> newCreatedTasks = GetTemplateTasks(hstEnv, _context, tmpl, evList, lim).Where(n => !curCreatedTasks.Any(c => (c.ParentTaskId == n.ParentTaskId) && (c.DueDate == n.DueDate))).ToList();
 
+                if (taskList.Count > 0)
+                {
+                    TaskData taskData = TaskData.ReadTaskData(hstEnv, tmpl.Id, -1);
+                    foreach (var t in taskList)
+                    {
+                        if (!tmpl.PersonId.HasValue || (tmpl.PersonId <= 0))
+                        {
+                            // Determine person from roles
+                            var pid = CTask.ResolvePersonId(_context, taskData.Role1, taskData.Role2, taskData.Role3);
+                            if (pid.HasValue && (pid > 0))
+                            {
+                                t.PersonId = pid;
+                                t.SetType(CTask.eTaskType.AutoPersonID);
+                            }
+                        }
+                    }
+                }
                 // Filter out tasks that already exist.
-                taskList.AddRange(newCreatedTasks.Where(n => !curCreatedTasks.Any(c => (c.ParentTaskId == n.ParentTaskId) && (c.DueDate == n.DueDate)) ).ToList());
+                taskList.AddRange(newCreatedTasks);
             }
+
+            // Search for any created tasks that are assigned to a person who is now unavailable
+            List<CTask> unavailTasks = _context.Task.Include(t => t.Person).Where(t => t.ParentTaskId.HasValue && (t.ParentTaskId.Value > 0) && t.PersonId.HasValue && t.Person.Roles.HasValue && (((long)t.Person.Roles & (long)Person.TitleRoles.Unavailable) != 0)).ToList();
+            foreach (var ut in unavailTasks)
+            {
+                TaskData utd = TaskData.ReadTaskData(hstEnv, ut.ParentTaskId.Value, -1);
+                ut.PersonId =  CTask.ResolvePersonId(_context, utd.Role1, utd.Role2, utd.Role3); // Reassign from the unavailable person to someone else
+                _context.Attach(ut).State = EntityState.Modified;
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch { }
+            }
+    
+           // TBD: Maintain AutoPersonID state properly.
 
             // Add needed tasks to DB
             foreach (var t in taskList)
@@ -59,7 +92,7 @@ namespace CStat.Pages.Tasks
         {
             return _context.Event.Where(e => (e.StartTime >= range.Start) && (e.EndTime <= range.End)).ToList();
         }
-        public List<CTask> GetTemplateTasks(CTask tmpl, List<Event> events, DateRange lim)
+        public List<CTask> GetTemplateTasks(IWebHostEnvironment hstEnv, CStat.Models.CStatContext context, CTask tmpl, List<Event> events, DateRange lim)
         {
             List<CTask> taskList = new List<CTask>();
 

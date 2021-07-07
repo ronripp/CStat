@@ -12,6 +12,10 @@ using CStat.Common;
 using Microsoft.AspNetCore.Identity;
 using CStat.Areas.Identity.Data;
 using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Runtime.Serialization.Json;
 
 namespace CStat.Models
 {
@@ -127,14 +131,15 @@ namespace CStat.Models
             Basement_Closet = 6,
             Laundry_Room = 7,
             Basement_Tanks = 8,
-            Basement_Heater = 9
+            Basement_Heater = 9,
+            Hall_Wash_Closet = 10
         };
     }
 
     public partial class Person
     {
-        public enum TitleRoles { Undefined = 0, Blds_Grnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
-                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, ECMember = 0x8000 };
+        public enum TitleRoles { Undefined = 0, Blds_Gnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
+                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, ECMember = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000 };
 
         public enum eGender
         {
@@ -557,7 +562,7 @@ namespace CStat.Models
 
             // Flags   MASK = 0x00180000
             Template        = 0x00020000,
-            unk1            = 0x00040000,
+            AutoPersonID    = 0x00040000,
             unk2            = 0x00080000,
             unk3            = 0x00100000,
 
@@ -709,6 +714,38 @@ namespace CStat.Models
             Type = ((int)dueType & 0x7C000000) | ((int)eachType & 0x03E00000) | (dueVal & 0x00000FFF);
             if (Type != 0)
                 Type |= (int)CTask.eTaskType.Template;
+        }
+
+        public void SetType(CTask.eTaskType ttype)
+        {
+            Type |= (int)ttype;
+        }
+
+        public void ClearType(CTask.eTaskType ttype)
+        {
+            Type &= ~(int)ttype;
+        }
+
+        public static int? ResolvePersonId (CStat.Models.CStatContext context, long role1, long role2, long role3)
+        {
+            Person pers = null;
+            if (role1 > 0)
+                pers = context.Person.FirstOrDefault(p => (p.Roles & role1) != 0);
+            if (pers != null)
+                return pers.Id;
+            if (role2 > 0)
+                pers = context.Person.FirstOrDefault(p => (p.Roles & role2) != 0);
+            if (pers != null)
+                return pers.Id;
+            if (role3 > 0)
+                pers = context.Person.FirstOrDefault(p => (p.Roles & role3) != 0);
+            if (pers != null)
+                return pers.Id;
+            else
+                pers = context.Person.FirstOrDefault(p => (p.Roles & (long)Person.TitleRoles.Admin) != 0); // default to Admin to ensure assignment.
+            if (pers != null)
+                return pers.Id;
+            return null;
         }
 
         public String TaskString (CTask.eTaskStatus ts)
@@ -1121,6 +1158,176 @@ namespace CStat.Models
         }
     }
 
+    [DataContract]
+    public class Pic
+    {
+        public Pic(int taskID, int picID, string desc, string urL = "")
+        {
+            taskId = taskID;
+            picId = picID;
+            title = desc;
+            url = urL;
+        }
+        [DataMember]
+        public int taskId { get; set; }
+        [DataMember]
+        public int picId { get; set; }
+        [DataMember]
+        public string title { get; set; }
+        [DataMember]
+        public string url { get; set; }
+        public string GetFileName(string srcFile)
+        {
+            string ext = Path.GetExtension(srcFile);
+            return "Img_" + taskId + "_" + picId + ext;
+        }
+    }
+
+    [DataContract]
+    public class BOMLine
+    {
+        public BOMLine(int id_, string desc_, string ucost_, string units_, string qty_, string tcost_)
+        {
+            id = id_;
+            desc = desc_;
+            ucost = ucost_;
+            units = units_;
+            qty = qty_;
+            tcost = tcost_;
+        }
+        [DataMember]
+        public int id { get; set; }
+        [DataMember]
+        public string desc { get; set; }
+        [DataMember]
+        public string ucost { get; set; }
+        [DataMember]
+        public string units { get; set; }
+        [DataMember]
+        public string qty { get; set; }
+        [DataMember]
+        public string tcost { get; set; }
+    }
+
+    [DataContract]
+    public class TaskData
+    {
+        [DataMember]
+        public int tid { get; set; }
+        [DataMember]
+        public int state { get; set; }
+        [DataMember]
+        public int reason { get; set; }
+        [DataMember]
+        public int CreateTaskDue { get; set; }
+        [DataMember]
+        public string CreateTaskDueVal { get; set; }
+        [DataMember]
+        public int CreateTaskEach { get; set; }
+        public int PercentComplete { get; set; }
+        [DataMember]
+        public string Title { get; set; }
+        [DataMember]
+        public string Detail { get; set; }
+        [DataMember]
+        public bool FixedDueDate { get; set; }
+        [DataMember]
+        public List<Pic> pics { get; set; }
+        [DataMember]
+        public List<BOMLine> bom { get; set; }
+        [DataMember]
+        public string comments { get; set; }
+        [DataMember]
+        public long Role1 { get; set; } = 0;
+        [DataMember]
+        public long Role2 { get; set; } = 0;
+        [DataMember]
+        public long Role3 { get; set; } = 0;
+        public TaskData(int taskId = -1)
+        {
+            tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
+            state = (int)CTask.eTaskStatus.Not_Started;
+            reason = (int)CTask.eTaskStatus.Unknown;
+            CreateTaskDue = 0;
+            CreateTaskDueVal = "";
+            CreateTaskEach = 0;
+            PercentComplete = 0;
+            Title = "";
+            Detail = "";
+            pics = new List<Pic>();
+            bom = new List<BOMLine>();
+            comments = "";
+            FixedDueDate = false;
+        }
+        public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId, int parentTaskId)
+        {
+            TaskData taskData = null;
+            string folderName = @"Tasks";
+            string webRootPath = hstEnv.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+
+            for (int i = 0, tid = taskId; i < 2; ++i, tid = parentTaskId)
+            {
+                string fullPath = Path.Combine(newPath, "Task_" + tid.ToString() + ".json");
+                if (File.Exists(fullPath))
+                {
+                    using (StreamReader r = new StreamReader(fullPath))
+                    {
+                        string json = r.ReadToEnd();
+                        var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
+                        DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(TaskData));
+                        taskData = (TaskData)deserializer.ReadObject(ms);
+                        taskData.tid = taskId;
+                    }
+                    break;
+                }
+            }
+
+            if (taskData == null)
+                taskData = new TaskData();
+            return taskData;
+        }
+
+        public bool Write(IWebHostEnvironment hstEnv)
+        {
+            if (tid == -1)
+                return false;
+            string folderName = @"Tasks";
+            string webRootPath = hstEnv.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            string fullPath = Path.Combine(newPath, "Task_" + tid.ToString() + ".json");
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(TaskData));
+                js.WriteObject(ms, this);
+                StreamWriter writer = new StreamWriter(ms);
+                writer.Flush();
+
+                //You have to rewind the MemoryStream before copying
+                ms.Seek(0, SeekOrigin.Begin);
+
+                using (FileStream fs = new FileStream(fullPath, FileMode.OpenOrCreate))
+                {
+                    ms.CopyTo(fs);
+                    fs.Flush();
+                }
+            }
+            return File.Exists(fullPath);
+        }
+    }
 
     public partial class Church
     {

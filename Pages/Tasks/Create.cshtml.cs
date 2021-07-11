@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -309,6 +310,13 @@ namespace CStat.Pages.Tasks
                     task.PersonId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value);
                     if (!task.PersonId.HasValue || (task.PersonId <= 0))
                         task.PersonId = null;
+                    var oldTask = _context.Task.AsNoTracking().FirstOrDefaultAsync(t => (t.Id == task.Id) && (((int)t.Type & (int)eTaskType.AutoPersonID) != 0)).Result;
+                    if (oldTask != null)
+                    {
+                        if (task.PersonId != oldTask.PersonId)
+                            task.Type &= ~(int)eTaskType.AutoPersonID; // Remove Auto Person state since user change person.
+                    }
+
                     fStr = "Committed Cost";
                     String ccostStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCommittedCost").Value;
                     if (ccostStr.Trim().Length > 0)

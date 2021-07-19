@@ -61,12 +61,18 @@ namespace CStat.Pages.Tasks
 
             Task = await _context.Task.FindAsync(id);
 
-            if (Task != null)
+            try
             {
-                _context.Task.Remove(Task);
-                await _context.SaveChangesAsync();
+                if (Task != null)
+                {
+                    _context.Task.Remove(Task);
+                    await _context.SaveChangesAsync();
+                }
             }
+            catch (Exception e)
+            {
 
+            }
             return RedirectToPage("./Index");
         }
     }

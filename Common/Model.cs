@@ -658,6 +658,8 @@ namespace CStat.Models
 
         public bool IsDue()
         {
+            if ((Type & (int)eTaskType.Template) != 0)
+                return false;
             DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
             return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
         }

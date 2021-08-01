@@ -607,8 +607,9 @@ namespace CStat.Models
             Event             = 0x0000000D << 21,
             Month             = 0x0000000E << 21,
             Year              = 0x0000000F << 21,
-            Month_n_Day       = 0x00000010 << 21,
-            Num_Start_Date    = 0x00000011 << 21,
+            Due_Day           = 0x00000010 << 21,
+            Day_from_Due_till = 0x00000011 << 21,
+            Num_Start_Date    = 0x00000012 << 21,
             // MAX            = 0x0000001F << 21 
         }
 
@@ -998,7 +999,7 @@ namespace CStat.Models
                             ranges.Add(range);
                     }
                     break;
-                case eTaskType.Month_n_Day:
+                case eTaskType.Due_Day:
                     {
                         if (DueDate.HasValue)
                         {
@@ -1013,6 +1014,27 @@ namespace CStat.Models
                         }
                     }
                     break;
+                case eTaskType.Day_from_Due_till:
+                    {
+                        if (DueDate.HasValue)
+                        {
+                            for (int y = lim.Start.Year; y <= lim.End.Year; ++y)
+                            {
+                                DateTime curDate = new DateTime (y, DueDate.Value.Month, DueDate.Value.Day);
+                                DateTime endDate = new DateTime(y, EstimatedDoneDate.Value.Month, EstimatedDoneDate.Value.Day);
+                                for (; curDate <= endDate; curDate = curDate.AddDays(1))
+                                {
+                                    DateTime s = new DateTime(y, curDate.Month, curDate.Day, 0, 0, 0);
+                                    DateTime e = new DateTime(y, curDate.Month, curDate.Day, 23, 59, 59);
+                                    DateRange range = new DateRange(s, e);
+                                    if (lim.In(range))
+                                        ranges.Add(range);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
                 case eTaskType.Num_Start_Date:
                    {
                         if (DueDate.HasValue)
@@ -1245,6 +1267,8 @@ namespace CStat.Models
         public long Role2 { get; set; } = 0;
         [DataMember]
         public long Role3 { get; set; } = 0;
+        [DataMember]
+        public string TillDay { get; set; }
         public TaskData(int taskId = -1)
         {
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record
@@ -1260,6 +1284,7 @@ namespace CStat.Models
             bom = new List<BOMLine>();
             comments = "";
             FixedDueDate = false;
+            TillDay = "";
         }
         public static TaskData ReadTaskData(IWebHostEnvironment hstEnv, int taskId, int parentTaskId)
         {

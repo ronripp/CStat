@@ -219,6 +219,7 @@
                 saveFormData.append("taskCreateDue", $("#taskData_CreateTaskDue").val());
                 saveFormData.append("taskCreateDueVal", $("#CreateTaskDueVal").val());
                 saveFormData.append("taskCreateEach", $("#taskData_CreateTaskEach").val());
+                saveFormData.append("TillDay", $("#TillDay").val());
             }
             if (($("#task_ActualDoneDate").val() === "") && (inMarkDone || ($("#taskData_state").val() === 0x00001000))) {
                 $("#task_ActualDoneDate").val(Date.now().toString());
@@ -460,6 +461,23 @@
 
             updateDueVal();
 
+            function updateDueEach() {
+
+                if ($("#taskData_CreateTaskEach").is(":visible")) {
+                    let ctEach = $("#taskData_CreateTaskEach").val();
+                    if (ctEach == (0x00000011 << 21)) {
+                        if (!$("#TillDay").is(":visible")) {
+                            $("#TillDay").val("");
+                        }
+                        $("#TillDay").show();
+                    } else {
+                        $("#TillDay").hide();
+                    }
+                }
+            }
+
+            updateDueEach();
+
             if (window.location.href.indexOf("TaskDoc=1") != -1) {
                 $("#TaskDoc").val(sessionStorage.getItem("TaskDocFolder") + " > " + sessionStorage.getItem("TaskDocFile"));
                 sessionStorage.setItem("TaskDocFolder", "");
@@ -554,6 +572,10 @@
 
             $("#taskData_CreateTaskDue").change(function () {
                 updateDueVal();
+            });
+
+            $("#taskData_CreateTaskEach").change(function () {
+                updateDueEach();
             });
 
             $("#taskData_state").change(function () {
@@ -1106,7 +1128,9 @@
                             </div>
                             <div>
                                 <label asp-for="taskData.CreateTaskEach" class="control-label" style="display:inline"> of each:</label>
-                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:12em; margin-right:8px"></select>
+                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:auto; margin-right:8px"></select>
+                                <input type="text" id="TillDay" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.TillDay" />
+
                             </div>
                         </div>
                     </div>

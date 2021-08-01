@@ -41,7 +41,7 @@ namespace CStat.Pages.Tasks
                 //DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
                 DateRange lim = new DateRange(startTime, endTime);
                 List<Event> evList = GetEvents(lim);
-                List<CTask> newCreatedTasks = GetTemplateTasks(hstEnv, _context, tmpl, evList, lim).Where(n => !curCreatedTasks.Any(c => (c.ParentTaskId == n.ParentTaskId) && (c.DueDate == n.DueDate))).ToList();
+                List<CTask> newCreatedTasks = GetTemplateTasks(hstEnv, _context, tmpl, evList, lim).Where(n => !curCreatedTasks.Any(c => ((c.ParentTaskId == n.ParentTaskId) || (c.Description == n.Description)) && (c.DueDate == n.DueDate))).ToList();
 
                 if (taskList.Count > 0)
                 {

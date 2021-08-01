@@ -122,7 +122,7 @@ namespace CStat.Pages.Tasks
                 {
                     IsTemplate = (task.Type & (int)CTask.eTaskType.Template) != 0;
                     taskData = TaskData.ReadTaskData(hostEnv, tid, task.ParentTaskId.HasValue ? task.ParentTaskId.Value : -1);
-                    if (task.DueDate == null)
+                    if ((task.DueDate == null) && !IsTemplate)
                         task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
                     else
                         taskData.FixedDueDate = true;
@@ -141,6 +141,8 @@ namespace CStat.Pages.Tasks
                         task.GetTaskType(out CreateTaskDue, out CreateTaskEach, out CreateTaskDueVal);
                         taskData.CreateTaskDue = (int)CreateTaskDue;
                         taskData.CreateTaskEach = (int)CreateTaskEach;
+                        taskData.TillDay = ((taskData.CreateTaskEach == (int)CTask.eTaskType.Day_from_Due_till) && task.EstimatedDoneDate.HasValue) ?
+                                                task.EstimatedDoneDate.Value.Month + "/" + task.EstimatedDoneDate.Value.Day : "";
                         switch (CreateTaskDue)
                         {
                             case CTask.eTaskType.Day_Of_Week_SunMon:
@@ -390,7 +392,31 @@ namespace CStat.Pages.Tasks
                             }
                             int eachType = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateEach").Value);
 
-                            if ((eachType == (int)CTask.eTaskType.Month_n_Day) || (eachType == (int)CTask.eTaskType.Num_Start_Date))
+                            if (eachType == (int)CTask.eTaskType.Day_from_Due_till)
+                            {
+                                String TillDayStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "TillDay").Value;
+                                if (TillDayStr.Trim().Length > 0)
+                                {
+                                    bool TillFail = true;
+                                    String[] numStr = TillDayStr.Split('/', '.', '-');
+                                    if (numStr.Count() == 2)
+                                    {
+                                        if (Int32.TryParse(numStr[0], out int TillMo) && Int32.TryParse(numStr[1], out int TillDay))
+                                        {
+                                            try
+                                            {
+                                                task.EstimatedDoneDate = new DateTime(2020, TillMo, TillDay);
+                                            }
+                                            catch { }
+                                            TillFail = !task.EstimatedDoneDate.HasValue;
+                                        }
+                                        if (TillFail)
+                                            return this.Content("Fail: Day_from_Due_till needs to have a valid Month/Day with a / . or - separator"); // Send back results
+                                    }
+                                }
+                            }
+
+                            if ((eachType == (int)CTask.eTaskType.Due_Day) || (eachType == (int)CTask.eTaskType.Num_Start_Date))
                             {
                                 string mdStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
                                 if (mdStr.Length >= 10)
@@ -454,15 +480,19 @@ namespace CStat.Pages.Tasks
                         }
                         else
                             task.DueDate = null;
-                        task.EstimatedDoneDate = null;
+                        if (!IsTemplate)
+                            task.EstimatedDoneDate = null;
                     }
                     else
                     {
-                        if (msDueStr.Length > 0)
-                            task.EstimatedDoneDate = dueDateTime;
-                        else
-                            task.EstimatedDoneDate = null;
-                        task.DueDate = null;
+                        if (!IsTemplate)
+                        {
+                            if (msDueStr.Length > 0)
+                                task.EstimatedDoneDate = dueDateTime;
+                            else
+                                task.EstimatedDoneDate = null;
+                            task.DueDate = null;
+                        }
                     }
                     fStr = "Completed Date";
                     string msDoneStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoneDate").Value).Trim();

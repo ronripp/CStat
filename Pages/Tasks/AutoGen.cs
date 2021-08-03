@@ -23,7 +23,6 @@ namespace CStat.Pages.Tasks
         public bool GenTasks (IWebHostEnvironment hstEnv, int tmplId = -1)
         {
             // Get a List of Template Tasks
-
             var TemplateTasks = (tmplId != -1) ? _context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) != 0) && (t.Id == tmplId)).ToList() :
                                                  _context.Task.Include(t => t.Person).Where(t => (t.Type & (int)CTask.eTaskType.Template) != 0).OrderBy(t => t.Priority).ToList();
 
@@ -32,7 +31,7 @@ namespace CStat.Pages.Tasks
             // Determine what needs to be Auto generated
             foreach (var tmpl in TemplateTasks)
             {
-                List<CTask> curCreatedTasks = _context.Task.Include(t => t.Person).Where(t => (t.ParentTaskId == tmpl.Id)).ToList();
+                List<CTask> curCreatedTasks = _context.Task.Include(t => t.Person).Where(t => ((t.ParentTaskId == tmpl.Id) || (t.Description == tmpl.Description))).ToList();
 
                 tmpl.GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
                 DateTime now = PropMgr.ESTNow;
@@ -41,10 +40,15 @@ namespace CStat.Pages.Tasks
                 //DateTime endTime = new DateTime(startTime.Year+1, 12, 31, 23, 59, 59);
                 DateRange lim = new DateRange(startTime, endTime);
                 List<Event> evList = GetEvents(lim);
-                List<CTask> newCreatedTasks = GetTemplateTasks(hstEnv, _context, tmpl, evList, lim).Where(n => !curCreatedTasks.Any(c => ((c.ParentTaskId == n.ParentTaskId) || (c.Description == n.Description)) && (c.DueDate == n.DueDate))).ToList();
+
+                // Filter out tasks that already exist : same task id and same due date
+                List<CTask> newCreatedTasks = GetTemplateTasks(hstEnv, _context, tmpl, evList, lim).Where(n => !curCreatedTasks.Any(c => ((c.ParentTaskId == n.ParentTaskId) || (c.Description == n.Description)) &&
+                                                                c.DueDate.HasValue && n.DueDate.HasValue && (c.DueDate.Value.Year == n.DueDate.Value.Year) && (c.DueDate.Value.Month == n.DueDate.Value.Month) && 
+                                                                (c.DueDate.Value.Day == n.DueDate.Value.Day) && n.DueDate >= c.DueDate)).ToList();
 
                 if (taskList.Count > 0)
                 {
+                    // ensure tasks are assigned to someone
                     TaskData taskData = TaskData.ReadTaskData(hstEnv, tmpl.Id, -1);
                     foreach (var t in taskList)
                     {
@@ -60,6 +64,7 @@ namespace CStat.Pages.Tasks
                         }
                     }
                 }
+
                 // Filter out tasks that already exist.
                 taskList.AddRange(newCreatedTasks);
             }
@@ -77,14 +82,26 @@ namespace CStat.Pages.Tasks
                 }
                 catch { }
             }
-    
-           // TBD: Maintain AutoPersonID state properly.
 
-            // Add needed tasks to DB
-            foreach (var t in taskList)
+            // TBD: Maintain AutoPersonID state properly.
+
+            // Check for duplicates by same description and same day before Adding to DB.
+            var OrdTasks = taskList.OrderBy(t => t.Description).ThenBy(t => t.DueDate);
+            string lastDesc = "";
+            int lastYear = -1, lastMonth = -1, lastDay = -1;
+            foreach (var t in OrdTasks)
             {
-                _context.Task.Add(t);
-                _context.SaveChanges();
+                bool bSkip = (t.Description == lastDesc) && t.DueDate.HasValue && (t.DueDate.Value.Year == lastYear) && (t.DueDate.Value.Month == lastMonth) && (t.DueDate.Value.Day == lastDay);
+                lastDesc = t.Description;
+                lastYear = t.DueDate.Value.Year;
+                lastMonth = t.DueDate.Value.Month;
+                lastDay = t.DueDate.Value.Day;
+
+                if (!bSkip)
+                {
+                    _context.Task.Add(t);
+                    _context.SaveChanges();
+                }
             }
             return true;
         }

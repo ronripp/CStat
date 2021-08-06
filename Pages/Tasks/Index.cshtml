@@ -46,6 +46,16 @@
             background-color: #ffffff;
         }
 
+        .DoneStyle {
+            color : #808080;
+            background-color: #B0B0B0;
+        }
+
+        .DoneStyleOdd {
+            color: #A0A0A0;
+            background-color: #C0C0C0;
+        }
+
         .DueStyleOdd {
             background-color: #ffC8C8;
             font-weight: bold;
@@ -91,6 +101,39 @@
                 },
                 error: function (res) {
                     alert("AutoGen Failed : " + res);
+                },
+                complete: function (res) {
+
+                }
+            });
+
+        }
+
+        function MarkComplete(taskId) {
+
+            var taskData = new FormData();
+            taskData.append("taskId", taskId);
+            jQuery.ajax({
+                url: "/Tasks/Index?handler=MarkComplete",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: taskData,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    if (res.indexOf("Success") === 0) {
+                        window.location.reload(true);
+                    }
+                    else {
+                        alert("FAILURE : Task NOT Marked Complete : " + res);
+                    }
+                },
+                error: function (res) {
+                    alert("Mark Task Complete Failed : " + res);
                 },
                 complete: function (res) {
 
@@ -154,7 +197,7 @@
                 <th>
                     Priority
                 </th>
-                <th style="text-align:center">X</th>
+                <th style="text-align:center">&#10003;</th>
             </tr>
         </thead>
         <tbody>
@@ -163,12 +206,14 @@
             }
             @foreach (var item in Model.Task)
             {
-            <tr class="@item.ClassName(i++)">
+                
+            string ClassNm = item.ClassName(i++);
+            <tr class="@ClassNm">
                 <td>
-                    <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
+                    <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
                 </td>
                 <td>
-                    <a asp-page="./Create" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
+                    <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
                 </td>
                 <td>
                     @{
@@ -219,7 +264,16 @@
                     @priorityStr
                 </td>
                 <td>
-                    <a asp-page="./Delete" asp-route-id="@item.Id">[Delete]</a>
+                    @{
+                    if (ClassNm.StartsWith("Done"))
+                    {
+                        <a asp-page="./Delete" class="@ClassNm" asp-route-id="@item.Id">[Delete]</a>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0);" onclick="MarkComplete(@item.Id)"class="@ClassNm">[Done]</a>
+                    }
+                    }
                 </td>
             </tr>
             }

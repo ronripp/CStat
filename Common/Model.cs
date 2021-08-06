@@ -651,7 +651,11 @@ namespace CStat.Models
 
         public String ClassName(int i)
         {
-            string name = IsDue() ? "DueStyle" : "NotDueStyle";
+            string name;
+            if (IsDone())
+                name = "DoneStyle";
+            else
+                name = IsDue() ? "DueStyle" : "NotDueStyle";
             if ((i % 2) != 0)
                 name = name + "Odd";
             return name;
@@ -663,6 +667,12 @@ namespace CStat.Models
                 return false;
             DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
             return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
+        }
+        public bool IsDone()
+        {
+            if ((Type & (int)eTaskType.Template) != 0)
+                return false;
+            return ((Status & (int)CTask.eTaskStatus.Completed) != 0);
         }
 
         public int DueOrder()

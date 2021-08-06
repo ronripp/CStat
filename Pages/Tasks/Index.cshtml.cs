@@ -72,6 +72,35 @@ namespace CStat.Pages.Tasks
             ag.GenTasks(hostEnv);
             return this.Content("Success");
         }
+
+        public ActionResult OnPostMarkComplete()
+        {
+            int taskId = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+            if (taskId > 0)
+            {
+                var taskData = TaskData.ReadTaskData(hostEnv, taskId, -1);
+                CTask task = _context.Task.First(t => (t.Id == taskId));
+                if ((task != null) && (taskData != null))
+                {
+                    taskData.PercentComplete = 100;
+                    taskData.Write(hostEnv);
+                    task.GetTaskStatus(out CTask.eTaskStatus status, out CTask.eTaskStatus reason, out int pctComp);
+                    pctComp = 100;
+                    status = CTask.eTaskStatus.Completed;
+                    reason = CTask.eTaskStatus.Job_Done;
+                    task.SetTaskStatus((CTask.eTaskStatus)status, (CTask.eTaskStatus)reason, (int)pctComp);
+                    try
+                    {
+                        taskData.Write(hostEnv);
+                        _context.Attach(task).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                        _context.SaveChanges();
+                        return this.Content("Success");
+                    }
+                    catch { }
+                }
+            }
+            return this.Content("Failed");
+        }
     }
 
 }

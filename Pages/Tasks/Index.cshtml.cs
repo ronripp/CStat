@@ -11,6 +11,10 @@ using CTask = CStat.Models.Task;
 using Task = System.Threading.Tasks.Task;
 using System.Runtime.CompilerServices;
 using CStat.Common;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 
 namespace CStat.Pages.Tasks
 {
@@ -18,13 +22,22 @@ namespace CStat.Pages.Tasks
     {
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment hostEnv;
+        private readonly CSUser _userSettings;
+        private readonly int _personId;
+        private readonly long _personRoles;
 
         public bool IsTemplate = false;
 
-        public IndexModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
+        public IndexModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
              _context = context;
              hostEnv = hstEnv;
+            var csSettings = CSSettings.GetCSSettings(config, userManager);
+            string email = httpCA.HttpContext.User.Identity.Name;
+            _userSettings = csSettings.GetUser(email);
+            Person person = context.Person.FirstOrDefault(m => m.Email == email);
+            _personId = (person != null) ? person.Id : -1;
+            _personRoles = ((person != null) && (person.Roles.HasValue)) ? person.Roles.Value : 0;
         }
 
         public IList<CTask> Task { get;set; }
@@ -35,17 +48,36 @@ namespace CStat.Pages.Tasks
 
             if (!IsTemplate)
             {
-                Task = await _context.Task
-                    .Include(t => t.Blocking1)
-                    .Include(t => t.Blocking2)
-                    .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020,1,1))).ThenBy(t => t.Priority).ToListAsync();
+                IList<CTask> CompTasks;
+                if (_userSettings.ShowAllTasks || (_personId == -1))
+                {
+                    Task = await _context.Task
+                        .Include(t => t.Blocking1)
+                        .Include(t => t.Blocking2)
+                        .Include(t => t.Church)
+                        .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
 
-                IList<CTask> CompTasks = await _context.Task
+                    CompTasks = await _context.Task
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
                     .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+                }
+                else
+                {
+                    Task = await _context.Task
+                                        .Include(t => t.Blocking1)
+                                        .Include(t => t.Blocking2)
+                                        .Include(t => t.Church)
+                                        .Include(t => t.Person).Where(t => ( (t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0)) ) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
+
+                    CompTasks = await _context.Task
+                    .Include(t => t.Blocking1)
+                    .Include(t => t.Blocking2)
+                    .Include(t => t.Church)
+                    .Include(t => t.Person).Where(t => ((t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0))) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+
+                }
 
                 foreach (var ct in CompTasks) // Task = Task.Concat(CompTasks);
                 {

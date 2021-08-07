@@ -51,6 +51,7 @@ namespace CStat.Pages.Tasks
                 IList<CTask> CompTasks;
                 if (_userSettings.ShowAllTasks || (_personId == -1))
                 {
+                    // Get List to Show ALL Tasks
                     Task = await _context.Task
                         .Include(t => t.Blocking1)
                         .Include(t => t.Blocking2)
@@ -65,6 +66,7 @@ namespace CStat.Pages.Tasks
                 }
                 else
                 {
+                    // Get List to Show only User Tasks
                     Task = await _context.Task
                                         .Include(t => t.Blocking1)
                                         .Include(t => t.Blocking2)

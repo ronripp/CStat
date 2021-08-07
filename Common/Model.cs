@@ -652,10 +652,16 @@ namespace CStat.Models
         public String ClassName(int i)
         {
             string name;
-            if (IsDone())
-                name = "DoneStyle";
+
+            if (IsTemplate())
+                name = "TemplateStyle";
             else
-                name = IsDue() ? "DueStyle" : "NotDueStyle";
+            {
+                if (IsDone())
+                    name = "DoneStyle";
+                else
+                    name = IsDue() ? "DueStyle" : "NotDueStyle";
+            }
             if ((i % 2) != 0)
                 name = name + "Odd";
             return name;
@@ -670,11 +676,14 @@ namespace CStat.Models
         }
         public bool IsDone()
         {
-            if ((Type & (int)eTaskType.Template) != 0)
+            if (IsTemplate())
                 return false;
             return ((Status & (int)CTask.eTaskStatus.Completed) != 0);
         }
-
+        public bool IsTemplate()
+        {
+            return (Type & (int)eTaskType.Template) != 0;
+        }
         public int DueOrder()
         {
             return (DueDate.HasValue && DueDate.Value < PropMgr.ESTNow) ? 1 : 2;

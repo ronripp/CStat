@@ -1,23 +1,39 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
+using Microsoft.Extensions.Configuration;
 
 namespace CStat.Models
 {
+    //public class CStatContextFactory : IDesignTimeDbContextFactory<CStatContext>
+    //{
+    //    public CStatContext CreateDbContext(string[] args)
+    //    {
+    //        var optionsBuilder = new DbContextOptionsBuilder<CStatContext>();
+    //        optionsBuilder.UseSqlServer("Data Source=52.117.175.212,782;Initial Catalog=ronripp_CStat;User ID=ronripp_CStat;Password=Red35868!;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+    //        return new CStatContext(optionsBuilder.Options);
+    //    }
+    //}
+
     public partial class CStatContext : DbContext
     {
-        public CStatContext()
+        public CStatContext(IConfiguration configuration)
         {
+            Configuration = configuration;
         }
 
-        public CStatContext(DbContextOptions<CStatContext> options)
+        public IConfiguration Configuration { get; }
+
+        public CStatContext(IConfiguration configuration, DbContextOptions<CStatContext> options)
             : base(options)
         {
+            Configuration = configuration;
         }
+        //public CStatContext([NotNullAttribute] DbContextOptions options) : base(options)
+        //{
+        //}
 
         public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Address> Address { get; set; }
@@ -45,13 +61,13 @@ namespace CStat.Models
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<TransactionItems> TransactionItems { get; set; }
+        public object CTask { get; internal set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=52.117.175.212,782;Initial Catalog=ronripp_CStat;User ID=ronripp_CStat;Password=Red35868!;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                optionsBuilder.UseSqlServer(Configuration.GetConnectionString("CStatConnection"));
             }
         }
 
@@ -349,21 +365,6 @@ namespace CStat.Models
 
                 entity.HasIndex(e => e.PersonId);
 
-                entity.HasOne(d => d.Buy1)
-                    .WithMany(p => p.InventoryItemBuy1)
-                    .HasForeignKey(d => d.Buy1Id)
-                    .HasConstraintName("FK_InventoryItem_Transaction1");
-
-                entity.HasOne(d => d.Buy2)
-                    .WithMany(p => p.InventoryItemBuy2)
-                    .HasForeignKey(d => d.Buy2Id)
-                    .HasConstraintName("FK_InventoryItem_Transaction2");
-
-                entity.HasOne(d => d.Buy3)
-                    .WithMany(p => p.InventoryItemBuy3)
-                    .HasForeignKey(d => d.Buy3Id)
-                    .HasConstraintName("FK_InventoryItem_Transaction3");
-
                 entity.HasOne(d => d.Inventory)
                     .WithMany(p => p.InventoryItem)
                     .HasForeignKey(d => d.InventoryId)
@@ -377,7 +378,7 @@ namespace CStat.Models
                     .HasConstraintName("FK_InventoryItem_Item");
 
                 entity.HasOne(d => d.Order)
-                    .WithMany(p => p.InventoryItemOrder)
+                    .WithMany(p => p.InventoryItem)
                     .HasForeignKey(d => d.OrderId)
                     .HasConstraintName("FK_InventoryItem_Transaction");
 
@@ -546,12 +547,6 @@ namespace CStat.Models
                     .WithMany(p => p.Task)
                     .HasForeignKey(d => d.ChurchId)
                     .HasConstraintName("FK_Task_Church");
-
-                entity.HasOne(d => d.Event)
-                    .WithMany(p => p.Task)
-                    .HasForeignKey(d => d.EventId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Task_Event");
 
                 entity.HasOne(d => d.ParentTask)
                     .WithMany(p => p.InverseParentTask)

@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
-
 namespace CStat.Models
 {
     public partial class Event
@@ -16,7 +12,6 @@ namespace CStat.Models
             Attendance = new HashSet<Attendance>();
             Medical = new HashSet<Medical>();
             Registration = new HashSet<Registration>();
-            Task = new HashSet<Task>();
         }
 
         [Key]
@@ -56,8 +51,8 @@ namespace CStat.Models
         [InverseProperty("Event")]
         public virtual ICollection<Medical> Medical { get; set; }
         [InverseProperty("Event")]
-        public virtual ICollection<Registration> Registration { get; set; }
-        [InverseProperty("Event")]
         public virtual ICollection<Task> Task { get; set; }
+        [InverseProperty("Event")]
+        public virtual ICollection<Registration> Registration { get; set; }
     }
 }

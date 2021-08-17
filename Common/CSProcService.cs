@@ -71,6 +71,7 @@ namespace CStat.Common
                                     _context.SaveChanges();
                                     _csSettings.LastStockUpdate = PropMgr.ESTNow;
                                     _csSettings.Save();
+                                    await Task.Run(() => IndexInvModel.NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + invIt.Item.Name));
                                 }
                                 catch (DbUpdateConcurrencyException)
                                 {

@@ -40,7 +40,7 @@ namespace CStat.Pages.Tasks
             foreach (var tmpl in TemplateTasks)
             {
                 // Get a list of existing tasks create from the specific template : tmpl
-                List<CTask> curCreatedTasks = _context.Task.Include(t => t.Person).Where(t => ((t.ParentTaskId == tmpl.Id) || (t.Description == tmpl.Description))).ToList();
+                List<CTask> curCreatedTasks = _context.Task.Include(t => t.Person).Where(t => t.ParentTaskId.HasValue && ((t.ParentTaskId == tmpl.Id) || (t.Description == tmpl.Description))).ToList();
 
                 // Filter out new, created tasks : n that already exist : Having the {same_task_id ...or... same_description} ...AND... {same Year, Month, Day } ...AND... {newlyCreatedTime >= currExistingTime}
                 // Note : to be safe, we keep newlyCreatedTime earlier times than currExistingTime and may add as a duplicate in some special cases.

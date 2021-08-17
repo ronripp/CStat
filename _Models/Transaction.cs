@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
-
 namespace CStat.Models
 {
     public partial class Transaction
@@ -14,10 +10,7 @@ namespace CStat.Models
         public Transaction()
         {
             Attendance = new HashSet<Attendance>();
-            InventoryItemBuy1 = new HashSet<InventoryItem>();
-            InventoryItemBuy2 = new HashSet<InventoryItem>();
-            InventoryItemBuy3 = new HashSet<InventoryItem>();
-            InventoryItemOrder = new HashSet<InventoryItem>();
+            InventoryItem = new HashSet<InventoryItem>();
         }
 
         [Key]
@@ -71,13 +64,7 @@ namespace CStat.Models
         public virtual TransactionItems TransactionItems { get; set; }
         [InverseProperty("Transaction")]
         public virtual ICollection<Attendance> Attendance { get; set; }
-        [InverseProperty(nameof(InventoryItem.Buy1))]
-        public virtual ICollection<InventoryItem> InventoryItemBuy1 { get; set; }
-        [InverseProperty(nameof(InventoryItem.Buy2))]
-        public virtual ICollection<InventoryItem> InventoryItemBuy2 { get; set; }
-        [InverseProperty(nameof(InventoryItem.Buy3))]
-        public virtual ICollection<InventoryItem> InventoryItemBuy3 { get; set; }
-        [InverseProperty(nameof(InventoryItem.Order))]
-        public virtual ICollection<InventoryItem> InventoryItemOrder { get; set; }
+        [InverseProperty("Order")]
+        public virtual ICollection<InventoryItem> InventoryItem { get; set; }
     }
 }

@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
-
 namespace CStat.Models
 {
     public partial class Task
@@ -44,6 +40,8 @@ namespace CStat.Models
         public DateTime? ActualDoneDate { get; set; }
         [Column("Church_id")]
         public int? ChurchId { get; set; }
+        [Column("Event_id")]
+        public int? EventId { get; set; }
         [Column("Plan_Link")]
         [StringLength(255)]
         public string PlanLink { get; set; }
@@ -71,8 +69,6 @@ namespace CStat.Models
         public int? Worker3Id { get; set; }
         [Column("ParentTask_id")]
         public int? ParentTaskId { get; set; }
-        [Column("Event_id")]
-        public int? EventId { get; set; }
 
         [ForeignKey(nameof(Blocking1Id))]
         [InverseProperty(nameof(Task.InverseBlocking1))]

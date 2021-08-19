@@ -169,5 +169,11 @@ namespace CStat
         {
             return this.Content("Success:");  // Response 
         }
+        public bool GetBuyAnchor(int buyIdx, out string buy1Anchor)
+        {
+            buy1Anchor = "<a href=\"https:" + "//www.amazon.com/gp/product/B015EXMB7M/ref=ppx_yo_dt_b_asin_image_o00_s00?ie=UTF8&psc=1" + "\"><b>#1 Buy from Amazon Prime</b></a>";
+            return buyIdx == 1;
+        }
+
     }
 }

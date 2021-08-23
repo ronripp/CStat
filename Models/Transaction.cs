@@ -52,7 +52,7 @@ namespace CStat.Models
         [StringLength(30)]
         public string PaymentNumber { get; set; }
         [Column("link")]
-        [StringLength(255)]
+        [StringLength(700)]
         public string Link { get; set; }
 
         [ForeignKey(nameof(BusinessId))]

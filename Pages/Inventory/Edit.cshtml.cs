@@ -257,13 +257,13 @@ namespace CStat
                     var hostStrs = uri.Host.Split('.');
                     var NumHostStrs = hostStrs.Length;
                     if (NumHostStrs > 0)
-                        Trans.Memo = hostStrs[NumHostStrs - 1];
+                        Trans.Memo = hostStrs[Math.Max(0, NumHostStrs - 2)];
                     else
                         throw new InvalidOperationException("No Host Name");
                 }
                 catch { Trans.Memo = "Store #" + buyIdx; }
-                _context.Attach(Trans).State = EntityState.Modified;
-                
+
+                _context.Transaction.Add(Trans);
                 _context.SaveChanges();
             }
             switch (buyIdx)

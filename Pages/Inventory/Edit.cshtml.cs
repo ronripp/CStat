@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CStat
@@ -31,6 +33,12 @@ namespace CStat
         public InventoryItem InventoryItem { get; set; }
         [BindProperty]
         public Item EditItem { get; set; }
+        [BindProperty]
+        public String Buy1URL { get; set; }
+        [BindProperty]
+        public String Buy2URL { get; set; }
+        [BindProperty]
+        public String Buy3URL { get; set; }
         public IFormFile ItemPhoto { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -108,6 +116,10 @@ namespace CStat
             if ((EditItem.Upc != null) && (EditItem.Upc.Length > 0))
                 EditItem.Upc.Trim();
 
+            GetBuyTransaction(1, Buy1URL);
+            GetBuyTransaction(2, Buy2URL);
+            GetBuyTransaction(3, Buy3URL);
+
             _context.Attach(InventoryItem).State = EntityState.Modified;
             _context.Attach(EditItem).State = EntityState.Modified;
 
@@ -129,7 +141,6 @@ namespace CStat
         
             return RedirectToPage("./Index");
         }
-
         private bool InventoryItemExists(int id)
         {
             return _context.InventoryItem.Any(e => e.Id == id);
@@ -169,11 +180,107 @@ namespace CStat
         {
             return this.Content("Success:");  // Response 
         }
-        public bool GetBuyAnchor(int buyIdx, out string buy1Anchor)
+        public bool GetBuyAnchor(int buyIdx, out string buyAnchor)
         {
-            buy1Anchor = "<a href=\"https:" + "//www.amazon.com/gp/product/B015EXMB7M/ref=ppx_yo_dt_b_asin_image_o00_s00?ie=UTF8&psc=1" + "\"><b>#1 Buy from Amazon Prime</b></a>";
-            return buyIdx == 1;
+            Transaction Trans = null;
+            buyAnchor = "";
+            switch (buyIdx)
+            {
+                case 1:
+                    if (InventoryItem.Buy1Id.HasValue)
+                    {
+                        Trans = _context.Transaction.Find(InventoryItem.Buy1Id);
+                        if ((Trans == null) || (Trans.Link.Length < 10))
+                            return false;
+                    }
+                    else
+                        return false;
+                    break;
+                case 2:
+                    if (InventoryItem.Buy2Id.HasValue)
+                    {
+                        Trans = _context.Transaction.Find(InventoryItem.Buy2Id);
+                        if ((Trans == null) || (Trans.Link.Length < 10))
+                            return false;
+                    }
+                    else
+                        return false;
+                    break;
+                case 3:
+                    if (InventoryItem.Buy3Id.HasValue)
+                    {
+                        Trans = _context.Transaction.Find(InventoryItem.Buy3Id);
+                        if ((Trans == null) || (Trans.Link.Length < 10))
+                            return false;
+                    }
+                    else
+                        return false;
+                    break;
+                default:
+                    return false;
+            }
+            buyAnchor = "<a href=\"" + Trans.Link + "\" Buy1Id=\"+ Trans.Id + \"><b>" + ((Trans.Memo.Length > 1) ? Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" onclick=\"myFunction()\">x</button>";
+            return true;
         }
+        public bool GetBuyTransaction(int buyIdx, string buyUrl)
+        {
+            if ((buyUrl == null) || (buyUrl.Length == 0))
+                return false;
 
+            int? InvItBuyId = buyIdx switch {1 => InventoryItem.Buy1Id,
+                                        2 => InventoryItem.Buy2Id,
+                                        3 => InventoryItem.Buy1Id,
+                                        _ => throw new Exception("BuyIdx failed") };
+            if (InvItBuyId.HasValue)
+            {
+                // Delete old transaction
+                var OldTrans = _context.Transaction.Find(InvItBuyId);
+                try
+                {
+                    if (OldTrans != null)
+                    {
+                        _context.Transaction.Remove(OldTrans);
+                        _context.SaveChanges();
+                    }
+                }
+                catch { }
+            }
+
+            var Trans = _context.Transaction.Where(t => t.Link == buyUrl).FirstOrDefault();
+            if (Trans == null)
+            {
+                Trans = new Transaction();
+                Trans.Link = buyUrl;
+                try
+                {
+                    var uri = new Uri(buyUrl);
+                    var hostStrs = uri.Host.Split('.');
+                    var NumHostStrs = hostStrs.Length;
+                    if (NumHostStrs > 0)
+                        Trans.Memo = hostStrs[NumHostStrs - 1];
+                    else
+                        throw new InvalidOperationException("No Host Name");
+                }
+                catch { Trans.Memo = "Store #" + buyIdx; }
+                _context.Attach(Trans).State = EntityState.Modified;
+                
+                _context.SaveChanges();
+            }
+            switch (buyIdx)
+            {
+                case 1:
+                    InventoryItem.Buy1Id = Trans.Id;
+                    break;
+                case 2:
+                    InventoryItem.Buy2Id = Trans.Id;
+                    break;
+                case 3:
+                    InventoryItem.Buy3Id = Trans.Id;
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
     }
 }

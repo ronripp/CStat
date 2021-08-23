@@ -228,11 +228,11 @@
                 <span asp-validation-for="EditItem.Upc" class="text-danger"></span>
                 @{if (UPCError.Length > 0)
                     {
-                        <div style="color:red">@UPCError</div>
+                    <div style="color:red">@UPCError</div>
                     }
                     else
                     {
-                        <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
+                    <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
                     }
                 }
             </div>
@@ -240,44 +240,44 @@
         <div class="form-group ediv row">
             @{if (Model.GetBuyAnchor(1, out string buy1Anchor))
                 {
-                    <div class="col-sm-12 BValue">
-                        @Html.Raw(buy1Anchor)
-                    </div>
+                <div class="col-sm-12 BValue">
+                    @Html.Raw(buy1Anchor)
+                </div>
                 }
                 else
                 {
-                    <label class="control-label col-sm-3 ILabel style=" text for="buy1">Set #1 Buy URL:</label>
-                    <div class="col-sm-9 BValue">
-                        <input type="text" id="buy1" size="60" />
-                    </div>
+                <label class="control-label col-sm-3 ILabel style=" text for="buy1">Set #1 Buy URL:</label>
+                <div class="col-sm-9 BValue">
+                    <input type="text" asp-for="Buy1URL" id="buy1" size="60" />
+                </div>
                 }
             }
             @{if (Model.GetBuyAnchor(2, out string buy2Anchor))
                 {
-                    <div class="col-sm-12 BValue">
-                        @Html.Raw(buy2Anchor)
-                    </div>
+                <div class="col-sm-12 BValue">
+                    @Html.Raw(buy2Anchor)
+                </div>
                 }
                 else
                 {
-                    <label class="control-label col-sm-3 ILabel style=" text for="buy2">Set #2 Buy URL:</label>
-                    <div class="col-sm-9 BValue">
-                        <input type="text" id="buy2" size="60" />
-                    </div>
+                <label class="control-label col-sm-3 ILabel style=" text for="buy2">Set #2 Buy URL:</label>
+                <div class="col-sm-9 BValue">
+                    <input type="text" asp-for="Buy2URL" id="buy2" size="60" />
+                </div>
                 }
             }
             @{if (Model.GetBuyAnchor(3, out string buy3Anchor))
                 {
-                    <div class="col-sm-12 BValue">
-                        @Html.Raw(buy3Anchor)
-                    </div>
+                <div class="col-sm-12 BValue">
+                    @Html.Raw(buy3Anchor)
+                </div>
                 }
                 else
                 {
-                    <label class="control-label col-sm-3 ILabel style=" text for="buy3">Set #3 Buy URL:</label>
-                    <div class="col-sm-9 BValue">
-                        <input type="text" id="buy3" size="60" />
-                    </div>
+                <label class="control-label col-sm-3 ILabel style=" text for="buy3">Set #3 Buy URL:</label>
+                <div class="col-sm-9 BValue">
+                    <input type="text" asp-for="Buy3URL" id="buy3" size="60" />
+                </div>
                 }
             }
         </div>
@@ -288,7 +288,7 @@
                     IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
                    SelectList data = new SelectList(list, "Value", "Text");
                    var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
-               }
+                }
                 <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
                 <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
             </div>
@@ -321,7 +321,7 @@
                    Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
                    SelectList zdata = new SelectList(zlist, "Value", "Text");
-               }
+                }
                 <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
                 <span asp-validation-for="InventoryItem.Zone" class="text-danger"></span>
             </div>
@@ -370,6 +370,9 @@
 
         @Html.HiddenFor(model => model.InventoryItem.OrderId)
         @Html.HiddenFor(model => model.InventoryItem.Date)
+        @Html.HiddenFor(model => model.InventoryItem.Buy1Id)
+        @Html.HiddenFor(model => model.InventoryItem.Buy2Id)
+        @Html.HiddenFor(model => model.InventoryItem.Buy3Id)
 
         @*Item
         //Name
@@ -379,6 +382,7 @@
         @Html.HiddenFor(model => model.EditItem.Units)
         @Html.HiddenFor(model => model.EditItem.Status)
         @Html.HiddenFor(model => model.EditItem.Id)
+
 
         <div class="form-group" style="text-align:center">
             <span class="col-md-8">

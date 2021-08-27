@@ -91,6 +91,25 @@
                 }
                 $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
             });
+
+            function GetPrice(id) {
+                let $anc = $("#" + id);
+                if (!$anc || ($anc.length === 0)) {
+                    return;
+                }
+                let htmStr = $anc.html();
+                if (htmStr.indexOf('$') != -1) {
+                    return; // Already has a price
+                }
+
+                // Add a 
+
+            }
+
+            GetPrice("Anc1");
+            GetPrice("Anc2");
+            GetPrice("Anc3");
+
         });
     </script>
 

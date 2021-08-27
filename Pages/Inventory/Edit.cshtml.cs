@@ -9,8 +9,13 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -219,9 +224,63 @@ namespace CStat
                 default:
                     return false;
             }
-            buyAnchor = "<a href=\"" + Trans.Link + "\" Buy1Id=\"+ Trans.Id + \"><b>" + ((Trans.Memo.Length > 1) ? Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" onclick=\"myFunction()\">x</button>";
+
+            //var pageTask = GetPageAsync(Trans.Link, Trans.Memo);
+            //pageTask.Wait();
+
+
+            buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\"><b>" +
+                ((Trans.Memo.Length > 1) ? "Buy from " + Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" onclick=\"myFunction()\">x</button>";
             return true;
         }
+
+        public async Task<string> GetPageAsync(string url, string host="")
+        {
+            String pageContents = null;
+            try
+            {
+                HttpClientHandler handler = new HttpClientHandler()
+                {
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                };
+
+                HttpClient client = new HttpClient(handler);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                pageContents = await client.GetStringAsync(url);
+            }
+            catch
+            {
+                return "";
+            }
+
+            var lhost = host.ToLower().Trim();
+            double price = 0;
+
+            // AMAZON
+            if (lhost.StartsWith("amazon"))
+            {
+                var priceIdx = pageContents.IndexOf("id=\"attach-base-product-price\" value=");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 38, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+
+            return (price != 0) ? price.ToString("#.00", CultureInfo.InvariantCulture) : "";
+        }
+
+        private object GetEncoding(string v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool GetBuyTransaction(int buyIdx, string buyUrl)
         {
             if ((buyUrl == null) || (buyUrl.Length == 0))
@@ -255,6 +314,7 @@ namespace CStat
                 {
                     var uri = new Uri(buyUrl);
                     var hostStrs = uri.Host.Split('.');
+
                     var NumHostStrs = hostStrs.Length;
                     if (NumHostStrs > 0)
                         Trans.Memo = hostStrs[Math.Max(0, NumHostStrs - 2)];
@@ -265,6 +325,18 @@ namespace CStat
 
                 _context.Transaction.Add(Trans);
                 _context.SaveChanges();
+
+                try
+                {
+                    using (WebClient client = new WebClient()) // WebClient class inherits IDisposable
+                    {
+                        client.DownloadFile("http://yoursite.com/page.html", @"C:\localfile.html");
+
+                        // Or you can get the file content without saving it
+                        string htmlCode = client.DownloadString("http://yoursite.com/page.html");
+                    }
+                }
+                catch { }
             }
             switch (buyIdx)
             {

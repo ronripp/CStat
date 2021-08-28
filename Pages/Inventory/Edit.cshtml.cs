@@ -234,8 +234,23 @@ namespace CStat
             return true;
         }
 
-        public async Task<string> GetPageAsync(string url, string host="")
+        public JsonResult OnGetPagePrice()
         {
+            var pageTask = OnGetPageAsync2();
+            pageTask.Wait();
+            return pageTask.Result;
+        }
+        public async Task<JsonResult> OnGetPageAsync2()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
+            if (!setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
+                return new JsonResult("");
+
             String pageContents = null;
             try
             {
@@ -250,14 +265,14 @@ namespace CStat
             }
             catch
             {
-                return "";
+                return new JsonResult("");
             }
 
             var lhost = host.ToLower().Trim();
             double price = 0;
 
             // AMAZON
-            if (lhost.StartsWith("amazon"))
+            if (lhost.Contains(" amazon") || (lhost == "amazon"))
             {
                 var priceIdx = pageContents.IndexOf("id=\"attach-base-product-price\" value=");
                 if (priceIdx != -1)
@@ -273,7 +288,7 @@ namespace CStat
                 }
             }
 
-            return (price != 0) ? price.ToString("#.00", CultureInfo.InvariantCulture) : "";
+            return new JsonResult((price != 0) ? price.ToString("#.00", CultureInfo.InvariantCulture) : "");
         }
 
         private object GetEncoding(string v)

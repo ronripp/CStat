@@ -310,7 +310,6 @@
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf("ERROR~:") !== -1) {
-                            $("body").css("cursor", "default");
                             alert("Stock not updated.");
                         }
                         else {
@@ -322,9 +321,10 @@
                             }
                         }
                     },
-                    fail: function (response) {
+                    finally: function (response) {
                         $("body").css("cursor", "default");
                     }
+
                 });
             }
 

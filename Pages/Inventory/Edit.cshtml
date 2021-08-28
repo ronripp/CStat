@@ -93,16 +93,33 @@
             });
 
             function GetPrice(id) {
-                let $anc = $("#" + id);
+                var $anc = $("#" + id);
                 if (!$anc || ($anc.length === 0)) {
                     return;
                 }
-                let htmStr = $anc.html();
-                if (htmStr.indexOf('$') != -1) {
+                var hostStr = $anc.html();
+                if (hostStr.indexOf('$') != -1) {
                     return; // Already has a price
                 }
+                var link = $anc.attr('href');
 
-                // Add a 
+                $("body").css("cursor", "progress");
+                var parameters = "{'host':'" + hostStr + "','link':'" + link + "'}";
+                $.ajax({
+                    url: "/Inventory/Edit?handler=PagePrice",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf(" $") !== -1) {
+                            anc.html(host + response);                        
+                        }
+                    },
+                    finally: function (response) {
+                        $("body").css("cursor", "default");
+                    }
+                });
+
 
             }
 

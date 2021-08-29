@@ -120,9 +120,10 @@ namespace CStat
             if ((EditItem.Upc != null) && (EditItem.Upc.Length > 0))
                 EditItem.Upc.Trim();
 
-            GetBuyTransaction(1, Buy1URL);
-            GetBuyTransaction(2, Buy2URL);
-            GetBuyTransaction(3, Buy3URL);
+            List<int?> tidsToDel = new List<int?>();
+            tidsToDel.Add(GetBuyTransaction(1, Buy1URL));
+            tidsToDel.Add(GetBuyTransaction(2, Buy2URL));
+            tidsToDel.Add(GetBuyTransaction(3, Buy3URL));
 
             _context.Attach(InventoryItem).State = EntityState.Modified;
             _context.Attach(EditItem).State = EntityState.Modified;
@@ -131,18 +132,28 @@ namespace CStat
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                if (!InventoryItemExists(InventoryItem.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
-        
+
+            // Try to delete unused transactions AFTER updating InventoryItem
+            foreach (var tid in tidsToDel)
+            {
+                try
+                {
+                    if (tid.HasValue)
+                    {
+                        var OldTrans = _context.Transaction.Find(tid.Value);
+                        if (OldTrans != null)
+                        {
+                            _context.Transaction.Remove(OldTrans);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+                catch { }
+            }
+
             return RedirectToPage("./Index");
         }
         private bool InventoryItemExists(int id)
@@ -187,7 +198,8 @@ namespace CStat
         public bool GetBuyAnchor(int buyIdx, out string buyAnchor)
         {
             Transaction Trans = null;
-            buyAnchor = "";
+            buyAnchor = "<button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
+
             switch (buyIdx)
             {
                 case 1:
@@ -249,10 +261,10 @@ namespace CStat
                 };
 
                 HttpClient client = new HttpClient(handler);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
                 pageContents = await client.GetStringAsync(url);
             }
-            catch
+            catch (Exception ex)
             {
                 return new JsonResult("");
             }
@@ -305,10 +317,10 @@ namespace CStat
             throw new NotImplementedException();
         }
 
-        public bool GetBuyTransaction(int buyIdx, string buyUrl)
+        public int? GetBuyTransaction(int buyIdx, string buyUrl)
         {
             if ((buyUrl == null) || (buyUrl.Length == 0))
-                return false;
+                return null;
 
             int? InvItBuyId = null;
             switch (buyIdx)
@@ -326,22 +338,7 @@ namespace CStat
                     InventoryItem.Buy3Id = null; // initially clear
                     break;
                 default:
-                    return false;
-            }
-
-            if (InvItBuyId.HasValue)
-            {
-                // Delete old transaction
-                var OldTrans = _context.Transaction.Find(InvItBuyId.Value);
-                try
-                {
-                    if (OldTrans != null)
-                    {
-                        _context.Transaction.Remove(OldTrans);
-                        _context.SaveChanges();
-                    }
-                }
-                catch (Exception ex) { }
+                    return null;
             }
 
             var Trans = _context.Transaction.Where(t => t.Link == buyUrl).FirstOrDefault();
@@ -377,9 +374,9 @@ namespace CStat
                     InventoryItem.Buy3Id = Trans.Id;
                     break;
                 default:
-                    return false;
+                    return null;
             }
-            return true;
+            return InvItBuyId;
         }
     }
 }

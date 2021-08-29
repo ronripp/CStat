@@ -92,35 +92,63 @@
                 $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
             });
 
+            document.getElementById('DelLink1').addEventListener('click', (e) => {
+                let linkObj = $("#Link1Div");
+                let urlObj = $("#Url1Div");
+                linkObj.hide();
+                urlObj.show();
+                e.preventDefault();
+            });
+
+            document.getElementById('DelLink2').addEventListener('click', (e) => {
+                let linkObj = $("#Link2Div");
+                let urlObj = $("#Url2Div");
+                linkObj.hide();
+                urlObj.show();
+                e.preventDefault();
+            });
+
+            document.getElementById('DelLink3').addEventListener('click', (e) => {
+                let linkObj = $("#Link3Div");
+                let urlObj = $("#Url3Div");
+                linkObj.hide();
+                urlObj.show();
+                e.preventDefault();
+            });
+
             function GetPrice(id) {
-                var $anc = $("#" + id);
+                let $anc = $("#" + id);
                 if (!$anc || ($anc.length === 0)) {
                     return;
                 }
-                var hostStr = $anc.html();
+                let hostStr = $anc.html();
                 if (hostStr.indexOf('$') != -1) {
                     return; // Already has a price
                 }
                 var link = $anc.attr('href');
 
-                $("body").css("cursor", "progress");
-                var parameters = "{'host':'" + hostStr + "','link':'" + link + "'}";
+                var parameters = "{'id':'" + id + "','host':'" + hostStr + "','link':'" + link + "'}";
                 $.ajax({
-                    url: "/Inventory/Edit?handler=PagePrice",
+                    url: "/Inventory/Edit?handler=UrlPrice",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
                         if (response.indexOf(" $") !== -1) {
-                            anc.html(host + response);                        
+                            resFields = response.split(';')
+                            if (resFields.length === 2) {
+                                var $robj = $("#" + resFields[0].trim());
+                                if (!$robj || ($robj.length === 0)) {
+                                    return;
+                                }
+                                var robjStr = $robj.html();
+                                if (robjStr.indexOf('$') == -1) {
+                                    $robj.html(hostStr + resFields[1]);
+                                }
+                            }
                         }
-                    },
-                    finally: function (response) {
-                        $("body").css("cursor", "default");
                     }
                 });
-
-
             }
 
             GetPrice("Anc1");
@@ -274,48 +302,45 @@
             </div>
         </div>
         <div class="form-group ediv row">
-            @{if (Model.GetBuyAnchor(1, out string buy1Anchor))
-                {
-                <div class="col-sm-12 BValue">
-                    @Html.Raw(buy1Anchor)
-                </div>
-                }
-                else
-                {
+            @{var hasAnc1 = Model.GetBuyAnchor(1, out string buy1Anchor);
+                var LinkVis1 = hasAnc1 ? "" : "display:none";
+                var UrlVis1 = hasAnc1 ? "display:none" : "";
+            }
+            <div id="Link1Div" style="@LinkVis1" class="col-sm-12 BValue">
+                @Html.Raw(buy1Anchor)
+            </div>
+            <div id="Url1Div" style="padding-left:4px; @UrlVis1" class="row">
                 <label class="control-label col-sm-3 ILabel style=" text for="buy1">Set #1 Buy URL:</label>
                 <div class="col-sm-9 BValue">
                     <input type="text" asp-for="Buy1URL" id="buy1" size="60" />
                 </div>
-                }
+            </div>
+            @{var hasAnc2 = Model.GetBuyAnchor(2, out string buy2Anchor);
+                var LinkVis2 = hasAnc2 ? "" : "display:none";
+                var UrlVis2 = hasAnc2 ? "display:none" : "";
             }
-            @{if (Model.GetBuyAnchor(2, out string buy2Anchor))
-                {
-                <div class="col-sm-12 BValue">
-                    @Html.Raw(buy2Anchor)
-                </div>
-                }
-                else
-                {
+            <div id="Link2Div" style="@LinkVis2" class="col-sm-12 BValue">
+                @Html.Raw(buy2Anchor)
+            </div>
+            <div id="Url2Div" style="padding-left:4px; @UrlVis2" class="row">
                 <label class="control-label col-sm-3 ILabel style=" text for="buy2">Set #2 Buy URL:</label>
                 <div class="col-sm-9 BValue">
                     <input type="text" asp-for="Buy2URL" id="buy2" size="60" />
                 </div>
-                }
+            </div>
+            @{var hasAnc3 = Model.GetBuyAnchor(3, out string buy3Anchor);
+                var LinkVis3 = hasAnc3 ? "" : "display:none";
+                var UrlVis3 = hasAnc3 ? "display:none" : "";
             }
-            @{if (Model.GetBuyAnchor(3, out string buy3Anchor))
-                {
-                <div class="col-sm-12 BValue">
-                    @Html.Raw(buy3Anchor)
-                </div>
-                }
-                else
-                {
+            <div id="Link3Div" style="@LinkVis3" class="col-sm-12 BValue">
+                @Html.Raw(buy3Anchor)
+            </div>
+            <div id="Url3Div" style="padding-left:4px; @UrlVis3" class="row">
                 <label class="control-label col-sm-3 ILabel style=" text for="buy3">Set #3 Buy URL:</label>
                 <div class="col-sm-9 BValue">
-                    <input type="text" asp-for="Buy3URL" id="buy3" size="60" />
+                    <input type="text" asp-for="Buy3URL" id="buy1" size="60" />
                 </div>
-                }
-            }
+            </div>
         </div>
         <div class="form-group ediv row">
             <label asp-for="InventoryItem.Units" class="control-label col-sm-3 ILabel">Units:</label>

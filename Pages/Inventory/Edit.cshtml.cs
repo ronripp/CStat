@@ -111,7 +111,6 @@ namespace CStat
                     System.IO.File.Delete(destFile); // Delete any existing photo for this item
                 using (var fs = new FileStream(destFile, FileMode.Create))
                 {
-  
                     ItemPhoto.CopyTo(fs);
                 }
             }
@@ -225,22 +224,12 @@ namespace CStat
                     return false;
             }
 
-            //var pageTask = GetPageAsync(Trans.Link, Trans.Memo);
-            //pageTask.Wait();
-
-
             buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\"><b>" +
-                ((Trans.Memo.Length > 1) ? "Buy from " + Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" onclick=\"myFunction()\">x</button>";
+                ((Trans.Memo.Length > 1) ? "Buy from " + Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
             return true;
         }
 
-        public JsonResult OnGetPagePrice()
-        {
-            var pageTask = OnGetPageAsync2();
-            pageTask.Wait();
-            return pageTask.Result;
-        }
-        public async Task<JsonResult> OnGetPageAsync2()
+        public async Task<JsonResult> OnGetUrlPrice()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
@@ -248,7 +237,7 @@ namespace CStat
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
-            if (!setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
+            if (!setParam.TryGetValue("id", out string idStr) || !setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
                 return new JsonResult("");
 
             String pageContents = null;
@@ -271,7 +260,9 @@ namespace CStat
             var lhost = host.ToLower().Trim();
             double price = 0;
 
+            //************************
             // AMAZON
+            //************************
             if (lhost.Contains(" amazon") || (lhost == "amazon"))
             {
                 var priceIdx = pageContents.IndexOf("id=\"attach-base-product-price\" value=");
@@ -287,8 +278,26 @@ namespace CStat
                     }
                 }
             }
-
-            return new JsonResult((price != 0) ? price.ToString("#.00", CultureInfo.InvariantCulture) : "");
+            //*********************
+            // WALMART
+            //*********************
+            else if (lhost.Contains(" walmart") || (lhost == "walmart"))
+            {
+                var priceIdx = pageContents.IndexOf("<span class=\"price-characteristic\" itemprop=\"price\" content=\"");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 67, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+            
+            return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : "");
         }
 
         private object GetEncoding(string v)
@@ -301,14 +310,29 @@ namespace CStat
             if ((buyUrl == null) || (buyUrl.Length == 0))
                 return false;
 
-            int? InvItBuyId = buyIdx switch {1 => InventoryItem.Buy1Id,
-                                        2 => InventoryItem.Buy2Id,
-                                        3 => InventoryItem.Buy1Id,
-                                        _ => throw new Exception("BuyIdx failed") };
+            int? InvItBuyId = null;
+            switch (buyIdx)
+            {
+                case 1:
+                    InvItBuyId = InventoryItem.Buy1Id;
+                    InventoryItem.Buy1Id = null; // initially clear
+                    break;
+                case 2:
+                    InvItBuyId = InventoryItem.Buy2Id;
+                    InventoryItem.Buy2Id = null; // initially clear
+                    break;
+                case 3:
+                    InvItBuyId = InventoryItem.Buy3Id;
+                    InventoryItem.Buy3Id = null; // initially clear
+                    break;
+                default:
+                    return false;
+            }
+
             if (InvItBuyId.HasValue)
             {
                 // Delete old transaction
-                var OldTrans = _context.Transaction.Find(InvItBuyId);
+                var OldTrans = _context.Transaction.Find(InvItBuyId.Value);
                 try
                 {
                     if (OldTrans != null)
@@ -317,7 +341,7 @@ namespace CStat
                         _context.SaveChanges();
                     }
                 }
-                catch { }
+                catch (Exception ex) { }
             }
 
             var Trans = _context.Transaction.Where(t => t.Link == buyUrl).FirstOrDefault();
@@ -335,23 +359,11 @@ namespace CStat
                         Trans.Memo = hostStrs[Math.Max(0, NumHostStrs - 2)];
                     else
                         throw new InvalidOperationException("No Host Name");
+
+                    _context.Transaction.Add(Trans);
+                    _context.SaveChanges();
                 }
                 catch { Trans.Memo = "Store #" + buyIdx; }
-
-                _context.Transaction.Add(Trans);
-                _context.SaveChanges();
-
-                try
-                {
-                    using (WebClient client = new WebClient()) // WebClient class inherits IDisposable
-                    {
-                        client.DownloadFile("http://yoursite.com/page.html", @"C:\localfile.html");
-
-                        // Or you can get the file content without saving it
-                        string htmlCode = client.DownloadString("http://yoursite.com/page.html");
-                    }
-                }
-                catch { }
             }
             switch (buyIdx)
             {
@@ -371,3 +383,4 @@ namespace CStat
         }
     }
 }
+

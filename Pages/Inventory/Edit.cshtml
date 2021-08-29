@@ -151,6 +151,23 @@
                 });
             }
 
+            $('#InvItemForm').submit(function () {
+                alert("123");
+                let url1Obj = $("#buy1");
+                if (!!url1Obj && (url1Obj.length !== 0) && url1Obj.is(":visible") && (url1Obj.val().trim().length == 0)) {
+                    url1Obj.val("<DeleteTr!>");
+                }
+                let url2Obj = $("#buy2");
+                if (!!url2Obj && (url2Obj.length !== 0) && url2Obj.is(":visible") && (url2Obj.val().trim().length == 0)) {
+                    url2Obj.val("<DeleteTr!>");
+                }
+                let url3Obj = $("#buy3");
+                if (!!url3Obj && (url3Obj.length !== 0) && url3Obj.is(":visible") && (url3Obj.val().trim().length == 0)) {
+                    url3Obj.val("<DeleteTr!>");
+                }
+                alert("456");
+            });
+
             GetPrice("Anc1");
             GetPrice("Anc2");
             GetPrice("Anc3");
@@ -260,7 +277,7 @@
             }
         }
 
-    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+    <form class="form-horizontal" id="InvItemForm" method="post" enctype="multipart/form-data">
         <div class="form-group ediv">
             <div class="col-sm-12 IValue">
                 <div class="zoomin ediv" style="float:left">
@@ -338,7 +355,7 @@
             <div id="Url3Div" style="padding-left:4px; @UrlVis3" class="row">
                 <label class="control-label col-sm-3 ILabel style=" text for="buy3">Set #3 Buy URL:</label>
                 <div class="col-sm-9 BValue">
-                    <input type="text" asp-for="Buy3URL" id="buy1" size="60" />
+                    <input type="text" asp-for="Buy3URL" id="buy3" size="60" />
                 </div>
             </div>
         </div>

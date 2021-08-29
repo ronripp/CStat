@@ -237,7 +237,7 @@ namespace CStat
             }
 
             buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\"><b>" +
-                ((Trans.Memo.Length > 1) ? "Buy from " + Trans.Memo : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
+                ((Trans.Memo.Length > 1) ? "Buy from " + char.ToUpper(Trans.Memo[0]) + Trans.Memo.Substring(1) : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
             return true;
         }
 
@@ -262,6 +262,13 @@ namespace CStat
 
                 HttpClient client = new HttpClient(handler);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+                string _ContentType = "application/json";
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
+                var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
+                client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
+                var _UserAgent = "CStat HttpClient";
+                client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
                 pageContents = await client.GetStringAsync(url);
             }
             catch (Exception ex)
@@ -298,7 +305,7 @@ namespace CStat
                 var priceIdx = pageContents.IndexOf("<span class=\"price-characteristic\" itemprop=\"price\" content=\"");
                 if (priceIdx != -1)
                 {
-                    var priceStr = pageContents.Substring(priceIdx + 67, 15);
+                    var priceStr = pageContents.Substring(priceIdx + 61, 15);
                     var endIdx = priceStr.IndexOf("\"");
                     if (endIdx != -1)
                     {
@@ -340,6 +347,9 @@ namespace CStat
                 default:
                     return null;
             }
+
+            if (buyUrl == "<DeleteTr!>")
+                return InvItBuyId;
 
             var Trans = _context.Transaction.Where(t => t.Link == buyUrl).FirstOrDefault();
             if (Trans == null)

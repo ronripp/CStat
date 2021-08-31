@@ -315,7 +315,22 @@ namespace CStat
                     }
                 }
             }
-            
+            else if (lhost.Contains(" bjs") || (lhost == "bjs"))
+            {
+                var priceIdx = pageContents.IndexOf(";offerPrice&q;:");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 15, 15);
+                    var endIdx = priceStr.IndexOf(",");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+
             return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : "");
         }
 
@@ -348,7 +363,7 @@ namespace CStat
                     return null;
             }
 
-            if (buyUrl == "<DeleteTr!>")
+            if (buyUrl == "_.")
                 return InvItBuyId;
 
             var Trans = _context.Transaction.Where(t => t.Link == buyUrl).FirstOrDefault();

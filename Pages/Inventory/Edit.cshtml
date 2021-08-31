@@ -152,20 +152,18 @@
             }
 
             $('#InvItemForm').submit(function () {
-                alert("123");
                 let url1Obj = $("#buy1");
                 if (!!url1Obj && (url1Obj.length !== 0) && url1Obj.is(":visible") && (url1Obj.val().trim().length == 0)) {
-                    url1Obj.val("<DeleteTr!>");
+                    url1Obj.val("_.>");
                 }
                 let url2Obj = $("#buy2");
                 if (!!url2Obj && (url2Obj.length !== 0) && url2Obj.is(":visible") && (url2Obj.val().trim().length == 0)) {
-                    url2Obj.val("<DeleteTr!>");
+                    url2Obj.val("_.");
                 }
                 let url3Obj = $("#buy3");
                 if (!!url3Obj && (url3Obj.length !== 0) && url3Obj.is(":visible") && (url3Obj.val().trim().length == 0)) {
-                    url3Obj.val("<DeleteTr!>");
+                    url3Obj.val("_.");
                 }
-                alert("456");
             });
 
             GetPrice("Anc1");

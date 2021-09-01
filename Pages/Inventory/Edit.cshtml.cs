@@ -1,4 +1,5 @@
-﻿using CStat.Models;
+﻿using CStat.Common;
+using CStat.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -132,7 +133,7 @@ namespace CStat
             {
                 await _context.SaveChangesAsync();
             }
-            catch
+            catch (Exception ex)
             {
             }
 
@@ -237,7 +238,7 @@ namespace CStat
             }
 
             buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\"><b>" +
-                ((Trans.Memo.Length > 1) ? "Buy from " + char.ToUpper(Trans.Memo[0]) + Trans.Memo.Substring(1) : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
+                ((Trans.Memo.Length > 1) ? "Buy from " + ItemSale.ResolveVendor(Trans.Memo) : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
             return true;
         }
 

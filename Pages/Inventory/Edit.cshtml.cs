@@ -316,12 +316,27 @@ namespace CStat
                     }
                 }
             }
-            else if (lhost.Contains(" bjs") || (lhost == "bjs"))
+            else if (lhost.Contains(" bj's") || (lhost == "bj's"))
             {
                 var priceIdx = pageContents.IndexOf(";offerPrice&q;:");
                 if (priceIdx != -1)
                 {
                     var priceStr = pageContents.Substring(priceIdx + 15, 15);
+                    var endIdx = priceStr.IndexOf(",");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+            else if (lhost.Contains(" home depot") || (lhost == "home depot"))
+            {
+                var priceIdx = pageContents.IndexOf("\"priceCurrency\":\"USD\",\"price\":");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 30, 15);
                     var endIdx = priceStr.IndexOf(",");
                     if (endIdx != -1)
                     {

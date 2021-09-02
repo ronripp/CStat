@@ -14,6 +14,7 @@ namespace CStat.Common
             {"therdstore", "Restaurant Depot"},
             {"monogramcleanforce", "US Foods"},
             {"monogram", "US Foods"},
+            {"homedepot", "Home Depot"}
         };
 
         public static string ResolveVendor (string host)

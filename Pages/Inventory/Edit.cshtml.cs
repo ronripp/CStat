@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -242,7 +243,7 @@ namespace CStat
             return true;
         }
 
-        public async Task<JsonResult> OnGetUrlPrice()
+        public JsonResult OnGetUrlPrice()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
@@ -253,29 +254,31 @@ namespace CStat
             if (!setParam.TryGetValue("id", out string idStr) || !setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
                 return new JsonResult("");
 
-            String pageContents = null;
-            try
-            {
-                HttpClientHandler handler = new HttpClientHandler()
-                {
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                };
+            var pageContents = ItemSale.GetPageContent(url).Result;
 
-                HttpClient client = new HttpClient(handler);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-                string _ContentType = "application/json";
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
-                var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
-                client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
-                var _UserAgent = "CStat HttpClient";
-                client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
-                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
-                pageContents = await client.GetStringAsync(url);
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult("");
-            }
+            //String pageContents = null;
+            //try
+            //{
+            //    HttpClientHandler handler = new HttpClientHandler()
+            //    {
+            //        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            //    };
+
+            //    HttpClient client = new HttpClient(handler);
+            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+            //    string _ContentType = "application/json";
+            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
+            //    var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
+            //    client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
+            //    var _UserAgent = "CStat HttpClient";
+            //    client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
+            //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+            //    pageContents = await client.GetStringAsync(url);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new JsonResult("");
+            //}
 
             var lhost = host.ToLower().Trim();
             double price = 0;
@@ -345,6 +348,39 @@ namespace CStat
                             price = 0;
                     }
                 }
+            }
+            else if (lhost.Contains(" webstaurantstore") || (lhost == "webstaurantstore"))
+            {
+                var priceIdx = pageContents.IndexOf("<meta property=\"og:price:amount\" content=\"");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 42, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+            else if (lhost.Contains(" target") || (lhost == "target"))
+            {
+                string apiKey;
+                var apiKeyIdx = pageContents.IndexOf("\"apiKey\":\"");
+                apiKey = pageContents.Substring(apiKeyIdx + 10, 50);
+                if (apiKeyIdx != -1)
+                {
+                    var endIdx = apiKey.IndexOf("\"");
+                    apiKey = apiKey.Substring(0, endIdx);
+                }
+
+                string[] urlParts = url.Split("/");
+                string tcinKey = urlParts[urlParts.Length - 1].Substring(2);
+                //"https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=ff457966e64d5e877fdbad070f276d18ecec4a01&tcin=13276131&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
+                string bURLStr = "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=" + apiKey + "&tcin=" + tcinKey + "&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
+
+                //"current_retail":  end ,
             }
 
             return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : "");

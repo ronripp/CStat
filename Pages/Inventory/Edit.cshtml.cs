@@ -256,30 +256,6 @@ namespace CStat
 
             var pageContents = ItemSale.GetPageContent(url).Result;
 
-            //String pageContents = null;
-            //try
-            //{
-            //    HttpClientHandler handler = new HttpClientHandler()
-            //    {
-            //        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            //    };
-
-            //    HttpClient client = new HttpClient(handler);
-            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-            //    string _ContentType = "application/json";
-            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
-            //    var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
-            //    client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
-            //    var _UserAgent = "CStat HttpClient";
-            //    client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
-            //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
-            //    pageContents = await client.GetStringAsync(url);
-            //}
-            //catch (Exception ex)
-            //{
-            //    return new JsonResult("");
-            //}
-
             var lhost = host.ToLower().Trim();
             double price = 0;
 
@@ -378,9 +354,21 @@ namespace CStat
                 string[] urlParts = url.Split("/");
                 string tcinKey = urlParts[urlParts.Length - 1].Substring(2);
                 //"https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=ff457966e64d5e877fdbad070f276d18ecec4a01&tcin=13276131&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
-                string bURLStr = "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=" + apiKey + "&tcin=" + tcinKey + "&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
+                string bUrl = "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=" + apiKey + "&tcin=" + tcinKey + "&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
 
-                //"current_retail":  end ,
+                var subPageStr = ItemSale.GetPageContent(bUrl).Result;
+                var priceIdx = subPageStr.IndexOf("\"current_retail\":");
+                if (priceIdx != -1)
+                {
+                    var priceStr = subPageStr.Substring(priceIdx + 17, 15);
+                    var endIdx = priceStr.IndexOf(",");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
             }
 
             return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : "");

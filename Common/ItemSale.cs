@@ -45,8 +45,8 @@ namespace CStat.Common
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
                 string _ContentType = "application/json";
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
-                var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
-                client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
+                //var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
+                //client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
                 var _UserAgent = "CStat HttpClient";
                 client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");

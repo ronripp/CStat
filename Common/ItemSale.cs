@@ -19,6 +19,7 @@ namespace CStat.Common
             {"monogram", "US Foods"},
             {"homedepot", "Home Depot"},
             {"webstaurantstore", "WebstaurantStore"},
+            {"filtersfast", "FiltersFast.com"},
 
         };
 
@@ -43,12 +44,18 @@ namespace CStat.Common
 
                 HttpClient client = new HttpClient(handler);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+
+                //string _ContentType = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
                 string _ContentType = "application/json";
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(_ContentType));
+
                 //var _CredentialBase64 = "RWRnYXJTY2huaXR0ZW5maXR0aWNoOlJvY2taeno=";
                 //client.DefaultRequestHeaders.Add("Authorization", String.Format("Basic {0}", _CredentialBase64));
-                var _UserAgent = "CStat HttpClient";
+
+                //RJRvar _UserAgent = "CStat HttpClient";
+                var _UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36";
                 client.DefaultRequestHeaders.Add("User-Agent", _UserAgent);
+
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
                 return await client.GetStringAsync(url);
             }

@@ -93,26 +93,32 @@
             });
 
             document.getElementById('DelLink1').addEventListener('click', (e) => {
-                let linkObj = $("#Link1Div");
-                let urlObj = $("#Url1Div");
-                linkObj.hide();
-                urlObj.show();
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link1Div");
+                    let urlObj = $("#Url1Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
                 e.preventDefault();
             });
 
             document.getElementById('DelLink2').addEventListener('click', (e) => {
-                let linkObj = $("#Link2Div");
-                let urlObj = $("#Url2Div");
-                linkObj.hide();
-                urlObj.show();
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link2Div");
+                    let urlObj = $("#Url2Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
                 e.preventDefault();
             });
 
             document.getElementById('DelLink3').addEventListener('click', (e) => {
-                let linkObj = $("#Link3Div");
-                let urlObj = $("#Url3Div");
-                linkObj.hide();
-                urlObj.show();
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link3Div");
+                    let urlObj = $("#Url3Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
                 e.preventDefault();
             });
 
@@ -125,8 +131,8 @@
                 if (hostStr.indexOf('$') != -1) {
                     return; // Already has a price
                 }
-                var link = $anc.attr('href');
-
+                var link = encodeURIComponent($anc.attr('href'));
+ 
                 var parameters = "{'id':'" + id + "','host':'" + hostStr + "','link':'" + link + "'}";
                 $.ajax({
                     url: "/Inventory/Edit?handler=UrlPrice",
@@ -143,7 +149,7 @@
                                 }
                                 var robjStr = $robj.html();
                                 if (robjStr.indexOf('$') == -1) {
-                                    $robj.html(hostStr + resFields[1]);
+                                    $robj.html(hostStr + "<b>" + resFields[1] + "</b>");
                                 }
                             }
                         }

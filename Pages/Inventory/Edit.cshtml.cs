@@ -238,8 +238,8 @@ namespace CStat
                     return false;
             }
 
-            buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\"><b>" +
-                ((Trans.Memo.Length > 1) ? "Buy from " + ItemSale.ResolveVendor(Trans.Memo) : "Store #" + buyIdx) + "</b></a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
+            buyAnchor = "<a href=\"" + Trans.Link + "\" id=\"Anc" + buyIdx + "\" BuyId=\"" + Trans.Id + "\">" +
+                ((Trans.Memo.Length > 1) ? "Buy from " + ItemSale.ResolveVendor(Trans.Memo) : "Store #" + buyIdx) + "</a><button style=\"margin-left:6px\" id=\"DelLink" + buyIdx + "\">x</button>";
             return true;
         }
 
@@ -340,6 +340,36 @@ namespace CStat
                     }
                 }
             }
+            else  if (lhost.Contains(" lowes") || (lhost == "lowes"))
+            {
+                var priceIdx = pageContents.IndexOf(",\"price\":");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 9, 15);
+                    var endIdx = priceStr.IndexOf(",");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+            else if (lhost.Contains(" filtersfast.com") || (lhost == "filtersfast.com"))
+            {
+                var priceIdx = pageContents.IndexOf("value:");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 6, 15);
+                    var endIdx = priceStr.IndexOf(",");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
             else if (lhost.Contains(" target") || (lhost == "target"))
             {
                 string apiKey;
@@ -352,7 +382,10 @@ namespace CStat
                 }
 
                 string[] urlParts = url.Split("/");
-                string tcinKey = urlParts[urlParts.Length - 1].Substring(2);
+                string tcinKey = urlParts[(urlParts.Length < 7) ? (urlParts.Length - 1) : 6].Substring(2);
+                var attrIdx = tcinKey.IndexOf("#");
+                if (attrIdx != -1)
+                    tcinKey = tcinKey.Substring(0, attrIdx);
                 //"https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=ff457966e64d5e877fdbad070f276d18ecec4a01&tcin=13276131&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
                 string bUrl = "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=" + apiKey + "&tcin=" + tcinKey + "&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
 

@@ -256,6 +256,9 @@ namespace CStat
 
             var pageContents = ItemSale.GetPageContent(url).Result;
 
+            if (pageContents.Length < 50)
+                return new JsonResult("");
+
             var lhost = host.ToLower().Trim();
             double price = 0;
 
@@ -370,6 +373,22 @@ namespace CStat
                     }
                 }
             }
+            else if (lhost.Contains(" costco") || (lhost == "costco"))
+            {
+                var priceIdx = pageContents.IndexOf("\"product:price:amount\" content=\"");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 32, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+
             else if (lhost.Contains(" target") || (lhost == "target"))
             {
                 string apiKey;

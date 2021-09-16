@@ -86,6 +86,10 @@ namespace CStat.Common
                 client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
 
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
                 return await client.GetStringAsync(url);
             }
             catch (Exception ex)

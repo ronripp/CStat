@@ -297,6 +297,21 @@ namespace CStat
                             price = 0;
                     }
                 }
+                else
+                {
+                    priceIdx = pageContents.IndexOf("\"price\":");
+                    if (priceIdx != -1)
+                    {
+                        var priceStr = pageContents.Substring(priceIdx + 8, 15);
+                        var endIdx = priceStr.IndexOf(",");
+                        if (endIdx != -1)
+                        {
+                            priceStr = priceStr.Substring(0, endIdx);
+                            if (!double.TryParse(priceStr, out price))
+                                price = 0;
+                        }
+                    }
+                }
             }
             else if (lhost.Contains(" bj's") || (lhost == "bj's"))
             {
@@ -373,6 +388,7 @@ namespace CStat
                     }
                 }
             }
+            // Costco
             else if (lhost.Contains(" costco") || (lhost == "costco"))
             {
                 var priceIdx = pageContents.IndexOf("\"product:price:amount\" content=\"");

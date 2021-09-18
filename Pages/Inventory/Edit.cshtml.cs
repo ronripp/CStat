@@ -256,6 +256,9 @@ namespace CStat
 
             var pageContents = ItemSale.GetPageContent(url).Result;
 
+            if (pageContents.StartsWith("~ERR!"))
+                return new JsonResult(pageContents);
+
             if (pageContents.Length < 50)
                 return new JsonResult("");
 
@@ -267,7 +270,7 @@ namespace CStat
             //************************
             if (lhost.Contains(" amazon") || (lhost == "amazon"))
             {
-                var priceIdx = pageContents.IndexOf("id=\"attach-base-product-price\" value=");
+                var priceIdx = pageContents.IndexOf("id=\"attach-base-product-price\" value=\"");
                 if (priceIdx != -1)
                 {
                     var priceStr = pageContents.Substring(priceIdx + 38, 15);
@@ -277,6 +280,22 @@ namespace CStat
                         priceStr = priceStr.Substring(0, endIdx);
                         if (!double.TryParse(priceStr, out price))
                             price = 0;
+                    }
+                }
+                else
+                {
+                    // "priceAmount":10.94,
+                    priceIdx = pageContents.IndexOf("\"priceAmount\":");
+                    if (priceIdx != -1)
+                    {
+                        var priceStr = pageContents.Substring(priceIdx + 14, 15);
+                        var endIdx = priceStr.IndexOf(",");
+                        if (endIdx != -1)
+                        {
+                            priceStr = priceStr.Substring(0, endIdx);
+                            if (!double.TryParse(priceStr, out price))
+                                price = 0;
+                        }
                     }
                 }
             }
@@ -439,7 +458,7 @@ namespace CStat
                 }
             }
 
-            return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : "");
+            return new JsonResult((price != 0) ? (idStr + "; $" + price.ToString("#.00", CultureInfo.InvariantCulture)) : pageContents.Length.ToString());
         }
 
         private object GetEncoding(string v)

@@ -254,15 +254,13 @@ namespace CStat
             if (!setParam.TryGetValue("id", out string idStr) || !setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
                 return new JsonResult("");
 
-            var pageContents = ItemSale.GetPageContent(url).Result;
+            var lhost = host.ToLower().Trim();
 
-            if (pageContents.StartsWith("~ERR!"))
-                return new JsonResult(pageContents);
+            var pageContents = ItemSale.GetPageContent(url).Result;
 
             if (pageContents.Length < 50)
                 return new JsonResult("");
 
-            var lhost = host.ToLower().Trim();
             double price = 0;
 
             //************************
@@ -302,7 +300,7 @@ namespace CStat
             //*********************
             // WALMART
             //*********************
-            else if (lhost.Contains(" walmart") || (lhost == "walmart"))
+            else if (ItemSale.IsVendor(lhost, "walmart"))
             {
                 var priceIdx = pageContents.IndexOf("<span class=\"price-characteristic\" itemprop=\"price\" content=\"");
                 if (priceIdx != -1)
@@ -332,7 +330,7 @@ namespace CStat
                     }
                 }
             }
-            else if (lhost.Contains(" bj's") || (lhost == "bj's"))
+            else if (ItemSale.IsVendor(lhost, "bj's"))
             {
                 var priceIdx = pageContents.IndexOf(";offerPrice&q;:");
                 if (priceIdx != -1)
@@ -347,7 +345,7 @@ namespace CStat
                     }
                 }
             }
-            else if (lhost.Contains(" home depot") || (lhost == "home depot"))
+            else if (ItemSale.IsVendor(lhost, "home depot"))
             {
                 var priceIdx = pageContents.IndexOf("\"priceCurrency\":\"USD\",\"price\":");
                 if (priceIdx != -1)
@@ -362,7 +360,7 @@ namespace CStat
                     }
                 }
             }
-            else if (lhost.Contains(" webstaurantstore") || (lhost == "webstaurantstore"))
+            else if (ItemSale.IsVendor(lhost, "webstaurantstore"))
             {
                 var priceIdx = pageContents.IndexOf("<meta property=\"og:price:amount\" content=\"");
                 if (priceIdx != -1)
@@ -377,7 +375,7 @@ namespace CStat
                     }
                 }
             }
-            else  if (lhost.Contains(" lowes") || (lhost == "lowes"))
+            else  if (ItemSale.IsVendor(lhost, "lowes"))
             {
                 var priceIdx = pageContents.IndexOf(",\"price\":");
                 if (priceIdx != -1)
@@ -392,7 +390,7 @@ namespace CStat
                     }
                 }
             }
-            else if (lhost.Contains(" filtersfast.com") || (lhost == "filtersfast.com"))
+            else if (ItemSale.IsVendor(lhost, "filtersfast.com"))
             {
                 var priceIdx = pageContents.IndexOf("value:");
                 if (priceIdx != -1)
@@ -408,7 +406,7 @@ namespace CStat
                 }
             }
             // Costco
-            else if (lhost.Contains(" costco") || (lhost == "costco"))
+            else if (ItemSale.IsVendor(lhost, "costco"))
             {
                 var priceIdx = pageContents.IndexOf("\"product:price:amount\" content=\"");
                 if (priceIdx != -1)
@@ -424,7 +422,7 @@ namespace CStat
                 }
             }
 
-            else if (lhost.Contains(" target") || (lhost == "target"))
+            else if (ItemSale.IsVendor(lhost, "target"))
             {
                 string apiKey;
                 var apiKeyIdx = pageContents.IndexOf("\"apiKey\":\"");
@@ -437,9 +435,16 @@ namespace CStat
 
                 string[] urlParts = url.Split("/");
                 string tcinKey = urlParts[(urlParts.Length < 7) ? (urlParts.Length - 1) : 6].Substring(2);
-                var attrIdx = tcinKey.IndexOf("#");
-                if (attrIdx != -1)
+                var attrIdxP = tcinKey.IndexOf("#");
+                if (attrIdxP == -1) attrIdxP = 1000;
+                var attrIdxQ = tcinKey.IndexOf("?");
+                if (attrIdxQ == -1) attrIdxQ = 1000;
+                var attrIdx = Math.Min(attrIdxP, attrIdxQ);
+                if ((attrIdx != -1) && (attrIdx <= 15))
                     tcinKey = tcinKey.Substring(0, attrIdx);
+                else
+                    tcinKey = tcinKey.Substring(0, 8);
+
                 //"https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=ff457966e64d5e877fdbad070f276d18ecec4a01&tcin=13276131&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
                 string bUrl = "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1?key=" + apiKey + "&tcin=" + tcinKey + "&store_id=1528&pricing_store_id=1528&has_financing_options=true&visitor_id=017BA97BC6FA02019E64C97AB60EA049&has_size_context=true&latitude=41.540&longitude=-73.430&state=CT&zip=06776";
 

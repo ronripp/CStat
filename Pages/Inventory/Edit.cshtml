@@ -24,6 +24,10 @@
 
     <script type="text/javascript">
 
+        function encodeQuotes(str) {
+            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+        }
+
         function changeUnits(selObj) {
             var selIdx = selObj.value;
             if (selIdx != -1) {
@@ -133,7 +137,7 @@
                 }
                 var link = encodeURIComponent($anc.attr('href'));
  
-                var parameters = "{'id':'" + id + "','host':'" + hostStr + "','link':'" + link + "'}";
+                var parameters = "{'id':'" + id + "','host':'" + encodeQuotes(hostStr) + "','link':'" + link + "'}";
                 $.ajax({
                     url: "/Inventory/Edit?handler=UrlPrice",
                     contentType: "application/json",

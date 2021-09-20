@@ -254,7 +254,7 @@ namespace CStat
             if (!setParam.TryGetValue("id", out string idStr) || !setParam.TryGetValue("link", out string url) || !setParam.TryGetValue("host", out string host))
                 return new JsonResult("");
 
-            var lhost = host.ToLower().Trim();
+            var lhost = CCommon.UnencodeQuotes(host).ToLower().Trim();
 
             var pageContents = ItemSale.GetPageContent(url).Result;
 

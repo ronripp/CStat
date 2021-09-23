@@ -15,11 +15,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Text;
+//using System.Net;
+//using System.Net.Http;
+//using System.Net.Http.Headers;
+//using System.Net.Sockets;
+//using System.Text;
 using System.Threading.Tasks;
 
 namespace CStat
@@ -421,7 +421,37 @@ namespace CStat
                     }
                 }
             }
-
+            // USRS
+            else if (ItemSale.IsVendor(lhost, "USRS"))
+            {
+                var priceIdx = pageContents.IndexOf("\"Offer\",\"price\":\"");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 17, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
+            else if (ItemSale.IsVendor(lhost, "Salamone Supplies"))
+            {
+                var priceIdx = pageContents.IndexOf("\"price\":\"");
+                if (priceIdx != -1)
+                {
+                    var priceStr = pageContents.Substring(priceIdx + 9, 15);
+                    var endIdx = priceStr.IndexOf("\"");
+                    if (endIdx != -1)
+                    {
+                        priceStr = priceStr.Substring(0, endIdx);
+                        if (!double.TryParse(priceStr, out price))
+                            price = 0;
+                    }
+                }
+            }
             else if (ItemSale.IsVendor(lhost, "target"))
             {
                 string apiKey;

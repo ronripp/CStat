@@ -21,12 +21,15 @@ namespace CStat.Common
             {"homedepot", "Home Depot"},
             {"webstaurantstore", "WebstaurantStore"},
             {"filtersfast", "FiltersFast.com"},
-            {"costco", "Costco"}
+            {"costco", "Costco"},
+            {"usrestaurantsupplies", "USRS" },
+            {"salamonesupplies", "Salamone Supplies" }
         };
 
         public static bool IsVendor(string lhost, string vendor)
         {
-            return lhost.Contains(" " + vendor) || (lhost == vendor);
+            string lvendor = vendor.ToLower();
+            return lhost.Contains(" " + lvendor) || (lhost == lvendor);
         }
         public static string ResolveVendor (string host)
         {

@@ -91,9 +91,11 @@
                     ($("#EditItem_Size").val() <= 0)) {
                     e.preventDefault();
                     $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                    $("#GenErrorId2").removeClass("ErrorOff").addClass("ErrorOn");
                     return;
                 }
                 $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
+                $("#GenErrorId2").removeClass("ErrorOn").addClass("ErrorOff");
             });
 
             document.getElementById('DelLink1').addEventListener('click', (e) => {
@@ -317,11 +319,11 @@
                 <span asp-validation-for="EditItem.Upc" class="text-danger"></span>
                 @{if (UPCError.Length > 0)
                     {
-                    <div style="color:red">@UPCError</div>
+                        <div style="color:red">@UPCError</div>
                     }
                     else
                     {
-                    <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
+                        <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
                     }
                 }
             </div>
@@ -372,8 +374,8 @@
             <div class="col-sm-9 SValue">
                 @{
                     IList<SelectListItem> list = Enum.GetValues(typeof(InventoryItem.ItemUnits)).Cast<InventoryItem.ItemUnits>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-                   SelectList data = new SelectList(list, "Value", "Text");
-                   var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
+                    SelectList data = new SelectList(list, "Value", "Text");
+                    var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
                 }
                 <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
                 <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
@@ -404,9 +406,9 @@
             <label asp-for="InventoryItem.Zone" class="control-label col-sm-3 ILabel">Storage Loc.</label>
             <div class="col-sm-9 SValue">
                 @{
-                   Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                   IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
-                   SelectList zdata = new SelectList(zlist, "Value", "Text");
+                    Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
+                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+                    SelectList zdata = new SelectList(zlist, "Value", "Text");
                 }
                 <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>
                 <span asp-validation-for="InventoryItem.Zone" class="text-danger"></span>
@@ -469,6 +471,15 @@
         @Html.HiddenFor(model => model.EditItem.Status)
         @Html.HiddenFor(model => model.EditItem.Id)
 
+        @{ if (ItemErrors.Length > 0)
+            {
+                <div style="color:red">@ItemErrors</div>
+            }
+            else
+            {
+                <div class="ErrorOff" id="GenErrorId2">* UPC, Units and Units per Item are needed to be set & valid first.</div>
+            }
+        }
 
         <div class="form-group" style="text-align:center">
             <span class="col-md-8">

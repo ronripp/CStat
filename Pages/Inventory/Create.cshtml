@@ -85,10 +85,96 @@
                     ($("#CreateItem_Size").val() <= 0)) {
                     e.preventDefault();
                     $("#GenErrorId").removeClass("ErrorOff").addClass("ErrorOn");
+                    $("#GenErrorId2").removeClass("ErrorOff").addClass("ErrorOn");
                     return;
                 }
                 $("#GenErrorId").removeClass("ErrorOn").addClass("ErrorOff");
+                $("#GenErrorId2").removeClass("ErrorOn").addClass("ErrorOff");
             });
+
+            document.getElementById('DelLink1').addEventListener('click', (e) => {
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link1Div");
+                    let urlObj = $("#Url1Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
+                e.preventDefault();
+            });
+
+            document.getElementById('DelLink2').addEventListener('click', (e) => {
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link2Div");
+                    let urlObj = $("#Url2Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
+                e.preventDefault();
+            });
+
+            document.getElementById('DelLink3').addEventListener('click', (e) => {
+                if (confirm('Are you sure you want to Delete Buy Link?')) {
+                    let linkObj = $("#Link3Div");
+                    let urlObj = $("#Url3Div");
+                    linkObj.hide();
+                    urlObj.show();
+                }
+                e.preventDefault();
+            });
+
+            function GetPrice(id) {
+                let $anc = $("#" + id);
+                if (!$anc || ($anc.length === 0)) {
+                    return;
+                }
+                let hostStr = $anc.html();
+                if (hostStr.indexOf('$') != -1) {
+                    return; // Already has a price
+                }
+                var link = encodeURIComponent($anc.attr('href'));
+
+                var parameters = "{'id':'" + id + "','host':'" + encodeQuotes(hostStr) + "','link':'" + link + "'}";
+                $.ajax({
+                    url: "/Inventory/Create?handler=UrlPrice",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf(" $") !== -1) {
+                            resFields = response.split(';')
+                            if (resFields.length === 2) {
+                                var $robj = $("#" + resFields[0].trim());
+                                if (!$robj || ($robj.length === 0)) {
+                                    return;
+                                }
+                                var robjStr = $robj.html();
+                                if (robjStr.indexOf('$') == -1) {
+                                    $robj.html(hostStr + "<b>" + resFields[1] + "</b>");
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            $('#InvItemForm').submit(function () {
+                let url1Obj = $("#buy1");
+                if (!!url1Obj && (url1Obj.length !== 0) && url1Obj.is(":visible") && (url1Obj.val().trim().length == 0)) {
+                    url1Obj.val("_.");
+                }
+                let url2Obj = $("#buy2");
+                if (!!url2Obj && (url2Obj.length !== 0) && url2Obj.is(":visible") && (url2Obj.val().trim().length == 0)) {
+                    url2Obj.val("_.");
+                }
+                let url3Obj = $("#buy3");
+                if (!!url3Obj && (url3Obj.length !== 0) && url3Obj.is(":visible") && (url3Obj.val().trim().length == 0)) {
+                    url3Obj.val("_.");
+                }
+            });
+
+            GetPrice("Anc1");
+            GetPrice("Anc2");
+            GetPrice("Anc3");
         });
 
     </script>
@@ -197,6 +283,28 @@
                     }
                 </div>
             </div>
+            <div class="form-group ediv row">
+                <div id="Url1Div" style="padding-left:4px;" class="row">
+                    <label class="control-label col-sm-3 ILabel style=" text for="buy1">Set #1 Buy URL:</label>
+                    <div class="col-sm-9 BValue">
+                        <input type="text" asp-for="Buy1URL" id="buy1" size="60" />
+                    </div>
+                </div>
+
+                <div id="Url2Div" style="padding-left:4px;" class="row">
+                    <label class="control-label col-sm-3 ILabel style=" text for="buy2">Set #2 Buy URL:</label>
+                    <div class="col-sm-9 BValue">
+                        <input type="text" asp-for="Buy2URL" id="buy2" size="60" />
+                    </div>
+                </div>
+                <div id="Url3Div" style="padding-left:4px;" class="row">
+                    <label class="control-label col-sm-3 ILabel style=" text for="buy3">Set #3 Buy URL:</label>
+                    <div class="col-sm-9 BValue">
+                        <input type="text" asp-for="Buy3URL" id="buy3" size="60" />
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group ediv">
                 <label asp-for="InventoryItem.Units" class="control-label col-sm-2 ILabel">Units:</label>
                 <div class="col-sm-10 SValue">
@@ -244,10 +352,10 @@
             </div>
 
             @*InventoryItem
-                //ReorderThreshold
-                //Units
-                //UnitsPerDay
-                //Zone*@
+        //ReorderThreshold
+        //Units
+        //UnitsPerDay
+        //Zone*@
             @Html.HiddenFor(model => model.InventoryItem.ItemId)
             @Html.HiddenFor(model => model.InventoryItem.InventoryId)
             @Html.HiddenFor(model => model.InventoryItem.Id)
@@ -260,14 +368,23 @@
             @Html.HiddenFor(model => model.InventoryItem.Date)
 
             @*Item
-                //Name
-                //Upc
-                //Size*@
+        //Name
+        //Upc
+        //Size*@
             @Html.HiddenFor(model => model.CreateItem.MfgId)
             @Html.HiddenFor(model => model.CreateItem.Units)
             @Html.HiddenFor(model => model.CreateItem.Status)
             @Html.HiddenFor(model => model.CreateItem.Id)
 
+            @{ if (ItemErrors.Length > 0)
+                {
+                    <div style="color:red">@ItemErrors</div>
+                }
+                else
+                {
+                    <div class="ErrorOff" id="GenErrorId2">* UPC, Units and Units per Item are needed to be set & valid first.</div>
+                }
+            }
             <div class="form-group" style="text-align:center">
                 <span class="col-md-10">
                     <input type="submit" value="Save" id="SubmitId2" class="btn btn-primary" />

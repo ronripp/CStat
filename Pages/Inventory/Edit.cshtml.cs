@@ -295,6 +295,29 @@ namespace CStat
                                 price = 0;
                         }
                     }
+                    else
+                    {
+                        priceIdx = pageContents.IndexOf("id=\"price_inside_buybox\"");
+                        if (priceIdx != -1)
+                        {
+                            //<span id="price_inside_buybox" class="a-size-medium a-color-price">
+                            //$64.31
+                            //</span>
+                            var priceStr = pageContents.Substring(priceIdx + 24, 100);
+                            var dollIdx = priceStr.IndexOf("$");
+                            if (dollIdx != -1)
+                            {
+                                var dollStr = priceStr.Substring(dollIdx+1, 50);
+                                var endDel = dollStr.IndexOf("<");
+                                if (endDel != -1)
+                                {
+                                    priceStr = dollStr.Substring(0, endDel).Trim();
+                                    if (!double.TryParse(priceStr, out price))
+                                        price = 0;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             //*********************

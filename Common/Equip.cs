@@ -614,7 +614,12 @@ namespace CStat.Common
                             }
                         }
                         DateTime baseDT = new DateTime(2020, 1, 1, 0, 0, 0, 0);
-                        return plList.OrderByDescending(p => p.ReadingTime.Subtract(baseDT).TotalSeconds).ToList();
+                        var ordPList = plList.OrderByDescending(p => p.ReadingTime.Subtract(baseDT).TotalSeconds).ToList();
+                        var len = ordPList.Count;
+                        var _pl = GetTUTank(); // get latest
+                        if ((_pl != null) && (len > 0) && (ordPList[0].ReadingTime < _pl.ReadingTime))
+                            ordPList.Insert(0, _pl); // Add latest to the front of the list
+                        return ordPList;
                     }
                 }
                 catch

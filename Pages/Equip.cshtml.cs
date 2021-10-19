@@ -80,7 +80,7 @@ namespace CStat.Pages
                         else
                         {
                             propaneHist.Add(_pl); // set latest
-                            if (plCount >= ArdMgr.MAX_USE_ARS)
+                            if (plCount >= PropaneMgr.MAX_USE_PLS)
                                 propaneHist.RemoveAt(0);
                         }
                     }

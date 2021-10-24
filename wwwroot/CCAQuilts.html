@@ -13,10 +13,21 @@
         .img-responsive {
             max-width: 100%;
             max-height: calc(100vh - 120px);
+            width: auto;
+            object-fit: contain;
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         .carousel-control.left, .carousel-control.right {
             background-image: none;
+        }
+
+        .carousel-item img {
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
 
         /*        .carousel {
@@ -43,7 +54,7 @@
     </style>
 
 </head>
-<body>
+<body style="background-color:black; color:goldenrod">
 
     <!--<div class="panel">
         <img class="img-responsive" src="\items\ItmImg_78787878.jpg" alt="">
@@ -51,7 +62,7 @@
     </div>-->
 
     <div class="container">
-        <h2>CCA Children's Camp Quilts</h2>
+        <h3>CCA Children's Camp Quilts</h3>
         <div id="myCarousel" class="carousel slide" data-ride="carousel">
      Indicators
     <ol class="carousel-indicators">
@@ -59,7 +70,7 @@
         <li data-target="#myCarousel" data-slide-to="1"></li>
         <li data-target="#myCarousel" data-slide-to="2"></li>
     </ol>
-     Wrapper for slides
+    <span id="PicTitle">Picture title.</span> 
     <div class="carousel-inner">
         <div class="item active">
             <img src="\items\ItmImg_78787878.jpg" alt="Los Angeles" class="img-responsive">
@@ -73,7 +84,6 @@
             <img src="\items\ItmImg_12131415382.jpg" alt="New york"  class="img-responsive">
         </div>
     </div>
-     Left and right controls
     <a class="left carousel-control" href="#myCarousel" data-slide="prev">
                 <span class="glyphicon glyphicon-chevron-left"></span>
                 <span class="sr-only">Previous</span>

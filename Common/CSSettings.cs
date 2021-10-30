@@ -427,8 +427,28 @@ namespace CStat.Common
                 };
             }
         }
+        public bool GetPropaneProperties (out double tankGals, out double pricePerGal)
+        {
+            tankGals = pricePerGal = 0;
+            var PEquip = this.ActiveEquip.Where(e => e.IsPropane()).ToList();
+            if (PEquip.Count > 0)
+            {
+                var Props = PEquip[0].GetProps();
+                if ((Props != null) && Props.Count >= 2)
+                {
+                    KeyValuePair<string, double> kvp = Props.Find(k => k.Key.Contains("Tank"));
+                    if (!kvp.Equals(new KeyValuePair<string, double>()))
+                        tankGals = kvp.Value;
+                    kvp = Props.Find(k => k.Key.Contains("Price"));
+                    if (!kvp.Equals(new KeyValuePair<string, double>()))
+                        pricePerGal = kvp.Value;
+                }
+                return (tankGals != 0) && (pricePerGal != 0);
+            }
+            return false;
+        }
 
-        public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
+public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
         {
             return await userManager.Users.ToListAsync();
         }

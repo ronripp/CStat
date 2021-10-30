@@ -20,7 +20,7 @@ namespace CStat.Common
     {
         Task DoWork(CancellationToken stoppingToken);
     }
-        internal class CSProcService : IScopedProcessingService
+    internal class CSProcService : IScopedProcessingService
     {
         private readonly ILogger _logger;
         private readonly CStat.Models.CStatContext _context;
@@ -94,6 +94,36 @@ namespace CStat.Common
                     PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
                     pmgr.CheckValue(pmgr.GetTUTank(true)); // get value, log to file and check
 
+                    // Check for any unexpected propane usage (not potentially impacted from events) from recent daily usage
+                    var plList = pmgr.GetAll(3);
+                    var plCnt = plList.Count;
+                    if (plCnt > 1)
+                    {
+                        for (int i = 0; i < plCnt-1; ++i)
+                        {
+                            var plStart = plList[i];
+                            var plEnd = plList[i+1];
+                            var dateRange = new DateRange(plStart.ReadingTime, plEnd.ReadingTime);
+                             
+                            var evList = ag.GetImpactingEvents(dateRange);
+                            if (evList.Count == 0) // no impacting events
+                            {
+                                var totalHrs = dateRange.TotalHours();
+                                if ((totalHrs > 0) && _csSettings.GetPropaneProperties(out double tankGals, out double pricePerGal))
+                                {
+                                    var totalGals = ((plStart.LevelPct - plEnd.LevelPct) / 100) * tankGals;
+                                    if ((totalGals / totalHrs) > ((double)2 / 24)) // averaging more than 2 gals/day?
+                                    {
+                                        // Send alert
+                                        CSSMS sms = new CSSMS(_hostEnv, _configuration, _userManager);
+                                        sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + "Non Event Propane Usage was " + totalGals.ToString("0.##") + " gals. during " + totalHrs.ToString("0.#") + " hours starting " +
+                                            plStart.ReadingTime.Month + "/" + plStart.ReadingTime.Day + "/" + plStart.ReadingTime.Year % 100);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Check/Truncate Size of Arduino file
                     ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                     amgr.GetAll(true);
@@ -110,5 +140,4 @@ namespace CStat.Common
             }
         }
     }
-
 }

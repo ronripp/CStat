@@ -493,7 +493,7 @@ namespace CStat.Common
             return null;
         }
 
-        public List<PropaneLevel> GetAll()
+        public List<PropaneLevel> GetAll(int maxUsePls= MAX_USE_PLS)
         {
             List<PropaneLevel> plList = new List<PropaneLevel>();
             List<string> rLineList = new List<string>();
@@ -515,7 +515,7 @@ namespace CStat.Common
 
                         lineList = rLineList.Distinct().ToList();
                         lineCount = lineList.Count;
-                        startIndex = lineList.Count > MAX_USE_PLS ? lineCount - MAX_USE_PLS : 0;
+                        startIndex = lineList.Count > maxUsePls ? lineCount - maxUsePls : 0;
 
                         for (int i = startIndex; i < lineCount; ++i)
                         {

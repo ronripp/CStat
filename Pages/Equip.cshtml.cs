@@ -50,7 +50,7 @@ namespace CStat.Pages
                 List<ArdRecord> ardHist = _ardMgr.GetAll();
                 if (ardHist == null)
                     ardHist = new List<ArdRecord>();
-                List<PropaneLevel> propaneHist = pmgr.GetAll();
+                List<PropaneLevel> propaneHist = pmgr.GetAll(30);
                 if (propaneHist == null)
                     propaneHist = new List<PropaneLevel>();
 

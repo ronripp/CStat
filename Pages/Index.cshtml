@@ -27,6 +27,7 @@
 
                 let hdrDiv = document.querySelector(".header");
                 let refBtn = document.querySelector(".refBtn");
+                let setBtn = document.querySelector(".setBtn");
                 let btnSVG = document.querySelector("#btnSVG");
                 hdrDiv.style.fontSize = "4vw";
 
@@ -37,10 +38,24 @@
                 let cellH = Math.round((totH - (1.6 * hdrH)) / 2);
                 let lineH = Math.round(cellH - (totW * .12));
 
-                refBtn.style.width = .8 * hdrH + "px";
-                refBtn.style.height = .8 * hdrH + "px";
-                btnSVG.style.width = .6 * hdrH + "px";
-                btnSVG.style.height = .6 * hdrH + "px";
+                //refBtn.style.width = .8 * hdrH + "px";
+                //refBtn.style.height = .8 * hdrH + "px";
+                //btnSVG.style.width = .6 * hdrH + "px";
+                //btnSVG.style.height = .6 * hdrH + "px";
+
+                if (totW < totH) {
+                    setBtn.style.minWidth = "1.3em";
+                    setBtn.style.minHeight = "1.3em";
+                    setBtn.style.maxWidth = "1.3em";
+                    setBtn.style.maxHeight = "1.3em";
+                }
+                else {
+                    setBtn.style.minWidth = "1em";
+                    setBtn.style.minHeight = "1em";
+                    setBtn.style.maxWidth = "1em";
+                    setBtn.style.maxHeight = "1em";
+                }
+
                 // let myCells = document.querySelectorAll('[style$="CBtn"]'); // TO DO : Make "Ends With" work for document.querySelectorAll('[style$="CBtn"]')
                 let myCells = [];
                 myCells.push(document.querySelectorAll(".TasksCBtn")[0]);
@@ -139,10 +154,10 @@
             }
 
             .setBtn {
-                min-width: 1.0em;
-                min-height: 1.0em;
-                max-width: 1.0em;
-                max-height: 1.0em;
+                min-width: 1em;
+                min-height: 1em;
+                max-width: 1em;
+                max-height: 1em;
             }
 
             a {

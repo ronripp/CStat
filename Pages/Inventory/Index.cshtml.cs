@@ -206,7 +206,7 @@ namespace CStat
                     var Item = _context.Item.FirstOrDefault(m => m.Id == invIS.invItemId); // TBD optimize with a single 
                     if (Item != null)
                     {
-                        Task.Run(() => NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + Item.Name));
+                        Task.Run(() => NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + Item.Name, false)); // no cleaning even async while user is active
                     }
                 }
 
@@ -220,10 +220,10 @@ namespace CStat
             return new JsonResult("ERROR~:Incorrect Parameters");
         }
 
-        public static void NotifyNeedAsync (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, string msg)
+        public static void NotifyNeedAsync (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, string msg, bool cleanLog)
         {
             var sms = new CStat.Common.CSSMS(hostEnv, config, userManager);
-            sms.NotifyUsers(CSSMS.NotifyType.StockNT, msg);
+            sms.NotifyUsers(CSSMS.NotifyType.StockNT, msg, true, cleanLog);
         }
 
         public JsonResult OnGetSetInvMode()

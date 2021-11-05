@@ -82,6 +82,12 @@ namespace CStat
             if (InventoryItem.UnitsPerDay.HasValue && (InventoryItem.UnitsPerDay.Value <= 0))
                 InventoryItem.UnitsPerDay = null;
 
+            if ((CreateItem.Name != null) && (CreateItem.Name.Length > 0))
+                CreateItem.Name.Trim();
+
+            if ((CreateItem.Upc != null) && (CreateItem.Upc.Length > 0))
+                CreateItem.Upc.Trim();
+
             if (ItemPhoto != null)
             {
                 if ((CreateItem.Upc == null) || (CreateItem.Upc.Trim().Length == 0))

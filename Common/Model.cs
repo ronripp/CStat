@@ -709,7 +709,7 @@ namespace CStat.Models
             foreach (var t in tasks)
             {
                 if ((t.Person != null) && !String.IsNullOrEmpty(t.Person.Email))
-                    sms.NotifyUser(t.Person.Email, CSSMS.NotifyType.TaskNT, "CStat: Task " + t.Id + "> " + t.Description + " is due " + t.DueDate.ToString(), forceClean);
+                    sms.NotifyUser(t.Person.Email, CSSMS.NotifyType.TaskNT, "CStat: Task " + t.Id + "> " + t.Description + " is due " + t.DueDate.ToString(), true, forceClean); // Allow Resend
             }
             return true;
         }

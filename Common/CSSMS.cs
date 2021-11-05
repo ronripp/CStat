@@ -22,19 +22,21 @@ namespace CStat.Common
         public CSResult()
         { 
         }
-        public CSResult(bool succeeded, string respStr, string refStr)
+        public CSResult(bool succeeded, string respStr, string refStr, string sendHash)
         {
-            Set(succeeded, respStr, refStr);
+            Set(succeeded, respStr, refStr, sendHash);
         }
 
         public bool Succeeded;
         public string RespStr;
         public string RefStr;
-        public void Set (bool succeeded, string respStr, string refStr)
+        public string SendHash;
+        public void Set (bool succeeded, string respStr, string refStr, string sendHash)
         {
             Succeeded = succeeded;
             RespStr = respStr;
             RefStr = refStr;
+            SendHash = sendHash;
         }
     }
 
@@ -57,52 +59,67 @@ namespace CStat.Common
                 Directory.CreateDirectory(LogPath);
         }
 
-        public bool NeededToSend(string SMSSentFile, string hashStr, bool cleanLog=false)
+        public bool NeededToSend(string SMSSentFile, string hashStr, bool allowResend, bool cleanLog)
         {
             if (!File.Exists(SMSSentFile))
                 return true;
             List<string> lines = new List<string>();
             bool IsNeeded = true;
             DateTime baseDT = new DateTime(2010, 1, 1);
-            double KeepSecs = PropMgr.ESTNow.AddHours(-25).Subtract(baseDT).TotalSeconds;
-            double NeedSecs = KeepSecs + 2.5*3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
+            DateTime now = PropMgr.ESTNow;
+            double DelaySecs = now.AddHours(-25).Subtract(baseDT).TotalSeconds + 2.5 * 3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
+            double ResendSecs = allowResend ? DelaySecs : -100;
+            double CleanSecs = now.AddDays(-14).Subtract(baseDT).TotalSeconds; // When cleaning, don't save a record of what we already sent 2 or more weeks ago
+            int linesRead = 0;
             using (StreamReader sr = new StreamReader(SMSSentFile))
             {
                 string line;
 
                 while ((line = sr.ReadLine()) != null)
                 {
+                    ++linesRead;
                     string[] fields = line.Split('~');
                     if ((fields.Length < 2) || (fields[0].Trim().Length == 0))
                         continue;
-                    var secs = PropMgr.ParseEST(fields[0]).Subtract(baseDT).TotalSeconds;
-                    if ((secs >= NeedSecs) && (IsSimilarHash(fields[1], hashStr)))
+                    var sentSecs = PropMgr.ParseEST(fields[0]).Subtract(baseDT).TotalSeconds;
+                    if ((sentSecs >= ResendSecs) && (IsSimilarHash(fields[1], hashStr)))
                     {
                         IsNeeded = false;
-                        if (!cleanLog)
+                        if (!cleanLog) // Not IsNeeded but keep looping to clean log file
                             return false;
                     }
 
-                    if (cleanLog && (secs >= KeepSecs))
+                    if (cleanLog && (sentSecs > CleanSecs))
                             lines.Add(line);
                 }
             }
             if (!cleanLog)
                 return true;
-
-            using (StreamWriter sw = new StreamWriter(SMSSentFile))
+            try
             {
-                foreach (var ln in lines)
+                if (linesRead > 0)
                 {
-                    sw.WriteLine(ln);
+                    using (StreamWriter sw = new StreamWriter(SMSSentFile))
+                    {
+                        foreach (var ln in lines)
+                        {
+                            sw.WriteLine(ln);
+                        }
+                    }
                 }
             }
+            catch
+            {
+                return true; // exception : assume needed.
+            }
             return IsNeeded;
-
         }
         private bool IsSimilarHash (string target, string hash)
         {
-            if (target.Contains("CStat.Equip") && hash.Contains("CStat.Equip"))
+            if (target == hash)
+                return true; // matches exactly
+
+            if (target.Contains("CStat:Equip") && hash.Contains("CStat:Equip"))
             {
                 // See if Equip messages are the same and values are 4 or less from each other.
                 String[] tparts = target.Split(" ");
@@ -126,13 +143,10 @@ namespace CStat.Common
                 }
                 return true;
             }
-            else
-            {
-                return target == hash; // Just see if message matches exactlty
-            }
+            return false;
         }
 
-        public CSResult NotifyUsers(NotifyType nt, string msg, bool cleanLog = false)
+        public CSResult NotifyUsers(NotifyType nt, string msg, bool allowResend, bool cleanLog)
         {
             var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
@@ -156,16 +170,16 @@ namespace CStat.Common
             int sentCount = 0;
             foreach (var u in nUsers)
             {
-                CSResult csRes = NotifyUser(u.Name, nt, msg, cleanLog);
+                CSResult csRes = NotifyUser(u.Name, nt, msg, allowResend, cleanLog);
                 if (csRes.Succeeded)
                     ++sentCount;
                 cleanLog = false;
             }
 
-            return new CSResult(sentCount == nUsers.Count, "NotifyUsers", msg);
+            return new CSResult(sentCount == nUsers.Count, "NotifyUsers", msg, "All Users");
         }
 
-        public CSResult NotifyUser(string username, NotifyType nt, string msg, bool cleanLog = false)
+        public CSResult NotifyUser(string username, NotifyType nt, string msg, bool allowResend, bool cleanLog)
         {
             var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
@@ -173,11 +187,11 @@ namespace CStat.Common
             if ((u == null) || (u.PhoneNum.Length < 7))
             {
                 var csRes = new CSResult();
-                csRes.Set(false, ((u == null) ? "No user found" : "No phone # found."), nt.ToString() + ">" + username);
+                csRes.Set(false, ((u == null) ? "No user found" : "No phone # found."), nt.ToString() + ">" + username, "");
                 return csRes;
             }
 
-            return SendMessage(u.PhoneNum, msg, cleanLog);
+            return SendMessage(u.PhoneNum, msg, allowResend, cleanLog);
         }
 
         private object GetUsersAsync(UserManager<CStatUser> userManager)
@@ -185,13 +199,13 @@ namespace CStat.Common
             throw new NotImplementedException();
         }
 
-        public CSResult SendMessage(string toPhone, string msg, bool cleanLog=false)
+        public CSResult SendMessage(string toPhone, string msg, bool allowResend, bool cleanLog)
         {
             string SMSSentFile = Path.Combine(LogPath, "SMSSent.log");
             string SendHash = toPhone + "[" + msg + "]";
-            if (!NeededToSend(SMSSentFile, SendHash, cleanLog))
+            if (!NeededToSend(SMSSentFile, SendHash, allowResend, cleanLog))
             {
-                return new CSResult(false, "Same message to same phone recently", SendHash);
+                return new CSResult(false, "Same message to same phone recently", toPhone, SendHash);
             }
 
             var accountSid = _config["Twilio:AccountSID"];
@@ -212,6 +226,7 @@ namespace CStat.Common
                 csRes.Succeeded = true;
                 csRes.RefStr = toPhone;
                 csRes.RespStr = "Successfully Sent";
+                csRes.SendHash = SendHash;
                 using (StreamWriter sw = new StreamWriter(SMSSentFile, true))
                 {
                     sw.WriteLine(PropMgr.ESTNowStr + "~" + SendHash);

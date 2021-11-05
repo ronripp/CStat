@@ -71,7 +71,7 @@ namespace CStat.Common
                                     _context.SaveChanges();
                                     _csSettings.LastStockUpdate = PropMgr.ESTNow;
                                     _csSettings.Save();
-                                    await Task.Run(() => IndexInvModel.NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + invIt.Item.Name));
+                                    await Task.Run(() => IndexInvModel.NotifyNeedAsync(_hostEnv, _configuration, _userManager, "CStat:Stock> Needed : " + invIt.Item.Name, true)); // potentially clean Message log
                                 }
                                 catch (DbUpdateConcurrencyException)
                                 {
@@ -88,7 +88,7 @@ namespace CStat.Common
                     ag.GenTasks(_hostEnv);
 
                     // Notify users Tasks Due
-                    CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true);
+                    CTask.NotifyUserTaskDue(_hostEnv, _configuration, _userManager, _context, 24, true); // Potentially clean log
 
                     // Persist Daily Reading and Notify if needed for Propane
                     PropaneMgr pmgr = new PropaneMgr(_hostEnv, _configuration, _userManager);
@@ -114,10 +114,10 @@ namespace CStat.Common
                                     var totalGals = ((plStart.LevelPct - plEnd.LevelPct) / 100) * tankGals;
                                     if ((totalGals / totalHrs) > ((double)2 / 24)) // averaging more than 2 gals/day?
                                     {
-                                        // Send alert
+                                        // Send a one time alert (allowResend = false)
                                         CSSMS sms = new CSSMS(_hostEnv, _configuration, _userManager);
                                         sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + "Non Event Propane Usage was " + totalGals.ToString("0.##") + " gals. during " + totalHrs.ToString("0.#") + " hours starting " +
-                                            plStart.ReadingTime.Month + "/" + plStart.ReadingTime.Day + "/" + plStart.ReadingTime.Year % 100);
+                                            plStart.ReadingTime.Month + "/" + plStart.ReadingTime.Day + "/" + plStart.ReadingTime.Year % 100, false, true); // potentially clean Message Log
                                     }
                                 }
                             }

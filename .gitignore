@@ -396,3 +396,5 @@ healthchecksdb
 /wwwroot/images/Refresh_16x.svg
 /wwwroot/images/drawing.svg
 /wwwroot/images/csrefresh.svg
+/Common/_CSSMS.cs
+/Controllers/_SMSController.cs

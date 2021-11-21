@@ -52,7 +52,6 @@
     <Compile Remove="Common\CCAService\ChurchMgr.cs" />
     <Compile Remove="Common\CCAService\FileUploadController.cs" />
     <Compile Remove="Common\CCAService\HomeController.cs" />
-    <Compile Remove="Controllers\SmsController.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -90,8 +89,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
-    <PackageReference Include="Twilio" Version="5.61.0" />
+    <PackageReference Include="Twilio" Version="5.68.1" />
+    <PackageReference Include="Twilio.AspNet.Core" Version="5.37.2" />
     <PackageReference Include="Twilio.AspNet.Mvc" Version="5.37.2" />
+    <PackageReference Include="TwilioSharpCore" Version="1.0.0" />
   </ItemGroup>
 
 

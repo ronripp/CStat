@@ -1,0 +1,57 @@
+﻿@page
+@model CStat.Pages.CUserModel
+
+    <header>
+
+        <style>
+
+/*            div::after {
+                content: "";
+                background: url("/images/CCABkg.jpg");
+                opacity: 0.5;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                z-index: -1;
+            }*/
+
+            .mainDiv {
+                min-width: 100%;
+                min-height: 100vh;
+                background-image: url("/images/CCABkg.jpg");
+                background-size: contain;
+                margin: 0;
+            }
+
+            .mainDiv button {
+                margin-left: 10px;
+                margin-bottom: 20px;
+                background-color:lightgoldenrodyellow;
+                font-weight:bold;
+                border-color:greenyellow;
+            }
+
+            table {
+                border: none;
+                min-height: 25vh;
+            }
+
+        </style>
+
+    </header>
+
+    @{
+        var index = User.Identity.Name.IndexOf("@");
+        var pageTitle = ((index != -1) ? User.Identity.Name.Substring(0, index) : User.Identity.Name) + "'s Page";
+        ViewData["Title"] = pageTitle;
+    }
+
+<div class="mainDiv">
+    <h1>@pageTitle</h1>
+    <table><tr><td> </td></tr></table>
+    <button>Add a Work Event for Today</button>
+    <button>Something Else 2</button>
+    <button>Something Else 3</button>
+</div>

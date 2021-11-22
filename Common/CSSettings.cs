@@ -11,6 +11,7 @@ using CStat.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using static CStat.Common.ArdMgr;
+using System.Text.RegularExpressions;
 
 namespace CStat.Common
 {
@@ -75,6 +76,18 @@ namespace CStat.Common
             initialize();
         }   
 
+        string GetDefAlias (string email)
+        {
+            string alias = "";
+            if (!String.IsNullOrEmpty(email))
+            {
+                var idx = email.IndexOf("@");
+                alias = (idx != -1) ? alias = email.Substring(0, idx) : email;
+                alias = Regex.Replace(alias, "[0-9]{2,}", "*");
+            }
+            return alias; 
+        }
+
         public void initialize ()
         {
             List<CStatUser> Users = GetUsersAsync(_userManager).Result;
@@ -86,8 +99,9 @@ namespace CStat.Common
             foreach (var c in ch)
             {
                 var user = new CSUser();
-                user.Name = c.GetValue<string>("Name");
-                int cIndex = Users.FindIndex(u => u.UserName == user.Name);
+                user.EMail = c.GetValue<string>("Name");
+                user.Alias = c.GetValue<string>("Alias", GetDefAlias(user.EMail));
+                int cIndex = Users.FindIndex(u => u.UserName == user.EMail);
                 if (cIndex != -1)
                 {
                     string PhoneNum = Users[cIndex].PhoneNumber;
@@ -110,7 +124,7 @@ namespace CStat.Common
             {
                 CSUser u1 = new CSUser
                 {
-                    Name = "ronripp@outlook.com",
+                    EMail = "ronripp@outlook.com",
                     ShowAllTasks = true,
                     SendEquipText = false,
                     SendStockText = false,
@@ -120,7 +134,7 @@ namespace CStat.Common
                 UserSettings.Add(u1);
                 CSUser u2 = new CSUser
                 {
-                    Name = "ellenripp@gmail.com",
+                    EMail = "ellenripp@gmail.com",
                     ShowAllTasks = false,
                     SendEquipText = false,
                     SendStockText = false,
@@ -276,7 +290,7 @@ namespace CStat.Common
 
             foreach(var u in UserSettings)
             {
-                if (u.Name == userName)
+                if (u.EMail == userName)
                     return u;
             }
             return null;
@@ -289,7 +303,7 @@ namespace CStat.Common
             int i = 0;
             for (i = 0; i < UserSettings.Count; ++i)
             {
-                if (UserSettings[i].Name == userName)
+                if (UserSettings[i].EMail == userName)
                 {
                     UserSettings[i] = modUser; // Replace existing user
                     break;

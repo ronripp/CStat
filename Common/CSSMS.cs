@@ -170,7 +170,7 @@ namespace CStat.Common
             int sentCount = 0;
             foreach (var u in nUsers)
             {
-                CSResult csRes = NotifyUser(u.Name, nt, msg, allowResend, cleanLog);
+                CSResult csRes = NotifyUser(u.EMail, nt, msg, allowResend, cleanLog);
                 if (csRes.Succeeded)
                     ++sentCount;
                 cleanLog = false;

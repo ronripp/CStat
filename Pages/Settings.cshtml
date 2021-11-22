@@ -36,11 +36,15 @@
         <span><span style="font-size:1.3em;font-weight:bold">CStat Settings </span><input type="submit" value="Save" /></span>
         <hr />
 
-        <input type="hidden" asp-for="UserSettings.Name" />
+        <input type="hidden" asp-for="UserSettings.EMail" />
 
         <div class="form-group ediv">
-            <h5><span class="UserSetHdr">Settings for @Model.UserSettings.Name</span></h5>
+            <h5><span class="UserSetHdr">Settings for @Model.UserSettings.EMail</span></h5>
             <div class="UserSet" style="">
+                <div>
+                    <label asp-for="UserSettings.Alias" style="text-align:right">My Common Name</label>
+                    <input asp-for="UserSettings.Alias" />
+                </div>
                 <div>
                     <input asp-for="UserSettings.ShowAllTasks" />
                     <label asp-for="UserSettings.ShowAllTasks" style="text-align:right"> Show All Tasks</label>

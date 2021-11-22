@@ -39,7 +39,7 @@ namespace CStat
             if (UserSettings == null)
             {
                 UserSettings = new CSUser();
-                UserSettings.Name = UserId;
+                UserSettings.EMail = UserId;
                 UserSettings.ShowAllTasks = false;
                 UserSettings.SendEquipText = false;
                 UserSettings.SendStockText = false;
@@ -56,7 +56,7 @@ namespace CStat
         public IActionResult OnPost(string[] dynamicField)
         {
             CSSettings ModSettings = CSSettings.GetCSSettings(_config, _userManager);
-            ModSettings.SetUser(UserSettings.Name, UserSettings);
+            ModSettings.SetUser(UserSettings.EMail, UserSettings);
             ModSettings.EquipProps = Settings.EquipProps.Select(e => { if (e.Attributes == null) e.Attributes = ""; return e; }).ToList();
             ModSettings.ActiveEquip = ModSettings.EquipProps.Where(e => e.Active).ToList();
             ModSettings.UpdateAttributeValues(dynamicField);

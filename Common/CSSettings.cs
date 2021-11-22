@@ -99,7 +99,7 @@ namespace CStat.Common
             foreach (var c in ch)
             {
                 var user = new CSUser();
-                user.EMail = c.GetValue<string>("Name");
+                user.EMail = c.GetValue<string>("EMail");
                 user.Alias = c.GetValue<string>("Alias", GetDefAlias(user.EMail));
                 int cIndex = Users.FindIndex(u => u.UserName == user.EMail);
                 if (cIndex != -1)

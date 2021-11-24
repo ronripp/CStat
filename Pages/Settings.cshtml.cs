@@ -52,7 +52,6 @@ namespace CStat
         {
             return Page();
         }
-
         public IActionResult OnPost(string[] dynamicField)
         {
             CSSettings ModSettings = CSSettings.GetCSSettings(_config, _userManager);

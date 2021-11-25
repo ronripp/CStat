@@ -40,6 +40,8 @@ namespace CStat.Models
         public int? Buy2Id { get; set; }
         [Column("buy3_id")]
         public int? Buy3Id { get; set; }
+        [Column("Expected_Cost", TypeName = "decimal(13, 2)")]
+        public decimal? ExpectedCost { get; set; }
 
         [ForeignKey(nameof(Buy1Id))]
         [InverseProperty(nameof(Transaction.InventoryItemBuy1))]

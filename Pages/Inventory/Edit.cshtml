@@ -300,16 +300,16 @@
             </div>
         </div>
         <div class="form-group ediv row">
-            <label class="control-label col-sm-3 ILabel" asp-for="EditItem.Name">Description: </label>
-            <div class="col-sm-9 IValue">
+            <label class="control-label col-sm-2 ILabel" asp-for="EditItem.Name">Description: </label>
+            <div class="col-sm-10 IValue">
                 @{Model.EditItem.Name = Model.EditItem.Name.Trim();}
                 <input asp-for="EditItem.Name" size="60" />
                 <span asp-validation-for="EditItem.Name" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group ediv row">
-            <label class="control-label col-sm-3 ILabel" onclick="lookupUPC()" asp-for="EditItem.Upc">UPC Barcode: </label>
-            <div class="col-sm-9 IValue">
+            <label class="control-label col-sm-2 ILabel" onclick="lookupUPC()" asp-for="EditItem.Upc">UPC Barcode: </label>
+            <div class="col-sm-10 IValue">
                 @{if (Model.EditItem.Upc == null)
                         Model.EditItem.Upc = "";
                     else
@@ -326,6 +326,13 @@
                         <div class="ErrorOff" id="UPCErrorId">* UPC needs to be set & valid first.</div>
                     }
                 }
+            </div>
+        </div>
+        <div class="form-group ediv row">
+            <label asp-for="InventoryItem.ExpectedCost" class="control-label col-sm-2 ILabel">Expected Cost $</label>
+            <div class="col-sm-10 IValue">
+                <input type="text" asp-for="InventoryItem.ExpectedCost" size="5" />&nbsp;
+                <span asp-validation-for="InventoryItem.ExpectedCost" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group ediv row">

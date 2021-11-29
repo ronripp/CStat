@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using Twilio.AspNet.Common;
 using Twilio.AspNet.Core;
@@ -50,9 +52,10 @@ namespace TwilioReceive.Controllers
             if (reqStr.Length == 0)
                 return SendMsgResp(name, "How can I help?");
 
-            string[] words = reqStr.Split(new char[] { ' ', '\n', ',', ';' });
+            List<string> words = new List<string>(reqStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
             var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager);
-            return SendMsgResp(cmdMgr.ParseCmd(words));
+            cmdMgr.ParseCmd(words);
+            return SendMsgResp("AAA");
         }
 
         private TwiMLResult SendMsgResp(string name, string respStr)

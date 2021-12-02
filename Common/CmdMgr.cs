@@ -37,7 +37,7 @@ namespace CStat.Common
         //=================================================================
         public enum CmdSource
         {
-            MENU       = 0x00000000,
+            QUESTION   = 0x00000000,
             INVENTORY  = 0x00000001,
             PROPANE    = 0x00000002,
             PERSON     = 0x00000004,
@@ -45,14 +45,15 @@ namespace CStat.Common
             TASKS      = 0x00000010,
             EQUIP      = 0x00000020,
             FRIDGE     = 0x00000040,
-            FREEZER    = 0x00000040,
-            PRESSURE   = 0x00000080,
-            ELECTRIC   = 0x00000100,
-            CAMERA     = 0x00000200,
-            REQ        = 0x00000400,
-            BYLAWS     = 0x00000800,
-            EVENT      = 0x00001000,
-            ATTENDANCE = 0x00002000
+            FREEZER    = 0x00000080,
+            PRESSURE   = 0x00000100,
+            ELECTRIC   = 0x00000200,
+            CAMERA     = 0x00000400,
+            REQ        = 0x00000800,
+            BYLAWS     = 0x00001000,
+            EVENT      = 0x00002000,
+            ATTENDANCE = 0x00004000,
+            MENU       = 0x00008000
         }
 
         private static readonly Dictionary<string, CmdSource> CmdSrcDict = new Dictionary<string, CmdSource>(StringComparer.OrdinalIgnoreCase)
@@ -63,7 +64,7 @@ namespace CStat.Common
             {"gas", CmdSource.PROPANE},
             {"inv", CmdSource.INVENTORY},
             {"Supplies", CmdSource.INVENTORY},
-            {"?", CmdSource.MENU},
+            {"?", CmdSource.QUESTION},
             {"pic", CmdSource.CAMERA},
             {"photo", CmdSource.CAMERA},
             {"shot", CmdSource.CAMERA},
@@ -88,7 +89,7 @@ namespace CStat.Common
         //===============================================================
         public enum CmdInsts
         {
-            ALL        = 0x00000000,
+            CURRENT    = 0x00000000,
             LAST       = 0x00000001,
             NEXT       = 0x00000002,
             LAST_N     = 0x00000004,
@@ -98,7 +99,8 @@ namespace CStat.Common
             DATE_RANGE = 0x00000040,
             OVERDUE    = 0x00000080,
             MY         = 0x00000100,
-            SPECIFIC   = 0x00000200
+            SPECIFIC   = 0x00000200,
+            ALL        = 0x00000400
         }
 
         private static readonly Dictionary<string, CmdInsts> CmdInstsDict = new Dictionary<string, CmdInsts>(StringComparer.OrdinalIgnoreCase)
@@ -165,6 +167,12 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.EVENT, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleEvents);
         }
+
+        public static List<string> GetWords(string cmdStr)
+        {
+            return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
+        }
+
         public bool ParseCmd (List<string> rawWords)
         {
             var NumWords = rawWords.Count;
@@ -211,7 +219,8 @@ namespace CStat.Common
 
         public string ExecuteCmd(List<string> words)
         {
-            return "Huh?";
+            ParseCmd(words);
+            return _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
         }
 
         private string HandleMenu(List<string> words)
@@ -379,7 +388,7 @@ namespace CStat.Common
         public bool FindEvent(List<string> words)
         {
             var NumWords = words.Count;
-            var eventList = Enum.GetValues(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).ToList();
+            var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).ToList();
             for (int i=0; i < NumWords; ++i)
             {
                 var eventStrs = eventList.Where(es => es.StartsWith(words[i])).ToList();
@@ -445,6 +454,13 @@ namespace CStat.Common
                 _cmdDescList.Add(words[i]);
                 LastDescIdx = i;
             }
+
+            if (_cmdSrc == CmdSource.QUESTION)
+            {
+                int DescCount = _cmdDescList.Count;
+                _cmdSrc = (DescCount == 0) ? CmdSource.MENU : (DescCount > 2) ? CmdSource.DOC : CmdSource.PERSON;
+            }
+
             return _cmdDescList.Count > 0;
 
         }

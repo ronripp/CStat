@@ -1,11 +1,12 @@
 ﻿@page
 @model CStat.Pages.CUserModel
 
-    <header>
+<header>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 
-        <style>
+    <style>
 
-/*            div::after {
+        /*            div::after {
                 content: "";
                 background: url("/images/CCABkg.jpg");
                 opacity: 0.5;
@@ -17,30 +18,84 @@
                 z-index: -1;
             }*/
 
-            .mainDiv {
-                min-width: 100%;
-                min-height: 100vh;
-                background-image: url("/images/CCABkg.jpg");
-                background-size: contain;
-                margin: 0;
-            }
+        .mainDiv {
+            min-width: 100%;
+            min-height: 100vh;
+            background-image: url("/images/CCABkg.jpg");
+            background-size: contain;
+            margin: 0;
+        }
 
             .mainDiv button {
                 margin-left: 10px;
                 margin-bottom: 20px;
-                background-color:lightgoldenrodyellow;
-                font-weight:bold;
-                border-color:greenyellow;
+                background-color: lightgoldenrodyellow;
+                font-weight: bold;
+                border-color: greenyellow;
             }
 
-            table {
-                border: none;
-                min-height: 25vh;
+        #ExecCmd {
+            margin-left: 10px;
+            margin-bottom: 4px;
+            padding-bottom: 0px;
+            color: black;
+            background-color: white;
+            width: 70%;
+        }
+
+        #ExecBtn {
+            margin-left: 4px;
+            margin-bottom: 4px;
+            padding-bottom: 0px;
+            color: black;
+            background-color: white;
+        }
+
+        #ExecRes {
+            padding-top: 0px;
+            margin-top: 0px;
+            margin-left: 10px;
+            margin-bottom: 20px;
+            min-height: 8em;
+            color: black;
+            background-color: white;
+            width: 70%;
+        }
+
+        table {
+            border: none;
+            min-height: 25vh;
+        }
+    </style>
+
+    <script>
+
+        function sendInput2() {
+
+            var input2 = $("#ExecCmd").val();
+            if (input2 === "<enter a command here>") {
+                return;
             }
+            var parameters = "{'input2':'" + input2 + "'}";
+            $.ajax({
+                url: "/CUser?handler=Input2",
+                contentType: "application/text",
+                dataType: "text",
+                data: input2,
+                success: function (response) {
+                    $("#ExecRes").val(response);
+                },
+            });
+        }
 
-        </style>
+        $(document).ready(function () {
+            $("#ExecCmd").focus(function () { $(this).select(); });
+        });
 
-    </header>
+    </script>
+
+
+</header>
 
     @{
         var index = User.Identity.Name.IndexOf("@");
@@ -51,7 +106,16 @@
 <div class="mainDiv">
     <h1>@pageTitle</h1>
     <table><tr><td> </td></tr></table>
-    <button>Add a Work Event for Today</button>
-    <button>Something Else 2</button>
-    <button>Something Else 3</button>
+    <div>
+        <button>Add a Work Event for Today</button>
+    </div>
+    <scan>
+        <input type="text" id="ExecCmd" value="<enter a command here>" /><button id="ExecBtn" onclick="sendInput2()"><b>&#x25B6;</b></button>
+    </scan>
+    <div>
+        <textarea class="form-control" id="ExecRes" disabled></textarea>
+    </div>
+    <div>
+        <button>Something Else 3</button>
+    </div>
 </div>

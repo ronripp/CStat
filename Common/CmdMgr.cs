@@ -17,17 +17,19 @@ namespace CStat.Common
 
         public enum CmdAction
         {
-            FIND = 0x00000000,
-            LIST = 0x00000001,
-            COMPUTE = 0x00000002,
-            ADD = 0x00000004,
-            DELETE = 0x00000008,
-            UPDATE = 0x00000010,
+            FIND    = 0x00000000,
+            COMPUTE = 0x00000001,
+            ADD     = 0x00000002,
+            DELETE  = 0x00000004,
+            UPDATE  = 0x00000008
         }
 
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
         {
             {"Get", CmdAction.FIND},
+            {"Show", CmdAction.FIND},
+            {"Report", CmdAction.FIND},
+            {"List", CmdAction.FIND},
             {"Locate", CmdAction.FIND},
             {"Modify", CmdAction.UPDATE},
             {"Change", CmdAction.UPDATE},
@@ -209,6 +211,7 @@ namespace CStat.Common
             // Look for command source first
             FindCmdSource(words);
             FindCmdAction(words);
+            FindInsts(words);
             FindNumber(words);
             FindDates(words);
             FindEvent(words);
@@ -284,6 +287,7 @@ namespace CStat.Common
                 if (int.TryParse(words[i], out int num))
                 {
                     _cmdNumber = num;
+                    _cmdNumberIdx = i;
                     return true;
                 }
             }
@@ -323,17 +327,20 @@ namespace CStat.Common
             _cmdAction = CmdAction.FIND; // default to FIND
 
             var NumWords = words.Count;
-            for (int i = NumWords - 1; i >= 0; --i)
+
+            var CmdActionList = Enum.GetNames(typeof(CmdAction)).Cast<string>().ToList();
+            for (int i = 0; i < NumWords; ++i)
             {
-                CmdAction cmdAction;
-                if (Enum.TryParse(words[i], true, out cmdAction))
+                var word = words[i];
+                var match = CmdActionList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(match))
                 {
-                    _cmdAction = cmdAction;
-                    _cmdActionIdx = i;
+                    _cmdAction = (CmdAction)Enum.Parse(typeof(CmdAction), match);
+                    _cmdSrcIdx = i;
                     return true;
                 }
 
-                if (CmdActionDict.TryGetValue(words[i], out cmdAction))
+                if (CmdActionDict.TryGetValue(word, out CmdAction cmdAction))
                 {
                     _cmdAction = cmdAction;
                     _cmdActionIdx = i;
@@ -349,14 +356,18 @@ namespace CStat.Common
             _cmdInstsList.Clear();
             _cmdInstsIdxList.Clear();
 
-            for (int i = NumWords - 1; i >= 0; --i)
+            var CmdInstsList = Enum.GetNames(typeof(CmdInsts)).Cast<string>().ToList();
+            for (int i = 0; i < NumWords; ++i)
             {
                 if (i == _cmdSrcIdx)
                     continue;
 
+                var word = words[i];
                 CmdInsts cmdInsts;
-                if (Enum.TryParse(words[i], true, out cmdInsts))
+                var match = CmdInstsList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(match))
                 {
+                    cmdInsts = (CmdInsts)Enum.Parse(typeof(CmdInsts), match);
                     if (cmdInsts == CmdInsts.MY)
                     {
                         _hasMy = true;
@@ -369,7 +380,7 @@ namespace CStat.Common
                     }
                 }
 
-                if (CmdInstsDict.TryGetValue(words[i], out cmdInsts))
+                if (CmdInstsDict.TryGetValue(word, out cmdInsts))
                 {
                     if (cmdInsts == CmdInsts.MY)
                     {
@@ -388,8 +399,8 @@ namespace CStat.Common
         public bool FindEvent(List<string> words)
         {
             var NumWords = words.Count;
-            var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).ToList();
-            for (int i=0; i < NumWords; ++i)
+            var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).Where(s => s != "other").ToList();
+            for (int i = 0; i < NumWords; ++i)
             {
                 var eventStrs = eventList.Where(es => es.StartsWith(words[i])).ToList();
                 if (eventStrs.Count > 0)
@@ -418,17 +429,19 @@ namespace CStat.Common
         public bool FindCmdSource(List<string> words) 
         {
             var NumWords = words.Count;
+            var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
             for (int i = NumWords - 1; i >= 0; --i)
             {
-                CmdSource cmdSrc;
-                if (Enum.TryParse(words[i], true, out cmdSrc))
+                var word = words[i];
+                var match = CmdSrcList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(match))
                 {
-                    _cmdSrc = cmdSrc;
+                    _cmdSrc = (CmdSource)Enum.Parse(typeof(CmdSource), match);
                     _cmdSrcIdx = i;
                     return true;
                 }
 
-                if (CmdSrcDict.TryGetValue(words[i], out cmdSrc))
+                if (CmdSrcDict.TryGetValue(word, out CmdSource cmdSrc))
                 {
                     _cmdSrc = cmdSrc;
                     _cmdSrcIdx = i;

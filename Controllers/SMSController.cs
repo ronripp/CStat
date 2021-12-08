@@ -27,6 +27,8 @@ namespace TwilioReceive.Controllers
         private readonly CStat.Models.CStatContext Context;
         private readonly CSSettings csSettings;
 
+        private static readonly int MaxSendChars = 1000;
+
         public SmsController(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStat.Models.CStatContext context)
         {
             HostEnv = hostEnv;
@@ -59,16 +61,24 @@ namespace TwilioReceive.Controllers
 
         private TwiMLResult SendMsgResp(string name, string respStr)
         {
+            var nameLen = name.Length;
+            if (nameLen > MaxSendChars)
+                name = name.Substring(0, MaxSendChars) + "*** TRUNCATED " + (nameLen - MaxSendChars) + " characters. ***";
+            var respStrLen = respStr.Length;
+            if (respStrLen > MaxSendChars)
+                respStr = respStr.Substring(0, MaxSendChars) + "*** TRUNCATED " + (respStrLen - MaxSendChars) + " characters. ***";
             var messagingResponse = new MessagingResponse();
             messagingResponse.Message("Hi " + name + ".\n" + respStr);
             return TwiML(messagingResponse);
         }
         private TwiMLResult SendMsgResp(string respStr)
         {
+            var respStrLen = respStr.Length;
+            if (respStrLen > MaxSendChars)
+                respStr = respStr.Substring(0, MaxSendChars) + "*** TRUNCATED " + (respStrLen - MaxSendChars) + " characters. ***";
             var messagingResponse = new MessagingResponse();
             messagingResponse.Message(respStr + "\n");
             return TwiML(messagingResponse);
         }
-
     }
 }

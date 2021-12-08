@@ -38,6 +38,11 @@ namespace CStat.Common
             return (withDOW) ? DOWStr[(int)ReadingTime.DayOfWeek] + " " + str : str;
         }
 
+        public bool IsSame(PropaneLevel pl)
+        {
+            return (ReadingTime == pl.ReadingTime) && (LevelPct == pl.LevelPct);
+        }
+
         public double OutsideTempF { get; set; } = PropMgr.NotSet;
         public double LevelPct { get; set; } = 0;
         public DateTime ReadingTime { get; set; }

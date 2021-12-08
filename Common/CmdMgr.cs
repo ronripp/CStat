@@ -2,6 +2,7 @@
 using CStat.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -17,15 +18,17 @@ namespace CStat.Common
 
         public enum CmdAction
         {
-            FIND    = 0x00000000,
+            FIND = 0x00000000,
             COMPUTE = 0x00000001,
-            ADD     = 0x00000002,
-            DELETE  = 0x00000004,
-            UPDATE  = 0x00000008
+            ADD = 0x00000002,
+            DELETE = 0x00000004,
+            UPDATE = 0x00000008,
+            CALL = 0x00000010
         }
 
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
         {
+            {"Phone", CmdAction.CALL},
             {"Get", CmdAction.FIND},
             {"Show", CmdAction.FIND},
             {"Report", CmdAction.FIND},
@@ -39,23 +42,23 @@ namespace CStat.Common
         //=================================================================
         public enum CmdSource
         {
-            QUESTION   = 0x00000000,
-            INVENTORY  = 0x00000001,
-            PROPANE    = 0x00000002,
-            PERSON     = 0x00000004,
-            DOC        = 0x00000008,
-            TASKS      = 0x00000010,
-            EQUIP      = 0x00000020,
-            FRIDGE     = 0x00000040,
-            FREEZER    = 0x00000080,
-            PRESSURE   = 0x00000100,
-            ELECTRIC   = 0x00000200,
-            CAMERA     = 0x00000400,
-            REQ        = 0x00000800,
-            BYLAWS     = 0x00001000,
-            EVENT      = 0x00002000,
+            QUESTION = 0x00000000,
+            INVENTORY = 0x00000001,
+            PROPANE = 0x00000002,
+            PERSON = 0x00000004,
+            DOC = 0x00000008,
+            TASKS = 0x00000010,
+            EQUIP = 0x00000020,
+            FRIDGE = 0x00000040,
+            FREEZER = 0x00000080,
+            PRESSURE = 0x00000100,
+            ELECTRIC = 0x00000200,
+            CAMERA = 0x00000400,
+            REQ = 0x00000800,
+            BYLAWS = 0x00001000,
+            EVENT = 0x00002000,
             ATTENDANCE = 0x00004000,
-            MENU       = 0x00008000
+            MENU = 0x00008000
         }
 
         private static readonly Dictionary<string, CmdSource> CmdSrcDict = new Dictionary<string, CmdSource>(StringComparer.OrdinalIgnoreCase)
@@ -91,26 +94,30 @@ namespace CStat.Common
         //===============================================================
         public enum CmdInsts
         {
-            CURRENT    = 0x00000000,
-            LAST       = 0x00000001,
-            NEXT       = 0x00000002,
-            LAST_N     = 0x00000004,
-            NEXT_N     = 0x00000008,
-            YEAR       = 0x00000010,
+            CURRENT = 0x00000000,
+            FIRST = 0x00000001,
+            LAST = 0x00000002,
+            PRIOR = 0x00000004,
+            NEXT = 0x00000008,
+            YEAR = 0x00000010,
             YEAR_MONTH = 0x00000020,
             DATE_RANGE = 0x00000040,
-            OVERDUE    = 0x00000080,
-            MY         = 0x00000100,
-            SPECIFIC   = 0x00000200,
-            ALL        = 0x00000400
+            OVERDUE = 0x00000080,
+            MY = 0x00000100,
+            SPECIFIC = 0x00000200,
+            ALL = 0x00000400
         }
 
         private static readonly Dictionary<string, CmdInsts> CmdInstsDict = new Dictionary<string, CmdInsts>(StringComparer.OrdinalIgnoreCase)
         {
             {"every", CmdInsts.ALL},
             {"full", CmdInsts.ALL},
-            {"prior", CmdInsts.LAST},
-            {"past", CmdInsts.LAST},
+            {"present", CmdInsts.CURRENT},
+            {"todays", CmdInsts.CURRENT},
+            {"today's", CmdInsts.CURRENT},
+            {"yesterday's", CmdInsts.PRIOR},
+            {"yesterday", CmdInsts.PRIOR},
+            {"past", CmdInsts.PRIOR},
             {"future", CmdInsts.NEXT},
             {"coming", CmdInsts.NEXT},
             {"upcoming", CmdInsts.NEXT},    // c -
@@ -127,19 +134,19 @@ namespace CStat.Common
             EMAIL = 0x00000001
         }
 
-        private readonly CStat.Models.CStatContext Context;
-        private readonly CSSettings csSettings;
-        private readonly IWebHostEnvironment HostEnv;
-        private readonly IConfiguration Config;
-        private readonly UserManager<CStatUser> UserManager;
+        private readonly CStat.Models.CStatContext _context;
+        private readonly CSSettings _csSettings;
+        private readonly IWebHostEnvironment _hostEnv;
+        private readonly IConfiguration _config;
+        private readonly UserManager<CStatUser> _userManager;
 
-        public CmdMgr (CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public CmdMgr(CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
-            Context = context;
-            csSettings = cset;
-            HostEnv = hostEnv;
-            Config = config;
-            UserManager = userManager;
+            _context = context;
+            _csSettings = cset;
+            _hostEnv = hostEnv;
+            _config = config;
+            _userManager = userManager;
 
             HandleSrcDel handleMenu = HandleMenu;
             HandleSrcDel handleInventory = HandleInventory;
@@ -150,8 +157,8 @@ namespace CStat.Common
             HandleSrcDel handleEvents = HandleEvents;
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
-            _srcDelegateDict.Add(CmdSource.INVENTORY, HandleMenu);
-            _srcDelegateDict.Add(CmdSource.PERSON, HandleMenu);
+            _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
+            _srcDelegateDict.Add(CmdSource.PERSON, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
@@ -175,7 +182,7 @@ namespace CStat.Common
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
 
-        public bool ParseCmd (List<string> rawWords)
+        public bool ParseCmd(List<string> rawWords)
         {
             var NumWords = rawWords.Count;
 
@@ -216,7 +223,10 @@ namespace CStat.Common
             FindDates(words);
             FindEvent(words);
             FindDesc(words); // Check for descriptive hints
-           
+
+            if ((_cmdSrc == default) && ((_cmdAction == CmdAction.CALL) || (_cmdDescList.Count == 1) || (_cmdDescList.Count == 2)))
+                _cmdSrc = CmdSource.PERSON;
+
             return true;
         }
 
@@ -225,58 +235,6 @@ namespace CStat.Common
             ParseCmd(words);
             return _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
         }
-
-        private string HandleMenu(List<string> words)
-        {
-            return "Not Implemented";
-        }
-        private string HandleInventory(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandlePeople(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandleEquip(List<string> words)
-        {
-            if (_cmdSrc == CmdSource.PROPANE)
-            {
-                var pmgr = new PropaneMgr(HostEnv, Config, UserManager);
-                var pl = pmgr.GetTUTank();
-                return "Propane read " + pl.LevelPct.ToString("0.#") + "% at " + pl.ReadingTimeStr();
-            }
-
-            return "Not Implemented";
-        }
-
-        private string HandleTasks(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandleEvents(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandleCamera(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandleAttendance(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
-        private string HandleDocs(List<string> words)
-        {
-            return "Not Implemented";
-        }
-
         public bool FindNumber(List<string> words)
         {
             _cmdNumber = -1;
@@ -296,30 +254,33 @@ namespace CStat.Common
 
         public bool FindDates(List<string> words)
         {
-            _cmdDateTime = null;
+            DateTime? cmdDateTime = null;
+            _cmdDateTimeStartIdx = -1;
+            _cmdDateTimeEndIdx = -1;
+            _cmdDateRange = null;
 
             var NumWords = words.Count;
             for (int i = 0; i < NumWords; ++i)
             {
                 if (DateTime.TryParse(words[i], out DateTime dt))
                 {
-                    if (!_cmdDateTime.HasValue)
+                    if (cmdDateTime.HasValue)
                     {
-                        _cmdDateTime = dt;
+                        cmdDateTime = dt;
                         _cmdDateTimeStartIdx = i;
                     }
                     else
                     {
-                        _cmdDateRange = new DateRange(_cmdDateTime.Value, dt);
+                        _cmdDateRange = new DateRange(cmdDateTime.Value, dt);
                         _cmdDateTimeEndIdx = i;
-                        _cmdDateTime = null;
                         return true;
                     }
                 }
             }
             if ((_cmdDateTimeStartIdx != -1) && (_cmdDateTimeEndIdx == -1))
-                _cmdDateTimeEndIdx = _cmdDateTimeStartIdx;
-            return _cmdDateTime.HasValue;
+                _cmdDateRange = new DateRange(cmdDateTime.Value, cmdDateTime.Value);
+
+            return cmdDateTime.HasValue;
         }
 
         public bool FindCmdAction(List<string> words)
@@ -398,11 +359,24 @@ namespace CStat.Common
         }
         public bool FindEvent(List<string> words)
         {
+            // Filter out Sources and actions not associated with Event
+            if ( ((_cmdSrc != CmdSource.QUESTION) && (_cmdSrc != CmdSource.ATTENDANCE) && (_cmdSrc != CmdSource.MENU) && (_cmdSrc != CmdSource.EVENT)) ||
+                (_cmdAction == CmdAction.CALL) )
+            {
+                return false;
+            }
+
             var NumWords = words.Count;
             var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).Where(s => s != "other").ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                var eventStrs = eventList.Where(es => es.StartsWith(words[i])).ToList();
+                if ((i == _cmdActionIdx) || (i == _cmdSrcIdx) || (i == _cmdNumberIdx) || (_cmdDateTimeStartIdx == i) || (_cmdDateTimeEndIdx == i))
+                    return false;
+                if (_cmdInstsIdxList.Any(j => j == i))
+                    return false;
+
+                // Make sure word match is a whole Event word
+                var eventStrs = eventList.Where(es => es.StartsWith(words[i] + " ")).ToList();
                 if (eventStrs.Count > 0)
                 {
                     string str = eventStrs[0];
@@ -456,7 +430,7 @@ namespace CStat.Common
             _cmdDescList.Clear();
             var NumWords = words.Count;
             int LastDescIdx = -1;
-            for (int i = NumWords - 1; i >= 0; --i)
+            for (int i = 0; i < NumWords; ++i)
             {
                 if ((i == _cmdActionIdx) || (i == _cmdEventIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                     (i == _cmdSrcIdx) || ((i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx)))
@@ -476,6 +450,164 @@ namespace CStat.Common
 
             return _cmdDescList.Count > 0;
 
+        }
+        private string HandleMenu(List<string> words)
+        {
+            return "Not Implemented";
+        }
+        private string HandleInventory(List<string> words)
+        {
+            return "Not Implemented";
+        }
+
+        private string HandlePeople(List<string> words)
+        {
+            string result = "";
+            List<Person> people = null;
+            if (_cmdDescList.Count == 1)
+            {
+               people = _context.Person.Where(p => p.FirstName == _cmdDescList[0]).Include(p => p.Address).ToList();
+            }
+            else if (_cmdDescList.Count == 2)
+            {
+                people = _context.Person.Where(p => (p.FirstName == _cmdDescList[0]) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
+            }
+            if (people.Count > 0)
+            {
+                foreach (var p in people)
+                {
+                    result += p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? p.CellPhone :
+                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? p.Address.Phone : "unknown #"))) + $"\n";
+                }
+            }
+            return result;
+        }
+        private string HandleEquip(List<string> words)
+        {
+            string result = "";
+            if (_cmdSrc == CmdSource.PROPANE)
+            {
+                // Persist Daily Reading and Notify if needed for Propane
+                PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
+                var plNow = pmgr.GetTUTank(); // get value, log to file and check
+
+                if (_cmdDateRange != null)
+                {
+                    var plList = GetFullPropaneList(pmgr, plNow);
+                    var plCnt = plList.Count;
+                    int NumOut = 0;
+                    for (int i = 0; i < plCnt; ++i)
+                    {
+                        var pl = plList[i];
+                        if (_cmdDateRange.In(pl.ReadingTime))
+                        {
+                            result = AppendPropLine(plList[i], result);
+                            if (++NumOut == 31)
+                                return result;
+                        }
+                    }
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.LAST) || (c == CmdInsts.CURRENT))).Any())
+                {
+                    if (_cmdNumber < 1)
+                        _cmdNumber = 1;
+                    if (_cmdNumber == 1)
+                        return AppendPropLine(plNow, result);
+
+                    var plList = GetFullPropaneList(pmgr, plNow);
+                    var plCnt = plList.Count;
+                    var NumOut = _cmdNumber > 31 ? 31 : _cmdNumber;
+                    for (int i = plCnt - 1; i >= 0; --i)
+                    {
+                        result = AppendPropLine(plList[i], result);
+                        if (--NumOut == 0)
+                            break;
+                    }
+
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.PRIOR))).Any())
+                {
+                    if (_cmdNumber < 1)
+                        _cmdNumber = 1;
+                    var plList = pmgr.GetAll(_cmdNumber + 1);
+                    var plCnt = plList.Count;
+                    var NumOut = _cmdNumber;
+                    for (int i = plCnt - 1; i >= 0; --i)
+                    {
+                        if (plList[i].IsSame(plNow))
+                            continue;
+                        result = AppendPropLine(plList[i], result);
+                        if (--NumOut == 0)
+                            break;
+                    }
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.FIRST))).Any())
+                {
+                    var plList = GetFullPropaneList(pmgr, plNow);
+                    var plCnt = plList.Count;
+                    var NumOut = (_cmdNumber > 0) ? ((_cmdNumber > 31) ? 31 : _cmdNumber) : ((plCnt > 31) ? 31 : plCnt);
+                    if (NumOut > plCnt)
+                        NumOut = plCnt;
+                    for (int i = 0; i < plCnt; ++i)
+                    {
+                        result = AppendPropLine(plList[i], result);
+                        if (--NumOut == 0)
+                            break;
+                    }
+                }
+                else
+                {
+                    return AppendPropLine(plNow, result);
+                }
+            }
+            return (result.Length == 0) ? "Huh?" : result;
+        }
+        private List<PropaneLevel> GetFullPropaneList (PropaneMgr pmgr, PropaneLevel plNow)
+        {
+            var plList = pmgr.GetAll();
+            if (plNow != null)
+            {
+                var plCnt = plList.Count;
+                if ((plCnt > 0) && (!plList[plCnt - 1].IsSame(plNow)))
+                    plList.Add(plNow);
+            }
+            return plList;
+        }
+        string AppendPropLine (PropaneLevel pl, string res)
+        {
+            if (pl != null)
+            {
+                if (res.Length > 0)
+                   res = res + $"\n";
+
+                res = res + "Propane read " + pl.LevelPct.ToString("0.#") + "% at " + pl.ReadingTimeStr();
+            }
+            return res;
+        }
+
+        private string HandleTasks(List<string> words)
+        {
+            return "Not Implemented";
+        }
+
+        private string HandleEvents(List<string> words)
+        {
+            return "Not Implemented";
+        }
+
+        private string HandleCamera(List<string> words)
+        {
+            return "Not Implemented";
+        }
+
+        private string HandleAttendance(List<string> words)
+        {
+            return "Not Implemented";
+        }
+
+        private string HandleDocs(List<string> words)
+        {
+            return "Not Implemented";
         }
 
         private CmdAction _cmdAction = default;
@@ -498,7 +630,6 @@ namespace CStat.Common
         private CmdSource _cmdSrc = default;
         private int _cmdSrcIdx = -1;
 
-        private DateTime? _cmdDateTime = null;
         private DateRange _cmdDateRange = null;
         private int _cmdDateTimeStartIdx = -1;
         private int _cmdDateTimeEndIdx = -1;

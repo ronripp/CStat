@@ -50,6 +50,11 @@ namespace CStat.Models
         {
             return !((this.Start > eDate) || (this.End < sDate));
         }
+
+        public bool In(DateTime date)
+        {
+            return !((this.Start > date) || (this.End < date));
+        }
         public double TotalHours()
         {
             TimeSpan diff = End - Start;

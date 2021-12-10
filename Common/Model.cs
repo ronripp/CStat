@@ -537,6 +537,18 @@ namespace CStat.Models
 
             return "ERROR~:No one found with Name";
         }
+
+        public static string FixPhone(string raw)
+        {
+            var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
+            if (numStr.StartsWith("1"))
+                numStr = numStr[1..];
+            if (numStr.Length == 10)
+            {
+                return numStr.Substring(0, 3) + "-" + numStr.Substring(3, 3) + "-" + numStr.Substring(6, 4);
+            }
+            return raw;
+        }
     }
 
     public partial class Address

@@ -476,8 +476,8 @@ namespace CStat.Common
             {
                 foreach (var p in people)
                 {
-                    result += p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? p.CellPhone :
-                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? p.Address.Phone : "unknown #"))) + $"\n";
+                    result += p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
+                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + $"\n";
                 }
             }
             return result;

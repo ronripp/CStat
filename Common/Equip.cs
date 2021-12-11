@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 namespace CStat.Common
 {
 
-
     public class PropaneLevel
     {
         static string[] DOWStr = { "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" };

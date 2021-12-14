@@ -840,6 +840,145 @@ namespace CStat.Common
                 return "1/1/1900 12:00:00 AM";
             }
         }
+    }
 
+    public class Power
+    {
+        public DateTime Day { get; set; } = default;
+        public double AKwHrs { get; set; } = 0;
+        public double BKwHrs { get; set; } = 0;
+        public double TotalKwHrs { get; set; } = 0;
+    }
+    public class PowerMgr
+    {
+        private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static DateTime FromUnixTime(long unixTime)
+        {
+            return epoch.AddSeconds(unixTime);
+        }
+
+        public bool TryGetKWHrs(DateTime startDT, DateTime endDT, out double totKWHrs)
+        {
+            totKWHrs = 0;
+            try
+            {
+                // Get Session Id
+                HttpReq req = new HttpReq();
+                req.Open("POST", "https://my.eyedro.com/e2");
+
+                req.AddHeaderProp("Host: my.eyedro.com");
+                req.AddHeaderProp("Connection: keep-alive");
+                req.AddHeaderProp("sec-ch-ua: \" Not A; Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Google Chrome\";v=\"96\"");
+                req.AddHeaderProp("X-Requested-With: XMLHttpRequest");
+                req.AddHeaderProp("sec-ch-ua-mobile: ?0");
+                req.AddHeaderProp("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
+                req.AddHeaderProp("sec-ch-ua-platform: \"Windows\"");
+                req.AddHeaderProp("Accept: */*");
+                req.AddHeaderProp("Origin: https://my.eyedro.com");
+                req.AddHeaderProp("Sec-Fetch-Site: same-origin");
+                req.AddHeaderProp("Sec-Fetch-Mode: cors");
+                req.AddHeaderProp("Sec-Fetch-Dest: empty");
+                req.AddHeaderProp("Referer: https://my.eyedro.com/");
+                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddHeaderProp("Accept-Language: en-US,en;q=0.9");
+                req.AddHeaderProp("Cookie: _gcl_au=1.1.1412530007.1638932992; _ga=GA1.2.2142543981.1638932992; aelia_cs_selected_currency=USD; _gid=GA1.2.1674436603.1639189476");
+
+                req.AddBody("Cmd=Login&Username=ronripp@outlook.com&PwdMd5=3458f2736dff802f3abb225ab09706ad&SessionId=&ApiKey=", "application/x-www-form-urlencoded; charset=UTF-8");
+                var sRespStat = req.Send(out string sResult);
+
+                // "SessionId": "120218346240b5ff9dc55e894b6cbe3fa8d70153"
+                int index = sResult.IndexOf("\"SessionId\"");
+                if (index == -1)
+                    return false;
+                int sidx = sResult.IndexOf("\"", index + 12);
+                if (sidx == -1)
+                    return false;
+                int eidx = sResult.IndexOf("\"", sidx + 1);
+                if (eidx == -1)
+                    return false;
+                var SessionId = sResult.Substring(sidx + 1, (eidx - sidx) - 1);
+                if (string.IsNullOrEmpty(SessionId))
+                    return false;
+
+                // Get Daily Readings
+                HttpReq greq = new HttpReq();
+
+                string DateRangeStr = ""; // StartDateCode=211111&DateNumSteps=31
+                int days = (endDT - startDT).Days + 1;
+                DateRangeStr = "StartDateCode=" + (startDT.Year % 100).ToString() + startDT.Month.ToString() + startDT.Month.ToString() + "&DateNumSteps=" + days;
+
+                //greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&StartDateCode=211111&DateNumSteps=31&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");
+                greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&" + DateRangeStr + "&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");
+
+                greq.AddHeaderProp("Host: my.eyedro.com");
+                greq.AddHeaderProp("Connection: keep-alive");
+                greq.AddHeaderProp("sec-ch-ua: \" Not A; Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Google Chrome\";v=\"96\"");
+                greq.AddHeaderProp("sec-ch-ua-mobile: ?0");
+                greq.AddHeaderProp("sec-ch-ua-platform: \"Windows\"");
+                greq.AddHeaderProp("Upgrade-Insecure-Requests: 1");
+                greq.AddHeaderProp("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
+                greq.AddHeaderProp("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+                greq.AddHeaderProp("Sec-Fetch-Site: same-origin");
+                greq.AddHeaderProp("Sec-Fetch-Mode: navigate");
+                greq.AddHeaderProp("Sec-Fetch-User: ?1");
+                greq.AddHeaderProp("Sec-Fetch-Dest: iframe");
+                greq.AddHeaderProp("Referer: https://my.eyedro.com/");
+                greq.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                greq.AddHeaderProp("Accept-Language: en-US,en;q=0.9");
+                greq.AddHeaderProp("Cookie: _gcl_au=1.1.1412530007.1638932992; _ga=GA1.2.2142543981.1638932992; aelia_cs_selected_currency=USD; _gid=GA1.2.1674436603.1639189476");
+                var respStat = greq.Send(out string result);
+
+                // Parse Records then total kwHrs.
+                // make sure time does not exclude days from total
+
+                var readings = result.Split($"\n");
+                List<Power> powerList = new List<Power>();
+
+                foreach (var rd in readings.Skip(1))
+                {
+                    //    Date,               Epoch Date,  A  B, Total
+                    //05-Dec-2021 12:00:00 AM,1638680400,97,97,194
+                    var flds = rd.Split(",");
+                    if (flds.Length == 5)
+                    {
+                        var power = new Power();
+                        long epoc = 0;
+                        if (long.TryParse(flds[1], out epoc))
+                            power.Day = FromUnixTime(epoc);
+                        double dval = 0;
+                        if (double.TryParse(flds[2], out dval))
+                            power.AKwHrs = dval;
+                        if (double.TryParse(flds[3], out dval))
+                            power.BKwHrs = dval;
+                        if (double.TryParse(flds[4], out dval))
+                            power.TotalKwHrs = dval;
+                        powerList.Add(power);
+                    }
+                }
+
+                // Ensure Date Range is in List
+                int NumDays = (endDT.Date - startDT.Date).Days + 1;
+                int totDays = 0;
+                foreach (var pow in powerList)
+                {
+                    if (pow.Day.Date >= startDT.Date)
+                    {
+                        if (pow.Day.Date > endDT.Date)
+                            break;
+                        totKWHrs += pow.TotalKwHrs;
+                        ++totDays;
+                    }
+                }
+                if (totDays != NumDays)
+                    throw new Exception();
+            }
+            catch
+            {
+                totKWHrs = 0;
+                return false;
+            }
+            return true;
+        }
     }
 }

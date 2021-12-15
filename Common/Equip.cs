@@ -36,6 +36,11 @@ namespace CStat.Common
             string str = ReadingTime.ToString("M/d/yy h:mmt");
             return (withDOW) ? DOWStr[(int)ReadingTime.DayOfWeek] + " " + str : str;
         }
+        public String ReadingDateStr(bool withDOW = false)
+        {
+            string str = ReadingTime.ToString("M/d/yy");
+            return (withDOW) ? DOWStr[(int)ReadingTime.DayOfWeek] + " " + str : str;
+        }
 
         public bool IsSame(PropaneLevel pl)
         {
@@ -429,11 +434,14 @@ namespace CStat.Common
     { 
         private readonly IWebHostEnvironment HostEnv;
         private readonly IConfiguration Config;
+        private readonly CSSettings _cset;
         private readonly UserManager<CStatUser> UserManager;
         private readonly string PropaneFullAll, PropaneHistAll;
+        private readonly double _TankGals, _PricePerGal;
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
         public const int MAX_USE_PLS = 400;
         private const int MAX_FILE_PLS = 600;
+
         public PropaneMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             HostEnv = hostEnv;
@@ -445,6 +453,8 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             PropaneFullAll = Path.Combine(newPath, "propaneall.txt");
             PropaneHistAll = Path.Combine(newPath, "propaneHist.txt");
+            _cset = CSSettings.GetCSSettings(config, userManager);
+            _cset.GetPropaneProperties(out _TankGals, out _PricePerGal);
         }
 
         public bool CheckValue(PropaneLevel pl) // propane only
@@ -495,6 +505,21 @@ namespace CStat.Common
                 return pl;
             }
             return null;
+        }
+
+        public double PctToGals(double pct)
+        {
+            return pct * _TankGals/100;
+        }
+
+        public double PctToPrice(double pct)
+        {
+            return pct * _TankGals/100 * _PricePerGal;
+        }
+
+        public double GalsToPrice(double gals)
+        {
+            return gals * _PricePerGal;
         }
 
         public List<PropaneLevel> GetAll(int maxUsePls= MAX_USE_PLS)
@@ -906,7 +931,7 @@ namespace CStat.Common
 
                 string DateRangeStr = ""; // StartDateCode=211111&DateNumSteps=31
                 int days = (endDT - startDT).Days + 1;
-                DateRangeStr = "StartDateCode=" + (startDT.Year % 100).ToString() + startDT.Month.ToString() + startDT.Month.ToString() + "&DateNumSteps=" + days;
+                DateRangeStr = "StartDateCode=" + (startDT.Year % 100).ToString() + startDT.Month.ToString() + startDT.Day.ToString() + "&DateNumSteps=" + days;
 
                 //greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&StartDateCode=211111&DateNumSteps=31&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");
                 greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&" + DateRangeStr + "&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");

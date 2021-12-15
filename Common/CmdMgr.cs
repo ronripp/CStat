@@ -266,7 +266,7 @@ namespace CStat.Common
             {
                 if (DateTime.TryParse(words[i], out DateTime dt))
                 {
-                    if (cmdDateTime.HasValue)
+                    if (!cmdDateTime.HasValue)
                     {
                         cmdDateTime = dt;
                         _cmdDateTimeStartIdx = i;
@@ -503,7 +503,7 @@ namespace CStat.Common
                         var pl = plList[i];
                         if (_cmdDateRange.In(pl.ReadingTime))
                         {
-                            result = AppendPropLine(plList[i], result);
+                            result = AppendPropLine(pmgr, plList[i], result);
                             if (++NumOut == 31)
                                 return result;
                         }
@@ -514,14 +514,14 @@ namespace CStat.Common
                     if (_cmdNumber < 1)
                         _cmdNumber = 1;
                     if (_cmdNumber == 1)
-                        return AppendPropLine(plNow, result);
+                        return AppendPropLine(pmgr, plNow, result);
 
                     var plList = GetFullPropaneList(pmgr, plNow);
                     var plCnt = plList.Count;
                     var NumOut = _cmdNumber > 31 ? 31 : _cmdNumber;
                     for (int i = plCnt - 1; i >= 0; --i)
                     {
-                        result = AppendPropLine(plList[i], result);
+                        result = AppendPropLine(pmgr, plList[i], result);
                         if (--NumOut == 0)
                             break;
                     }
@@ -538,7 +538,7 @@ namespace CStat.Common
                     {
                         if (plList[i].IsSame(plNow))
                             continue;
-                        result = AppendPropLine(plList[i], result);
+                        result = AppendPropLine(pmgr, plList[i], result);
                         if (--NumOut == 0)
                             break;
                     }
@@ -552,14 +552,14 @@ namespace CStat.Common
                         NumOut = plCnt;
                     for (int i = 0; i < plCnt; ++i)
                     {
-                        result = AppendPropLine(plList[i], result);
+                        result = AppendPropLine(pmgr, plList[i], result);
                         if (--NumOut == 0)
                             break;
                     }
                 }
                 else
                 {
-                    return AppendPropLine(plNow, result);
+                    return AppendPropLine(pmgr, plNow, result);
                 }
             }
             else if (_cmdSrc == CmdSource.ELECTRIC)
@@ -647,8 +647,13 @@ namespace CStat.Common
                 if (_cmdDateRange != null)
                 {
                     success = powMgr.TryGetKWHrs(_cmdDateRange.Start, _cmdDateRange.End, out totKWHrs);
-                    powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
-                             " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
+                    if (_cmdDateRange.Start.Date != _cmdDateRange.End.Date)
+                    {
+                        powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
+                                 " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
+                    }
+                    else
+                        powStr = "Power used on " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 + " = " + totKWHrs + " KWHrs";
                 }
                 else
                 {
@@ -674,14 +679,13 @@ namespace CStat.Common
             }
             return plList;
         }
-        string AppendPropLine (PropaneLevel pl, string res)
+        string AppendPropLine (PropaneMgr pmgr, PropaneLevel pl, string res)
         {
             if (pl != null)
             {
                 if (res.Length > 0)
                    res = res + $"\n";
-
-                res = res + "Propane read " + pl.LevelPct.ToString("0.#") + "% at " + pl.ReadingTimeStr();
+                res = res + pl.ReadingDateStr(true) + " " + pl.LevelPct.ToString("0.##") + "% " + pmgr.PctToGals(pl.LevelPct).ToString("0.#") + " gals ";
             }
             return res;
         }

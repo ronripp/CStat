@@ -90,6 +90,16 @@
 
         $(document).ready(function () {
             $("#ExecCmd").focus(function () { $(this).select(); });
+
+            // Execute a function when the user releases a key on the keyboard
+            document.getElementById("ExecCmd").addEventListener("keyup", function (event) {
+                if (event.keyCode === 13) { // Number 13 is the "Enter" key on the keyboard
+                    event.preventDefault(); // Cancel the default action, if needed
+                    sendInput2();
+                    //document.getElementById("ExecBtn").click(); // Trigger the button element with a click
+                }
+            });
+
         });
 
     </script>

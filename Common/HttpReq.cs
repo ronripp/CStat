@@ -58,6 +58,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 responseStr = "";
                 return new HttpWebResponse();
             }

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using CStat.Areas.Identity.Data;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace CStat.Pages
 {
@@ -22,14 +24,17 @@ namespace CStat.Pages
         private readonly IWebHostEnvironment _hostEnv;
         private readonly IConfiguration _config;
         private readonly UserManager<CStatUser> _userManager;
+        private readonly CSUser _curUser;
 
-        public CUserModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public CUserModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IHttpContextAccessor httpContextAccessor, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             _hostEnv = hostEnv;
             _config = config;
             _userManager = userManager;
             _csSettings = CSSettings.GetCSSettings(_config, _userManager);
+            string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            _curUser = _csSettings.GetUser(UserId);
         }
 
         public IList<CTask> Task { get;set; }
@@ -55,7 +60,7 @@ namespace CStat.Pages
             var cmdStr = (cmdIndex != -1) ? rawQS.Substring(cmdIndex + 1, rawQS.Length - (cmdIndex + 1)) : rawQS;
 
             // Execute Command String
-            CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager);
+            CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager, _curUser);
             return this.Content(cmdMgr.ExecuteCmd(CmdMgr.GetWords(cmdStr)));  // Response 
         }
     }

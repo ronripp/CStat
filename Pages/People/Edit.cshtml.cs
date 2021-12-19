@@ -144,6 +144,7 @@ namespace CStat
             }
             catch (Exception e)
             {
+                _ = e;
                 return Page();
             }
 

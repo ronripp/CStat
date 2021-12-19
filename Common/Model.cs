@@ -139,6 +139,29 @@ namespace CStat.Models
             Basement_Heater = 9,
             Hall_Wash_Closet = 10
         };
+
+        public static string GetInventoryReport(CStatContext context, IConfiguration config, bool justNeeded, out string subject)
+        {
+            var InventoryItems = context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).Include(i => i.Person).OrderByDescending(i => (i.State != null) ? i.State % 3 : 0).ToList();
+            string[] StateStr = { "ok", "NEEDED: unassigned", "BUYING", "Not Checked" };
+
+            string report = "";
+            DateTime Now = PropMgr.ESTNow;
+            subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
+            report += subject + "\n--------------------------------\n";
+            foreach (var i in InventoryItems)
+            {
+                var stateIdx = i.State.HasValue ? i.State.Value : 0;
+                if (justNeeded && (stateIdx != 1) && (stateIdx != 2))
+                    continue;
+
+                var stateStr = ((stateIdx == 2) && (i.Person != null)) ? "BUYING: " + i.Person.GetShortName() : StateStr[stateIdx];
+
+                 InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
+                report += "[" + stateStr + "] " + i.Item.Name.Trim() + " CUR: " + i.CurrentStock + " " + units.ToString() + "\n";
+            }
+            return report;
+        }
     }
 
     public partial class Person
@@ -238,6 +261,20 @@ namespace CStat.Models
         public Person ShallowCopy()
         {
             return (Person)this.MemberwiseClone();
+        }
+
+        public string GetShortName()
+        {
+            if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
+            {
+                return FirstName + " " + LastName.Substring(0, 1).ToUpper() + ".";
+            }
+            if (!string.IsNullOrEmpty(Email))
+            {
+                var idx = Email.IndexOf("@");
+                return (idx != -1) ? Email.Substring(0, idx) : Email;
+            }
+            return "Person #" + Id.ToString();
         }
 
         public static string FindPeople(CStatContext entities, string id)

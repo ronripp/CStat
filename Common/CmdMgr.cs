@@ -18,17 +18,21 @@ namespace CStat.Common
 
         public enum CmdAction
         {
-            FIND = 0x00000000,
+            FIND    = 0x00000000,
             COMPUTE = 0x00000001,
-            ADD = 0x00000002,
-            DELETE = 0x00000004,
-            UPDATE = 0x00000008,
-            CALL = 0x00000010
-        }
+            ADD     = 0x00000002,
+            DELETE  = 0x00000004,
+            UPDATE  = 0x00000008,
+            CALL    = 0x00000010,
+            NEED    = 0x00000020
+        };
 
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
         {
             {"Phone", CmdAction.CALL},
+            {"Phones", CmdAction.CALL},
+            {"needed", CmdAction.NEED},
+            {"needs", CmdAction.NEED},
             {"Get", CmdAction.FIND},
             {"Show", CmdAction.FIND},
             {"Report", CmdAction.FIND},
@@ -53,24 +57,30 @@ namespace CStat.Common
             FREEZER = 0x00000080,
             PRESSURE = 0x00000100,
             ELECTRIC = 0x00000200,
-            CAMERA = 0x00000400,
-            REQ = 0x00000800,
-            BYLAWS = 0x00001000,
-            EVENT = 0x00002000,
+            CAMERA   = 0x00000400,
+            REQ      = 0x00000800,
+            BYLAWS   = 0x00001000,
+            EVENT    = 0x00002000,
             ATTENDANCE = 0x00004000,
-            MENU = 0x00008000
+            MENU     = 0x00008000,
+            URGENCY  = 0x00010000
         }
 
         private static readonly Dictionary<string, CmdSource> CmdSrcDict = new Dictionary<string, CmdSource>(StringComparer.OrdinalIgnoreCase)
         {
-            {"Stock", CmdSource.INVENTORY},
+            {"stock", CmdSource.INVENTORY},
+            {"items", CmdSource.INVENTORY},
+            {"supply", CmdSource.INVENTORY},
+            {"supplies", CmdSource.INVENTORY},
             {"tank", CmdSource.PROPANE},
             {"fuel", CmdSource.PROPANE},
             {"gas", CmdSource.PROPANE},
+            {"lpg", CmdSource.PROPANE},
+            {"lp", CmdSource.PROPANE},
+            {"propanes", CmdSource.PROPANE},
             {"power", CmdSource.ELECTRIC},
             {"meter", CmdSource.ELECTRIC},
             {"inv", CmdSource.INVENTORY},
-            {"Supplies", CmdSource.INVENTORY},
             {"?", CmdSource.QUESTION},
             {"pic", CmdSource.CAMERA},
             {"photo", CmdSource.CAMERA},
@@ -80,7 +90,14 @@ namespace CStat.Common
             {"doc", CmdSource.DOC},
             {"manual", CmdSource.DOC},
             {"document", CmdSource.DOC},
-            {"info", CmdSource.DOC},
+            {"pics", CmdSource.CAMERA},
+            {"photos", CmdSource.CAMERA},
+            {"shots", CmdSource.CAMERA},
+            {"snapshots", CmdSource.CAMERA}, // C -
+            {"docs", CmdSource.DOC},
+            {"manuals", CmdSource.DOC},
+            {"documents", CmdSource.DOC},
+            {"infos", CmdSource.DOC},
             {"procedure", CmdSource.DOC},
             {"procedures", CmdSource.DOC},
             {"instructions", CmdSource.DOC},
@@ -141,31 +158,25 @@ namespace CStat.Common
         private readonly IWebHostEnvironment _hostEnv;
         private readonly IConfiguration _config;
         private readonly UserManager<CStatUser> _userManager;
+        private readonly CSUser _curUser;
 
-        public CmdMgr(CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public CmdMgr(CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser)
         {
             _context = context;
             _csSettings = cset;
             _hostEnv = hostEnv;
             _config = config;
             _userManager = userManager;
-
-            HandleSrcDel handleMenu = HandleMenu;
-            HandleSrcDel handleInventory = HandleInventory;
-            HandleSrcDel handleEquip = HandleEquip;
-            HandleSrcDel handleDocs = HandleDocs;
-            HandleSrcDel handlePeople = HandlePeople;
-            HandleSrcDel handleAttendance = HandleAttendance;
-            HandleSrcDel handleEvents = HandleEvents;
+            _curUser = curUser;
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
+            _srcDelegateDict.Add(CmdSource.TASKS, HandleTasks);
             _srcDelegateDict.Add(CmdSource.PERSON, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
             _srcDelegateDict.Add(CmdSource.BYLAWS, HandleDocs);
-            _srcDelegateDict.Add(CmdSource.TASKS, HandleDocs);
 
             _srcDelegateDict.Add(CmdSource.EQUIP, HandleEquip);
             _srcDelegateDict.Add(CmdSource.PROPANE, HandleEquip);
@@ -177,6 +188,7 @@ namespace CStat.Common
 
             _srcDelegateDict.Add(CmdSource.EVENT, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleEvents);
+            _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
         }
 
         public static List<string> GetWords(string cmdStr)
@@ -228,6 +240,9 @@ namespace CStat.Common
 
             if ((_cmdSrc == default) && ((_cmdAction == CmdAction.CALL) || (_cmdDescList.Count == 1) || (_cmdDescList.Count == 2)))
                 _cmdSrc = CmdSource.PERSON;
+
+            if ((_cmdAction == CmdAction.NEED) && ((_cmdSrc == default) || (_cmdSrc == CmdSource.MENU)))
+                _cmdSrc = CmdSource.URGENCY;
 
             return true;
         }
@@ -459,9 +474,38 @@ namespace CStat.Common
         }
         private string HandleInventory(List<string> words)
         {
-            return "Not Implemented";
+            var justNeeded = _cmdAction == CmdAction.NEED;
+            var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject);
+            CSEMail csEMail = new CSEMail(_config);
+            return "Inventory " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
         }
+        private string HandleUrgency(List<string> words)
+        {
+            var justNeeded = _cmdAction == CmdAction.NEED;
+            var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject);
+            subject = subject.Replace("Inventory", "Needed Urgencies");
 
+            // Get Needed Tasks due up tp 15 days in future
+            var TaskList = CStat.Models.Task.GetDueTasks(_context, 24 * 15);
+            report += "\n";
+            report += "Tasks Due or Due Soon\n";
+            report += "---------------------------\n";
+            foreach (var t in TaskList)
+            {
+                var DateStr = (t.DueDate.HasValue ? t.DueDate.Value.Date.ToShortDateString() : "???");
+                report += "Task " + t.Id + " " + t.Description + " [" + ((t.Person != null) ? t.Person.GetShortName() : "???") + "] Due:" + DateStr + ".\n";
+            }
+            report += "\n";
+            report += "Equipment Report (Needing Attention)\n";
+            report += "----------------------------------------\n";
+            ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
+            var ar = am.ReportLastestValues(ref report); // Ard only : No propane
+            PropaneMgr pm = new PropaneMgr(_hostEnv, _config, _userManager);
+            pm.ReportLatestValue(ref report); // propane only
+
+            CSEMail csEMail = new CSEMail(_config);
+            return "Needed Urgencies " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
+        }
         private string HandlePeople(List<string> words)
         {
             string result = "";
@@ -564,82 +608,6 @@ namespace CStat.Common
             }
             else if (_cmdSrc == CmdSource.ELECTRIC)
             {
-                //// Get Session Id
-                //HttpReq req = new HttpReq();
-                //req.Open("POST", "https://my.eyedro.com/e2");
-
-                //req.AddHeaderProp("Host: my.eyedro.com");
-                //req.AddHeaderProp("Connection: keep-alive");
-                //req.AddHeaderProp("sec-ch-ua: \" Not A; Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Google Chrome\";v=\"96\"");
-                //req.AddHeaderProp("X-Requested-With: XMLHttpRequest");
-                //req.AddHeaderProp("sec-ch-ua-mobile: ?0");
-                //req.AddHeaderProp("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
-                //req.AddHeaderProp("sec-ch-ua-platform: \"Windows\"");
-                //req.AddHeaderProp("Accept: */*");
-                //req.AddHeaderProp("Origin: https://my.eyedro.com");
-                //req.AddHeaderProp("Sec-Fetch-Site: same-origin");
-                //req.AddHeaderProp("Sec-Fetch-Mode: cors");
-                //req.AddHeaderProp("Sec-Fetch-Dest: empty");
-                //req.AddHeaderProp("Referer: https://my.eyedro.com/");
-                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //req.AddHeaderProp("Accept-Language: en-US,en;q=0.9");
-                //req.AddHeaderProp("Cookie: _gcl_au=1.1.1412530007.1638932992; _ga=GA1.2.2142543981.1638932992; aelia_cs_selected_currency=USD; _gid=GA1.2.1674436603.1639189476");
-
-                //req.AddBody("Cmd=Login&Username=ronripp@outlook.com&PwdMd5=3458f2736dff802f3abb225ab09706ad&SessionId=&ApiKey=", "application/x-www-form-urlencoded; charset=UTF-8");
-                //var sRespStat = req.Send(out string sResult);
-
-                //// "SessionId": "120218346240b5ff9dc55e894b6cbe3fa8d70153"
-                //string failMsg = "Failed. Try Later.";
-                //int index = sResult.IndexOf("\"SessionId\"");
-                //if (index == -1)
-                //    return failMsg;
-                //int sidx = sResult.IndexOf("\"", index+12);
-                //if (sidx == -1)
-                //    return failMsg;
-                //int eidx = sResult.IndexOf("\"", sidx + 1);
-                //if (eidx == -1)
-                //    return failMsg;
-                //var SessionId = sResult.Substring(sidx+1, (eidx-sidx)-1);
-                //if (string.IsNullOrEmpty(SessionId))
-                //    return failMsg;
-
-                //// Get Daily Readings
-                //HttpReq greq = new HttpReq();
-
-                //string DateRangeStr = ""; // StartDateCode=211111&DateNumSteps=31
-                //if (_cmdDateRange !=null)
-                //{
-                //    DateTime SDate = _cmdDateRange.Start;
-                //    int days = (_cmdDateRange.End - SDate).Days + 1;
-                //    DateRangeStr = "StartDateCode=" + (SDate.Year % 100).ToString() + SDate.Month.ToString() + SDate.Month.ToString() + "&DateNumSteps=" + days;
-                //}
-                //else
-                //{
-                //    DateTime SDate = PropMgr.ESTNow;
-                //    int days = 31;
-                //    DateRangeStr = "StartDateCode=" + (SDate.Year % 100).ToString() + (SDate.Month-1).ToString() + SDate.Day.ToString() + "&DateNumSteps=" + days;
-                //}
-
-                ////greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&StartDateCode=211111&DateNumSteps=31&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");
-                //greq.Open("GET", "https://my.eyedro.com/e2?Cmd=GetData&DataFormat=csv&DataTypeId=7&DateStepSizeId=4&" + DateRangeStr + "&SessionId=" + SessionId + "&AliasRId=1&SiteId=1");
-
-                //greq.AddHeaderProp("Host: my.eyedro.com");
-                //greq.AddHeaderProp("Connection: keep-alive");
-                //greq.AddHeaderProp("sec-ch-ua: \" Not A; Brand\";v=\"99\", \"Chromium\";v=\"96\", \"Google Chrome\";v=\"96\"");
-                //greq.AddHeaderProp("sec-ch-ua-mobile: ?0");
-                //greq.AddHeaderProp("sec-ch-ua-platform: \"Windows\"");
-                //greq.AddHeaderProp("Upgrade-Insecure-Requests: 1");
-                //greq.AddHeaderProp("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36");
-                //greq.AddHeaderProp("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-                //greq.AddHeaderProp("Sec-Fetch-Site: same-origin");
-                //greq.AddHeaderProp("Sec-Fetch-Mode: navigate");
-                //greq.AddHeaderProp("Sec-Fetch-User: ?1");
-                //greq.AddHeaderProp("Sec-Fetch-Dest: iframe");
-                //greq.AddHeaderProp("Referer: https://my.eyedro.com/");
-                //greq.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //greq.AddHeaderProp("Accept-Language: en-US,en;q=0.9");
-                //greq.AddHeaderProp("Cookie: _gcl_au=1.1.1412530007.1638932992; _ga=GA1.2.2142543981.1638932992; aelia_cs_selected_currency=USD; _gid=GA1.2.1674436603.1639189476");
-                //var respStat = greq.Send(out result);
                 var powMgr = new PowerMgr();
                 double totKWHrs = 0;
                 bool success = false;

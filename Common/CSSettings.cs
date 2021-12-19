@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using static CStat.Common.ArdMgr;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace CStat.Common
 {
@@ -68,14 +70,13 @@ namespace CStat.Common
         {
             //csi = Interlocked.Increment(ref _csi);
         }
-        public CSSettings (IConfiguration config, UserManager<CStatUser> userManager)
+        public CSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
             //csi = Interlocked.Increment(ref _csi);
             _config = config;
             _userManager = userManager;
             initialize();
-        }   
-
+        }
         public static string GetDefAlias (string email)
         {
             string alias = "";

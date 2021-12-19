@@ -41,11 +41,10 @@ namespace TwilioReceive.Controllers
         [System.Web.Mvc.HttpPost]
         public TwiMLResult ReceiveSms([FromForm] SmsRequest req)
         {
-            var user = csSettings.GetUserByPhone(req.From);
-            if (user == null)
+            var curUser = csSettings.GetUserByPhone(req.From);
+            if (curUser == null)
                 return SendMsgResp("I don't know you.");
-
-            var name = !string.IsNullOrEmpty(user.Alias) ? user.Alias : CSSettings.GetDefAlias(user.EMail);
+            var name = !string.IsNullOrEmpty(curUser.Alias) ? curUser.Alias : CSSettings.GetDefAlias(curUser.EMail);
 
             if (string.IsNullOrEmpty(req.Body))
                 return SendMsgResp(name, "How can I help?");
@@ -54,7 +53,7 @@ namespace TwilioReceive.Controllers
             if (reqStr.Length == 0)
                 return SendMsgResp(name, "How can I help?");
             var words = CmdMgr.GetWords(reqStr);
-            var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager);
+            var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser);
             cmdMgr.ExecuteCmd(words);
             return SendMsgResp("AAA");
         }

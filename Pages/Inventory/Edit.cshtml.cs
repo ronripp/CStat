@@ -136,6 +136,7 @@ namespace CStat
             }
             catch (Exception ex)
             {
+                _ = ex;
             }
 
             // Try to delete unused transactions AFTER updating InventoryItem

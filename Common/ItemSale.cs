@@ -167,6 +167,7 @@ namespace CStat.Common
                 }
                 catch (Exception ex)
                 {
+                    _ = ex;
                     pageStr = "";
                 }
             }

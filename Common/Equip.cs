@@ -234,6 +234,22 @@ namespace CStat.Common
             return true;
         }
 
+        public bool ReportLastestValues(ref string report) // Ard only : No propane
+        {
+            ArdRecord ar = GetLast();
+            CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
+            foreach (var ep in cset.EquipProps)
+            {
+                if (ep.IsPropane() || !ep.Active)
+                    continue;
+                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+                {
+                    report += "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false) + "\n";
+                }
+            }
+            return true;
+        }
+
         public int Set(string jsonStr)
         {
             if (ArdMgr.fLock.TryEnterWriteLock(250))
@@ -468,6 +484,23 @@ namespace CStat.Common
                 {
                     CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
                     sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, null, pl, false), true, false); // Allow resend
+                }
+            }
+            return true;
+        }
+
+        public bool ReportLatestValue(ref string report) // propane only
+        {
+            var pl = this.GetTUTank();
+            CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
+            foreach (var ep in cset.EquipProps)
+            {
+                if (!ep.IsPropane())
+                    continue;
+                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, null, pl, false) != CSSettings.green)
+                {
+                    CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                    report += "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, null, pl, false) + "\n";
                 }
             }
             return true;

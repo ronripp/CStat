@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CStat.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -20,5 +21,16 @@ namespace CStat.Common
         public bool SendEMailToo { get; set; } = false;
         [JsonIgnore]
         public string PhoneNum { get; set; } = "";
+        public int? pid = null;
+        public bool SetPersonIDByEmail (CStat.Models.CStatContext context)
+        {
+            List<Person> pList = context.Person.Where(p => !string.IsNullOrEmpty(p.Email) && string.Equals(p.Email, EMail, StringComparison.OrdinalIgnoreCase)).ToList<Person>();
+            if (pList.Count == 1)
+            {
+                pid = pList[0].Id;
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -603,78 +603,78 @@ namespace CStat.Models
             // Amount  MASK = 0x00000FFF
 
             // Area :  MASK = 0x0001F000     
-            PlanCampEvent   = 0x00001000,
-            CampEventTask   = 0x00002000,
-            BuildingFix     = 0x00003000,
-            GroundsFix      = 0x00004000,
-            NewAdditon      = 0x00005000,
-            RequiredTask    = 0x00006000,
+            PlanCampEvent = 0x00001000,
+            CampEventTask = 0x00002000,
+            BuildingFix = 0x00003000,
+            GroundsFix = 0x00004000,
+            NewAdditon = 0x00005000,
+            RequiredTask = 0x00006000,
             CampEnhancement = 0x00007000,
-            Promotion       = 0x00008000,
-            CampMantTask    = 0x00009000,
+            Promotion = 0x00008000,
+            CampMantTask = 0x00009000,
             // MAX          = 0x0001F000
 
             // Flags   MASK = 0x00180000
-            Template        = 0x00020000,
-            AutoPersonID    = 0x00040000,
-            unk2            = 0x00080000,
-            unk3            = 0x00100000,
+            Template = 0x00020000,
+            AutoPersonID = 0x00040000,
+            unk2 = 0x00080000,
+            unk3 = 0x00100000,
 
             // Due     MASK = 0x7C000000 
-            Before_Start        = 0x00000001 << 26, //  400 0000
-            At_Start            = 0x00000002 << 26, //  800 0000
-            Before_End          = 0x00000003 << 26, //  C00 0000
-            At_End              = 0x00000004 << 26, // 1000 0000
-            Hours_Before_Start  = 0x00000005 << 26,
-            Hours_After_Start   = 0x00000006 << 26,
-            Hours_Before_End    = 0x00000007 << 26,
-            Hours_After_End     = 0x00000008 << 26,
-            Days_Before_Start   = 0x00000009 << 26,
-            Days_After_Start    = 0x0000000A << 26,
-            Days_Before_End     = 0x0000000B << 26,
-            Days_After_End      = 0x0000000C << 26,
-            Weeks_Before_Start  = 0x0000000D << 26,
-            Weeks_After_Start   = 0x0000000E << 26,
-            Weeks_Before_End    = 0x0000000F << 26,
-            Weeks_After_End     = 0x00000010 << 26,
+            Before_Start = 0x00000001 << 26, //  400 0000
+            At_Start = 0x00000002 << 26, //  800 0000
+            Before_End = 0x00000003 << 26, //  C00 0000
+            At_End = 0x00000004 << 26, // 1000 0000
+            Hours_Before_Start = 0x00000005 << 26,
+            Hours_After_Start = 0x00000006 << 26,
+            Hours_Before_End = 0x00000007 << 26,
+            Hours_After_End = 0x00000008 << 26,
+            Days_Before_Start = 0x00000009 << 26,
+            Days_After_Start = 0x0000000A << 26,
+            Days_Before_End = 0x0000000B << 26,
+            Days_After_End = 0x0000000C << 26,
+            Weeks_Before_Start = 0x0000000D << 26,
+            Weeks_After_Start = 0x0000000E << 26,
+            Weeks_Before_End = 0x0000000F << 26,
+            Weeks_After_End = 0x00000010 << 26,
             Months_Before_Start = 0x00000011 << 26,
-            Months_After_Start  = 0x00000012 << 26,
-            Months_Before_End   = 0x00000013 << 26,
-            Months_After_End    = 0x00000014 << 26,
-            Day_Of_Week_SunMon  = 0x00000015 << 26,
-            Every_Num_Years     = 0x00000016 << 26,
+            Months_After_Start = 0x00000012 << 26,
+            Months_Before_End = 0x00000013 << 26,
+            Months_After_End = 0x00000014 << 26,
+            Day_Of_Week_SunMon = 0x00000015 << 26,
+            Every_Num_Years = 0x00000016 << 26,
             // MAX              = 0x0000001F << 26, 
 
             // Each    MASK   = 0x03E00000 
-            Retreat_Event     = 0x00000001 << 21, // 20 0000
-            Week_Event        = 0x00000002 << 21,
-            Event_Day         = 0x00000003 << 21,
-            Work_Day          = 0x00000004 << 21,
-            Work_Week         = 0x00000005 << 21,
-            Work_Event        = 0x00000006 << 21,
-            ChCamp_Month      = 0x00000007 << 21,
-            Quarter           = 0x00000008 << 21,
-            First_Quarter     = 0x00000009 << 21,
-            Second_Quarter    = 0x0000000A << 21,
-            Third_Quarter     = 0x0000000B << 21,
-            Fourth_Quarter    = 0x0000000C << 21,
-            Event             = 0x0000000D << 21,
-            Month             = 0x0000000E << 21,
-            Year              = 0x0000000F << 21,
-            Due_Day           = 0x00000010 << 21,
+            Retreat_Event = 0x00000001 << 21, // 20 0000
+            Week_Event = 0x00000002 << 21,
+            Event_Day = 0x00000003 << 21,
+            Work_Day = 0x00000004 << 21,
+            Work_Week = 0x00000005 << 21,
+            Work_Event = 0x00000006 << 21,
+            ChCamp_Month = 0x00000007 << 21,
+            Quarter = 0x00000008 << 21,
+            First_Quarter = 0x00000009 << 21,
+            Second_Quarter = 0x0000000A << 21,
+            Third_Quarter = 0x0000000B << 21,
+            Fourth_Quarter = 0x0000000C << 21,
+            Event = 0x0000000D << 21,
+            Month = 0x0000000E << 21,
+            Year = 0x0000000F << 21,
+            Due_Day = 0x00000010 << 21,
             Day_from_Due_till = 0x00000011 << 21,
-            Num_Start_Date    = 0x00000012 << 21,
+            Num_Start_Date = 0x00000012 << 21,
             // MAX            = 0x0000001F << 21 
         }
 
         public enum ePriority
         {
-            Required  = 0x00000001,
-            Urgent    = 0x00000002,
+            Required = 0x00000001,
+            Urgent = 0x00000002,
             Very_High = 0x00000004,
-            High      = 0x00000008,
-            Medium    = 0x00000010,
-            Low       = 0x00000020
+            High = 0x00000008,
+            Medium = 0x00000010,
+            Low = 0x00000020
         }
 
         public enum eTaskStatus
@@ -682,21 +682,21 @@ namespace CStat.Models
             // Percent Complete 0x7F
 
             // State
-            Not_Started    = 0x00000080,
-            Planning       = 0x00000100,
-            Ready          = 0x00000200,
-            Active         = 0x00000400,
-            Paused         = 0x00000800,
-            Completed      = 0x00001000,
+            Not_Started = 0x00000080,
+            Planning = 0x00000100,
+            Ready = 0x00000200,
+            Active = 0x00000400,
+            Paused = 0x00000800,
+            Completed = 0x00001000,
 
             //Reason
-            Need_Funds      = 0x00100000,
-            Need_Labor      = 0x00200000,
-            Need_Material   = 0x00400000,
+            Need_Funds = 0x00100000,
+            Need_Labor = 0x00200000,
+            Need_Material = 0x00400000,
             Need_Inspection = 0x00800000,
-            Need_Planning   = 0x01000000,
-            Job_Done        = 0x02000000,
-            Unknown         = 0x04000000,
+            Need_Planning = 0x01000000,
+            Job_Done = 0x02000000,
+            Unknown = 0x04000000,
         }
         public enum eAGFrequency
         {
@@ -743,23 +743,40 @@ namespace CStat.Models
             return (DueDate.HasValue && DueDate.Value < PropMgr.ESTNow) ? 1 : 2;
         }
 
-        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, double hoursEarly=0)
+        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, int? pid, double hoursEarly = 0)
         {
             DateTime dtThreshold = (hoursEarly == 0) ? dtThreshold = PropMgr.ESTNow : PropMgr.ESTNow + TimeSpan.FromHours(hoursEarly);
-            return _GetDueTasks(context, dtThreshold).Result;
+            return _GetDueTasks(context, pid, dtThreshold).Result;
         }
 
-        public static async System.Threading.Tasks.Task<List<CTask>> _GetDueTasks(CStat.Models.CStatContext context, DateTime threshold)
+        public static async System.Threading.Tasks.Task<List<CTask>> _GetDueTasks(CStat.Models.CStatContext context, int? pid, DateTime threshold)
         {
-            var dTasks = await context.Task
-              .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).ToListAsync();
-            return dTasks;
+            return (pid.HasValue) ?
+                await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) &&
+                ((t.Type & (int)CTask.eTaskType.Template) == 0) &&
+                t.DueDate.HasValue && (t.DueDate <= threshold) &&
+                t.PersonId.HasValue && (t.PersonId.Value == pid.Value)
+                ).ToListAsync()
+            :
+                await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).ToListAsync();
+        }
+
+        public static List<CTask> GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
+        {
+            return _GetAllTasks(context, dr, pid).Result;
+        }
+
+        public static async System.Threading.Tasks.Task<List<CTask>> _GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
+        {
+            return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
+                                        (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).ToListAsync() :
+                                  await context.Task.Include(t => t.Person).Where(t => !pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))).ToListAsync();
         }
 
         public static bool NotifyUserTaskDue (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStatContext context, double hoursEarly, bool forceClean=false)
         {
             var sms = new CSSMS(hostEnv, config, userManager);
-            var tasks = GetDueTasks(context, hoursEarly);
+            var tasks = GetDueTasks(context, null, hoursEarly);
             foreach (var t in tasks)
             {
                 if ((t.Person != null) && !String.IsNullOrEmpty(t.Person.Email))

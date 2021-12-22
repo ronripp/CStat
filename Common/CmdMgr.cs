@@ -244,12 +244,16 @@ namespace CStat.Common
             if ((_cmdAction == CmdAction.NEED) && ((_cmdSrc == default) || (_cmdSrc == CmdSource.MENU)))
                 _cmdSrc = CmdSource.URGENCY;
 
+            if (_hasMy && !_curUser.pid.HasValue)
+                return false; // My with no person id;
+
             return true;
         }
 
         public string ExecuteCmd(List<string> words)
         {
-            ParseCmd(words);
+            if (!ParseCmd(words))
+                return ("Try later.");
             return _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
         }
         public bool FindNumber(List<string> words)
@@ -658,9 +662,60 @@ namespace CStat.Common
             return res;
         }
 
+        //***************************************************ZZZ
         private string HandleTasks(List<string> words)
+        //****************************************************
         {
-            return "Not Implemented";
+            int? pid = _hasMy ? _curUser.pid : null;
+            List<Models.Task> tList = null;
+            tList = Models.Task.GetAllTasks(_context, _cmdDateRange, pid);
+            int sidx=0, eidx=0;
+            if (_cmdDateRange == null)
+            {
+                if ((_cmdInstsList.FindAll(c => (c == CmdInsts.LAST) || (c == CmdInsts.CURRENT))).Any())
+                {
+                    if (_cmdNumber < 1)
+                        _cmdNumber = 1;
+                    sidx = eidx - (_cmdNumber - 1);
+                    eidx = tList.Count - 1;
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.PRIOR))).Any())
+                {
+                    if (_cmdNumber < 1)
+                        _cmdNumber = 1;
+                    sidx = eidx - (_cmdNumber-1);
+                    eidx = tList.Count - 2;
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.FIRST))).Any())
+                {
+                    if (_cmdNumber < 1)
+                        _cmdNumber = 1;
+                    sidx = 0;
+                    eidx = _cmdNumber - 1;
+                }
+            }
+            else
+            {
+                sidx = 0;
+                eidx = tList.Count - 1;
+            }
+
+            sidx = Math.Max(0, Math.Min(tList.Count - 1, sidx));
+            eidx = Math.Max(0, Math.Min(tList.Count - 1, eidx));
+
+            // Dump tasks
+            string report = "Requested Tasks\n";
+            report += "---------------------------\n";
+            if (tList.Count > 0)
+            {
+                for (int i = sidx; i <= eidx; ++i)
+                {
+                    var t = tList[i];
+                    var DateStr = (t.DueDate.HasValue ? t.DueDate.Value.Date.ToShortDateString() : "???");
+                    report += "Task " + t.Id + " " + t.Description + " [" + ((t.Person != null) ? t.Person.GetShortName() : "???") + "] Due:" + DateStr + ".\n";
+                }
+            }
+            return report;
         }
 
         private string HandleEvents(List<string> words)

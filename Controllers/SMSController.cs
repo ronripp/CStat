@@ -42,10 +42,11 @@ namespace TwilioReceive.Controllers
         public TwiMLResult ReceiveSms([FromForm] SmsRequest req)
         {
             var curUser = csSettings.GetUserByPhone(req.From);
-            if (curUser == null)
+            if (curUser == null) 
                 return SendMsgResp("I don't know you.");
             var name = !string.IsNullOrEmpty(curUser.Alias) ? curUser.Alias : CSSettings.GetDefAlias(curUser.EMail);
 
+            curUser.SetPersonIDByEmail(Context);
             if (string.IsNullOrEmpty(req.Body))
                 return SendMsgResp(name, "How can I help?");
 
@@ -55,7 +56,7 @@ namespace TwilioReceive.Controllers
             var words = CmdMgr.GetWords(reqStr);
             var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser);
             cmdMgr.ExecuteCmd(words);
-            return SendMsgResp("AAA");
+            return SendMsgResp("Huh?");
         }
 
         private TwiMLResult SendMsgResp(string name, string respStr)

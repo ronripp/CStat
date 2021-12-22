@@ -35,6 +35,7 @@ namespace CStat.Pages
             _csSettings = CSSettings.GetCSSettings(_config, _userManager);
             string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
             _curUser = _csSettings.GetUser(UserId);
+            _curUser.SetPersonIDByEmail(context);
         }
 
         public IList<CTask> Task { get;set; }

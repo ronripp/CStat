@@ -24,7 +24,8 @@ namespace CStat.Common
         public int? pid = null;
         public bool SetPersonIDByEmail (CStat.Models.CStatContext context)
         {
-            List<Person> pList = context.Person.Where(p => !string.IsNullOrEmpty(p.Email) && string.Equals(p.Email, EMail, StringComparison.OrdinalIgnoreCase)).ToList<Person>();
+            var lcEMail = !string.IsNullOrEmpty(EMail) ? EMail.ToLower() : "EMPTY";
+            List<Person> pList = context.Person.Where(p => !string.IsNullOrEmpty(p.Email) && lcEMail == p.Email.ToLower()).ToList<Person>();
             if (pList.Count == 1)
             {
                 pid = pList[0].Id;

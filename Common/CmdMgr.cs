@@ -487,10 +487,11 @@ namespace CStat.Common
         {
             var justNeeded = _cmdAction == CmdAction.NEED;
             var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject);
+            int? pid = _hasMy ? _curUser.pid : null;
             subject = subject.Replace("Inventory", "Needed Urgencies");
 
             // Get Needed Tasks due up tp 15 days in future
-            var TaskList = CStat.Models.Task.GetDueTasks(_context, 24 * 15);
+            var TaskList = CStat.Models.Task.GetDueTasks(_context, pid, 24 * 15);
             report += "\n";
             report += "Tasks Due or Due Soon\n";
             report += "---------------------------\n";
@@ -668,7 +669,11 @@ namespace CStat.Common
         {
             int? pid = _hasMy ? _curUser.pid : null;
             List<Models.Task> tList = null;
-            tList = Models.Task.GetAllTasks(_context, _cmdDateRange, pid);
+
+            if (this._cmdDescList.Any(d => d == "due"))
+                tList = CStat.Models.Task.GetDueTasks(_context, pid, 24 * 15);
+            else
+                tList = Models.Task.GetAllTasks(_context, _cmdDateRange, pid);
             int sidx=0, eidx=0;
             if (_cmdDateRange == null)
             {
@@ -676,22 +681,27 @@ namespace CStat.Common
                 {
                     if (_cmdNumber < 1)
                         _cmdNumber = 1;
-                    sidx = eidx - (_cmdNumber - 1);
                     eidx = tList.Count - 1;
+                    sidx = eidx - (_cmdNumber - 1);
                 }
                 else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.PRIOR))).Any())
                 {
                     if (_cmdNumber < 1)
                         _cmdNumber = 1;
-                    sidx = eidx - (_cmdNumber-1);
                     eidx = tList.Count - 2;
+                    sidx = eidx - (_cmdNumber-1);
                 }
                 else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.FIRST))).Any())
                 {
                     if (_cmdNumber < 1)
                         _cmdNumber = 1;
                     sidx = 0;
-                    eidx = _cmdNumber - 1;
+                    eidx = sidx + (_cmdNumber - 1);
+                }
+                else
+                {
+                    sidx = 0;
+                    eidx = tList.Count - 1;
                 }
             }
             else

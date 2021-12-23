@@ -743,7 +743,7 @@ namespace CStat.Models
             return (DueDate.HasValue && DueDate.Value < PropMgr.ESTNow) ? 1 : 2;
         }
 
-        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, int? pid, double hoursEarly = 0)
+        public static List<CTask> GetDueTasks(CStat.Models.CStatContext context, int? pid, double hoursEarly)
         {
             DateTime dtThreshold = (hoursEarly == 0) ? dtThreshold = PropMgr.ESTNow : PropMgr.ESTNow + TimeSpan.FromHours(hoursEarly);
             return _GetDueTasks(context, pid, dtThreshold).Result;
@@ -756,9 +756,10 @@ namespace CStat.Models
                 ((t.Type & (int)CTask.eTaskType.Template) == 0) &&
                 t.DueDate.HasValue && (t.DueDate <= threshold) &&
                 t.PersonId.HasValue && (t.PersonId.Value == pid.Value)
-                ).ToListAsync()
+                ).OrderBy(t => t.Id).ToListAsync()
             :
-                await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).ToListAsync();
+                await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) &&
+                ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).OrderBy(t => t.Id).ToListAsync();
         }
 
         public static List<CTask> GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
@@ -768,9 +769,9 @@ namespace CStat.Models
 
         public static async System.Threading.Tasks.Task<List<CTask>> _GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
         {
-            return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
-                                        (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).ToListAsync() :
-                                  await context.Task.Include(t => t.Person).Where(t => !pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))).ToListAsync();
+            return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
+                                        (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).OrderBy(t => t.Id).ToListAsync() :
+                                  await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value)))).OrderBy(t => t.Id).ToListAsync();
         }
 
         public static bool NotifyUserTaskDue (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStatContext context, double hoursEarly, bool forceClean=false)

@@ -47,7 +47,7 @@ namespace CStat.Pages
         }
         public string GetTasksColor()
         {
-            var dueTasks = Task.GetDueTasks(_context, 24);
+            var dueTasks = Task.GetDueTasks(_context, null, 24);
             if (dueTasks.Count > 0)
             {
                 return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? CSSettings.red : CSSettings.yellow;

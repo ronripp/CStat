@@ -93,8 +93,16 @@ namespace CStat.Pages.Tasks
                     }
                 }
 
-                // Filter out tasks that already exist.
-                AllNewTaskList.AddRange(newCreatedTasks);
+                // Filter out tasks (completed or not completed that already exist.
+                foreach (var nt in newCreatedTasks) // This loop may be redundant. It was added to fix a problem that ultimately was related to changed Due Dates. TBD : Check if it can be removed.
+                {
+                    if (nt.ParentTaskId.HasValue && (nt.ParentTaskId.Value > 0) && nt.DueDate.HasValue)
+                    {
+                        if (_context.Task.Any(t => t.ParentTaskId.HasValue && (t.ParentTaskId.Value == nt.ParentTaskId.Value) && t.DueDate.HasValue && (t.DueDate.Value.Date == nt.DueDate.Value.Date)))
+                            continue; // Child Task with due date already exist. Skip.
+                        AllNewTaskList.Add(nt); // Add needed new task
+                    }
+                }
             }
 
             // Search for any existing tasks that are assigned to a person who is now unavailable

@@ -27,6 +27,7 @@ namespace CStat
             _context = ctx;
             isSet = false;
         }
+
         public void GetEvents(DateTime chDate)
         {
             isSet = true;

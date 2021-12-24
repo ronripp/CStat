@@ -51,7 +51,7 @@ namespace CStat.Common
             PROPANE = 0x00000002,
             PERSON = 0x00000004,
             DOC = 0x00000008,
-            TASKS = 0x00000010,
+            TASK = 0x00000010,
             EQUIP = 0x00000020,
             FRIDGE = 0x00000040,
             FREEZER = 0x00000080,
@@ -66,65 +66,69 @@ namespace CStat.Common
             URGENCY  = 0x00010000
         }
 
-        private static readonly Dictionary<string, CmdSource> CmdSrcDict = new Dictionary<string, CmdSource>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
         {
-            {"stock", CmdSource.INVENTORY},
-            {"items", CmdSource.INVENTORY},
-            {"supply", CmdSource.INVENTORY},
-            {"supplies", CmdSource.INVENTORY},
-            {"tank", CmdSource.PROPANE},
-            {"fuel", CmdSource.PROPANE},
-            {"gas", CmdSource.PROPANE},
-            {"lpg", CmdSource.PROPANE},
-            {"lp", CmdSource.PROPANE},
-            {"propanes", CmdSource.PROPANE},
-            {"power", CmdSource.ELECTRIC},
-            {"meter", CmdSource.ELECTRIC},
-            {"inv", CmdSource.INVENTORY},
-            {"?", CmdSource.QUESTION},
-            {"pic", CmdSource.CAMERA},
-            {"photo", CmdSource.CAMERA},
-            {"shot", CmdSource.CAMERA},
-            {"snapshot", CmdSource.CAMERA}, // C -
-            {"refrigerator", CmdSource.FRIDGE},
-            {"doc", CmdSource.DOC},
-            {"manual", CmdSource.DOC},
-            {"document", CmdSource.DOC},
-            {"pics", CmdSource.CAMERA},
-            {"photos", CmdSource.CAMERA},
-            {"shots", CmdSource.CAMERA},
-            {"snapshots", CmdSource.CAMERA}, // C -
-            {"docs", CmdSource.DOC},
-            {"manuals", CmdSource.DOC},
-            {"documents", CmdSource.DOC},
-            {"infos", CmdSource.DOC},
-            {"procedure", CmdSource.DOC},
-            {"procedures", CmdSource.DOC},
-            {"instructions", CmdSource.DOC},
-            {"requirements", CmdSource.REQ},
-            {"required", CmdSource.REQ},
-            {"todo", CmdSource.TASKS },
-            {"phone#", CmdSource.PERSON },
-            {"phonenumber", CmdSource.PERSON},
-            {"people", CmdSource.PERSON},
-            {"name", CmdSource.PERSON }
+            {"stock", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
+            {"items", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, true) },
+            {"supply", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
+            {"supplies", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, true) },
+            {"tank", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
+            {"fuel", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
+            {"gas", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
+            {"lpg", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
+            {"lp", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
+            {"propanes", new Tuple<CmdSource, bool>(CmdSource.PROPANE, true) },
+            {"power", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
+            {"meter", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
+            {"inv", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
+            {"?", new Tuple<CmdSource, bool>(CmdSource.QUESTION, false) },
+            {"pic", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
+            {"photo", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
+            {"shot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
+            {"snapshot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) }, // C -
+            {"refrigerator", new Tuple<CmdSource, bool>(CmdSource.FRIDGE, false) },
+            {"doc", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"manual", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"document", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"pics", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
+            {"photos", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
+            {"shots", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
+            {"snapshots", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) }, // C -
+            {"docs", new Tuple<CmdSource, bool>(CmdSource.DOC, true) },
+            {"manuals", new Tuple<CmdSource, bool>(CmdSource.DOC, true) },
+            {"documents", new Tuple<CmdSource, bool>(CmdSource.DOC, true) },
+            {"infos", new Tuple<CmdSource, bool>(CmdSource.DOC, true) },
+            {"procedure", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"procedures", new Tuple<CmdSource, bool>(CmdSource.DOC, true) },
+            {"instructions", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"requirements", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
+            {"required", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
+            {"todo", new Tuple<CmdSource, bool>(CmdSource.TASK, false) },
+            {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
+            {"events", new Tuple<CmdSource, bool>(CmdSource.EVENT, true) },
+            {"phone#", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"phonenumber", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) }
         };
 
         //===============================================================
         public enum CmdInsts
         {
             CURRENT = 0x00000000,
-            FIRST = 0x00000001,
-            LAST = 0x00000002,
-            PRIOR = 0x00000004,
-            NEXT = 0x00000008,
-            YEAR = 0x00000010,
+            FIRST   = 0x00000001,
+            LAST    = 0x00000002,
+            PRIOR   = 0x00000004,
+            NEXT    = 0x00000008,
+            YEAR    = 0x00000010,
             YEAR_MONTH = 0x00000020,
             DATE_RANGE = 0x00000040,
-            OVERDUE = 0x00000080,
-            MY = 0x00000100,
-            SPECIFIC = 0x00000200,
-            ALL = 0x00000400
+            OVERDUE    = 0x00000080,
+            MY         = 0x00000100,
+            DONE       = 0x00000200,
+            SPECIFIC   = 0x00000400,
+            ALL =        0x00000800
         }
 
         private static readonly Dictionary<string, CmdInsts> CmdInstsDict = new Dictionary<string, CmdInsts>(StringComparer.OrdinalIgnoreCase)
@@ -136,6 +140,8 @@ namespace CStat.Common
             {"today's", CmdInsts.CURRENT},
             {"yesterday's", CmdInsts.PRIOR},
             {"yesterday", CmdInsts.PRIOR},
+            {"new", CmdInsts.NEXT},
+            {"old", CmdInsts.PRIOR},
             {"past", CmdInsts.PRIOR},
             {"future", CmdInsts.NEXT},
             {"coming", CmdInsts.NEXT},
@@ -171,7 +177,7 @@ namespace CStat.Common
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
-            _srcDelegateDict.Add(CmdSource.TASKS, HandleTasks);
+            _srcDelegateDict.Add(CmdSource.TASK, HandleTasks);
             _srcDelegateDict.Add(CmdSource.PERSON, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
@@ -186,8 +192,8 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.ELECTRIC, HandleEquip);
             _srcDelegateDict.Add(CmdSource.CAMERA, HandleEquip);
 
-            _srcDelegateDict.Add(CmdSource.EVENT, HandleAttendance);
-            _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleEvents);
+            _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
+            _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
         }
 
@@ -376,6 +382,13 @@ namespace CStat.Common
                     }
                 }
             }
+
+            if (_cmdInstsList.Any(s => s == CmdInsts.ALL))
+                _isPlural = true;
+
+            if (words.Any(w => (w == "done") || (w == "complete") || (w == "completed") || (w == "finished") || (w == "closed")))
+                _hasDoneOnly = true;
+
             return true;
         }
         public bool FindEvent(List<string> words)
@@ -436,9 +449,10 @@ namespace CStat.Common
                     return true;
                 }
 
-                if (CmdSrcDict.TryGetValue(word, out CmdSource cmdSrc))
+                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource,bool> cmdSrc))
                 {
-                    _cmdSrc = cmdSrc;
+                    _cmdSrc = cmdSrc.Item1;
+                    _isPlural = cmdSrc.Item2;
                     _cmdSrcIdx = i;
                     return true;
                 }
@@ -673,23 +687,25 @@ namespace CStat.Common
             if (this._cmdDescList.Any(d => d == "due"))
                 tList = CStat.Models.Task.GetDueTasks(_context, pid, 24 * 15);
             else
-                tList = Models.Task.GetAllTasks(_context, _cmdDateRange, pid);
+                tList = Models.Task.GetAllTasks(_context, _cmdDateRange, pid, _hasDoneOnly);
             int sidx=0, eidx=0;
             if (_cmdDateRange == null)
             {
                 if ((_cmdInstsList.FindAll(c => (c == CmdInsts.LAST) || (c == CmdInsts.CURRENT))).Any())
                 {
                     if (_cmdNumber < 1)
-                        _cmdNumber = 1;
+                        _cmdNumber = _isPlural ? tList.Count : 1;
+
                     eidx = tList.Count - 1;
                     sidx = eidx - (_cmdNumber - 1);
                 }
-                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.PRIOR))).Any())
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.PRIOR))).Any()) // TBD : Combine LAST and PRIOR
                 {
                     if (_cmdNumber < 1)
-                        _cmdNumber = 1;
-                    eidx = tList.Count - 2;
-                    sidx = eidx - (_cmdNumber-1);
+                        _cmdNumber = _isPlural ? tList.Count : 1;
+
+                    eidx = tList.Count - 1;
+                    sidx = eidx - (_cmdNumber - 1);
                 }
                 else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.FIRST))).Any())
                 {
@@ -730,7 +746,64 @@ namespace CStat.Common
 
         private string HandleEvents(List<string> words)
         {
-            return "Not Implemented";
+            int sidx = 0, eidx = 0;
+            List<Event> eList = null;
+            if (_cmdDateRange == null)
+            {
+                if (_cmdInstsList.FindAll(c => c == CmdInsts.CURRENT).Any())
+                {
+                    eList = Event.GetEvents(_context, PropMgr.ESTNow, DateRangeType.On_Date);
+                    sidx = 0;
+                    eidx = eList.Count;
+                }
+                else if (_cmdInstsList.FindAll(c => (c == CmdInsts.LAST) || (c == CmdInsts.PRIOR)).Any())
+                {
+                    eList = Event.GetEvents(_context, PropMgr.ESTNow, DateRangeType.On_or_Before_Date);
+                    if (_cmdNumber < 1)
+                        _cmdNumber = _isPlural ? eList.Count : 1;
+                    eidx = eList.Count-1;
+                    sidx = eidx - (_cmdNumber-1);
+                }
+                else if ((_cmdInstsList.FindAll(c => (c == CmdInsts.FIRST))).Any())
+                {
+                    eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
+                    if (_cmdNumber < 1)
+                        _cmdNumber = _isPlural ? eList.Count : 1;
+                    sidx = 0;
+                    eidx = sidx + (_cmdNumber - 1);
+                }
+                else if (_cmdInstsList.FindAll(c => c == CmdInsts.NEXT).Any())
+                {
+                    eList = Event.GetEvents(_context, PropMgr.ESTNow, DateRangeType.On_or_After_Date);
+                    if (_cmdNumber < 1)
+                        _cmdNumber = _isPlural ? eList.Count : 1;
+                    sidx = 0;
+                    eidx = _cmdNumber-1;
+                }
+                else
+                {
+                    eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
+                    sidx = 0;
+                    eidx = eList.Count - 1;
+                }
+            }
+
+            // Dump tasks
+            string report = "Requested Events\n";
+            report += "---------------------------\n";
+
+            if ((eList != null) && (eList.Count > 0))
+            {
+                sidx = Math.Max(0, Math.Min(eList.Count - 1, sidx));
+                eidx = Math.Max(0, Math.Min(eList.Count - 1, eidx));
+                for (int i = sidx; i <= eidx; ++i)
+                {
+                    var e = eList[i];
+                    var DateStr = e.StartTime.Date.ToShortDateString() + "-" + e.EndTime.Date.ToShortDateString();
+                    report += e.Description + "(" + DateStr + ").\n";
+                }
+            }
+            return report;
         }
 
         private string HandleCamera(List<string> words)
@@ -758,6 +831,8 @@ namespace CStat.Common
         private List<int> _cmdInstsIdxList = new List<int>();
 
         private bool _hasMy = false;
+        private bool _isPlural = false;
+        private bool _hasDoneOnly = false;
         private int _hasMyIdx = -1;
 
         private List<string> _cmdDescList = new List<string>();

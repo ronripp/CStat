@@ -762,16 +762,27 @@ namespace CStat.Models
                 ((t.Type & (int)CTask.eTaskType.Template) == 0) && (t.DueDate.HasValue && t.DueDate <= threshold)).OrderBy(t => t.Id).ToListAsync();
         }
 
-        public static List<CTask> GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
+        public static List<CTask> GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid, bool hasDoneOnly)
         {
-            return _GetAllTasks(context, dr, pid).Result;
+            return _GetAllTasks(context, dr, pid, hasDoneOnly).Result;
         }
 
-        public static async System.Threading.Tasks.Task<List<CTask>> _GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid)
+        public static async System.Threading.Tasks.Task<List<CTask>> _GetAllTasks(CStat.Models.CStatContext context, DateRange dr, int? pid, bool hasDoneOnly)
         {
-            return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
-                                        (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).OrderBy(t => t.Id).ToListAsync() :
-                                  await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value)))).OrderBy(t => t.Id).ToListAsync();
+
+            //Status & (int)CTask.eTaskStatus.Completed
+            if (hasDoneOnly)
+            {
+                return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
+                            (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).OrderBy(t => t.Id).ToListAsync() :
+                      await context.Task.Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value)))).OrderBy(t => t.Id).ToListAsync();
+            }
+            else
+            {
+                return (dr != null) ? await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value))) &&
+                                            (t.DueDate.HasValue && (t.DueDate.Value.Date >= dr.Start.Date) && (t.DueDate.Value.Date <= dr.End.Date))).OrderBy(t => t.Id).ToListAsync() :
+                                      await context.Task.Include(t => t.Person).Where(t => ((t.Type & (int)CTask.eTaskType.Template) == 0) && (!pid.HasValue || (t.PersonId.HasValue && (t.PersonId.Value == pid.Value)))).OrderBy(t => t.Id).ToListAsync();
+            }
         }
 
         public static bool NotifyUserTaskDue (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStatContext context, double hoursEarly, bool forceClean=false)
@@ -1605,7 +1616,15 @@ namespace CStat.Models
             SWAT_Training,
             Other
         }
-
+        public enum DateRangeType
+        {
+            Before_Date,
+            On_or_Before_Date,
+            On_Date,
+            On_or_After_Date,
+            After_Date,
+            All
+        }
         public class EventData
         {
             public int id { get; set; }
@@ -1654,6 +1673,26 @@ namespace CStat.Models
             public String Description { get; set; }
             public String Type { get; set; }
             public String StartDate { get; set; }
+        }
+
+        public static List<Event> GetEvents(CStatContext context, DateTime date, DateRangeType drType)
+        {
+            switch (drType)
+            {
+                case DateRangeType.Before_Date:
+                    return context.Event.Where(e => e.StartTime.Date < date.Date).OrderBy(ev => ev.StartTime).ToList();
+                case DateRangeType.On_or_Before_Date:
+                    return context.Event.Where(e => e.StartTime.Date <= date.Date).OrderBy(ev => ev.StartTime).ToList();
+                case DateRangeType.On_Date:
+                    return context.Event.Where(e => e.StartTime.Date == date.Date).OrderBy(ev => ev.StartTime).ToList();
+                case DateRangeType.On_or_After_Date:
+                    return context.Event.Where(e => e.StartTime.Date >= date.Date).OrderBy(ev => ev.StartTime).ToList();
+                case DateRangeType.After_Date:
+                    return context.Event.Where(e => e.StartTime.Date > date.Date).OrderBy(ev => ev.StartTime).ToList();
+                default:
+                case DateRangeType.All:
+                    return context.Event.OrderBy(ev => ev.StartTime).ToList();
+            }
         }
     }
 

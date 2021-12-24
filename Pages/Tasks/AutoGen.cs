@@ -48,6 +48,8 @@ namespace CStat.Pages.Tasks
                                                                 c.DueDate.HasValue && n.DueDate.HasValue && (c.DueDate.Value.Year == n.DueDate.Value.Year) && (c.DueDate.Value.Month == n.DueDate.Value.Month) && 
                                                                 (c.DueDate.Value.Day == n.DueDate.Value.Day) && n.DueDate >= c.DueDate)).ToList();
 
+                //TBD : Do not regen a task that is already closed
+
                 // Make sure the newly filtered potential tasks are assigned to a person
                 // NOTE : we cannot rely on tmpl as the only parent tasks as newCreatedTasks may contain other tasks not having t.ParentTaskId = tmpl.Id 
                 if (newCreatedTasks.Count > 0)

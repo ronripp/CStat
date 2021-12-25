@@ -234,7 +234,7 @@ namespace CStat.Common
             return true;
         }
 
-        public bool ReportLastestValues(ref string report) // Ard only : No propane
+        public bool ReportLastestValues(ref string report, bool alertsOnly) // Ard only : No propane
         {
             ArdRecord ar = GetLast();
             CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
@@ -242,7 +242,7 @@ namespace CStat.Common
             {
                 if (ep.IsPropane() || !ep.Active)
                     continue;
-                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+                if (!alertsOnly || CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
                 {
                     report += "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false) + "\n";
                 }

@@ -103,8 +103,14 @@ namespace CStat.Common
             {"instructions", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"requirements", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"required", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
-            {"todo", new Tuple<CmdSource, bool>(CmdSource.TASK, false) },
+            {"todo", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
             {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
+            {"alert", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"alerts", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
+            {"alarm", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"alarms", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
+            {"urgent", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"urgencies", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
             {"events", new Tuple<CmdSource, bool>(CmdSource.EVENT, true) },
             {"phone#", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"phonenumber", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
@@ -394,8 +400,8 @@ namespace CStat.Common
         public bool FindEvent(List<string> words)
         {
             // Filter out Sources and actions not associated with Event
-            if ( ((_cmdSrc != CmdSource.QUESTION) && (_cmdSrc != CmdSource.ATTENDANCE) && (_cmdSrc != CmdSource.MENU) && (_cmdSrc != CmdSource.EVENT)) ||
-                (_cmdAction == CmdAction.CALL) )
+            if (((_cmdSrc != CmdSource.QUESTION) && (_cmdSrc != CmdSource.ATTENDANCE) && (_cmdSrc != CmdSource.MENU) && (_cmdSrc != CmdSource.EVENT)) ||
+                (_cmdAction == CmdAction.CALL))
             {
                 return false;
             }
@@ -416,7 +422,7 @@ namespace CStat.Common
                     string str = eventStrs[0];
                     if (eventStrs.Count > 1)
                     {
-                        if (!string.IsNullOrEmpty(words.Skip(i+1).First(w => w.StartsWith("retreat")))) // the word, "retreat" is found futher in list
+                        if (!string.IsNullOrEmpty(words.Skip(i + 1).First(w => w.StartsWith("retreat")))) // the word, "retreat" is found futher in list
                         {
                             str = eventStrs.First(es => es.Contains("retreat")); // a Matching event has "retreat" in it. favor it. in this case. 
                             if (string.IsNullOrEmpty(str))
@@ -434,7 +440,7 @@ namespace CStat.Common
             return false;
         }
 
-        public bool FindCmdSource(List<string> words) 
+        public bool FindCmdSource(List<string> words)
         {
             var NumWords = words.Count;
             var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
@@ -449,7 +455,7 @@ namespace CStat.Common
                     return true;
                 }
 
-                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource,bool> cmdSrc))
+                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource, bool> cmdSrc))
                 {
                     _cmdSrc = cmdSrc.Item1;
                     _isPlural = cmdSrc.Item2;
@@ -518,7 +524,7 @@ namespace CStat.Common
             report += "Equipment Report (Needing Attention)\n";
             report += "----------------------------------------\n";
             ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
-            var ar = am.ReportLastestValues(ref report); // Ard only : No propane
+            var ar = am.ReportLastestValues(ref report, true); // Ard only : No propane
             PropaneMgr pm = new PropaneMgr(_hostEnv, _config, _userManager);
             pm.ReportLatestValue(ref report); // propane only
 
@@ -650,6 +656,13 @@ namespace CStat.Common
                 }
 
                 result = success ? powStr : "Sorry. Unable to get Total KwHrs now.";
+            }
+            else
+            {
+                result = "Equipment Report\n";
+                result += "----------------------------------------\n";
+                ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
+                var ar = am.ReportLastestValues(ref result, false); // Ard only : No propane
             }
 
             return (result.Length == 0) ? "Huh?" : result;

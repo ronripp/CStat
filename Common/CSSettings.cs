@@ -24,6 +24,7 @@ namespace CStat.Common
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
         private readonly UserManager<CStatUser> _userManager;
+        private bool _isInitialized = false;
         private const int MAX_EQUIP = 8;
 
         public const string green = "#00FF00";
@@ -50,7 +51,7 @@ namespace CStat.Common
 
         public static CSSettings GetCSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
-            if (_gCSet != null)
+            if ( (_gCSet != null) && (_gCSet._isInitialized))
                 return _gCSet;
             _gCSet = new CSSettings(config, userManager);
             return _gCSet;
@@ -254,6 +255,7 @@ namespace CStat.Common
             {
                 EquipProps.Add(new EquipProp());
             }
+            _isInitialized = true;
         }
 
         public static bool GetEquipLists (IConfiguration config, out List<EquipProp>allEquipProps, out List<EquipProp> activeEquipProps)
@@ -362,6 +364,8 @@ namespace CStat.Common
                     {
                         var json = JsonConvert.SerializeObject(new { CSSettings = this });
                         File.WriteAllText("CStat.json", json);
+                        var now = PropMgr.ESTNow;
+                        File.WriteAllText("CStat" + now.Month + ".json", json);
                         return true;
                     }
                     catch

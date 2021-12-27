@@ -279,7 +279,7 @@ namespace CStat
             Dictionary<string, string> setParam = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
             if (setParam.TryGetValue("user", out string user))
             {
-                var report = InventoryItem.GetInventoryReport(_context, _configuration, false, out string subject); // false -> full inventort report
+                var report = InventoryItem.GetInventoryReport(_context, _configuration, false, out string subject, true); // false -> full inventort report
                 CSEMail csEMail = new CSEMail(_configuration);
                 return new JsonResult("Inventory " + (csEMail.Send(user, user, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + user);
             }

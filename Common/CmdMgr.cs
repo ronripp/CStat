@@ -103,6 +103,7 @@ namespace CStat.Common
             {"instructions", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"requirements", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"required", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
+            {"list", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
             {"todo", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
             {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
             {"alert", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
@@ -266,7 +267,8 @@ namespace CStat.Common
         {
             if (!ParseCmd(words))
                 return ("Try later.");
-            return _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
+            var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
+            return (result.Length > 0) ? result : "No Results.";
         }
         public bool FindNumber(List<string> words)
         {
@@ -499,37 +501,34 @@ namespace CStat.Common
         private string HandleInventory(List<string> words)
         {
             var justNeeded = _cmdAction == CmdAction.NEED;
-            var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject);
+            var report = InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
             CSEMail csEMail = new CSEMail(_config);
             return "Inventory " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
         }
         private string HandleUrgency(List<string> words)
         {
             var justNeeded = _cmdAction == CmdAction.NEED;
-            var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject);
+            var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject, false);
             int? pid = _hasMy ? _curUser.pid : null;
             subject = subject.Replace("Inventory", "Needed Urgencies");
 
             // Get Needed Tasks due up tp 15 days in future
             var TaskList = CStat.Models.Task.GetDueTasks(_context, pid, 24 * 15);
             report += "\n";
-            report += "Tasks Due or Due Soon\n";
-            report += "---------------------------\n";
             foreach (var t in TaskList)
             {
                 var DateStr = (t.DueDate.HasValue ? t.DueDate.Value.Date.ToShortDateString() : "???");
-                report += "Task " + t.Id + " " + t.Description + " [" + ((t.Person != null) ? t.Person.GetShortName() : "???") + "] Due:" + DateStr + ".\n";
+                report += "* Task " + t.Id + " " + t.Description + " [" + ((t.Person != null) ? t.Person.GetShortName() : "???") + "] Due:" + DateStr + ".\n";
             }
             report += "\n";
-            report += "Equipment Report (Needing Attention)\n";
-            report += "----------------------------------------\n";
             ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
             var ar = am.ReportLastestValues(ref report, true); // Ard only : No propane
             PropaneMgr pm = new PropaneMgr(_hostEnv, _config, _userManager);
             pm.ReportLatestValue(ref report); // propane only
 
-            CSEMail csEMail = new CSEMail(_config);
-            return "Needed Urgencies " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
+            return report;
+            //CSEMail csEMail = new CSEMail(_config);
+            //return "Needed Urgencies " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
         }
         private string HandlePeople(List<string> words)
         {
@@ -659,8 +658,7 @@ namespace CStat.Common
             }
             else
             {
-                result = "Equipment Report\n";
-                result += "----------------------------------------\n";
+                result = "Equipment Report :\n";
                 ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
                 var ar = am.ReportLastestValues(ref result, false); // Ard only : No propane
             }
@@ -743,8 +741,7 @@ namespace CStat.Common
             eidx = Math.Max(0, Math.Min(tList.Count - 1, eidx));
 
             // Dump tasks
-            string report = "Requested Tasks\n";
-            report += "---------------------------\n";
+            string report = "Requested Tasks :\n";
             if (tList.Count > 0)
             {
                 for (int i = sidx; i <= eidx; ++i)
@@ -802,8 +799,7 @@ namespace CStat.Common
             }
 
             // Dump tasks
-            string report = "Requested Events\n";
-            report += "---------------------------\n";
+            string report = "Requested Events :\n";
 
             if ((eList != null) && (eList.Count > 0))
             {

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using CStat.Areas.Identity.Data;
+using System.Security.Claims;
 
 namespace CStat.Pages.Tasks
 {
@@ -27,15 +28,18 @@ namespace CStat.Pages.Tasks
         private readonly long _personRoles;
 
         public bool IsTemplate = false;
-
         public IndexModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
-             _context = context;
-             hostEnv = hstEnv;
+            _context = context;
+            hostEnv = hstEnv;
             var csSettings = CSSettings.GetCSSettings(config, userManager);
-            string email = httpCA.HttpContext.User.Identity.Name;
+            string email = httpCA.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            if (email == null)
+                email = httpCA.HttpContext.User.Identity.Name;
             _userSettings = csSettings.GetUser(email);
-            Person person = context.Person.FirstOrDefault(m => m.Email == email);
+            if (_userSettings != null)
+                _userSettings.SetPersonIDByEmail(context);
+            Person person = (email != null) ? context.Person.FirstOrDefault(m => m.Email == email) : null;
             _personId = (person != null) ? person.Id : -1;
             _personRoles = ((person != null) && (person.Roles.HasValue)) ? person.Roles.Value : 0;
         }
@@ -49,7 +53,7 @@ namespace CStat.Pages.Tasks
             if (!IsTemplate)
             {
                 IList<CTask> CompTasks;
-                if (_userSettings.ShowAllTasks || (_personId == -1))
+                if ((_userSettings == null) || _userSettings.ShowAllTasks || (_personId == -1))
                 {
                     // Get List to Show ALL Tasks
                     Task = await _context.Task

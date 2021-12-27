@@ -398,3 +398,5 @@ healthchecksdb
 /wwwroot/images/csrefresh.svg
 /Common/_CSSMS.cs
 /Controllers/_SMSController.cs
+/Pages/Events/CStat.json
+/CStat12.json

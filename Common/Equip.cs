@@ -244,7 +244,7 @@ namespace CStat.Common
                     continue;
                 if (!alertsOnly || CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
                 {
-                    report += "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false) + "\n";
+                    report += "* " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false) + "\n";
                 }
             }
             return true;

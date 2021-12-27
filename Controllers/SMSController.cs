@@ -55,8 +55,7 @@ namespace TwilioReceive.Controllers
                 return SendMsgResp(name, "How can I help?");
             var words = CmdMgr.GetWords(reqStr);
             var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser);
-            cmdMgr.ExecuteCmd(words);
-            return SendMsgResp("Huh?");
+            return SendMsgResp(cmdMgr.ExecuteCmd(words));
         }
 
         private TwiMLResult SendMsgResp(string name, string respStr)

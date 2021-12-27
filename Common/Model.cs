@@ -140,7 +140,7 @@ namespace CStat.Models
             Hall_Wash_Closet = 10
         };
 
-        public static string GetInventoryReport(CStatContext context, IConfiguration config, bool justNeeded, out string subject)
+        public static string GetInventoryReport(CStatContext context, IConfiguration config, bool justNeeded, out string subject, bool withHdr)
         {
             var InventoryItems = context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).Include(i => i.Person).OrderByDescending(i => (i.State != null) ? i.State % 3 : 0).ToList();
             string[] StateStr = { "ok", "NEEDED: unassigned", "BUYING", "Not Checked" };
@@ -148,7 +148,7 @@ namespace CStat.Models
             string report = "";
             DateTime Now = PropMgr.ESTNow;
             subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
-            report += subject + "\n--------------------------------\n";
+            report = (withHdr) ? subject + "\n--------------------------------.\n" : "";
             foreach (var i in InventoryItems)
             {
                 var stateIdx = i.State.HasValue ? i.State.Value : 0;
@@ -158,7 +158,7 @@ namespace CStat.Models
                 var stateStr = ((stateIdx == 2) && (i.Person != null)) ? "BUYING: " + i.Person.GetShortName() : StateStr[stateIdx];
 
                  InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
-                report += "[" + stateStr + "] " + i.Item.Name.Trim() + " CUR: " + i.CurrentStock + " " + units.ToString() + "\n";
+                report += "[" + stateStr + "] " + i.Item.Name.Trim() + " CUR: " + i.CurrentStock + " " + units.ToString() + ".\n";
             }
             return report;
         }

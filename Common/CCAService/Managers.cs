@@ -1842,6 +1842,13 @@ namespace CStat
  
             }
 
+            pv = props.Find(prop => prop.Key == "Roles");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                person.Roles = long.Parse(pv.Value.Trim());
+
+            }
+
             var pva = from pair in props
                       where (pair.Key == "multicheckbox[]")
                       select pair;

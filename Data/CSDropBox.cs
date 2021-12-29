@@ -109,8 +109,8 @@ namespace CStat.Data
             }
         }
 
-        // Upload a file:
-        public async Task Upload(string folder, string file, string content)
+        // Upload a file as stream :
+        public async Task UploadStringToFile(string folder, string file, string content)
         {
             using (var mem = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content)))
             {
@@ -118,10 +118,19 @@ namespace CStat.Data
                     folder + "/" + file,
                     Dropbox.Api.Files.WriteMode.Overwrite.Instance,
                     body: mem);
-                Console.WriteLine("Saved {0}/{1} rev {2}", folder, file, updated.Rev);
             }
         }
-    }
 
+        // Upload a file:
+        public async Task UploadFile(string srcFile, string destFolder, string destFile)
+        {
+            FileStream fs = new FileStream(srcFile, FileMode.Open, FileAccess.Read);
+            var updated = await dbx.Files.UploadAsync(
+                destFolder + "/" + destFile,
+                Dropbox.Api.Files.WriteMode.Overwrite.Instance,
+                body: fs);
+            fs.Close();
+        }
+    }
 }
 

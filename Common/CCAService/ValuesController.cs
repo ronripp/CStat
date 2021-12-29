@@ -91,6 +91,7 @@ namespace CStat
         public Nullable<int> PG2_Person_id { get; set; }
         public Nullable<int> Church_id { get; set; }
         public long SkillSets { get; set; }
+        public long Roles { get; set; } = 0;
         public string CellPhone { get; set; }
         public string EMail { get; set; }
         public string ContactPref { get; set; }

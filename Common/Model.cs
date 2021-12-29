@@ -167,7 +167,7 @@ namespace CStat.Models
     public partial class Person
     {
         public enum TitleRoles { Undefined = 0, Blds_Gnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
-                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, ECMember = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000 };
+                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, MembAtLarge = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000 };
 
         public enum eGender
         {
@@ -341,6 +341,7 @@ namespace CStat.Models
                     m.PG2_Person_id = pa.p.Pg2PersonId;
                     m.Church_id = pa.p.ChurchId;
                     m.SkillSets = pa.p.SkillSets;
+                    m.Roles = pa.p.Roles.HasValue ? pa.p.Roles.Value : 0;
                     m.CellPhone = pa.p.CellPhone;
                     m.EMail = pa.p.Email;
                     m.ContactPref = pa.p.ContactPref;
@@ -477,6 +478,7 @@ namespace CStat.Models
             PersonMgr.AddToSelect(ref sel, "Address.State", fa.State, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "Person.Gender", fp.Gender.GetValueOrDefault(0), ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "Person.SkillSets", fp.SkillSets, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "Person.Roles", fp.Roles.GetValueOrDefault(0), ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "Person.Status", fp.Status, ref bFiltered);
             if (!fp.Dob.GetValueOrDefault().Equals(new DateTime(1900, 1, 1)))
                 PersonMgr.AddToSelect(ref sel, "Person.DOB", fp.Dob.GetValueOrDefault(), true, ref bFiltered);
@@ -529,6 +531,7 @@ namespace CStat.Models
                             if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Church_id)))
                                 m.Church_id = (int?)row.GetValue((int)Person.ePA.Church_id);
                             m.SkillSets = (long)row.GetValue((int)Person.ePA.SkillSets);
+                            m.Roles = (long)row.GetValue((int)Person.ePA.Roles);
                             m.CellPhone = (string)row.GetValue((int)Person.ePA.CellPhone).ToString();
                             m.EMail = (string)row.GetValue((int)Person.ePA.EMail).ToString();
                             m.ContactPref = (string)row.GetValue((int)Person.ePA.ContactPref).ToString();

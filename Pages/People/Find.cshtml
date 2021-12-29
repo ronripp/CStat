@@ -72,7 +72,7 @@
                 raw += "FName=" + $("#zPerson_FirstName").val().trim();
                 raw += "&LName=" + $("#zPerson_LastName").val().trim();
                 raw += "&Gender=" + $("#zPerson_Gender").val().trim();
-                raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
+                raw += "&AgeRange=" + $("#zPerson_AgeRange").val().trim();
                 raw += "&Church=" + $("#zPerson_ChurchId").val().trim();
 
 //                raw += "&DOB=" + $("#zPerson_DOB").val().trim();
@@ -88,8 +88,14 @@
 ////                raw += "&PG1=" + $("#zPersion_PG1").val().trim();
 ////                raw += "&PG2=" + $("#zPerson_PG2").val().trim();
 
-
                 raw += "&SkillSets=" + $("#zPerson_SkillSets").val().trim();
+
+                let roles = 0;
+                $('#zPerson_Roles option:selected').each(function () {
+                    roles |= $(this).val();
+                });
+                raw += "&Roles=" + roles;
+
                 //// ALTERNATE 
                 //$("button[id^='BtnId']").each(function () {
                 //    if ($(this).css("background-color") == "rgb(173, 255, 47)")
@@ -167,15 +173,19 @@
             </div>
             <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
                 <label asp-for="_Person.Gender">Gender</label>
-                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender"  data-val="false"></select>
+                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Person.ChurchId" +":">Church:</label>
-                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em"  data-val="false"></select>
+                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:10em" data-val="false"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Person.AgeRange" +":">Age(s):</label>
-                <input asp-for="_Person.AgeRange" style="max-width:9em" data-val="false" disabled/>
+                <input asp-for="_Person.AgeRange" style="max-width:9em" data-val="false" disabled />
+            </div>
+            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_Person.Roles" +":">Role(s):</label>
+                <select asp-for="_Person.Roles" asp-items="ViewBag.TitleRoles" style="max-width:12em; max-height:4.5em; vertical-align: middle;" data-val="false" multiple></select>
             </div>
             <div class="form-group">
                 <input type="button" onclick="findPeople()" value="Find People" class="btn btn-primary" />

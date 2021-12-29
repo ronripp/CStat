@@ -1,4 +1,5 @@
 ﻿using CStat.Areas.Identity.Data;
+using CStat.Data;
 using CStat.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -63,7 +64,8 @@ namespace CStat.Common
             EVENT    = 0x00002000,
             ATTENDANCE = 0x00004000,
             MENU     = 0x00008000,
-            URGENCY  = 0x00010000
+            URGENCY  = 0x00010000,
+            CSTEST   = 0x00020000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -117,7 +119,8 @@ namespace CStat.Common
             {"phonenumber", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) }
+            {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) }
         };
 
         //===============================================================
@@ -202,6 +205,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
+            _srcDelegateDict.Add(CmdSource.CSTEST, HandleCSTest);
         }
 
         public static List<string> GetWords(string cmdStr)
@@ -828,6 +832,32 @@ namespace CStat.Common
         private string HandleDocs(List<string> words)
         {
             return "Not Implemented";
+        }
+
+        //***************************************************************
+        private string HandleCSTest(List<string> words)
+        //***************************************************************
+        {
+            var cse = new CSEMail(_config);
+            String report = "";
+            var eList = cse.ReadEMails();
+            foreach (var e in eList)
+            {
+                report += e.Subject + ".\n";
+                report += e.Body.ToString() + ".\n";
+            }
+
+            //_HandleCSTest().Wait();
+            return report;
+        }
+
+        //***************************************************************
+        private async Task<string> _HandleCSTest()
+        //***************************************************************
+        {
+            var dbox = new CSDropBox(Startup.CSConfig);
+            await dbox.UploadFile("c:\\cca\\regulations.docx", "/Manuals & Procedures/Operation Manuals/Reference", "reg211228_1.docx");
+            return "Uploaded file";
         }
 
         private CmdAction _cmdAction = default;

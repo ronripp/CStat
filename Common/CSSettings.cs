@@ -34,6 +34,7 @@ namespace CStat.Common
 
         public DateTime LastTaskUpdate { get; set; }
         public DateTime LastStockUpdate { get; set; }
+        public DateTime LastEMailRead { get; set; } = default;
         public List<CSUser> UserSettings { get; set; }
         public List<EquipProp> EquipProps { get; set; }
         public List<EquipProp> ActiveEquip { get; set; }
@@ -96,6 +97,7 @@ namespace CStat.Common
             var csect = _config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
+            LastEMailRead = csect.GetValue<DateTime>("LastEMailRead");
             var ch = _config.GetSection("CSSettings:UserSettings").GetChildren();
             UserSettings = new List<CSUser>();
             foreach (var c in ch)

@@ -506,7 +506,7 @@ namespace CStat.Common
         {
             var justNeeded = _cmdAction == CmdAction.NEED;
             var report = InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
-            CSEMail csEMail = new CSEMail(_config);
+            CSEMail csEMail = new CSEMail(_config, _userManager);
             return "Inventory " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
         }
         private string HandleUrgency(List<string> words)
@@ -838,7 +838,7 @@ namespace CStat.Common
         private string HandleCSTest(List<string> words)
         //***************************************************************
         {
-            var cse = new CSEMail(_config);
+            var cse = new CSEMail(_config, _userManager);
             String report = "";
             var eList = cse.ReadEMails();
             foreach (var e in eList)

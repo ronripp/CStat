@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using MailKit.Net.Pop3;
 using System.Net;
 using System.IO;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 
 namespace CStat.Common
 {
@@ -29,13 +31,13 @@ namespace CStat.Common
 		private readonly string fromPass = null;
 		public string sendResult = "";
 		private MailKit.Net.Pop3.Pop3Client readClient = null;
+		public CSSettings _settings { get; set; }
 
-		public CSEMail(IConfiguration configuration)
+		public CSEMail(IConfiguration config, UserManager<CStatUser> userManager)
 		{
-			Configuration = configuration;
-			fromPass = Configuration["CSEMail:SenderPassword"];
+			fromPass = config["CSEMail:SenderPassword"];
+			_settings = CSSettings.GetCSSettings(config, userManager);
 		}
-		public IConfiguration Configuration { get; }
 
 		public bool Send(string toName, string toAdr, string subject, string body)
 		{
@@ -70,6 +72,7 @@ namespace CStat.Common
 		}
 		public List<REMail> ReadEMails()
 		{
+			bool NeedSave = false;
 			try
 			{
 				using (readClient = new Pop3Client())
@@ -86,16 +89,20 @@ namespace CStat.Common
 					readClient.AuthenticationMechanisms.Remove("XOAUTH2");
 					readClient.Authenticate(credentials, cancel.Token);
 
-					//Fetch Emails
+					// Read EMails roughly after those we read last
 					var reList = new List<REMail>();
+					var LatestSentDT = (_settings.LastEMailRead == default) ? _settings.LastEMailRead : _settings.LastEMailRead.AddHours(-1); // Make sure we do not miss slow sent emails.
 					for (int i = 0; i < readClient.Count; i++)
 					{
 						var msg = readClient.GetMessage(i);
+						DateTime sentDate = PropMgr.UTCtoEST(msg.Date.DateTime);
+						if (sentDate <= LatestSentDT)
+							continue;
 						var re = new REMail();
 						re.Subject = msg.Subject;
 						re.Body = msg.TextBody;
 						re.From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
-						re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
+						re.Date = sentDate;
 						re.Attachments = new List<string>();
 						foreach (var attachment in msg.Attachments)
 						{
@@ -129,9 +136,18 @@ namespace CStat.Common
 							}
 							re.Attachments.Add(fileName);
 						}
+						if (sentDate > _settings.LastEMailRead)
+						{
+							NeedSave = true;
+							_settings.LastEMailRead = sentDate;
+						}
 						reList.Add(re);
 					}
 					readClient.Disconnect(true);
+
+					if (NeedSave)
+						_settings.Save();
+
 					return reList;
 				}
 			}

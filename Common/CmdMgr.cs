@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static CStat.Models.Event;
@@ -844,20 +845,34 @@ namespace CStat.Common
             foreach (var e in eList)
             {
                 report += e.Subject + ".\n";
-                report += e.Body.ToString() + ".\n";
+
+                if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
+                    e.AddHtmlAsPDFAttachment();
+
+                if (e.Attachments.Count > 0)
+                {
+                    var dbox = new CSDropBox(Startup.CSConfig);
+                    var destPath = "/Memorandums";
+                    foreach (var a in e.Attachments)
+                    {
+                        string FileName = Path.GetFileName(a);
+                        if (dbox.FileExists(Path.Combine(destPath, FileName)))
+                        {
+                            var fBody = Path.GetFileNameWithoutExtension(FileName);
+                            var fExt = Path.GetExtension(FileName);
+                            for (char j = 'A'; j < 'Z'; ++j)
+                            {
+                                FileName = fBody + "_Rev_" + j.ToString() + fExt;
+                                if (!dbox.FileExists(Path.Combine(destPath, FileName)))
+                                    break;
+                            }
+                        }
+                        if (dbox.UploadFile(a, destPath, FileName))
+                            File.Delete(a);
+                    }
+                }
             }
-
-            //_HandleCSTest().Wait();
             return report;
-        }
-
-        //***************************************************************
-        private async Task<string> _HandleCSTest()
-        //***************************************************************
-        {
-            var dbox = new CSDropBox(Startup.CSConfig);
-            await dbox.UploadFile("c:\\cca\\regulations.docx", "/Manuals & Procedures/Operation Manuals/Reference", "reg211228_1.docx");
-            return "Uploaded file";
         }
 
         private CmdAction _cmdAction = default;
@@ -887,5 +902,6 @@ namespace CStat.Common
         private int _cmdDateTimeEndIdx = -1;
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
+        private object dbox;
     }
 }

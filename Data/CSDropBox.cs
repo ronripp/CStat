@@ -6,11 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Dropbox.Api.Files;
 
 namespace CStat.Data
 {
     public class CSDropBox
     {
+        // Note : Dropbox path starts with /
         public DropboxClient dbx = null;
         public Dropbox.Api.Files.ListFolderResult FolderList = null;
         public CSDropBox(IConfiguration configuration)
@@ -110,7 +112,7 @@ namespace CStat.Data
         }
 
         // Upload a file as stream :
-        public async Task UploadStringToFile(string folder, string file, string content)
+        public async Task UploadStringToFileAsync(string folder, string file, string content)
         {
             using (var mem = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content)))
             {
@@ -122,7 +124,7 @@ namespace CStat.Data
         }
 
         // Upload a file:
-        public async Task UploadFile(string srcFile, string destFolder, string destFile)
+        public async Task<Metadata> UploadFileAsync(string srcFile, string destFolder, string destFile)
         {
             FileStream fs = new FileStream(srcFile, FileMode.Open, FileAccess.Read);
             var updated = await dbx.Files.UploadAsync(
@@ -130,7 +132,60 @@ namespace CStat.Data
                 Dropbox.Api.Files.WriteMode.Overwrite.Instance,
                 body: fs);
             fs.Close();
+            return updated;
         }
+
+        public bool UploadFile(string srcFile, string destFolder, string destFile)
+        {
+            var upTask = UploadFileAsync(srcFile, destFolder, destFile);
+            upTask.Wait();
+            return upTask.Result != null;
+        }
+
+        public bool FileExists(string path)
+        {
+            var feTask = FileExistsAsync(path);
+            feTask.Wait();
+            return feTask.Result;
+        }
+
+        public async Task<bool> FileExistsAsync(string path)
+        {
+            try
+            {
+                Metadata res = await dbx.Files.GetMetadataAsync(path);
+                Console.WriteLine("{0}", res);
+            }
+            catch (ApiException<GetMetadataError> e)
+            {
+                if (e.ErrorResponse.IsPath)
+                {
+                    if (e.ErrorResponse.AsPath.Value.IsNotFound)
+                    {
+                        Console.WriteLine("Path not found!");
+                    }
+                    else if (e.ErrorResponse.AsPath.Value.IsMalformedPath)
+                    {
+                        Console.WriteLine("Malformed path!");
+                    } // and so on for the other .Is* methods as desired
+                    else
+                    {
+                        Console.WriteLine("LookupError: {0}", e.ErrorResponse.AsPath.Value);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("GetMetadataError: {0}", e);
+                }
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Some other error: {0}", e);
+            }
+            return true;
+        }
+
     }
 }
 

@@ -869,8 +869,17 @@ namespace CStat.Common
 
         public static DateTime UTCtoEST(DateTime utcDT)
         {
-            TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(utcDT, easternZone);
+            if (utcDT.Kind == DateTimeKind.Local)
+                return utcDT; // TBD : May not be correct
+            try
+            {
+                TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                return TimeZoneInfo.ConvertTimeFromUtc(utcDT, easternZone);
+            }
+            catch
+            {
+                return utcDT;
+            }
         }
 
         public static string ESTNowStr

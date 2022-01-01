@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using CStat.Areas.Identity.Data;
 using CStat.Common;
 using SelectPdf;
+using System.Globalization;
 
 namespace CStat.Common
 {
@@ -91,7 +92,7 @@ namespace CStat.Common
 			{
 				var fBody = Path.GetFileNameWithoutExtension(fileName);
 				var fExt = Path.GetExtension(fileName);
-				for (char j = 'A'; j < 'Z'; ++j)
+				for (char j = 'B'; j < 'Z'; ++j)
 				{
 					fileName = Path.Combine(TempPath, fBody + "_Rev_" + j.ToString() + fExt);
 					if (!File.Exists(fileName))
@@ -170,19 +171,91 @@ namespace CStat.Common
 
 					// Read EMails roughly after those we read last
 					var reList = new List<REMail>();
-					var LatestSentDT = (_settings.LastEMailRead == default) ? _settings.LastEMailRead : _settings.LastEMailRead.AddMinutes(-30); // TBD: Make sure we do not miss slow sent emails.
+					CultureInfo enUS = new CultureInfo("en-US");
+					var LatestEMailRead = _settings.LastEMailRead;
 					for (int i = 0; i < readClient.Count; i++)
 					{
 						var msg = readClient.GetMessage(i);
-						DateTime sentDate = PropMgr.UTCtoEST(msg.Date.DateTime);
-						if (sentDate <= LatestSentDT)
-							continue;
+
+						// Get Received Date and use it to keep track of emails we have already read and processed.
+						DateTime EMailReceived = default;
+						if (msg.Headers != null)
+						{
+							if (msg.Headers["Received"] != null)
+							{
+								var rval = msg.Headers["Received"];
+								var rFields = rval.Split(";");
+								foreach (var f in rFields)
+                                {
+									var fld = f.Trim();
+									if (fld.Length < 45)
+									{
+										string format = "ddd, dd MMM yyyy HH:mm:ss zzz"; // Parse date and time with custom specifier.
+										try
+										{
+											EMailReceived = DateTime.ParseExact(fld, format, enUS, DateTimeStyles.None);
+										}
+										catch (FormatException)
+										{
+											EMailReceived = default;
+										}
+									}
+									if (EMailReceived != default)
+										break;
+								}
+							}
+						}
+
+						// Get DateTime Originally Sent
+
+						//TEMP: if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
+						//TEMP:	continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
 						var re = new REMail();
 						re.Subject = msg.Subject;
-						re.TextBody = msg.TextBody;
 						re.HtmlBody = msg.HtmlBody;
+						re.TextBody = msg.TextBody;
+						var tbFlds = msg.TextBody.Split("\r\n");
+						foreach (var t in tbFlds)
+                        {
+							var tfld = t.Trim();
+							if (tfld.StartsWith ("Sent:") || tfld.StartsWith("Date:"))
+							{
+								tfld = tfld.Substring(5).Trim().Replace(" at ", " ");
+								string format = "ddd, dd MMM yyyy HH:mm:ss zzz";
+								if (tfld.Contains("AM", StringComparison.OrdinalIgnoreCase) || tfld.Contains("PM", StringComparison.OrdinalIgnoreCase))
+								{
+									// Determine exact format
+									var off1 = tfld.IndexOf(", ");
+									format =  (off1 > 3) ? "dddd, " : "ddd, ";
+
+									off1 += 2;
+									var off2 = tfld.IndexOf(" ", off1);
+									format += ((off2 - off1) > 3) ? "MMMM " : "MMM ";
+
+									var rFlds = (tfld.Substring(off2 + 1).Replace(":", " ").Replace(",", "")).Split(" ");
+									if (rFlds.Count() >= 4)
+                                    {
+										format += (rFlds[0].Length > 1) ? "dd, yyyy " : "d, yyyy "; // Day #
+										format += (rFlds[2].Length > 1) ? "hh:" : "h:"; // Hour
+										format += (rFlds[3].Length > 1) ? "mm tt" : "m tt"; // Minutes
+									}
+									if (!tfld.EndsWith("AM", StringComparison.OrdinalIgnoreCase) && !tfld.EndsWith("PM", StringComparison.OrdinalIgnoreCase))
+										format += "zzz";
+								}
+								try
+								{ 
+									re.Date = DateTime.ParseExact(tfld, format, enUS, DateTimeStyles.None);
+									break;
+								}
+								catch (Exception e)
+                                {
+									re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
+								}
+                            }
+                        }
 						re.From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
-						re.Date = sentDate;
+						if (re.Date == default)
+							re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
 						re.Attachments = new List<string>();
 						foreach (var attachment in msg.Attachments)
 						{
@@ -206,10 +279,10 @@ namespace CStat.Common
 							}
 							re.Attachments.Add(fileName);
 						}
-						if (sentDate > _settings.LastEMailRead)
+						if (EMailReceived > _settings.LastEMailRead)
 						{
 							NeedSave = true;
-							_settings.LastEMailRead = sentDate;
+							_settings.LastEMailRead = EMailReceived;
 						}
 						reList.Add(re);
 					}
@@ -221,9 +294,9 @@ namespace CStat.Common
 					return reList;
 				}
 			}
-			catch
+			catch(Exception e)
             {
-				return new List<REMail>();
+				return new List<REMail>(); // TBD Log failure
             }
 		}
 	}

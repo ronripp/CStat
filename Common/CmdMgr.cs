@@ -856,14 +856,14 @@ namespace CStat.Common
                     foreach (var a in e.Attachments)
                     {
                         string FileName = Path.GetFileName(a);
-                        if (dbox.FileExists(Path.Combine(destPath, FileName)))
+                        if (dbox.FileExists(destPath + "/" + FileName))
                         {
                             var fBody = Path.GetFileNameWithoutExtension(FileName);
                             var fExt = Path.GetExtension(FileName);
-                            for (char j = 'A'; j < 'Z'; ++j)
+                            for (char j = 'B'; j < 'Z'; ++j)
                             {
                                 FileName = fBody + "_Rev_" + j.ToString() + fExt;
-                                if (!dbox.FileExists(Path.Combine(destPath, FileName)))
+                                if (!dbox.FileExists(destPath + "/" + FileName))
                                     break;
                             }
                         }
@@ -902,6 +902,5 @@ namespace CStat.Common
         private int _cmdDateTimeEndIdx = -1;
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
-        private object dbox;
     }
 }

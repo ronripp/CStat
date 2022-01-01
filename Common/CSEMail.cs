@@ -315,7 +315,7 @@ namespace CStat.Common
 		public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
 		{
 			var cse = new CSEMail(config, userManager);
-			String report = "";
+			String report = "Save EMails.\n";
 			var eList = cse.ReadEMails();
 			foreach (var e in eList)
 			{
@@ -342,7 +342,8 @@ namespace CStat.Common
 									break;
 							}
 						}
-						dbox.UploadFile(a, destPath, FileName);
+						if (dbox.UploadFile(a, destPath, FileName))
+							report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
 						File.Delete(a);
 					}
 				}

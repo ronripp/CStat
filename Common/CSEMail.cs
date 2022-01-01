@@ -15,17 +15,23 @@ using CStat.Areas.Identity.Data;
 using CStat.Common;
 using SelectPdf;
 using System.Globalization;
+using CStat.Data;
 
 namespace CStat.Common
 {
 	public class REMail
 	{
+		public REMail(int index)
+        {
+			Index = index;
+        }
 		public string From { get; set; } = "";
 		public string Subject { get; set; } = "";
 		public DateTime Date { get; set; } = default;
 		public string TextBody { get; set; } = "";
 		public string HtmlBody { get; set; } = "";
 		public List<string> Attachments;
+		private int Index = 0;
 
 		public bool AddHtmlAsPDFAttachment(string fname = null)
 		{
@@ -67,9 +73,9 @@ namespace CStat.Common
 						else
 							fBody = "Memo (" + Date.Month + "-" + Date.Day + "-" + Date.Year % 100 + ")";
 					}
-					fname = Path.Combine(Path.GetTempPath(), fBody + ".pdf");
+					fname = fBody + ".pdf";
 				}
-				fname = REMail.GetUniqueTempFileName(fname);
+				fname = GetUniqueTempFileName(fname, false);
 
 				// create a new pdf document converting an url
 				PdfDocument doc = converter.ConvertHtmlString(HtmlStr);
@@ -85,13 +91,14 @@ namespace CStat.Common
 			}
 			return File.Exists(fname);
 		}
-		public static string GetUniqueTempFileName (string fileName)
+		public string GetUniqueTempFileName (string fName, bool isAtt)
         {
 			var TempPath = Path.GetTempPath();
+			var fBody = (isAtt ? "A" : "T") + Index.ToString("000") + Path.GetFileNameWithoutExtension(fName);
+			var fExt = Path.GetExtension(fName);
+			var fileName = Path.Combine(TempPath, fBody + fExt);
 			if (File.Exists(fileName))
 			{
-				var fBody = Path.GetFileNameWithoutExtension(fileName);
-				var fExt = Path.GetExtension(fileName);
 				for (char j = 'B'; j < 'Z'; ++j)
 				{
 					fileName = Path.Combine(TempPath, fBody + "_Rev_" + j.ToString() + fExt);
@@ -100,6 +107,12 @@ namespace CStat.Common
 				}
 			}
 			return fileName;
+		}
+		public string GetFinalFileName(string fName)
+		{
+			var IndexStr = Index.ToString("000");
+			return ((fName.Length <= 4) || (!fName.StartsWith("A" + IndexStr, StringComparison.OrdinalIgnoreCase) && !fName.StartsWith("T" + IndexStr, StringComparison.OrdinalIgnoreCase))) ?
+				fName : fName.Substring(4);
 		}
 	}
 
@@ -208,9 +221,9 @@ namespace CStat.Common
 
 						// Get DateTime Originally Sent
 
-						//TEMP: if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
-						//TEMP:	continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
-						var re = new REMail();
+						if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
+							continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
+						var re = new REMail(i);
 						re.Subject = msg.Subject;
 						re.HtmlBody = msg.HtmlBody;
 						re.TextBody = msg.TextBody;
@@ -259,9 +272,8 @@ namespace CStat.Common
 						re.Attachments = new List<string>();
 						foreach (var attachment in msg.Attachments)
 						{
-							var TempPath = Path.GetTempPath();
-							var fileName = Path.Combine(TempPath, attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att");
-							fileName = REMail.GetUniqueTempFileName(fileName);
+							var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att";
+							fileName = re.GetUniqueTempFileName(fileName, true);
 							using (var stream = File.Create(fileName))
 							{
 								if (attachment is MessagePart)
@@ -298,6 +310,44 @@ namespace CStat.Common
             {
 				return new List<REMail>(); // TBD Log failure
             }
+		}
+
+		public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
+		{
+			var cse = new CSEMail(config, userManager);
+			String report = "";
+			var eList = cse.ReadEMails();
+			foreach (var e in eList)
+			{
+				report += e.Subject + ".\n";
+
+				if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
+					e.AddHtmlAsPDFAttachment();
+
+				if (e.Attachments.Count > 0)
+				{
+					var dbox = new CSDropBox(Startup.CSConfig);
+					var destPath = "/Memorandums";
+					foreach (var a in e.Attachments)
+					{
+						string FileName = e.GetFinalFileName(Path.GetFileName(a));
+						if (dbox.FileExists(destPath + "/" + FileName))
+						{
+							var fBody = Path.GetFileNameWithoutExtension(FileName);
+							var fExt = Path.GetExtension(FileName);
+							for (char j = 'B'; j < 'Z'; ++j)
+							{
+								FileName = fBody + "_Rev_" + j.ToString() + fExt;
+								if (!dbox.FileExists(destPath + "/" + FileName))
+									break;
+							}
+						}
+						dbox.UploadFile(a, destPath, FileName);
+						File.Delete(a);
+					}
+				}
+			}
+			return report;
 		}
 	}
 }

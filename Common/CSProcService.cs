@@ -124,6 +124,9 @@ namespace CStat.Common
                         }
                     }
 
+                    // Check for new EMails to store
+                    CSEMail.SaveEMails(_configuration, _userManager);
+
                     // Check/Truncate Size of Arduino file
                     ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                     amgr.GetAll(true);

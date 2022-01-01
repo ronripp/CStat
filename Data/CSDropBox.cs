@@ -139,7 +139,7 @@ namespace CStat.Data
         {
             var upTask = UploadFileAsync(srcFile, destFolder, destFile);
             upTask.Wait();
-            return upTask.Result != null;
+            return (upTask.Result != null) && (upTask.Result.IsFile);
         }
 
         public bool FileExists(string path)

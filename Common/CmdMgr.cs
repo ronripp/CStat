@@ -855,7 +855,7 @@ namespace CStat.Common
                     var destPath = "/Memorandums";
                     foreach (var a in e.Attachments)
                     {
-                        string FileName = Path.GetFileName(a);
+                        string FileName = e.GetFinalFileName(Path.GetFileName(a));
                         if (dbox.FileExists(destPath + "/" + FileName))
                         {
                             var fBody = Path.GetFileNameWithoutExtension(FileName);
@@ -867,8 +867,8 @@ namespace CStat.Common
                                     break;
                             }
                         }
-                        if (dbox.UploadFile(a, destPath, FileName))
-                            File.Delete(a);
+                        dbox.UploadFile(a, destPath, FileName);
+                        File.Delete(a);
                     }
                 }
             }

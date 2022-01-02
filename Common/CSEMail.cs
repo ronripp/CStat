@@ -184,7 +184,6 @@ namespace CStat.Common
 
 					// Read EMails roughly after those we read last
 					var reList = new List<REMail>();
-					CultureInfo enUS = new CultureInfo("en-US");
 					var LatestEMailRead = _settings.LastEMailRead;
 					for (int i = 0; i < readClient.Count; i++)
 					{
@@ -203,18 +202,10 @@ namespace CStat.Common
 									var fld = f.Trim();
 									if (fld.Length < 45)
 									{
-										string format = "ddd, dd MMM yyyy HH:mm:ss zzz"; // Parse date and time with custom specifier.
-										try
-										{
-											EMailReceived = DateTime.ParseExact(fld, format, enUS, DateTimeStyles.None);
-										}
-										catch (FormatException)
-										{
-											EMailReceived = default;
-										}
+										EMailReceived = CSEMail.ParseDetailedDate(fld);
+										if (EMailReceived != default)
+											break;
 									}
-									if (EMailReceived != default)
-										break;
 								}
 							}
 						}
@@ -233,37 +224,7 @@ namespace CStat.Common
 							var tfld = t.Trim();
 							if (tfld.StartsWith ("Sent:") || tfld.StartsWith("Date:"))
 							{
-								tfld = tfld.Substring(5).Trim().Replace(" at ", " ");
-								string format = "ddd, dd MMM yyyy HH:mm:ss zzz";
-								if (tfld.Contains("AM", StringComparison.OrdinalIgnoreCase) || tfld.Contains("PM", StringComparison.OrdinalIgnoreCase))
-								{
-									// Determine exact format
-									var off1 = tfld.IndexOf(", ");
-									format =  (off1 > 3) ? "dddd, " : "ddd, ";
-
-									off1 += 2;
-									var off2 = tfld.IndexOf(" ", off1);
-									format += ((off2 - off1) > 3) ? "MMMM " : "MMM ";
-
-									var rFlds = (tfld.Substring(off2 + 1).Replace(":", " ").Replace(",", "")).Split(" ");
-									if (rFlds.Count() >= 4)
-                                    {
-										format += (rFlds[0].Length > 1) ? "dd, yyyy " : "d, yyyy "; // Day #
-										format += (rFlds[2].Length > 1) ? "hh:" : "h:"; // Hour
-										format += (rFlds[3].Length > 1) ? "mm tt" : "m tt"; // Minutes
-									}
-									if (!tfld.EndsWith("AM", StringComparison.OrdinalIgnoreCase) && !tfld.EndsWith("PM", StringComparison.OrdinalIgnoreCase))
-										format += "zzz";
-								}
-								try
-								{ 
-									re.Date = DateTime.ParseExact(tfld, format, enUS, DateTimeStyles.None);
-									break;
-								}
-								catch (Exception e)
-                                {
-									re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
-								}
+								re.Date = CSEMail.ParseDetailedDate(tfld);
                             }
                         }
 						re.From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
@@ -312,7 +273,88 @@ namespace CStat.Common
             }
 		}
 
-		public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
+		public static DateTime ParseDetailedDate(string rawDStr)
+        {
+			CultureInfo enUS = new CultureInfo("en-US");
+			DateTime ResDT = default;
+			var dStr = rawDStr.Substring(5).Trim().Replace(" at ", " ");
+			bool isMilitary = (!dStr.Contains("AM", StringComparison.OrdinalIgnoreCase) && !dStr.Contains("PM", StringComparison.OrdinalIgnoreCase));
+
+			var dFlds = dStr.Split(" ").Select(s => s.Trim()).ToArray();
+			if ((dFlds.Length < 6) || (dFlds.Length > 7))
+				return default;
+			if (!PropMgr.IsDOW(dFlds[0]))
+				return default;
+
+			var format = (dFlds[0].Length > 3) ? "dddd, " : "ddd, ";
+
+			int day = 0;
+			int month = 0;
+			if (PropMgr.TryParseMonth(dFlds[1], out month))
+            {
+				if (!int.TryParse(dFlds[2], out day))
+					return default;
+				format += (dFlds[1].Length > 3) ? "MMMM " : "MMM ";
+				format += (dFlds[2].Length > 1) ? "dd, " : "d, ";
+			}
+			else if (PropMgr.TryParseMonth(dFlds[2], out month))
+			{
+				if (!int.TryParse(dFlds[1], out day))
+					return default;
+				format += (dFlds[1].Length > 1) ? "dd " : "d ";
+				format += (dFlds[2].Length > 3) ? "MMMM " : "MMM ";
+			}
+
+			int year = 0;
+			if (!int.TryParse(dFlds[3], out year) || (year < 2000))
+				return default;
+
+			int hours = -1;
+			int minutes = -1;
+			int seconds = -1;
+			bool hasSeconds = false;
+			var times = dFlds[4].Split(":");
+			if (times.Count() == 3)
+            {
+				hasSeconds = int.TryParse(times[2], out seconds);
+            }
+			if ((times.Count() == 2) || hasSeconds)
+			{
+				int.TryParse(times[0], out hours);
+				int.TryParse(times[1], out minutes);
+				if (isMilitary)
+					format += (times[0].Length > 1) ? "HH:" : "H:";
+				else
+					format += (times[0].Length > 1) ? "hh:" : "h:";
+				format += (times[1].Length > 1) ? "mm" : "m";
+				if (hasSeconds)
+					format += (times[2].Length > 1) ? "ss" : "s";
+			}
+			else
+				return default;
+
+			if (dFlds[5].Contains("AM", StringComparison.OrdinalIgnoreCase) || dFlds[5].Contains("PM", StringComparison.OrdinalIgnoreCase))
+			{
+				format += " tt";
+				if (dFlds.Length == 7)
+					format += " zzz";
+			}
+			else
+				format += " zzz";
+
+			try
+			{
+				ResDT = DateTime.ParseExact(dStr, format, enUS, DateTimeStyles.None);
+			}
+			catch (Exception e)
+			{
+				// TBD Determine Date by hand
+				ResDT = new DateTime(); // TBD
+			}
+			return ResDT;
+        }
+
+        public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
 		{
 			var cse = new CSEMail(config, userManager);
 			String report = "Save EMails.\n";
@@ -342,8 +384,8 @@ namespace CStat.Common
 									break;
 							}
 						}
-						if (dbox.UploadFile(a, destPath, FileName))
-							report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
+						//TEMP!!! if (dbox.UploadFile(a, destPath, FileName))
+						//TEMP!!!	report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
 						File.Delete(a);
 					}
 				}

@@ -18,12 +18,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace CStat.Common
 {
-
     public class PropaneLevel
     {
-        static string[] DOWStr = { "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" };
+        public static string[] DOWStr = { "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" };
+
         public PropaneLevel(double levelPct, DateTime readingTime, double outsideTempF)
         {
             LevelPct = levelPct;
@@ -798,6 +799,17 @@ namespace CStat.Common
     }
     public static class PropMgr
     {
+        public static bool IsDOW(string str)
+        {
+            return PropaneLevel.DOWStr.Where(s => str.StartsWith(s)).Any();
+        }
+        static private List<string> MONList = new List<string> { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
+        public static bool TryParseMonth(string str, out int month)
+        {
+            month = MONList.IndexOf(str.Substring(0, 3).ToLower()) + 1;
+            return month > 0;
+        }
+
         public const int NotSet = -99;
         public const string sNotSet = "-99";
         public static Dictionary<string, string> GetSiteProperties(string url, string userName, string password, params string[] tokens)

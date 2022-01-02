@@ -806,6 +806,11 @@ namespace CStat.Common
         static private List<string> MONList = new List<string> { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
         public static bool TryParseMonth(string str, out int month)
         {
+            if (string.IsNullOrEmpty(str) || (str.Length < 3))
+            {
+                month = 0;
+                return false;
+            }
             month = MONList.IndexOf(str.Substring(0, 3).ToLower()) + 1;
             return month > 0;
         }

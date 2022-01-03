@@ -284,7 +284,7 @@ namespace CStat.Common
             try
             {
                 if (dFlds[0].Contains("/"))
-                    return DateTime.Parse(dStr);
+                    return DateTime.Parse(dStr); // Simpler DateTime
             }
             catch
             {

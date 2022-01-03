@@ -274,13 +274,23 @@ namespace CStat.Common
         {
             CultureInfo enUS = new CultureInfo("en-US");
             DateTime ResDT = default;
-            var dStr = rawDStr.Substring(5).Trim().Replace(" at ", " ");
+            var dStr = rawDStr.Substring(5).Trim().Replace(" at ", " ").Replace("{", "").Replace("}", "");
             bool isMilitary = (!dStr.Contains("AM", StringComparison.OrdinalIgnoreCase) && !dStr.Contains("PM", StringComparison.OrdinalIgnoreCase));
 
             var dFlds = dStr.Split(" ").Select(s => s.Trim()).ToArray();
-            var format = "";
+
             if (dFlds.Count() < 1)
                 return default;
+            try
+            {
+                if (dFlds[0].Contains("/"))
+                    return DateTime.Parse(dStr);
+            }
+            catch
+            {
+                return default;
+            }
+            var format = "";
             int idx = 0;
             if (PropMgr.IsDOW(dFlds[0]))
             {

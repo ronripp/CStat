@@ -209,8 +209,8 @@ namespace CStat.Common
 
                         // Get DateTime Originally Sent
 
-                        // TEMP !!! REMOVE if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
-                        // TEMP !!! REMOVE     continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
+                        if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
+                            continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
                         var re = new REMail(i);
                         re.Subject = msg.Subject;
                         re.HtmlBody = msg.HtmlBody;
@@ -269,7 +269,6 @@ namespace CStat.Common
                 return new List<REMail>(); // TBD Log failure
             }
         }
-
         public static DateTime ParseDetailedDate(string rawDStr)
         {
             CultureInfo enUS = new CultureInfo("en-US");
@@ -309,7 +308,7 @@ namespace CStat.Common
             int month = 0;
             if (PropMgr.TryParseMonth(dFlds[idx], out month))
             {
-                if (!int.TryParse(dFlds[idx+1], out day))
+                if (!int.TryParse(dFlds[idx+1].Replace(",", ""), out day))
                     return default;
                 format += (dFlds[idx].Length > 3) ? "MMMM " : "MMM ";
                 format += (dFlds[idx+1].Length > 1) ? "dd, " : "d, ";
@@ -323,9 +322,16 @@ namespace CStat.Common
             }
 
             int year = 0;
-            if (!int.TryParse(dFlds[idx+2], out year) || (year < 2000))
+            var yIdx = idx + 2;
+            if (dFlds[yIdx].EndsWith(","))
+            {
+                dFlds[yIdx].Replace(",", "");
+                format += "yyyy, ";
+            }
+            else
+                format += "yyyy ";
+            if (!int.TryParse(dFlds[yIdx], out year) || (year < 2000))
                 return default;
-            format += "yyyy ";
 
             int hours = -1;
             int minutes = -1;
@@ -431,8 +437,8 @@ namespace CStat.Common
                                     break;
                             }
                         }
-                        //TEMP!!! if (dbox.UploadFile(a, destPath, FileName))
-                        //TEMP!!!	report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
+                        if (dbox.UploadFile(a, destPath, FileName))
+                            report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
                         File.Delete(a);
                     }
                 }

@@ -23,7 +23,7 @@ namespace CStat.Common
 {
     public class PropaneLevel
     {
-        public static string[] DOWStr = { "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" };
+        public static string[] DOWStr = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
         public PropaneLevel(double levelPct, DateTime readingTime, double outsideTempF)
         {
@@ -801,7 +801,7 @@ namespace CStat.Common
     {
         public static bool IsDOW(string str)
         {
-            return PropaneLevel.DOWStr.Where(s => str.StartsWith(s)).Any();
+            return PropaneLevel.DOWStr.Where(s => str.StartsWith(s, StringComparison.OrdinalIgnoreCase)).Any();
         }
         static private List<string> MONList = new List<string> { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
         public static bool TryParseMonth(string str, out int month)

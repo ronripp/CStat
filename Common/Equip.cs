@@ -484,7 +484,7 @@ namespace CStat.Common
                 if (CSSettings.GetColor(cset.EquipProps, ep.PropName, null, pl, false) != CSSettings.green)
                 {
                     CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, null, pl, false), true, false); // Allow resend
+                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, null, pl, false), true, false); // Allow resend
                 }
             }
             return true;
@@ -501,7 +501,7 @@ namespace CStat.Common
                 if (CSSettings.GetColor(cset.EquipProps, ep.PropName, null, pl, false) != CSSettings.green)
                 {
                     CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-                    report += "CStat:Equip> " + ep.Title + "is " + CSSettings.GetEqValueStr(ep, null, pl, false) + "\n";
+                    report += "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, null, pl, false) + "\n";
                 }
             }
             return true;

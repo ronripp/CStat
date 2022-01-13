@@ -108,8 +108,9 @@ namespace CStat.Common
         public string GetFinalFileName(string fName)
         {
             var IndexStr = Index.ToString("000");
-            return ((fName.Length <= 4) || (!fName.StartsWith("A" + IndexStr, StringComparison.OrdinalIgnoreCase) && !fName.StartsWith("T" + IndexStr, StringComparison.OrdinalIgnoreCase))) ?
-                fName : fName.Substring(4);
+            var IsEmailText = fName.StartsWith("T" + IndexStr, StringComparison.OrdinalIgnoreCase);
+            return ((fName.Length <= 4) || (!fName.StartsWith("A" + IndexStr, StringComparison.OrdinalIgnoreCase) && !IsEmailText)) ?
+                fName : (IsEmailText ? "body_" + fName.Substring(4) : fName.Substring(4));
         }
     }
 
@@ -311,7 +312,7 @@ namespace CStat.Common
                 if (!int.TryParse(dFlds[idx+1].Replace(",", ""), out day))
                     return default;
                 format += (dFlds[idx].Length > 3) ? "MMMM " : "MMM ";
-                format += (dFlds[idx+1].Length > 1) ? "dd, " : "d, ";
+                format += (dFlds[idx+1].Length > 2) ? "dd, " : "d, ";
             }
             else if (PropMgr.TryParseMonth(dFlds[idx+1], out month))
             {
@@ -322,15 +323,15 @@ namespace CStat.Common
             }
 
             int year = 0;
-            var yIdx = idx + 2;
-            if (dFlds[yIdx].EndsWith(","))
+            var yStr = dFlds[idx + 2];
+            if (yStr.EndsWith(","))
             {
-                dFlds[yIdx].Replace(",", "");
+                yStr = yStr.Replace(",", "");
                 format += "yyyy, ";
             }
             else
                 format += "yyyy ";
-            if (!int.TryParse(dFlds[yIdx], out year) || (year < 2000))
+            if (!int.TryParse(yStr, out year) || (year < 2000))
                 return default;
 
             int hours = -1;

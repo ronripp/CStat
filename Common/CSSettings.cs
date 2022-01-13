@@ -430,7 +430,7 @@ namespace CStat.Common
         public static string GetEqValueStr(EquipProp ep, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
             double value = (ep != null) ? GetValue(ep.PropName, ar, pl, returnClass) : PropMgr.NotSet;
-            string unitsStr = ep.EquipUnits.ToString().Replace("Temperature", "").Replace("Percent", "%");
+            string unitsStr = ep.EquipUnits.ToString().Replace("Temperature", "").Replace("Percent", "% ");
             return value.ToString("0.##") + " " + unitsStr;
         }
 

@@ -268,13 +268,40 @@ namespace CStat.Common
             return true;
         }
 
-        public string ExecuteCmd(List<string> words)
+        public string ExecuteCmd(string cmdStr, bool noEMail=false)
         {
+            _rawCmd = cmdStr;
+            var words = CmdMgr.GetWords(cmdStr);
             if (!ParseCmd(words))
                 return ("Try later.");
             var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
+
+            if (!noEMail && (IsEMail(words) || (result.Length > 600)))
+            {
+                CSEMail csEMail = new CSEMail(_config, _userManager);
+                return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
+            }
             return (result.Length > 0) ? result : "No Results.";
         }
+
+        private bool IsEMail(List<string> words)
+        {
+            return ((words[0] == "email") || ((words.Count > 2) && (words[0] == "send" && words[1] == "email")));
+        }
+
+        private string SrcTitle (CmdSource cs)
+        {
+            try
+            {
+                var raw = cs.ToString();
+                return raw.Substring(0, 1) + raw.Substring(1).ToLower();
+            }
+            catch
+            {
+                return "Results";
+            }
+        }
+
         public bool FindNumber(List<string> words)
         {
             _cmdNumber = -1;
@@ -350,7 +377,6 @@ namespace CStat.Common
             }
             return true;
         }
-
         public bool FindInsts(List<string> words)
         {
             var NumWords = words.Count;
@@ -497,18 +523,15 @@ namespace CStat.Common
             }
 
             return _cmdDescList.Count > 0;
-
         }
         private string HandleMenu(List<string> words)
         {
-            return "Not Implemented";
+            return "Ask about Inventory, propane, specific measuments, people, camera, Requirements, By-Laws, docs, Events, urgencies, attendance";
         }
         private string HandleInventory(List<string> words)
         {
             var justNeeded = _cmdAction == CmdAction.NEED;
-            var report = InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
-            CSEMail csEMail = new CSEMail(_config, _userManager);
-            return "Inventory " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
+            return InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
         }
         private string HandleUrgency(List<string> words)
         {
@@ -532,8 +555,6 @@ namespace CStat.Common
             pm.ReportLatestValue(ref report); // propane only
 
             return report;
-            //CSEMail csEMail = new CSEMail(_config);
-            //return "Needed Urgencies " + (csEMail.Send(_curUser.EMail, _curUser.EMail, subject, report) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
         }
         private string HandlePeople(List<string> words)
         {
@@ -873,6 +894,7 @@ namespace CStat.Common
                 }
             }
             return report;
+            return "";
         }
 
         private CmdAction _cmdAction = default;
@@ -900,6 +922,8 @@ namespace CStat.Common
         private DateRange _cmdDateRange = null;
         private int _cmdDateTimeStartIdx = -1;
         private int _cmdDateTimeEndIdx = -1;
+
+        private string _rawCmd = "";
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
     }

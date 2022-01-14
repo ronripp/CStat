@@ -53,9 +53,8 @@ namespace TwilioReceive.Controllers
             string reqStr = req.Body.Trim();
             if (reqStr.Length == 0)
                 return SendMsgResp(name, "How can I help?");
-            var words = CmdMgr.GetWords(reqStr);
             var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser);
-            return SendMsgResp(cmdMgr.ExecuteCmd(words));
+            return SendMsgResp(cmdMgr.ExecuteCmd(reqStr));
         }
 
         private TwiMLResult SendMsgResp(string name, string respStr)

@@ -62,7 +62,7 @@ namespace CStat.Pages
 
             // Execute Command String
             CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager, _curUser);
-            return this.Content(cmdMgr.ExecuteCmd(CmdMgr.GetWords(cmdStr)));  // Response 
+            return this.Content(cmdMgr.ExecuteCmd(cmdStr, true));  // Response 
         }
     }
 }

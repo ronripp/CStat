@@ -818,9 +818,18 @@ namespace CStat.Common
                 }
                 else
                 {
-                    eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
-                    sidx = 0;
-                    eidx = eList.Count - 1;
+                    if (this._cmdNumber >= 1961)
+                    {
+                        eList = Event.GetEvents(_context, new DateTime(this._cmdNumber, 1, 1), DateRangeType.For_a_Year_From_Date); // For the Year
+                        sidx = 0;
+                        eidx = eList.Count - 1;
+                    }
+                    else
+                    {
+                        eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
+                        sidx = 0;
+                        eidx = eList.Count - 1;
+                    }
                 }
             }
 

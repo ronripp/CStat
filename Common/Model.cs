@@ -1626,7 +1626,8 @@ namespace CStat.Models
             On_Date,
             On_or_After_Date,
             After_Date,
-            All
+            All,
+            For_a_Year_From_Date
         }
         public class EventData
         {
@@ -1692,6 +1693,9 @@ namespace CStat.Models
                     return context.Event.Where(e => e.StartTime.Date >= date.Date).OrderBy(ev => ev.StartTime).ToList();
                 case DateRangeType.After_Date:
                     return context.Event.Where(e => e.StartTime.Date > date.Date).OrderBy(ev => ev.StartTime).ToList();
+                case DateRangeType.For_a_Year_From_Date:
+                    DateTime yearLater = date.Date.AddYears(1);
+                    return context.Event.Where(e => (e.StartTime.Date >= date.Date) && (e.StartTime.Date < yearLater.Date)).OrderBy(ev => ev.StartTime).ToList();
                 default:
                 case DateRangeType.All:
                     return context.Event.OrderBy(ev => ev.StartTime).ToList();

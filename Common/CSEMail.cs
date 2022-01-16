@@ -91,7 +91,16 @@ namespace CStat.Common
         public string GetUniqueTempFileName(string fName, bool isAtt)
         {
             var TempPath = Path.GetTempPath();
-            var fBody = (isAtt ? "A" : "T") + Index.ToString("000") + Path.GetFileNameWithoutExtension(fName);
+            var fBody = (isAtt ? "A" : "T") + Index.ToString("000") + Path.GetFileNameWithoutExtension(fName) // // Replace characters not allowed in filename
+                .Replace("<", "_")  // < (less than)
+                .Replace(">", "_")  // > (greater than)
+                .Replace(":", "_")  // : (colon)
+                .Replace("\"", "_") // " (double quote)
+                .Replace("/", "_")  // / (forward slash)
+                .Replace("\\", "_") // \ (backslash)
+                .Replace("|", "_")  // | (vertical bar or pipe)
+                .Replace("?", "_")  // ? (question mark)
+                .Replace("*", "_"); // *(asterisk)
             var fExt = Path.GetExtension(fName);
             var fileName = Path.Combine(TempPath, fBody + fExt);
             if (File.Exists(fileName))

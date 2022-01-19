@@ -31,11 +31,6 @@ namespace CStat
             {
                 _Address = _context.Address.FirstOrDefault(a => a.Id == _Person.AddressId);
             }
-            if ((_Person == null))
-                _Person = new Person();
-
-            if ((_Address == null))
-                _Address = new Address();
 
             UpdateLists(_Person.ChurchId);
             return Page();

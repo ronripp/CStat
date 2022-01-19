@@ -5,101 +5,174 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<head>
 
-<h4>Person</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Person.FirstName" class="control-label"></label>
-                <input asp-for="Person.FirstName" class="form-control" />
-                <span asp-validation-for="Person.FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.LastName" class="control-label"></label>
-                <input asp-for="Person.LastName" class="form-control" />
-                <span asp-validation-for="Person.LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Alias" class="control-label"></label>
-                <input asp-for="Person.Alias" class="form-control" />
-                <span asp-validation-for="Person.Alias" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Dob" class="control-label"></label>
-                <input asp-for="Person.Dob" class="form-control" />
-                <span asp-validation-for="Person.Dob" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Gender" class="control-label"></label>
-                <select asp-for="Person.Gender" class="form-control" asp-items="ViewBag.Gender"></select>
-                <span asp-validation-for="Person.Gender" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Status" class="control-label"></label>
-                <input asp-for="Person.Status" class="form-control" />
-                <span asp-validation-for="Person.Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Ssnum" class="control-label"></label>
-                <input asp-for="Person.Ssnum" class="form-control" />
-                <span asp-validation-for="Person.Ssnum" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.AddressId" class="control-label"></label>
-                <select asp-for="Person.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Pg1PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg1PersonId" class="form-control" asp-items="ViewBag.Pg1PersonId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Pg2PersonId" class="control-label"></label>
-                <select asp-for="Person.Pg2PersonId" class="form-control" asp-items="ViewBag.Pg2PersonId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.ChurchId" class="control-label"></label>
-                <select asp-for="Person.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.SkillSets" class="control-label"></label>
-                <input asp-for="Person.SkillSets" class="form-control" />
-                <span asp-validation-for="Person.SkillSets" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.CellPhone" class="control-label"></label>
-                <input asp-for="Person.CellPhone" class="form-control" />
-                <span asp-validation-for="Person.CellPhone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Email" class="control-label"></label>
-                <input asp-for="Person.Email" class="form-control" />
-                <span asp-validation-for="Person.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.ContactPref" class="control-label"></label>
-                <input asp-for="Person.ContactPref" class="form-control" />
-                <span asp-validation-for="Person.ContactPref" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.Notes" class="control-label"></label>
-                <input asp-for="Person.Notes" class="form-control" />
-                <span asp-validation-for="Person.Notes" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
+    <style>
+        [id^='BtnId'] {
+            margin: 2px 1px 2px 1px;
+            padding-left: 3px;
+            padding-right: 3px;
+            min-width: 90px;
+        }
+
+        .BtnOff {
+            background-color: lightgray;
+            color: darkslategray;
+            font-weight: normal;
+        }
+
+        .BtnOn {
+            background-color: greenyellow;
+            color: black;
+            font-weight: bold;
+        }
+
+        .rp {
+            padding-right: 6px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("button[id^='BtnId']").click(function () {
+                var skill = $(this).attr("value");
+                var skills = $("#zPerson_SkillSets").attr("value");
+                if ($(this).hasClass("BtnOn")) {
+                    $(this).removeClass("BtnOn").addClass("BtnOff");
+                    skills &= ~skill;
+                } else {
+                    $(this).removeClass("BtnOff").addClass("BtnOn");
+                    skills |= skill;
+                }
+                $("#zPerson_SkillSets").attr("value", skills);
+            });
+
+            $("[id^=zAddress_]").change(function () {
+
+                if ($("#HandleAdrId").css("display") === "none") {
+                    $("#HandleAdrId").css("display", "block");
+                }
+                //alert("Address has been changed.");
+            });
+
+            $("#SubmitId").click(function (event) {
+
+                if (($("#HandleAdrId").css("display") != "none") && !$('#KeepOld').is(':checked') && !$('#ChangeOld').is(':checked')) {
+                    $("#AdrIdWarn").css("display", "block");
+                    event.preventDefault();
+                }
+            });
+
+        });
+
+    </script>
+</head>
+
+    <h1>Create</h1>
+
+    <h4>Person</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="_Person.FirstName" class="control-label"></label>
+                    <input asp-for="_Person.FirstName" class="form-control" />
+                    <span asp-validation-for="_Person.FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.LastName" class="control-label"></label>
+                    <input asp-for="_Person.LastName" class="form-control" />
+                    <span asp-validation-for="_Person.LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Alias" class="control-label"></label>
+                    <input asp-for="_Person.Alias" class="form-control" />
+                    <span asp-validation-for="_Person.Alias" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Dob" class="control-label"></label>
+                    <input asp-for="_Person.Dob" class="form-control" />
+                    <span asp-validation-for="_Person.Dob" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Gender" class="control-label"></label>
+                    <select asp-for="_Person.Gender" class="form-control" asp-items="ViewBag.Gender"></select>
+                    <span asp-validation-for="_Person.Gender" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Status" class="control-label"></label>
+                    <input asp-for="_Person.Status" class="form-control" />
+                    <span asp-validation-for="_Person.Status" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Ssnum" class="control-label"></label>
+                    <input asp-for="_Person.Ssnum" class="form-control" />
+                    <span asp-validation-for="_Person.Ssnum" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.AddressId" class="control-label"></label>
+                    <select asp-for="_Person.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Pg1PersonId" class="control-label"></label>
+                    <select asp-for="_Person.Pg1PersonId" class="form-control" asp-items="ViewBag.Pg1PersonId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Pg2PersonId" class="control-label"></label>
+                    <select asp-for="_Person.Pg2PersonId" class="form-control" asp-items="ViewBag.Pg2PersonId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.ChurchId" class="control-label"></label>
+                    <select asp-for="_Person.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
+                </div>
+                <div class="form-group">
+                    <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                        @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.CellPhone" class="control-label"></label>
+                    <input asp-for="_Person.CellPhone" class="form-control" />
+                    <span asp-validation-for="_Person.CellPhone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Email" class="control-label"></label>
+                    <input asp-for="_Person.Email" class="form-control" />
+                    <span asp-validation-for="_Person.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.ContactPref" class="control-label"></label>
+                    <input asp-for="_Person.ContactPref" class="form-control" />
+                    <span asp-validation-for="_Person.ContactPref" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Notes" class="control-label"></label>
+                    <input asp-for="_Person.Notes" class="form-control" />
+                    <span asp-validation-for="_Person.Notes" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-page="Index">Back to List</a>
-</div>
+    <div>
+        <a asp-page="Index">Back to List</a>
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

@@ -17,22 +17,54 @@ namespace CStat
         public CreateModel(CStat.Models.CStatContext context)
         {
             _context = context;
+            _Person = new Person();
         }
 
         public IActionResult OnGet()
         {
             IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
             gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
-            ViewData["Gender"] = new SelectList(gList, "Value", "Text");
+            //ViewData["Gender"] = new SelectList(gList, "Value", "Text");
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
             ViewData["ChurchId"] = new SelectList(_context.Church, "Id", "Affiliation");
             ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
+
+            UpdateLists();
             return Page();
         }
 
+        private void UpdateLists()
+        {
+            IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+            gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
+            ViewData["Gender"] = new SelectList(gList, "Value", "Text");
+            long Roles = _Person.Roles.HasValue ? _Person.Roles.Value : 0;
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
+            int[] selIDs = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Where(x => ((long)x & Roles) != 0).Select(x => (int)x).ToArray<int>();
+            ViewData["TitleRoles"] = new MultiSelectList(trList, "Value", "Text", selIDs);
+
+            List<SelectListItem> csl = new SelectList(_context.Church.OrderBy(c => c.Name), "Id", "Name").ToList();
+            csl.Insert(0, (new SelectListItem { Text = "none", Value = "-1" }));
+            ViewData["ChurchId"] = csl;
+            ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
+            ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
+        }
+        public String GenSkillButtons(int skills)
+        {
+            String btnStr = "<div style=\"display:inline-block\" width=100%>\n";
+            int i = 1;
+            foreach (var s in Enum.GetValues(typeof(eSkills)).Cast<eSkills>())
+            {
+                string btnClass = (((int)s & skills) != 0) ? "BtnOn" : "BtnOff";
+                btnStr += "<button type=\"button\" id=\"BtnId" + (i++) + "\" abbr=\"" + ((eSkillsAbbr)s).ToString() + "\" class=\"" + btnClass + "\" value=\"" + ((int)s).ToString() + "\">" + s.ToString() + "</button>\n";
+            }
+            btnStr += "</div>\n";
+            return btnStr;
+        }
+
         [BindProperty]
-        public Person Person { get; set; }
+        public Person _Person { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -43,7 +75,7 @@ namespace CStat
                 return Page();
             }
 
-            _context.Person.Add(Person);
+            _context.Person.Add(_Person);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

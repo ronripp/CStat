@@ -46,11 +46,11 @@ namespace CStat.Common
                 DateTime enow = PropMgr.ESTNow;
                 DateTime expected = new DateTime(enow.Year, enow.Month, enow.Day, 3, 0, 0);
                 DateTime lastW = (_csSettings.LastTaskUpdate != null) ? _csSettings.LastTaskUpdate : new DateTime(2020, 1, 1);
-#if DEBUG
-                double MinWait = 0; // for testing
-#else
+//#if DEBUG
+//                double MinWait = 0; // for testing
+//#else
                 double MinWait = 720; // 12 hrs
-#endif
+//#endif
                 if (((enow - lastW).TotalMinutes >= MinWait) || (Math.Abs((enow - expected).TotalMinutes) < 65))  // done not more than twice a day and covers DST change with delay/offset
                 {
                     // Check Stock for possibly needed items

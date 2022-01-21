@@ -3,6 +3,7 @@
 @using CStat.Models
 @{
     ViewData["Title"] = "Find People : Enter Hints";
+    Layout = "_LayoutPeople";
 }
 <head>
 
@@ -165,7 +166,7 @@
         <form method="post">
             <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" value="0" data-val="false" />
             <div class="row">
-                <div class="col-xs-6" style="margin-right: 10px; margin-bottom: 10px; min-width:30%">
+                <div class="col-xs-6" style="margin-right: 10px; margin-bottom: 10px; min-width:40%">
                     <label style="margin-left: 6px; min-width:3.2em" asp-for="_Person.FirstName">First:</label>
                     <input asp-for="_Person.FirstName" data-val="false" style="max-width:6em" value="" />
                 </div>
@@ -175,7 +176,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-6" style="margin-right: 10px; margin-bottom: 10px; min-width:30%">
+                <div class="col-xs-6" style="margin-right: 10px; margin-bottom: 10px; min-width:40%">
                     <label style="margin-left: 6px; min-width:3.2em" asp-for="_Person.Gender">Gender</label>
                     <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
                 </div>
@@ -185,7 +186,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-6" style="margin-right:10px; margin-bottom:10px; min-width:30%">
+                <div class="col-xs-6" style="margin-right:10px; margin-bottom:10px; min-width:40%">
                     <label style="margin-left: 6px; min-width:3.2em" asp-for="_Person.AgeRange" +":">Age(s):</label>
                     <input asp-for="_Person.AgeRange" style="max-width:6em" data-val="false" disabled />
                 </div>

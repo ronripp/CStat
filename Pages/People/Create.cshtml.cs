@@ -66,6 +66,9 @@ namespace CStat
         [BindProperty]
         public Person _Person { get; set; }
 
+        [BindProperty]
+        public int[] _TitleRoles { get; set; }
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -73,6 +76,12 @@ namespace CStat
             if (!ModelState.IsValid)
             {
                 return Page();
+            }
+
+            _Person.Roles = 0;
+            foreach (var i in _TitleRoles)
+            {
+                _Person.Roles |= (long)i;
             }
 
             _context.Person.Add(_Person);

@@ -97,11 +97,11 @@
             </div>
             <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
                 <label asp-for="_Person.Gender">Gender</label>
-                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender" data-val="false"></select>
+                <select asp-for="_Person.Gender" asp-items="ViewBag.Gender"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Person.ChurchId" +":">Church:</label>
-                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em" data-val="false"></select>
+                <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Person.Dob" +":">DOB:</label>
@@ -147,7 +147,7 @@
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_TitleRoles" +":">Roles:</label>
-                <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em" data-val="false" multiple></select>
+                <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
             </div>
 
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">

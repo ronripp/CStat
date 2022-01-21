@@ -137,6 +137,10 @@
                     <label asp-for="_Person.ChurchId" class="control-label"></label>
                     <select asp-for="_Person.ChurchId" class="form-control" asp-items="ViewBag.ChurchId"></select>
                 </div>
+                <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_TitleRoles" +":">Roles:</label>
+                    <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
+                </div>
                 <div class="form-group">
                     <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
                         @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))

@@ -276,6 +276,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 return new List<REMail>(); // TBD Log failure
             }
         }
@@ -405,6 +406,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 // TBD Determine Date by hand
                 if (hasPM)
                     hours += 12;

@@ -903,7 +903,6 @@ namespace CStat.Common
                 }
             }
             return report;
-            return "";
         }
 
         private CmdAction _cmdAction = default;

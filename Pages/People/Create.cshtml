@@ -2,7 +2,7 @@
 @model CStat.CreateModel
 @using CStat.Models
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Add New Person";
 }
 
 <head>
@@ -36,6 +36,47 @@
         .rp {
             padding-right: 6px;
         }
+
+        .smi {
+            max-width: 6em;
+            display:inline-block;
+            margin-left:4px;
+            margin-right:10px;
+            margin-bottom:10px;
+        }
+
+        .si {
+            max-width: 4em;
+            display: inline-block;
+            margin-left: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mi {
+            max-width: 8em;
+            display: inline-block;
+            margin-left: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mli {
+            max-width: 10em;
+            display: inline-block;
+            margin-left: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .li {
+            max-width: 12em;
+            display: inline-block;
+            margin-left: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
     </style>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -77,53 +118,123 @@
 
     </script>
 </head>
-
-    <h1>Create</h1>
-
-    <h4>Person</h4>
-    <hr />
     <div class="row">
         <div class="col-md-4">
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="_Person.FirstName" class="control-label"></label>
-                    <input asp-for="_Person.FirstName" class="form-control" />
+                    <label asp-for="_Person.FirstName" class="control-label">First Name:</label>
+                    <input asp-for="_Person.FirstName" class="form-control mi" />
                     <span asp-validation-for="_Person.FirstName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.LastName" class="control-label"></label>
-                    <input asp-for="_Person.LastName" class="form-control" />
+                    <label asp-for="_Person.LastName" class="control-label ">Last Name:</label>
+                    <input asp-for="_Person.LastName" class="form-control li" />
                     <span asp-validation-for="_Person.LastName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.Alias" class="control-label"></label>
-                    <input asp-for="_Person.Alias" class="form-control" />
+                    <label asp-for="_Person.Alias" class="control-label">(Nick Name):</label>
+                    <input asp-for="_Person.Alias" class="form-control mi" />
                     <span asp-validation-for="_Person.Alias" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.Dob" class="control-label"></label>
-                    <input asp-for="_Person.Dob" class="form-control" />
+                    <label asp-for="_Person.Dob" class="control-label">D.O.B:</label>
+                    <input type="date" asp-for="_Person.Dob" class="form-control li" />
                     <span asp-validation-for="_Person.Dob" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.Gender" class="control-label"></label>
-                    <select asp-for="_Person.Gender" class="form-control" asp-items="ViewBag.Gender"></select>
+                    <label asp-for="_Person.Gender" class="control-label">Gender:</label>
+                    <select asp-for="_Person.Gender" class="form-control si" asp-items="ViewBag.Gender"></select>
                     <span asp-validation-for="_Person.Gender" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.Status" class="control-label"></label>
-                    <input asp-for="_Person.Status" class="form-control" />
-                    <span asp-validation-for="_Person.Status" class="text-danger"></span>
+                    <label asp-for="_Baptized" class="control-label">Baptized:</label>
+                    <select asp-for="_Baptized" class="form-control smi" asp-items="ViewBag.Baptized"></select>
                 </div>
                 <div class="form-group">
                     <label asp-for="_Person.Ssnum" class="control-label"></label>
-                    <input asp-for="_Person.Ssnum" class="form-control" />
+                    <input asp-for="_Person.Ssnum" class="form-control mi" />
                     <span asp-validation-for="_Person.Ssnum" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="_Person.AddressId" class="control-label"></label>
-                    <select asp-for="_Person.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
+                    <label asp-for="_Person.Address.Street" class="control-label"></label>
+                    <input asp-for="_Person.Address.Street" class="form-control li" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Address.State" class="control-label">State:</label>
+                    <select asp-for="_Person.Address.State" class="mi">
+                        <option value="AL" id="Alabama">Alabama</option>
+                        <option value="AK" id="Alaska">Alaska</option>
+                        <option value="AZ" id="Arizona">Arizona</option>
+                        <option value="AR" id="Arkansas">Arkansas</option>
+                        <option value="CT" id="Connecticut">Connecticut</option>
+                        <option value="CA" id="California">California</option>
+                        <option value="CO" id="Colorado">Colorado</option>
+                        <option value="DE" id="Delaware">Delaware</option>
+                        <option value="DC" id="DC">DC</option>
+                        <option value="FL" id="Florida">Florida</option>
+                        <option value="GA" id="Georgia">Georgia</option>
+                        <option value="HI" id="Hawaii">Hawaii</option>
+                        <option value="ID" id="Idaho">Idaho</option>
+                        <option value="IL" id="Illinois">Illinois</option>
+                        <option value="IN" id=">Indiana</option>
+                        <option value="IA" id="Iowa">Iowa</option>
+                        <option value="KS" id="Kansas">Kansas</option>
+                        <option value="KY" id="Kentucky">Kentucky</option>
+                        <option value="LA" id="Louisiana">Louisiana</option>
+                        <option value="ME" id="Maine">Maine</option>
+                        <option value="MD" id="Maryland">Maryland</option>
+                        <option value="MA" id="Massachusetts">Massachusetts</option>
+                        <option value="MI" id="Michigan">Michigan</option>
+                        <option value="MN" id="Minnesota">Minnesota</option>
+                        <option value="MS" id="Mississippi">Mississippi</option>
+                        <option value="MO" id="Missouri">Missouri</option>
+                        <option value="MT" id="Montana">Montana</option>
+                        <option value="NY" id="New York" selected>New York</option> default
+                        <option value="NJ" id="New Jersey">New Jersey</option>
+                        <option value="NE" id="Nebraska">Nebraska</option>
+                        <option value="NV" id="Nevada">Nevada</option>
+                        <option value="NH" id="New Hampshire">New Hampshire</option>
+                        <option value="NM" id="New Mexico">New Mexico</option>
+                        <option value="NC" id="North Carolina">North Carolina</option>
+                        <option value="ND" id="North Dakota">North Dakota</option>
+                        <option value="OH" id="Ohio">Ohio</option>
+                        <option value="OK" id="Oklahoma">Oklahoma</option>
+                        <option value="OR" id="Oregon">Oregon</option>
+                        <option value="PA" id="Pennsylvania">Pennsylvania</option>
+                        <option value="RI" id="Rhode Island">Rhode Island</option>
+                        <option value="SC" id="South Carolina">South Carolina</option>
+                        <option value="SD" id="South Dakota">South Dakota</option>
+                        <option value="TN" id="Tennessee">Tennessee</option>
+                        <option value="TX" id=">Texas</option>
+                        <option value="UT" id=">Utah</option>
+                        <option value="VT" id=">Vermont</option>
+                        <option value="VA" id="Virginia">Virginia</option>
+                        <option value="WA" id="Washington">Washington</option>
+                        <option value="WV" id="West Virginia">West Virginia</option>
+                        <option value="WI" id="Wisconsin">Wisconsin</option>
+                        <option value="WY" id="Wyoming">Wyoming</option>
+                        <option value="" disabled="disabled" class="SelectSeparator">&nbsp;</option>
+                        <option value="AS" id="American Samoa">American Samoa</option>
+                        <option value="GU" id="Guam">Guam</option>
+                        <option value="MP" id="N Mariana Isls.">N Mariana Isls.</option>
+                        <option value="PR" id="Puerto Rico">Puerto Rico</option>
+                        <option value="UM" id="US Minor Outl Isls.">US Minor Outl Isls.</option>
+                        <option value="VI" id="Virgin Islands">Virgin Islands</option>
+                        <option value="" disabled="disabled" class="SelectSeparator">&nbsp;</option>
+                        <option value="AA" id="Armed Forces Am.">Armed Forces Am.</option>
+                        <option value="AP" id="Armed Forces Pac.">Armed Forces Pac.</option>
+                        <option value="AE" id="Armed Forces Others">Armed Forces Others</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="_Person.Address.Town" class="control-label"></label>
+                    <input asp-for="_Person.Address.Town" class="form-control mi" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="_Person.Address.ZipCode" class="control-label"></label>
+                    <input asp-for="_Person.Address.ZipCode" class="form-control mi" />
                 </div>
                 <div class="form-group">
                     <label asp-for="_Person.Pg1PersonId" class="control-label"></label>

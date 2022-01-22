@@ -163,439 +163,50 @@ namespace CStat.Models
             return report;
         }
     }
-
-    public partial class Person
-    {
-        public enum TitleRoles { Undefined = 0, Blds_Gnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
-                            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, MembAtLarge = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000 };
-
-        public enum eGender
-        {
-            M = (int)(uint)(byte)'M',
-            F = (int)(uint)(byte)'F'
-        };
-
-        public enum eSkills
-        { 
-            Carpentry    = 0x1,
-            Plumbing     = 0x2,   
-            Roofing      = 0x4,   
-            Cook         = 0x8,   
-            Nurse        = 0x10,  
-            SWAT         = 0x20,  
-            Manager      = 0x40,  
-            Painter      = 0x80,  
-            Minister     = 0x100, 
-            Dean         = 0x200, 
-            Accountant   = 0x400, 
-            Electricn    = 0x800, 
-            Computer     = 0x1000,
-            Kitch_Help   = 0x2000,
-            Counselor    = 0x4000,
-            Gardening    = 0x8000,
-            Tree_Cut     = 0x10000,
-            Worship      = 0x20000, 
-            Worker       = 0x40000, 
-            Mason        = 0x80000,
-            Constructn   = 0x100000,
-            Septic       = 0x200000
-        };
-
-        public enum eSkillsAbbr
-        {
-            CRP = 0x1,
-            PLB = 0x2,
-            ROF = 0x4,
-            COK = 0x8,
-            HLD = 0x10,
-            SWT = 0x20,
-            CMG = 0x40,
-            PNT = 0x80,
-            MNS = 0x100,
-            DEN = 0x200,
-            ACC = 0x400,
-            ELE = 0x800,
-            CMP = 0x1000,
-            KTH = 0x2000,
-            CNS = 0x4000,
-            GAR = 0x8000,
-            TRR = 0x10000,
-            WRS = 0x20000,
-            WRK = 0x40000,
-            MSN = 0x80000,
-            CON = 0x100000,
-            SPT = 0x200000
-        };
-
-        public enum ePA
-        {
-            pid = 0,
-            FirstName,
-            LastName,
-            Alias,
-            DOB,
-            Gender,
-            Status,
-            SSNum,
-            Address_id,
-            PG1_Person_id,
-            PG2_Person_id,
-            Church_id,
-            SkillSets,
-            CellPhone,
-            EMail,
-            ContactPref,
-            Notes,
-            Roles,
-            aid,
-            Street,
-            Town,
-            State,
-            ZipCode,
-            Phone,
-            Fax,
-            Country,
-            WebSite
-        };
-
-        public Person ShallowCopy()
-        {
-            return (Person)this.MemberwiseClone();
-        }
-
-        public string GetShortName()
-        {
-            if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
-            {
-                return FirstName + " " + LastName.Substring(0, 1).ToUpper() + ".";
-            }
-            if (!string.IsNullOrEmpty(Email))
-            {
-                var idx = Email.IndexOf("@");
-                return (idx != -1) ? Email.Substring(0, idx) : Email;
-            }
-            return "Person #" + Id.ToString();
-        }
-
-        public static string FindPeople(CStatContext entities, string id)
-        {
-            String target = "Lookup Person:";
-            int lookup_index = id.IndexOf(target);
-            if (lookup_index >= 0)
-            {
-                String pidStr = id.Substring(lookup_index + target.Length);
-                int pid = Int32.Parse(pidStr);
-
-                //var PList = from p in entities.People
-                //            where p.id == pid
-                //            join a in entities.Addresses on
-                //            p.Address_id equals a.id
-                //            join c in entities.Churches on
-                //            p.Church_id equals c.id into pc
-                //            from pcn in pc.DefaultIfEmpty()
-                //            select p;
-
-                //var PList = from p in entities.Person
-                //            where p.Id == pid
-                //            join a in entities.Address on
-                //            p.AddressId equals a.Id into pa
-                //            from a in pa.DefaultIfEmpty()
-                //            join c in entities.Church on
-                //            p.ChurchId equals c.Id into pc
-                //            from c in pc.DefaultIfEmpty()
-                //            from pcn in pc.DefaultIfEmpty()
-                //            select p;
-
-                var PList = from _p in entities.Person
-                            where _p.Id == pid
-                            join _a in entities.Address on
-                            _p.AddressId equals _a.Id into pa
-                            from _a in pa.DefaultIfEmpty()
-                            select new { p = _p, a = _a };
-
-                var pgObj = new PG();
-                var MPList = new List<MinPerson>();
-
-                foreach (var pa in PList)
-                {
-                    pa.p.FirstName = PersonMgr.MakeFirstName(pa.p);
-                    pa.p.LastName = PersonMgr.MakeLastName(pa.p);
-
-                    // TEST pa.p.PG1_Person_id = 3;
-                    // TEST pa.p.PG2_Person_id = 4;
-
-                    if (pa.p.AddressId != null)
-                        pgObj.Adr_id = (int)pa.p.AddressId;
-
-                    var m = new MinPerson();
-                    m.FirstName = pa.p.FirstName;
-                    m.LastName = pa.p.LastName;
-                    m.id = pa.p.Id;
-                    m.Alias = pa.p.Alias;
-                    m.DOB = pa.p.Dob;
-                    m.Gender = pa.p.Gender;
-                    m.Status = pa.p.Status;
-                    m.SSNum = pa.p.Ssnum;
-                    m.Address_id = pa.p.AddressId;
-                    m.PG1_Person_id = pa.p.Pg1PersonId;
-                    m.PG2_Person_id = pa.p.Pg2PersonId;
-                    m.Church_id = pa.p.ChurchId;
-                    m.SkillSets = pa.p.SkillSets;
-                    m.Roles = pa.p.Roles.HasValue ? pa.p.Roles.Value : 0;
-                    m.CellPhone = pa.p.CellPhone;
-                    m.EMail = pa.p.Email;
-                    m.ContactPref = pa.p.ContactPref;
-                    m.Notes = pa.p.Notes;
-                    if (pa.p.Address != null)
-                    {
-                        m.Address.id = pa.a.Id;
-                        m.Address.Street = pa.a.Street;
-                        m.Address.Town = pa.a.Town;
-                        m.Address.State = pa.a.State;
-                        m.Address.ZipCode = pa.a.ZipCode;
-                        m.Address.Phone = pa.a.Phone;
-                        m.Address.Fax = pa.a.Fax;
-                        m.Address.Country = pa.a.Country;
-                        m.Address.WebSite = pa.a.WebSite;
-                    }
-                    MPList.Add(m);
-                }
-
-                // Resolve parents
-                foreach (var m in MPList)
-                {
-                    String PG1Str = null, PG2Str = null;
-                    int PG1_id = 0, PG2_id = 0;
-
-                    Person p1 = entities.Person.FirstOrDefault(p => p.Id == m.PG1_Person_id);
-                    if (p1 != null)
-                    {
-                        p1.FirstName = PersonMgr.MakeFirstName(p1);
-                        p1.LastName = PersonMgr.MakeLastName(p1);
-                        PG1Str = p1.FirstName + " " + p1.LastName;
-                        PG1_id = p1.Id;
-                    }
-
-                    Person p2 = entities.Person.FirstOrDefault(p => p.Id == m.PG2_Person_id);
-                    if (p2 != null)
-                    {
-                        p2.FirstName = PersonMgr.MakeFirstName(p2);
-                        p2.LastName = PersonMgr.MakeLastName(p2);
-                        PG2Str = p2.FirstName + " " + p2.LastName;
-                        PG2_id = p2.Id;
-                    }
-
-                    if ((PG1Str != null) || (PG2Str != null))
-                    {
-                        if (PG1Str != null)
-                        {
-                            pgObj.PG1Name = PG1Str;
-                            pgObj.PG1_id = PG1_id;
-                        }
-                        if (PG2Str != null)
-                        {
-                            pgObj.PG2Name = PG2Str;
-                            pgObj.PG2_id = PG2_id;
-                        }
-
-                        var jsonPG = JsonConvert.SerializeObject(pgObj, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                        m.ContactPref = jsonPG.ToString();
-                    }
-                    else
-                        m.ContactPref = null;
-                }
-
-                if (MPList != null)
-                {
-                    var json = JsonConvert.SerializeObject(MPList, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    string jstr = json.ToString();
-                    return jstr;
-                }
-                else
-                    return ("Lookup Failed with id:" + pid);
-            }
-
-            string FPTarget = "Find People:";
-            if (id.StartsWith(FPTarget))
-                id = id.Substring(FPTarget.Length);
-
-            id = id.Replace("{", "").Replace("}", ""); // get rid of curly braces
-
-            //******************************************************
-            // MULTI_FIELD FIND PEOPLE SEARCH
-            //******************************************************
-
-            // Generate Key/Value Pairs to update person
-            char[] outerDelims = { ';', '~', '&' };
-            char[] innerDelims = { ':', '=' };
-
-            string[] pairs = id.Split(outerDelims);
-
-            List<KeyValuePair<string, string>> props = new List<KeyValuePair<string, string>>();
-            foreach (string nvs in pairs)
-            {
-                string[] nvp = nvs.Split(innerDelims);
-                if ((nvp.Length == 2) && (nvp[1].Length > 0))
-                {
-                    props.Add(new KeyValuePair<string, string>(nvp[0], nvp[1]));
-                }
-            }
-
-            // SQL Based Query
-
-            String sel = "Select * from Person FULL OUTER JOIN Address ON (Person.Address_id = Address.id)";
-            int orgSelLen = sel.Length;
-            bool bFiltered = false;
-
-            PersonMgr pmgr = new PersonMgr(entities);
-            Person fp;
-            Address fa;
-            if (pmgr.Update(ref props, true, true, out fp, out fa) != MgrStatus.Add_Update_Succeeded)
-                return "Invalid Search Criteria";
-
-            //  "&DOB="
-            //  "&Street="
-            //  "&City="
-            //  "&State="
-            //  "&Zip="
-            //  "&HPhone="
-            //  "&Cell="
-            //  "&EMail="
-            //  "&Comments="
-            //  "&SSNum="
-            //  "&PG1="
-            //  "&PG2="
-            //  "&SkillSets=" ...OR...  "&multicheckbox[]="
-
-            PersonMgr.AddToSelect(ref sel, "Person.FirstName", fp.FirstName, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.LastName", fp.LastName, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.Street", fa.Street, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.Town", fa.Town, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.CellPhone", fp.CellPhone, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.EMail", fp.Email, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Church_id", fp.ChurchId, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Ssnum", fp.Ssnum, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.State", fa.State, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Gender", fp.Gender.GetValueOrDefault(0), ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.SkillSets", fp.SkillSets, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Roles", fp.Roles.GetValueOrDefault(0), ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Status", fp.Status, ref bFiltered);
-            if (!fp.Dob.GetValueOrDefault().Equals(new DateTime(1900, 1, 1)))
-                PersonMgr.AddToSelect(ref sel, "Person.DOB", fp.Dob.GetValueOrDefault(), true, ref bFiltered);
-
-            if (sel.Length == orgSelLen)
-                sel += "order by Address.Street ASC";
-
-            //                Also, it is recommended to use ISO8601 format YYYY - MM - DDThh:mm: ss.nnn[Z], as this one will not depend on your server's local culture.
-            //SELECT*
-            //FROM TABLENAME
-            //WHERE
-            //    DateTime >= '2011-04-12T00:00:00.000' AND
-            //    DateTime <= '2011-05-25T03:53:04.000'
-
-            try
-            {
-                //List<Person> PList = new List<Person>();
-                //var PList = entities.Person.ExecuteSqlRaw(sel).ToList<Person>();
-                //var PList = entities.Person.SqlQuery(sel).ToList<Person>();
-                //var PList = entities.SqlQuery<Person>(sel).ToList<Person>();
-                var MPList = new List<MinPerson>();
-
-                using (var command = entities.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = sel;
-                    entities.Database.OpenConnection();
-                    using (var row = command.ExecuteReader())
-                    {
-                        while (row.Read())
-                        {
-                            var m = new MinPerson();
-                            m.FirstName = (string)row.GetValue((int)Person.ePA.FirstName);
-                            m.LastName = (string)row.GetValue((int)Person.ePA.LastName);
-                            m.id = (int)row.GetValue((int)Person.ePA.pid);
-                            m.Alias = (string)row.GetValue((int)Person.ePA.Alias).ToString();
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.DOB)))
-                                m.DOB = (DateTime)row.GetValue((int)Person.ePA.DOB);
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Gender)))
-                                m.Gender = (byte)row.GetValue((int)Person.ePA.Gender);
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Status)))
-                                m.Status = (long)row.GetValue((int)Person.ePA.Status);
-                            m.SSNum = (string)row.GetValue((int)Person.ePA.SSNum).ToString();
-
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Address_id)))
-                                m.Address_id = (int)row.GetValue((int)Person.ePA.Address_id);
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.PG1_Person_id)))
-                                m.PG1_Person_id = (int)row.GetValue((int)Person.ePA.PG1_Person_id);
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.PG2_Person_id)))
-                                m.PG2_Person_id = (int?)row.GetValue((int)Person.ePA.PG2_Person_id);
-                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Church_id)))
-                                m.Church_id = (int?)row.GetValue((int)Person.ePA.Church_id);
-                            m.SkillSets = (long)row.GetValue((int)Person.ePA.SkillSets);
-                            m.Roles = (long)row.GetValue((int)Person.ePA.Roles);
-                            m.CellPhone = (string)row.GetValue((int)Person.ePA.CellPhone).ToString();
-                            m.EMail = (string)row.GetValue((int)Person.ePA.EMail).ToString();
-                            m.ContactPref = (string)row.GetValue((int)Person.ePA.ContactPref).ToString();
-                            m.Notes = (string)row.GetValue((int)Person.ePA.Notes).ToString();
-                            if (m.Address_id.HasValue)
-                            {
-                                m.Address.id = (int)row.GetValue((int)Person.ePA.aid);
-                                m.Address.Street = (string)row.GetValue((int)Person.ePA.Street).ToString();
-                                m.Address.Town = (string)row.GetValue((int)Person.ePA.Town).ToString();
-                                m.Address.State = (string)row.GetValue((int)Person.ePA.State).ToString();
-                                m.Address.ZipCode = (string)row.GetValue((int)Person.ePA.ZipCode).ToString();
-                                m.Address.Phone = (string)row.GetValue((int)Person.ePA.Phone).ToString();
-                                m.Address.Fax = (string)row.GetValue((int)Person.ePA.Fax).ToString();
-                                m.Address.Country = (string)row.GetValue((int)Person.ePA.Country).ToString();
-                                m.Address.WebSite = (string)row.GetValue((int)Person.ePA.WebSite).ToString();
-                            }
-                            else
-                            {
-                                m.Address.Street = "";
-                                m.Address.Town = "";
-                                m.Address.State = "";
-                                m.Address.ZipCode = "";
-                                m.Address.Phone = "";
-                                m.Address.Fax = "";
-                                m.Address.Country = "";
-                                m.Address.WebSite = "";
-                            }
-                            MPList.Add(m);
-                        }
-                    }
-                }
-
-                if (MPList.Count > 0)
-                {
-                    var json = JsonConvert.SerializeObject(MPList, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    string jstr = json.ToString();
-                    return jstr;
-                }
-            }
-            catch (Exception)
-            {
-            }
-
-            return "ERROR~:No one found with Name";
-        }
-
-        public static string FixPhone(string raw)
-        {
-            var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
-            if (numStr.StartsWith("1"))
-                numStr = numStr[1..];
-            if (numStr.Length == 10)
-            {
-                return numStr.Substring(0, 3) + "-" + numStr.Substring(3, 3) + "-" + numStr.Substring(6, 4);
-            }
-            return raw;
-        }
-    }
-
     public partial class Address
     {
         public Address ShallowCopy()
         {
             return (Address)this.MemberwiseClone();
+        }
+    }
+
+    static class LevenshteinDistance
+    {
+        public static int Compute(string s, string t)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                if (string.IsNullOrEmpty(t))
+                    return 0;
+                return t.Length;
+            }
+
+            if (string.IsNullOrEmpty(t))
+            {
+                return s.Length;
+            }
+
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // initialize the top and right of the table to 0, 1, 2, ...
+            for (int i = 0; i <= n; d[i, 0] = i++) ;
+            for (int j = 1; j <= m; d[0, j] = j++) ;
+
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    int cost = (char.ToUpperInvariant(t[j - 1]) == char.ToUpperInvariant(s[i - 1])) ? 0 : 1;
+                    int min1 = d[i - 1, j] + 1;
+                    int min2 = d[i, j - 1] + 1;
+                    int min3 = d[i - 1, j - 1] + cost;
+                    d[i, j] = Math.Min(Math.Min(min1, min2), min3);
+                }
+            }
+            return d[n, m];
         }
     }
 

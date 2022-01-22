@@ -37,8 +37,16 @@ namespace CStat
         private void UpdateLists()
         {
             IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
-            gList.Insert(0, new SelectListItem { Text = "", Value = "0" });
+            gList.Insert(0, new SelectListItem { Text = "?", Value = "0" });
             ViewData["Gender"] = new SelectList(gList, "Value", "Text");
+
+            List<SelectListItem> bList = new List<SelectListItem> {
+                new SelectListItem { Text = "?", Value = "0" },
+                new SelectListItem { Text = "No", Value = "1" },
+                new SelectListItem { Text = "Yes", Value = "2" }
+            };              
+            ViewData["Baptized"] = new SelectList(bList, "Value", "Text");
+
             long Roles = _Person.Roles.HasValue ? _Person.Roles.Value : 0;
             IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
             int[] selIDs = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Where(x => ((long)x & Roles) != 0).Select(x => (int)x).ToArray<int>();
@@ -69,6 +77,9 @@ namespace CStat
         [BindProperty]
         public int[] _TitleRoles { get; set; }
 
+        [BindProperty]
+        public int? _Baptized { get; set; }
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -84,9 +95,11 @@ namespace CStat
                 _Person.Roles |= (long)i;
             }
 
-            _context.Person.Add(_Person);
-            await _context.SaveChangesAsync();
-
+            if (_context == null)
+            {
+                _context.Person.Add(_Person);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToPage("./Index");
         }
     }

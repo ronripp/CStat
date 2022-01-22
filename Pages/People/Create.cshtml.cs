@@ -42,13 +42,13 @@ namespace CStat
 
             List<SelectListItem> bList = new List<SelectListItem> {
                 new SelectListItem { Text = "?", Value = "0" },
-                new SelectListItem { Text = "No", Value = "1" },
-                new SelectListItem { Text = "Yes", Value = "2" }
+                new SelectListItem { Text = "N", Value = "1" },
+                new SelectListItem { Text = "Y", Value = "2" }
             };              
             ViewData["Baptized"] = new SelectList(bList, "Value", "Text");
 
             long Roles = _Person.Roles.HasValue ? _Person.Roles.Value : 0;
-            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_N", " & ").Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             int[] selIDs = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Where(x => ((long)x & Roles) != 0).Select(x => (int)x).ToArray<int>();
             ViewData["TitleRoles"] = new MultiSelectList(trList, "Value", "Text", selIDs);
 
@@ -79,6 +79,16 @@ namespace CStat
 
         [BindProperty]
         public int? _Baptized { get; set; }
+
+        [BindProperty]
+        public string _SSNum { get; set; }
+
+        [BindProperty]
+        public string _PG1 { get; set; }
+
+        [BindProperty]
+        public int? _PG2 { get; set; }
+
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

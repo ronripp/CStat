@@ -20,8 +20,8 @@ namespace CStat.Models
 
         public enum TitleRoles
         {
-            Undefined = 0, Blds_Gnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, HealthDir = 0x20, nurse = 0x40, Manager = 0x80,
-            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, VicePres = 0x4000, MembAtLarge = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000
+            Undefined = 0, Blds_NGnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, Health_Dir = 0x20, nurse = 0x40, Manager = 0x80,
+            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000
         };
 
         public enum eGender

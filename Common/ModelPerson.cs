@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CStat.Common;
 using CStat.Models;
 using Microsoft.EntityFrameworkCore;
@@ -444,39 +445,42 @@ namespace CStat.Models
             }
             return raw;
         }
-        public bool AddPerson(CStatContext ce)
+
+        public static string GetVS(string str)
+        {
+            return !string.IsNullOrEmpty(str) ? str : "";
+        }
+        public async Task<bool> AddPerson(CStatContext ce, string baptized= "", string pg1="", string pg2="")
         {
             List<KeyValuePair<String, String>> kvp = new List<KeyValuePair<String, String>>();
-            kvp.Add(new KeyValuePair<string, string>("FName", FirstName));
-            kvp.Add(new KeyValuePair<string, string>("LName", LastName));
+            kvp.Add(new KeyValuePair<string, string>("FName", GetVS(FirstName)));
+            kvp.Add(new KeyValuePair<string, string>("LName", GetVS(LastName)));
             if (ChurchId.HasValue) kvp.Add(new KeyValuePair<string, string>("Church", ChurchId.ToString()));
             if (AddressId.HasValue) kvp.Add(new KeyValuePair<string, string>("Adr_id", AddressId.ToString()));
             if (Address != null)
             {
-                kvp.Add(new KeyValuePair<string, string>("Street", Address.Street));
-                kvp.Add(new KeyValuePair<string, string>("City", Address.Town));
-                kvp.Add(new KeyValuePair<string, string>("State", Address.State));
-                kvp.Add(new KeyValuePair<string, string>("Zip", Address.ZipCode));
-                kvp.Add(new KeyValuePair<string, string>("HPhone", Address.Phone));
+                kvp.Add(new KeyValuePair<string, string>("Street", GetVS(Address.Street)));
+                kvp.Add(new KeyValuePair<string, string>("City", GetVS(Address.Town)));
+                kvp.Add(new KeyValuePair<string, string>("State", GetVS(Address.State)));
+                kvp.Add(new KeyValuePair<string, string>("Zip", GetVS(Address.ZipCode)));
+                kvp.Add(new KeyValuePair<string, string>("HPhone", GetVS(Address.Phone)));
 
             }
 
-            kvp.Add(new KeyValuePair<string, string>("Cell", CellPhone));
-            kvp.Add(new KeyValuePair<string, string>("SSNum", this.Ssnum));
-            kvp.Add(new KeyValuePair<string, string>("EMail", this.Email));
+            kvp.Add(new KeyValuePair<string, string>("Cell", GetVS(CellPhone)));
+            kvp.Add(new KeyValuePair<string, string>("SSNum", GetVS(this.Ssnum)));
+            kvp.Add(new KeyValuePair<string, string>("EMail", GetVS(this.Email)));
             if (Dob.HasValue) kvp.Add(new KeyValuePair<string, string>("DOB", Dob.Value.Date.ToString()));
             kvp.Add(new KeyValuePair<string, string>("SkillSets", SkillSets.ToString()));
             kvp.Add(new KeyValuePair<string, string>("Roles", Roles.ToString()));
             if (Id > 0) kvp.Add(new KeyValuePair<string, string>("id", Id.ToString()));
             if (Pg1PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG1_pid", Pg1PersonId.Value.ToString()));
             if (Pg2PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG2_pid", Pg1PersonId.Value.ToString()));
-            kvp.Add(new KeyValuePair<string, string>("Comments", this.Notes));
-            if (Status.HasValue)
+            kvp.Add(new KeyValuePair<string, string>("Comments", GetVS(this.Notes)));
+            if (!String.IsNullOrEmpty(baptized))
             {
-                if ((Status.Value & (long)PersonStatus.Baptized) != 0)
-                    kvp.Add(new KeyValuePair<string, string>("Baptized", "Y"));
-                else if ((Status.Value & (long)PersonStatus.NotBaptized) != 0)
-                    kvp.Add(new KeyValuePair<string, string>("Baptized", "N"));
+                string LBapStr = baptized.ToLower().Trim();
+                kvp.Add(new KeyValuePair<string, string>("Baptized", LBapStr));
             }
             if (Gender.HasValue) kvp.Add(new KeyValuePair<string, string>("Gender", Gender.Value.ToString()));
 
@@ -503,9 +507,20 @@ namespace CStat.Models
                 case MgrStatus.Add_Reg_Failed:
                 case MgrStatus.Save_Med_Failed:
                 case MgrStatus.Add_Med_Failed:
-                    break;
+                    {
+                        try
+                        {
+                            ce.Person.Add(ResPerson);
+                            int sres = await ce.SaveChangesAsync();
+                            return (sres > 0);
+                        }
+                        catch(Exception e)
+                        {
+                            _ = e;
+                            return false;
+                        }
+                    }
             }
-
             return false;
         }
 
@@ -788,7 +803,7 @@ namespace CStat.Models
                 {
                     month = Convert.ToInt32(tokens[0]);
                     day = Convert.ToInt32(tokens[1]);
-                    year = Convert.ToInt32(tokens[2]);
+                    year = Convert.ToInt32(tokens[2].Split(" ")[0]);
                 }
                 else
                 {
@@ -895,14 +910,14 @@ namespace CStat.Models
             pv = props.Find(prop => prop.Key == "Baptized");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
-                if (pv.Value.ToLower() == "yes")
+                if (pv.Value.ToLower().StartsWith("y"))
                 {
                     person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.NotBaptized;
                     person.Status = person.Status.GetValueOrDefault(0) | (long)PersonStatus.Baptized;
                 }
                 else
                 {
-                    if (pv.Value.ToLower() == "no")
+                    if (pv.Value.ToLower().StartsWith("n"))
                     {
                         person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.Baptized;
                         person.Status = person.Status.GetValueOrDefault(0) | (long)PersonStatus.NotBaptized;
@@ -944,8 +959,8 @@ namespace CStat.Models
                     if (pga.Count() > 1)
                     {
                         String rel = pga[1].Trim().ToUpper();
-                        if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
-                            bParent = false;
+                        // {TBD : deal with all pgs. Assume pg for now} if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
+                        //    bParent = false;
                     }
 
                     if (bParent)
@@ -1151,7 +1166,7 @@ namespace CStat.Models
                 // Find Person #3 : Find person by Last Name and close first name match
                 //**************************************************************************
                 int adr_id;
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.LastName.ToUpper() == person.LastName.ToUpper())
                            select psn;
 
@@ -1272,7 +1287,7 @@ namespace CStat.Models
                     return MgrStatus.Save_Person_Failed;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 ResPerson = null;
                 ResAddress = null;
@@ -1494,7 +1509,6 @@ namespace CStat.Models
             p.LastName = p.LastName.Trim();
             return true;
         }
-
         public static String CleanStreet(String oldStr)
         {
             String newStr = oldStr.Trim();
@@ -1552,5 +1566,19 @@ namespace CStat.Models
 
             return newStr;
         }
+        public static String DecorateSS(String rawSS)
+        {
+            var ss = rawSS.Trim();
+            if (ss.Length == 9)
+            {
+                return ss.Substring(0, 3) + "-" + ss.Substring(3, 2) + "-" + ss.Substring(5, 4);
+            }
+            return ss;
+        }
+        public static String UndecorateSS(String ss)
+        {
+            return ss.Trim().Replace("-", "");
+        }
+
     }
 }

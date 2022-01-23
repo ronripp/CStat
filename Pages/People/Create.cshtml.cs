@@ -81,23 +81,22 @@ namespace CStat
         public int? _Baptized { get; set; }
 
         [BindProperty]
-        public string _SSNum { get; set; }
+        public string _SSNum { get; set; } = "";
 
         [BindProperty]
-        public string _PG1 { get; set; }
+        public string _PG1 { get; set; } = "";
 
         [BindProperty]
-        public int? _PG2 { get; set; }
-
+        public string _PG2 { get; set; } = "";
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Page();
+            //}
 
             _Person.Roles = 0;
             foreach (var i in _TitleRoles)
@@ -105,12 +104,15 @@ namespace CStat
                 _Person.Roles |= (long)i;
             }
 
-            if (_context == null)
-            {
-                _context.Person.Add(_Person);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToPage("./Index");
+            String bapStr = "";
+            if ((_Baptized.HasValue) && (_Baptized.Value > 0))
+                bapStr = (_Baptized.Value == 2) ? "Y" : "N";
+            _PG1 = GetVS(_PG1);
+            _PG2 = GetVS(_PG2);
+
+            await _Person.AddPerson(_context, bapStr, _PG1.Trim(), _PG2.Trim());
+
+            return RedirectToPage("./Find");
         }
     }
 }

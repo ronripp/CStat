@@ -89,6 +89,18 @@ namespace CStat
         [BindProperty]
         public string _PG2 { get; set; } = "";
 
+        [BindProperty]
+        public string _Street { get; set; } = "";
+
+        [BindProperty]
+        public string _Town { get; set; } = "";
+
+        [BindProperty]
+        public string _State { get; set; } = "";
+
+        [BindProperty]
+        public string _ZipCode { get; set; } = "";
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -109,6 +121,10 @@ namespace CStat
                 bapStr = (_Baptized.Value == 2) ? "Y" : "N";
             _PG1 = GetVS(_PG1);
             _PG2 = GetVS(_PG2);
+            _Person.Address.Street = _Street;
+            _Person.Address.Town = _Town;
+            _Person.Address.State = _State;
+            _Person.Address.ZipCode = _ZipCode;
 
             await _Person.AddPerson(_context, bapStr, _PG1.Trim(), _PG2.Trim());
 

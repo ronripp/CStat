@@ -169,6 +169,26 @@ namespace CStat.Models
         {
             return (Address)this.MemberwiseClone();
         }
+        public static Address Merge (Address oldAdr, Address newAdr)
+        {
+            if (oldAdr == null)
+                return newAdr;
+            if (newAdr == null)
+                return oldAdr;
+            newAdr.Street = MergeField(oldAdr.Street, newAdr.Street);
+            newAdr.Town = MergeField(oldAdr.Town, newAdr.Town);
+            newAdr.State = MergeField(oldAdr.State, newAdr.State);
+            newAdr.ZipCode = MergeField(oldAdr.ZipCode, newAdr.ZipCode);
+            newAdr.Phone = MergeField(oldAdr.Phone, newAdr.Phone);
+            newAdr.Fax = MergeField(oldAdr.Fax, newAdr.Fax);
+            newAdr.Country = MergeField(oldAdr.Country, newAdr.Country);
+            newAdr.WebSite = MergeField(oldAdr.WebSite, newAdr.WebSite);
+            return newAdr;
+        }
+        public static string MergeField(string oldFld, string newFld)
+        {
+            return string.IsNullOrEmpty(newFld) ? oldFld : newFld;
+        }
     }
 
     static class LevenshteinDistance

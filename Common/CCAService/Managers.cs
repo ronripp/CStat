@@ -31,7 +31,8 @@ namespace CStat
         Save_Reg_Failed = -14,
         Add_Reg_Failed = -15,
         Save_Med_Failed = -16,
-        Add_Med_Failed = -17
+        Add_Med_Failed = -17,
+        Save_PG_Failed = -18,
     }
     public class AttendanceMgr // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     {

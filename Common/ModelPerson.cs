@@ -464,7 +464,6 @@ namespace CStat.Models
                 kvp.Add(new KeyValuePair<string, string>("State", GetVS(Address.State)));
                 kvp.Add(new KeyValuePair<string, string>("Zip", GetVS(Address.ZipCode)));
                 kvp.Add(new KeyValuePair<string, string>("HPhone", GetVS(Address.Phone)));
-
             }
 
             kvp.Add(new KeyValuePair<string, string>("Cell", GetVS(CellPhone)));
@@ -476,6 +475,8 @@ namespace CStat.Models
             if (Id > 0) kvp.Add(new KeyValuePair<string, string>("id", Id.ToString()));
             if (Pg1PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG1_pid", Pg1PersonId.Value.ToString()));
             if (Pg2PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG2_pid", Pg1PersonId.Value.ToString()));
+            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PG1_id", pg1));
+            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PG2_id", pg2));
             kvp.Add(new KeyValuePair<string, string>("Comments", GetVS(this.Notes)));
             if (!String.IsNullOrEmpty(baptized))
             {
@@ -492,10 +493,8 @@ namespace CStat.Models
                     return true;
                 case MgrStatus.Add_Person_Failed:
                 case MgrStatus.Save_Person_Failed:
-                case MgrStatus.Invalid_Address:
                 case MgrStatus.Invalid_DOB:
                 case MgrStatus.No_Gender:
-                case MgrStatus.Save_Address_Failed:
                 case MgrStatus.Save_Event_Failed:
                 case MgrStatus.Bad_Event_Type:
                 case MgrStatus.Add_Address_Failed:
@@ -507,19 +506,24 @@ namespace CStat.Models
                 case MgrStatus.Add_Reg_Failed:
                 case MgrStatus.Save_Med_Failed:
                 case MgrStatus.Add_Med_Failed:
+                    return false;
+
+                case MgrStatus.Invalid_Address:
+                case MgrStatus.Save_Address_Failed:
+                case MgrStatus.Save_PG_Failed:
                     {
-                        try
-                        {
-                            ce.Person.Add(ResPerson);
-                            int sres = await ce.SaveChangesAsync();
-                            return (sres > 0);
-                        }
-                        catch(Exception e)
-                        {
-                            _ = e;
-                            return false;
-                        }
+                    try
+                    {
+                        ce.Person.Add(ResPerson);
+                        int sres = await ce.SaveChangesAsync();
+                        return (sres > 0);
                     }
+                    catch (Exception e)
+                    {
+                        _ = e;
+                        return false;
+                    }
+                }
             }
             return false;
         }
@@ -537,6 +541,7 @@ namespace CStat.Models
             bool bNeedToModPG2 = false;
             Person PG2Person = new Person();
             bool bValidAddress = false;
+            Address foundAdr = null;
 
             KeyValuePair<string, string> pv;
 
@@ -657,7 +662,7 @@ namespace CStat.Models
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
-                        var adrL = from adr in ce.Address
+                        var adrL = from adr in ce.Address.AsNoTracking()
                                    where (adr.ZipCode == zip.Value)
                                    select adr;
                         foreach (Address a in adrL)
@@ -667,7 +672,7 @@ namespace CStat.Models
                     }
                     else
                     {
-                        var adrL = from adr in ce.Address
+                        var adrL = from adr in ce.Address.AsNoTracking()
                                    where (adr.Town == city.Value) && (adr.State == state.Value)
                                    select adr;
                         foreach (Address a in adrL)
@@ -694,6 +699,7 @@ namespace CStat.Models
                         {
                             // Found matching address. Just set address id
                             person.AddressId = newAdr.Id = MinAdr.Id;
+                            foundAdr = MinAdr;
                             bFoundAdr = true;
                         }
                     }
@@ -1116,7 +1122,7 @@ namespace CStat.Models
             //**************************************************************************
             if (bHasSSNum)
             {
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.Ssnum == person.Ssnum)
                            select psn;
 
@@ -1141,7 +1147,7 @@ namespace CStat.Models
                 //**************************************************************************
                 // Find Person #2 : Find person by DOB and close name match
                 //**************************************************************************
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.Dob == person.Dob)
                            select psn;
 
@@ -1199,41 +1205,86 @@ namespace CStat.Models
                     if (!bFoundAdr)
                     {
                         // Add new, valid address and set Person.Address_id
-                        ce.Address.Add(newAdr);
-                        if (ce.SaveChanges() < 1)
+                        try
+                        { 
+                            ce.Address.Add(newAdr);
+                            if (ce.SaveChanges() < 1)
+                            {
+                                ResPerson = person;
+                                ResAddress = null;
+                                return MgrStatus.Save_Address_Failed;
+                            }
+                            if (newAdr.Id != 0)
+                                person.AddressId = newAdr.Id;  // addedAdr.id;
+                        }
+                        catch
                         {
-                            ResPerson = null;
+                            ResPerson = person;
                             ResAddress = null;
                             return MgrStatus.Save_Address_Failed;
                         }
-                        if (newAdr.Id != 0)
-                            person.AddressId = newAdr.Id;  // addedAdr.id;
+                    }
+                    else
+                    {
+                        // Make sure address fields are updated.
+                        if (foundAdr != null)
+                        {
+                            newAdr = Address.Merge(foundAdr, newAdr);
+                            try
+                            {
+                                ce.Address.Attach(newAdr);
+                                ce.Entry(newAdr).State = EntityState.Modified;
+                                ce.SaveChanges();
+                            }
+                            catch
+                            {
+                                ResPerson = person;
+                                ResAddress = null;
+                                return MgrStatus.Save_Address_Failed;
+                            }
+                        }
                     }
                 }
-
-
 
                 if (bNeedToAddPG1)
                 {
                     tryState = 2;
                     if (newAdr.Id != 0)
                         PG1Person.AddressId = newAdr.Id; // Assume PG lives with child.
-                    if (ce.Person.Add(PG1Person) != null)
+                    try
                     {
-                        ce.SaveChanges();
-                        if (PG1Person.Id != 0)
-                            person.Pg1PersonId = PG1Person.Id;
-                        else
-                            person.Pg1PersonId = null;
+                        if (ce.Person.Add(PG1Person) != null)
+                        {
+                            ce.SaveChanges();
+                            if (PG1Person.Id != 0)
+                                person.Pg1PersonId = PG1Person.Id;
+                            else
+                                person.Pg1PersonId = null;
+                        }
+                    }
+                    catch
+                    {
+                        ResPerson = person;
+                        ResAddress = null;
+                        return MgrStatus.Save_PG_Failed;
                     }
                 }
                 else
                 {
                     if (bNeedToModPG1)
                     {
-                        ce.Person.Attach(PG1Person);
-                        ce.Entry(PG1Person).State = EntityState.Modified;
-                        ce.SaveChanges();
+                        try
+                        {
+                            ce.Person.Attach(PG1Person);
+                            ce.Entry(PG1Person).State = EntityState.Modified;
+                            ce.SaveChanges();
+                        }
+                        catch
+                        {
+                            ResPerson = person;
+                            ResAddress = null;
+                            return MgrStatus.Save_PG_Failed;
+                        }
                     }
                 }
 
@@ -1242,23 +1293,36 @@ namespace CStat.Models
                     tryState = 3;
                     if (newAdr.Id != 0)
                         PG2Person.AddressId = newAdr.Id; // Assume PG lives with child.
-
-                    if (ce.Person.Add(PG2Person) != null)
+                    try
                     {
-                        ce.SaveChanges();
-                        if (PG2Person.Id != 0)
-                            person.Pg2PersonId = PG2Person.Id;
-                        else
-                            person.Pg2PersonId = null;
+                        if (ce.Person.Add(PG2Person) != null)
+                        {
+                            ce.SaveChanges();
+                            if (PG2Person.Id != 0)
+                                person.Pg2PersonId = PG2Person.Id;
+                            else
+                                person.Pg2PersonId = null;
+                        }
+                    }
+                    catch
+                    {
+
                     }
                 }
                 else
                 {
-                    if (bNeedToModPG2)
+                    try
                     {
-                        ce.Person.Attach(PG2Person);
-                        ce.Entry(PG2Person).State = EntityState.Modified;
-                        ce.SaveChanges();
+                        if (bNeedToModPG2)
+                        {
+                            ce.Person.Attach(PG2Person);
+                            ce.Entry(PG2Person).State = EntityState.Modified;
+                            ce.SaveChanges();
+                        }
+                    }
+                    catch
+                    {
+
                     }
                 }
 

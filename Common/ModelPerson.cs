@@ -1369,6 +1369,7 @@ namespace CStat.Models
             }
             catch (Exception e)
             {
+                _ = e;
                 ResPerson = null;
                 ResAddress = null;
                 if (tryState > 1)

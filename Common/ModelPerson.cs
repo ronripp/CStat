@@ -450,12 +450,18 @@ namespace CStat.Models
         {
             return !string.IsNullOrEmpty(str) ? str : "";
         }
-        public async Task<bool> AddPerson(CStatContext ce, string baptized= "", string pg1="", string pg2="")
+        public async Task<bool> AddPerson(CStatContext ce, string baptized= "", string church="", string pg1="", string pg2="")
         {
             List<KeyValuePair<String, String>> kvp = new List<KeyValuePair<String, String>>();
             kvp.Add(new KeyValuePair<string, string>("FName", GetVS(FirstName)));
             kvp.Add(new KeyValuePair<string, string>("LName", GetVS(LastName)));
-            if (ChurchId.HasValue) kvp.Add(new KeyValuePair<string, string>("Church", ChurchId.ToString()));
+            if (string.IsNullOrEmpty(church))
+            {
+                if (ChurchId.HasValue) kvp.Add(new KeyValuePair<string, string>("Church", ChurchId.ToString()));
+            }
+            else
+                kvp.Add(new KeyValuePair<string, string>("Church", church)); // Potential new church
+
             if (AddressId.HasValue) kvp.Add(new KeyValuePair<string, string>("Adr_id", AddressId.ToString()));
             if (Address != null)
             {
@@ -485,7 +491,7 @@ namespace CStat.Models
             }
             if (Gender.HasValue) kvp.Add(new KeyValuePair<string, string>("Gender", Gender.Value.ToString()));
 
-            var res = Person.UpdatePerson(ce, kvp, false, false, out Person ResPerson, out Address ResAddress);
+            var res = Person.UpdatePerson(ce, kvp, false, true, out Person ResPerson, out Address ResAddress);
 
             switch (res)
             {
@@ -590,27 +596,37 @@ namespace CStat.Models
                 }
                 else
                 {
-                    String churchValue = pv.Value.Trim();
-                    Church ch = ce.Church.FirstOrDefault(c => c.Name == churchValue);
-                    if (ch != null)
+                    String churchName = pv.Value.Trim();
+                    if (churchName != "-1")
                     {
-                        person.ChurchId = ch.Id;
-                    }
-                    else
-                    {
-                        if (!bJustGetPerson)
+                        Church ch = ce.Church.FirstOrDefault(c => c.Name == churchName);
+                        if (ch != null)
                         {
-                            // Add new Church
-                            Church nc = new Church();
-                            nc.Name = pv.Value.Trim();
-                            nc.Affiliation = "?";
-                            nc.StatusDetails = "Home church of " + person.FirstName + " " + person.LastName;
-                            ChurchMgr cmgr = new ChurchMgr(ce);
-                            if (cmgr.Validate(ref nc))
+                            person.ChurchId = ch.Id;
+                        }
+                        else
+                        {
+                            if (!bJustGetPerson)
                             {
-                                ce.Church.Add(nc);
-                                ce.SaveChanges();
-                                person.ChurchId = nc.Id;
+                                // Add new Church
+                                Church nc = new Church();
+                                nc.Name = churchName;
+                                nc.Affiliation = "?";
+                                nc.StatusDetails = "Home church of " + person.FirstName + " " + person.LastName;
+                                ChurchMgr cmgr = new ChurchMgr(ce);
+                                if (cmgr.Validate(ref nc))
+                                {
+                                    try
+                                    {
+                                        ce.Church.Add(nc);
+                                        ce.SaveChanges();
+                                        person.ChurchId = nc.Id;
+                                    }
+                                    catch
+                                    {
+                                        person.ChurchId = null;
+                                    }
+                                }
                             }
                         }
                     }

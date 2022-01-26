@@ -101,6 +101,9 @@ namespace CStat
         [BindProperty]
         public string _ZipCode { get; set; } = "";
 
+        [BindProperty]
+        public string _Church { get; set; } = "";
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -126,7 +129,7 @@ namespace CStat
             _Person.Address.State = _State;
             _Person.Address.ZipCode = _ZipCode;
 
-            await _Person.AddPerson(_context, bapStr, _PG1.Trim(), _PG2.Trim());
+            await _Person.AddPerson(_context, bapStr, _Church, _PG1.Trim(), _PG2.Trim());
 
             return RedirectToPage("./Find");
         }

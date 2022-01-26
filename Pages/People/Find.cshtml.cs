@@ -40,7 +40,7 @@ namespace CStat
             ViewData["ChurchId"] = new SelectList(_context.Church.OrderBy(c => c.Name), "Id", "Name");
             ViewData["Pg1PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
             ViewData["Pg2PersonId"] = new SelectList(_context.Person, "Id", "FirstName");
-            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_N", " & ").Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["TitleRoles"] = new MultiSelectList(trList, "Value", "Text");
         }
 

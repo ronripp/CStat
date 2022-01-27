@@ -1661,5 +1661,8 @@ namespace CStat.Models
             return ss.Trim().Replace("-", "");
         }
 
-    }
+        // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
+        // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
+
+}
 }

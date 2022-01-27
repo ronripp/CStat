@@ -66,7 +66,8 @@ namespace CStat.Common
             ATTENDANCE = 0x00004000,
             MENU     = 0x00008000,
             URGENCY  = 0x00010000,
-            CSTEST   = 0x00020000
+            CSTEST   = 0x00020000,
+            TRUSTEE  = 0x00040000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -121,6 +122,11 @@ namespace CStat.Common
             {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"trustees", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
+            {"delegate", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, false) },
+            {"delegates", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
+            {"director", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, false) },
+            {"directors", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) }
         };
 
@@ -190,6 +196,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
             _srcDelegateDict.Add(CmdSource.TASK, HandleTasks);
             _srcDelegateDict.Add(CmdSource.PERSON, HandlePeople);
+            _srcDelegateDict.Add(CmdSource.TRUSTEE, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
@@ -286,7 +293,8 @@ namespace CStat.Common
 
         private bool IsEMail(List<string> words)
         {
-            return ((words[0] == "email") || ((words.Count > 2) && (words[0] == "send" && words[1] == "email")));
+            return ( ((words[0] == "email") && ((words.Count == 1) || (words[1] != "of"))) ||
+                     ((words.Count > 2) && (words[0] == "send" && words[1] == "email")));
         }
 
         private string SrcTitle (CmdSource cs)
@@ -560,7 +568,11 @@ namespace CStat.Common
         {
             string result = "";
             List<Person> people = null;
-            if (_cmdDescList.Count == 1)
+            if (_cmdSrc == CmdSource.TRUSTEE)
+            {
+                people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).ToList();
+            }
+            else if (_cmdDescList.Count == 1)
             {
                people = _context.Person.Where(p => p.FirstName == _cmdDescList[0]).Include(p => p.Address).ToList();
             }
@@ -568,9 +580,10 @@ namespace CStat.Common
             {
                 people = _context.Person.Where(p => (p.FirstName == _cmdDescList[0]) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
             }
+
             if (people.Count > 0)
             {
-                foreach (var p in people)
+                foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
                     result += p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
                         ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + $"\n";

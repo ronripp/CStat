@@ -283,10 +283,10 @@ namespace CStat.Common
                 return ("Try later.");
             var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
 
-            if (!noEMail && (IsEMail(words) || (result.Length > 600)))
+            if (!noEMail && (IsEMail(words) || (result.Length > 1800)))
             {
                 CSEMail csEMail = new CSEMail(_config, _userManager);
-                return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? "Successfully Sent to " : "Failed to be sent to ") + _curUser.EMail;
+                return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? " successfully sent to " : " FAILED to be sent to ") + _curUser.EMail;
             }
             return (result.Length > 0) ? result : "No Results.";
         }

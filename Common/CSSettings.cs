@@ -94,31 +94,36 @@ namespace CStat.Common
         public void initialize ()
         {
             List<CStatUser> Users = GetUsersAsync(_userManager).Result;
+            UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
+            {
+                var cu = new CSUser();
+                cu.EMail = c.UserName;
+                cu.PhoneNum = c.PhoneNumber;
+                return cu;
+            }).ToList();
             var csect = _config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
             LastEMailRead = csect.GetValue<DateTime>("LastEMailRead");
             var ch = _config.GetSection("CSSettings:UserSettings").GetChildren();
-            UserSettings = new List<CSUser>();
             foreach (var c in ch)
             {
-                var user = new CSUser();
-                user.EMail = c.GetValue<string>("EMail");
-                user.Alias = c.GetValue<string>("Alias", GetDefAlias(user.EMail));
-                int cIndex = Users.FindIndex(u => u.UserName == user.EMail);
-                if (cIndex != -1)
-                {
-                    string PhoneNum = Users[cIndex].PhoneNumber;
-                    user.PhoneNum = !String.IsNullOrEmpty(PhoneNum) ? PhoneNum : "";
-                }
-                user.ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
-                user.SendEquipText = c.GetValue<bool>("SendEquipText");
-                user.SendStockText = c.GetValue<bool>("SendStockText");
-                user.SendTaskText = c.GetValue<bool>("SendTaskText");
-                user.SendEMailToo = c.GetValue<bool>("SendEMailToo");
-
-                UserSettings.Add(user);
+                var email = c.GetValue<string>("EMail");
+                int uidx = UserSettings.FindIndex(u => u.EMail == email);
+                if (uidx == -1)
+                    continue;
+                UserSettings[uidx].Alias = c.GetValue<string>("Alias", GetDefAlias(UserSettings[uidx].EMail));
+                UserSettings[uidx].ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
+                UserSettings[uidx].SendEquipText = c.GetValue<bool>("SendEquipText");
+                UserSettings[uidx].SendStockText = c.GetValue<bool>("SendStockText");
+                UserSettings[uidx].SendTaskText = c.GetValue<bool>("SendTaskText");
+                UserSettings[uidx].SendEMailToo = c.GetValue<bool>("SendEMailToo");
             }
+            UserSettings.ForEach(u =>
+            {
+                if (string.IsNullOrEmpty(u.Alias))
+                    u.Alias = GetDefAlias(u.EMail);
+            });
 
             GetEquipLists(_config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
             EquipProps = allEPs;
@@ -301,8 +306,10 @@ namespace CStat.Common
             return null;
         }
 
-        public CSUser GetUserByPhone(string phone)
+        public CSUser GetUserByPhone(string phone, out string diag)
         {
+            diag = "Diag : Phone=[" + phone + "] " + ((UserSettings == null) ? "NULL UserSettings" : "Users = " + UserSettings.Count.ToString());
+
             if ((UserSettings == null) || String.IsNullOrEmpty(phone))
                 return null;
 
@@ -310,17 +317,21 @@ namespace CStat.Common
             var tLen = tPhone.Length;
             if ((tLen == 11) && tPhone.StartsWith("1"))
                 tPhone = tPhone.Substring(1);
+            diag = diag + " tPhone[" + tPhone + "]";
 
             foreach (var u in UserSettings)
             {
+                diag = diag + "[" + u.EMail + "][" + (String.IsNullOrEmpty(u.PhoneNum) ? "???" : u.PhoneNum) + "]";
                 if (String.IsNullOrEmpty(u.PhoneNum))
+                {
                     continue;
+                }
 
                 var uPhone = u.PhoneNum.Replace("-", "").Replace("+", "").Replace("(", "").Replace(")", "").Replace(".", "");
                 var uLen = uPhone.Length;
                 if ((uLen == 11) && uPhone.StartsWith("1"))
                     uPhone = uPhone.Substring(1);
-
+                diag = diag + " uPhone[" + uPhone + "]";
                 if (uPhone == tPhone)
                     return u;
             }
@@ -336,7 +347,10 @@ namespace CStat.Common
             {
                 if (UserSettings[i].EMail == userName)
                 {
+                    var SavedPhone = UserSettings[i].PhoneNum;
                     UserSettings[i] = modUser; // Replace existing user
+                    if (string.IsNullOrEmpty(UserSettings[i].PhoneNum))
+                        UserSettings[i].PhoneNum = SavedPhone;
                     break;
                 }
             }
@@ -477,7 +491,7 @@ namespace CStat.Common
         public bool GetPropaneProperties (out double tankGals, out double pricePerGal)
         {
             tankGals = pricePerGal = 0;
-            var PEquip = this.ActiveEquip.Where(e => e.IsPropane()).ToList();
+            var PEquip = EquipProps.Where(e => e.IsPropane()).ToList();
             if (PEquip.Count > 0)
             {
                 var Props = PEquip[0].GetProps();
@@ -495,9 +509,11 @@ namespace CStat.Common
             return false;
         }
 
-public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
+        public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
         {
-            return await userManager.Users.ToListAsync();
+            var task = userManager.Users.ToListAsync();
+            task.Wait();
+            return task.Result;
         }
     }
 }

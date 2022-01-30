@@ -1336,8 +1336,21 @@ namespace CStat.Models
 
     public partial class Attendance
     {
-        public enum AttendanceRoles { Unknown = 0, Visitor, Camper, Staff, Dean, Counselor, SWAT, Missionary, Speaker, Worship, HealthDir, nurse, Manager, Cook, kitchen, Worker, Trustee, ChurchRep, DropOff, PickUp, Other = 101 };
-
+        public enum AttendanceRoles
+        {
+            Unknown = 0, Visitor, Camper, Staff, Dean, Counselor, SWAT, Missionary, Speaker, Worship, HealthDir, nurse, Manager, Cook, kitchen, Worker, Trustee, ChurchRep, DropOff, PickUp, Other = 101,
+            Sch_Host            = 0x00080,
+            Sch_Dean            = 0x00100,
+            Sch_Boys_Counselor  = 0x00200,
+            Sch_Girls_Counselor = 0x00400,
+            Sch_Dean_Helper     = 0x00800,
+            Sch_Cook            = 0x01000,
+            Sch_SWAT1           = 0x02000,
+            Sch_SWAT2           = 0x04000,
+            Sch_Kitchen_Helper  = 0x08000,
+            Sch_Nurse           = 0x10000
+        }
+                                      
         public class PFullInfo
         {
             public PFullInfo()

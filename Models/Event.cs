@@ -47,6 +47,8 @@ namespace CStat.Models
         [Column("Contract_Link")]
         [StringLength(255)]
         public string ContractLink { get; set; }
+        [Column("staff")]
+        public int? Staff { get; set; }
 
         [ForeignKey(nameof(ChurchId))]
         [InverseProperty("Event")]

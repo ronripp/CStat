@@ -40,6 +40,10 @@
         padding-left: 4px;
     }
 
+    .lgi {
+        max-width:14em;
+    }
+
 </style>
 
 
@@ -140,17 +144,20 @@
         <span style="color:red">@Html.Raw(ViewData["EventError"])</span>
     }
 
-    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+<form class="form-horizontal" method="post" enctype="multipart/form-data">
 
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <div class="row">
         <div class="form-group row ediv">
             <label asp-for="Event.Type" class="control-label col-md-2 ILabel">Type:</label>
             <div class="col-md-10 IValue">
                 <select asp-for="Event.Type" class="form-control" asp-items="ViewBag.Type"></select>
             </div>
         </div>
+    </div>
 
+    <div class="row">
         <div class="form-group row ediv">
             <label asp-for="Event.Description" class="control-label col-md-2 ILabel">Description:</label>
             <div class="col-md-10 IValue">
@@ -158,89 +165,104 @@
                 <span asp-validation-for="Event.Description" class="text-danger"></span>
             </div>
         </div>
+    </div>
 
-        <div class="form-group row ediv">
-            <label asp-for="Event.StartTime" class="control-label col-md-2 ILabel">Start Time:</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.StartTime" class="form-control" />
+    <div class="row">
+        <div class="col-sm-6 form-group row ediv">
+            <label asp-for="Event.StartTime" class="control-label ILabel">Start Time:</label>
+            <div class=" IValue">
+                <input asp-for="Event.StartTime" class="form-control lgi" />
                 <span asp-validation-for="Event.StartTime" class="text-danger"></span>
             </div>
         </div>
 
-        <div class="form-group row ediv">
-            <label asp-for="Event.EndTime" class="control-label col-md-2 ILabel">End Time:</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.EndTime" class="form-control" />
+        <div class="col-sm-6 form-group row ediv">
+            <label asp-for="Event.EndTime" class="control-label ILabel">End Time:</label>
+            <div class="IValue">
+                <input asp-for="Event.EndTime" class="form-control lgi" />
                 <span asp-validation-for="Event.EndTime" class="text-danger"></span>
             </div>
         </div>
+    </div>
 
-        <span style="color:red; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
-        <div class="form-group">
+
+    <div class="row">
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostChild" class="control-label ILabel">Child $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostChild" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostChild" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostAdult" class="control-label ILabel">Adult $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostAdult" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostFamily" class="control-label ILabel">Family $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostFamily" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostCabin" class="control-label ILabel">Cabin $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostCabin" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostLodge" class="control-label ILabel">Lodge $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostLodge" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm-4 form-group row ediv">
+            <label asp-for="Event.CostTent" class="control-label ILabel">Tent $</label>
+            <div class="IValue">
+                <input asp-for="Event.CostTent" class="form-control" style="max-width: 6em;" />
+                <span asp-validation-for="Event.CostTent" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <span style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
+        <div class="form-group col-sm-12">
             <label asp-for="Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
             <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
             <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
         </div>
+    </div>
 
-        <div class="form-group row ediv">
-            <label asp-for="Event.ChurchId" class="control-label col-md-2 ILabel">Church:</label>
-            <div class="col-md-10 IValue">
+    <div class="row">
+        <div class="form-group row ediv col-sm-12">
+            <label asp-for="Event.ChurchId" class="control-label ILabel">Church:</label>
+            <div class="IValue">
                 <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>
             </div>
         </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostChild" class="control-label col-md-2 ILabel">Child $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostChild" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostChild" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostAdult" class="control-label col-md-2 ILabel">Adult $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostAdult" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostFamily" class="control-label col-md-2 ILabel">Family $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostFamily" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostFamily" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostCabin" class="control-label col-md-2 ILabel">Cabin $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostCabin" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostLodge" class="control-label col-md-2 ILabel">Lodge $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostLodge" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row ediv">
-            <label asp-for="Event.CostTent" class="control-label col-md-2 ILabel">Tent $</label>
-            <div class="col-md-10 IValue">
-                <input asp-for="Event.CostTent" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="Event.CostTent" class="text-danger"></span>
-            </div>
-        </div>
+    </div>
 
-        <div class="form-group center">
-            <span class="col-md-8">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </span>
-            <span class="col-md-2">
-                <input type="button" onclick="window.history.go(-1)" value="Cancel" />
-            </span>
-        </div>
-    </form>
+
+    <div class="form-group center">
+        <span class="col-md-8">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </span>
+        <span class="col-md-2">
+            <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+        </span>
+    </div>
+</form>
 
     <div>
         <a asp-page="Index">Back to List</a>

@@ -61,11 +61,6 @@ namespace CStat.Pages
             var cmdStr = (cmdIndex != -1) ? rawQS.Substring(cmdIndex + 1, rawQS.Length - (cmdIndex + 1)) : rawQS;
 
             // Execute Command String
-
-            var curUser = _csSettings.GetUserByPhone("+12037703393", out string diag);
-            if (curUser == null)
-                return this.Content("I don't know you. " + diag);
- 
             CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager, _curUser);
             return this.Content(cmdMgr.ExecuteCmd(cmdStr, true));  // Response 
         }

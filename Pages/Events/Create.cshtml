@@ -40,12 +40,61 @@
         padding-left: 4px;
     }
 
+    .lpad {
+        margin-left: 4px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .frow {
+        display: flex;
+    }
+
+    /* Create two equal columns that sits next to each other */
+    .fcolumn {
+        flex: 50%;
+        padding: 2px;
+    }
+
     .lgi {
-        max-width:14em;
+        max-width:15.5em;
+    }
+
+    .topStaff {
+        border-color: black;
+        border-style: solid;
+        border-top-width: 2px;
+        border-left-width: 2px;
+        border-right-width: 2px;
+        border-bottom-width: 2px;
+        max-width: 12em;
+    }
+
+    .nextStaff {
+        border-color: black;
+        border-style: solid;
+        border-top-width: 0px;
+        border-left-width: 2px;
+        border-right-width: 2px;
+        border-bottom-width: 2px;
+        max-width: 12em;
+    }
+
+    .offStaff {
+        background-color: #E0E0E0;
+        font-weight: normal;
+        padding-left:4px;
+    }
+
+    .onStaff {
+        background-color: #FFFFDD;
+        font-weight: bold;
+        padding-left: 4px;
     }
 
 </style>
-
 
 <script>
 
@@ -128,6 +177,10 @@
             openFileShare();
         });
 
+        $(document).on('click', "[id^=srole]", function () {
+            $("#" + this.id).toggleClass("onStaff offStaff");
+        });
+
     });
 
     function getDoc() {
@@ -149,18 +202,18 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="row">
-        <div class="form-group row ediv">
+        <div class="form-group row ediv lpad">
             <label asp-for="Event.Type" class="control-label col-md-2 ILabel">Type:</label>
-            <div class="col-md-10 IValue">
+            <div class="col-sm-10 IValue">
                 <select asp-for="Event.Type" class="form-control" asp-items="ViewBag.Type"></select>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="form-group row ediv">
-            <label asp-for="Event.Description" class="control-label col-md-2 ILabel">Description:</label>
-            <div class="col-md-10 IValue">
+        <div class="form-group row ediv lpad">
+            <label asp-for="Event.Description" class="control-label col-md-3 ILabel">Description:</label>
+            <div class="col-sm-9 IValue">
                 <input asp-for="Event.Description" class="form-control" />
                 <span asp-validation-for="Event.Description" class="text-danger"></span>
             </div>
@@ -168,7 +221,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-6 form-group row ediv">
+        <div class="col-sm-6 form-group row ediv lpad">
             <label asp-for="Event.StartTime" class="control-label ILabel">Start Time:</label>
             <div class=" IValue">
                 <input asp-for="Event.StartTime" class="form-control lgi" />
@@ -176,7 +229,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 form-group row ediv">
+        <div class="col-sm-6 form-group row ediv lpad">
             <label asp-for="Event.EndTime" class="control-label ILabel">End Time:</label>
             <div class="IValue">
                 <input asp-for="Event.EndTime" class="form-control lgi" />
@@ -185,23 +238,51 @@
         </div>
     </div>
 
+    <div class="row">
+
+    </div>
+
+    <div class="ediv form-group" style="margin-left:-12px; padding:6px 6px 0px 6px">
+        @{ int rowId = 0;
+            foreach (var sr in ViewBag.StaffRoles)
+            {
+                if (rowId > 0)
+                {
+                    string srId = "srole" + rowId;
+                    string spId = "spers" + rowId;
+                    string staffCls = (rowId == 1) ? "topStaff" : "nextStaff";
+            <div class="frow">
+                <div class="fcolumn @staffCls offStaff" id="@srId" )">@sr.Text:</div>
+                <div class="fcolumn"><input id="@spId" /></div>
+            </div>
+                }
+                ++rowId;
+            }
+        }
+  
+        <div class="row form-group lpad">
+            <div class="IValue">
+                <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.StaffRoles"></select>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostChild" class="control-label ILabel">Child $</label>
             <div class="IValue">
                 <input asp-for="Event.CostChild" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostChild" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostAdult" class="control-label ILabel">Adult $</label>
             <div class="IValue">
                 <input asp-for="Event.CostAdult" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostAdult" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostFamily" class="control-label ILabel">Family $</label>
             <div class="IValue">
                 <input asp-for="Event.CostFamily" class="form-control" style="max-width: 6em;" />
@@ -211,21 +292,21 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostCabin" class="control-label ILabel">Cabin $</label>
             <div class="IValue">
                 <input asp-for="Event.CostCabin" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostCabin" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostLodge" class="control-label ILabel">Lodge $</label>
             <div class="IValue">
                 <input asp-for="Event.CostLodge" class="form-control" style="max-width: 6em;" />
                 <span asp-validation-for="Event.CostLodge" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv">
+        <div class="col-sm-4 form-group row ediv lpad">
             <label asp-for="Event.CostTent" class="control-label ILabel">Tent $</label>
             <div class="IValue">
                 <input asp-for="Event.CostTent" class="form-control" style="max-width: 6em;" />
@@ -235,8 +316,8 @@
     </div>
 
     <div class="row">
-        <span style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
-        <div class="form-group col-sm-12">
+        <span class="lpad" style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
+        <div class="form-group col-sm-12 lpad">
             <label asp-for="Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
             <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
@@ -245,7 +326,7 @@
     </div>
 
     <div class="row">
-        <div class="form-group row ediv col-sm-12">
+        <div class="form-group row ediv col-sm-12 lpad">
             <label asp-for="Event.ChurchId" class="control-label ILabel">Church:</label>
             <div class="IValue">
                 <select asp-for="Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>
@@ -253,8 +334,7 @@
         </div>
     </div>
 
-
-    <div class="form-group center">
+    <div class="form-group center lpad">
         <span class="col-md-8">
             <input type="submit" value="Create" class="btn btn-primary" />
         </span>

@@ -42,9 +42,9 @@ namespace TwilioReceive.Controllers
         public TwiMLResult ReceiveSms([FromForm] SmsRequest req)
         {
             
-            var curUser = csSettings.GetUserByPhone(req.From, out string diag);
+            var curUser = csSettings.GetUserByPhone(req.From);
             if (curUser == null) 
-                return SendMsgResp("I don't know you. " + diag);
+                return SendMsgResp("I don't know you. ");
             var name = !string.IsNullOrEmpty(curUser.Alias) ? curUser.Alias : CSSettings.GetDefAlias(curUser.EMail);
 
             curUser.SetPersonIDByEmail(Context);

@@ -306,9 +306,9 @@ namespace CStat.Common
             return null;
         }
 
-        public CSUser GetUserByPhone(string phone, out string diag)
+        public CSUser GetUserByPhone(string phone)
         {
-            diag = "Diag : Phone=[" + phone + "] " + ((UserSettings == null) ? "NULL UserSettings" : "Users = " + UserSettings.Count.ToString());
+            //diag = "Diag : Phone=[" + phone + "] " + ((UserSettings == null) ? "NULL UserSettings" : "Users = " + UserSettings.Count.ToString());
 
             if ((UserSettings == null) || String.IsNullOrEmpty(phone))
                 return null;
@@ -317,11 +317,11 @@ namespace CStat.Common
             var tLen = tPhone.Length;
             if ((tLen == 11) && tPhone.StartsWith("1"))
                 tPhone = tPhone.Substring(1);
-            diag = diag + " tPhone[" + tPhone + "]";
+            //diag = diag + " tPhone[" + tPhone + "]";
 
             foreach (var u in UserSettings)
             {
-                diag = diag + "[" + u.EMail + "][" + (String.IsNullOrEmpty(u.PhoneNum) ? "???" : u.PhoneNum) + "]";
+                //diag = diag + "[" + u.EMail + "][" + (String.IsNullOrEmpty(u.PhoneNum) ? "???" : u.PhoneNum) + "]";
                 if (String.IsNullOrEmpty(u.PhoneNum))
                 {
                     continue;
@@ -331,7 +331,7 @@ namespace CStat.Common
                 var uLen = uPhone.Length;
                 if ((uLen == 11) && uPhone.StartsWith("1"))
                     uPhone = uPhone.Substring(1);
-                diag = diag + " uPhone[" + uPhone + "]";
+                //diag = diag + " uPhone[" + uPhone + "]";
                 if (uPhone == tPhone)
                     return u;
             }

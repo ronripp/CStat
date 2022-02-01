@@ -230,12 +230,10 @@
             alert("Submit");
 
             var srolls = 0;
-            $("div[id^=srole]").each(function (index, obj) {
-                alert(index);
-                //if ($(this).hasClass("onStaff")) {
-                //    let str = $(this).val();
-                //    //srolls |= parseInt(str);
-                //}
+            $("div[id^=srole]").each(function (index) {
+                if ($(this).hasClass("onStaff")) {
+                    srolls |= parseInt($(this).attr("value"));
+                }
             });
             alert(srolls);
         });
@@ -321,7 +319,7 @@
                     string staffCls = (rowId == 1) ? "topStaff" : "nextStaff";
                     string selClass = Model.IsStaffSelected(rowId) ? "onStaff" : "offStaff";
                     <div class="frow">
-                        <div class="fcolumn @staffCls @selClass" id="@srId">@sr.Text:</div>
+                        <div class="fcolumn @staffCls @selClass" id="@srId" value="@sr.Value">@sr.Text:</div>
                         <div class="fcolumn"><input id="@spId" /></div>
                     </div>
                 }

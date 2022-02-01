@@ -181,6 +181,20 @@
             $("#" + this.id).toggleClass("onStaff offStaff");
         });
 
+        $('#EventForm').submit(function () {
+            alert("Submit");
+
+            var srolls = 0;
+            $("div[id^=srole]").each(function (index, obj) {
+                alert(index);
+                //if ($(this).hasClass("onStaff")) {
+                //    let str = $(this).val();
+                //    //srolls |= parseInt(str);
+                //}
+            });
+            alert(srolls);
+        });
+
     });
 
     function getDoc() {
@@ -197,7 +211,9 @@
         <span style="color:red">@Html.Raw(ViewData["EventError"])</span>
     }
 
-<form class="form-horizontal" method="post" enctype="multipart/form-data">
+<form class="form-horizontal" method="post" id="EventForm" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="Event.Staff" />
 
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -251,15 +267,16 @@
                     string srId = "srole" + rowId;
                     string spId = "spers" + rowId;
                     string staffCls = (rowId == 1) ? "topStaff" : "nextStaff";
-            <div class="frow">
-                <div class="fcolumn @staffCls offStaff" id="@srId" )">@sr.Text:</div>
-                <div class="fcolumn"><input id="@spId" /></div>
-            </div>
+                    string selClass = Model.IsStaffSelected(rowId) ? "onStaff" : "offStaff";
+                    <div class="frow">
+                        <div class="fcolumn @staffCls @selClass" id="@srId" value="@sr.Value">@sr.Text:</div>
+                        <div class="fcolumn"><input id="@spId" /></div>
+                    </div>
                 }
                 ++rowId;
             }
         }
-  
+
         <div class="row form-group lpad">
             <div class="IValue">
                 <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.StaffRoles"></select>
@@ -336,7 +353,7 @@
 
     <div class="form-group center lpad">
         <span class="col-md-8">
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <input type="submit" value="Create" id="SubmitEvent" class="btn btn-primary" />
         </span>
         <span class="col-md-2">
             <input type="button" onclick="window.history.go(-1)" value="Cancel" />

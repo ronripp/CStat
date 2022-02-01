@@ -30,6 +30,8 @@ namespace CStat.Pages.Events
         [BindProperty]
         public Event Event { get; set; }
 
+        private IList<SelectListItem> rList = null;
+
         private void UpdateViewData(string err = "")
         {
             IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c => c.Text).ToList();
@@ -40,11 +42,16 @@ namespace CStat.Pages.Events
             tList.Insert(0, new SelectListItem { Text = "Select Event Type", Value = "-1" });
             ViewData["Type"] = tList;
 
-            IList<SelectListItem> rList = Enum.GetValues(typeof(Attendance.AttendanceRoles)).Cast<Attendance.AttendanceRoles>().Where(a => (int)a >= (int)Attendance.AttendanceRoles.Sch_Host).Select(x => new SelectListItem { Text = x.ToString().Replace("Sch_", "").Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            rList = Enum.GetValues(typeof(Attendance.AttendanceRoles)).Cast<Attendance.AttendanceRoles>().Where(a => (int)a >= (int)Attendance.AttendanceRoles.Sch_Host).Select(x => new SelectListItem { Text = x.ToString().Replace("Sch_", "").Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             rList.Insert(0, new SelectListItem { Text = "* Add Staff Role", Value = "-1" });
             ViewData["StaffRoles"] = rList;
 
             ViewData["EventError"] = err;
+        }
+
+        public bool IsStaffSelected(int index)
+        {
+            return (Event != null) && Event.Staff.HasValue && ((int.Parse(rList[index].Value) & Event.Staff.Value) != 0);
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to, for

@@ -1339,19 +1339,27 @@ namespace CStat.Models
         public enum AttendanceRoles
         {
             Unknown = 0, Visitor, Camper, Staff, Dean, Counselor, SWAT, Missionary, Speaker, Worship, HealthDir, nurse, Manager, Cook, kitchen, Worker, Trustee, ChurchRep, DropOff, PickUp, Other = 101,
-            Sch_Host            = 0x00080,
-            Sch_Dean            = 0x00100,
-            Sch_Dean_Helper     = 0x00200,
-            Sch_Boys_Counselor  = 0x00400,
-            Sch_Girls_Counselor = 0x00800,
-            Sch_Nurse           = 0x01000,
-            Sch_Cook            = 0x02000,
-            Sch_Kitchen_Helper  = 0x04000,
-            Sch_SWAT1           = 0x08000,
-            Sch_SWAT2           = 0x10000,
-            Sch_SWAT3           = 0x20000
+            Sch_Host            = 0x000080,
+            Sch_Dean            = 0x000100,
+            Sch_Dean_Helper     = 0x000200,
+            Sch_Boys_Counselor  = 0x000400,
+            Sch_Girls_Counselor = 0x000800,
+            Sch_Nurse           = 0x001000,
+            Sch_Cook            = 0x002000,
+            Sch_Kitchen_Helper  = 0x004000,
+            Sch_SWAT1           = 0x008000,
+            Sch_SWAT2           = 0x010000,
+            Sch_SWAT3           = 0x020000,
+            Sch_SWAT4           = 0x040000,
+            Sch_Boys_Counselor2 = 0x080000,
+            Sch_Girls_Counselr2 = 0x100000,
+            Sch_Dean2           = 0x200000,
+            Sch_Dean_Helper2    = 0x400000,
+            Sch_Kitchen_Helper2 = 0x800000
+            
+
         }
-                                      
+
         public class PFullInfo
         {
             public PFullInfo()

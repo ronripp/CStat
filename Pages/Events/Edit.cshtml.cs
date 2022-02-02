@@ -28,6 +28,7 @@ namespace CStat.Pages.Events
         public Event Event { get; set; }
 
         private IList<SelectListItem> rList = null;
+        private IList<SelectListItem> eList = null;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -63,8 +64,11 @@ namespace CStat.Pages.Events
             ViewData["Type"] = tList;
 
             rList = Enum.GetValues(typeof(Attendance.AttendanceRoles)).Cast<Attendance.AttendanceRoles>().Where(a => (int)a >= (int)Attendance.AttendanceRoles.Sch_Host).Select(x => new SelectListItem { Text = x.ToString().Replace("Sch_", "").Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            eList = rList.Skip(11).ToList();
             rList.Insert(0, new SelectListItem { Text = "* Add Staff Role", Value = "-1" });
             ViewData["StaffRoles"] = rList;
+            eList.Insert(0, new SelectListItem { Text = "* Add Staff Role", Value = "-1" });
+            ViewData["ExtraRoles"] = eList;
 
             ViewData["EventError"] = err;
         }

@@ -182,17 +182,13 @@
         });
 
         $('#EventForm').submit(function () {
-            alert("Submit");
-
             var srolls = 0;
-            $("div[id^=srole]").each(function (index, obj) {
-                alert(index);
-                //if ($(this).hasClass("onStaff")) {
-                //    let str = $(this).val();
-                //    //srolls |= parseInt(str);
-                //}
+            $("div[id^=srole]").each(function (index) {
+                if ($(this).hasClass("onStaff")) {
+                    srolls |= parseInt($(this).attr("value"));
+                }
             });
-            alert(srolls);
+            $("#Event_Staff").attr("value", srolls.toString());
         });
 
     });

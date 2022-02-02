@@ -65,6 +65,10 @@
             padding: 2px;
         }
 
+        .fhide {
+            display:none;
+        }
+
         .lgi {
             max-width: 15.5em;
         }
@@ -227,16 +231,22 @@
         });
 
         $('#EventForm').submit(function () {
-            alert("Submit");
-
             var srolls = 0;
             $("div[id^=srole]").each(function (index) {
                 if ($(this).hasClass("onStaff")) {
                     srolls |= parseInt($(this).attr("value"));
                 }
             });
-            alert(srolls);
+            $("#Event_Staff").attr("value", srolls.toString());
         });
+
+        $('#StaffRoles').change(function () {
+            var sel = $(this).val();
+            var selDiv = $("div").find("[value=" + "'" + sel + "']");
+            if (!!selDiv) {
+                selDiv.toggleClass("onStaff offStaff").parent().closest('div').removeClass("fhide");
+            }
+        })
 
     });
 
@@ -309,6 +319,10 @@
     </div>
 
     <div class="ediv form-group" style="margin-left:-12px; padding:6px 6px 0px 6px">
+        <div class="frow">
+            <div class="fcolumn" style="max-width:13em">Click Roles Below </div>
+            <div class="fcolumn">Add F L Name</div>
+        </div>
         @{ int rowId = 0;
             foreach (var sr in ViewBag.StaffRoles)
             {
@@ -318,7 +332,11 @@
                     string spId = "spers" + rowId;
                     string staffCls = (rowId == 1) ? "topStaff" : "nextStaff";
                     string selClass = Model.IsStaffSelected(rowId) ? "onStaff" : "offStaff";
-                    <div class="frow">
+                    string mainDivClass = "frow";
+                    if ((rowId > 11) && (selClass == "offStaff"))
+                        mainDivClass += " fhide";
+
+                    <div class="@mainDivClass">
                         <div class="fcolumn @staffCls @selClass" id="@srId" value="@sr.Value">@sr.Text:</div>
                         <div class="fcolumn"><input id="@spId" /></div>
                     </div>
@@ -329,7 +347,7 @@
 
         <div class="row form-group lpad">
             <div class="IValue">
-                <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.StaffRoles"></select>
+                <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.ExtraRoles"></select>
             </div>
         </div>
     </div>

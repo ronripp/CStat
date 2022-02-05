@@ -277,13 +277,13 @@
         });
 
         $('#EventForm').submit(function () {
-            var srolls = 0;
+            var sroles = 0;
             $("div[id^=srole]").each(function (index) {
                 if ($(this).hasClass("onStaff")) {
-                    srolls |= parseInt($(this).attr("value"));
+                    sroles |= parseInt($(this).attr("value"));
                 }
             });
-            $("#Event_Staff").attr("value", srolls.toString());
+            $("#zEvent_Staff").attr("value", sroles.toString());
 
             var StaffStr = "";
             $("input[id^=spers]").each(function (index) {
@@ -295,7 +295,7 @@
                     StaffStr += ($(this).attr("rval") + "=" + $(this).val() + "~");
                 }
             });
-            alert(StaffStr);
+            //alert(StaffStr);
             $("#zStaff").attr("value", StaffStr);
 
         });

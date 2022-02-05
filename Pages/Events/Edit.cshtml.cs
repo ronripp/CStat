@@ -88,10 +88,27 @@ namespace CStat.Pages.Events
         }
 
         // 128=~256=Eli Russo~512=~2048=~8192=Christine Gerkhardt~32768=~65536=~131072=~1048576=~
-        public bool UpdateAttendance(int evid, string staffStr)
+        public bool UpdateAttendance(int evid, int activeRoles, string staffStr)
         {
             try
             {
+                // Check for and delete people assigned to un-needed roles.
+                List<int> RoleList = Enum.GetValues(typeof(Attendance.AttendanceRoles)).Cast<int>().Where(r => (int)r >= (int)Attendance.AttendanceRoles.Sch_Host).Select(x => x).ToList();
+
+                foreach (var r in RoleList)
+                {
+                    if ((r & activeRoles) == 0)
+                    {
+                        // Staff Role now not needed
+                        Attendance delAtt = _context.Attendance.AsNoTracking().FirstOrDefault(a => (a.EventId == evid) && (a.RoleType == r));
+                        if (delAtt != null)
+                        {
+                            _context.Attendance.Remove(delAtt);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+
                 List<KeyValuePair<int, string>> kvpList = new List<KeyValuePair<int, string>>();
                 var pairs = staffStr.Split("~");
                 if (pairs.Length == 0)
@@ -194,7 +211,7 @@ namespace CStat.Pages.Events
             // Check if Start or End Dates have changed and delete tasks associated with event and generate new ones.
             int NumTasksRemoved = RemoveChangedEventTasks(_context, _Event);
 
-            UpdateAttendance(_Event.Id, _Staff);
+            UpdateAttendance(_Event.Id, _Event.Staff ?? 0, _Staff);
 
             _context.Attach(_Event).State = EntityState.Modified;
 

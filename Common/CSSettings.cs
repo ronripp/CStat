@@ -93,7 +93,7 @@ namespace CStat.Common
 
         public void initialize ()
         {
-            List<CStatUser> Users = GetUsersAsync(_userManager).Result;
+            List<CStatUser> Users = GetUsers(_userManager);
             UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
             {
                 var cu = new CSUser();
@@ -509,7 +509,7 @@ namespace CStat.Common
             return false;
         }
 
-        public static async Task<List<CStatUser>> GetUsersAsync(UserManager<CStatUser> userManager)
+        public static List<CStatUser> GetUsers(UserManager<CStatUser> userManager)
         {
             var task = userManager.Users.ToListAsync();
             task.Wait();

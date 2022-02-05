@@ -25,7 +25,10 @@ namespace CStat.Pages.Events
         }
 
         [BindProperty]
-        public Event Event { get; set; }
+        public Event _Event { get; set; }
+
+        [BindProperty]
+        public string _Staff { get; set; } = "";
 
         private IList<SelectListItem> rList = null;
         private IList<SelectListItem> eList = null;
@@ -37,10 +40,10 @@ namespace CStat.Pages.Events
                 return NotFound();
             }
 
-            Event = await _context.Event
+            _Event = await _context.Event
                 .Include(e => e.Church).FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Event == null)
+            if (_Event == null)
             {
                 return NotFound();
             }
@@ -51,9 +54,9 @@ namespace CStat.Pages.Events
         }
         public bool IsStaffSelected(int index)
         {
-            return (Event != null) && Event.Staff.HasValue && ((int.Parse(rList[index].Value) & Event.Staff.Value) != 0);
+            return (_Event != null) && _Event.Staff.HasValue && ((int.Parse(rList[index].Value) & _Event.Staff.Value) != 0);
         }
-        private void UpdateViewData(string err="")
+        private void UpdateViewData(string err = "")
         {
             IList<SelectListItem> cList = new SelectList(_context.Church, "Id", "Name").OrderBy(c => c.Text).ToList();
             cList.Insert(0, new SelectListItem { Text = "Select if Church Event", Value = "-1" });
@@ -73,11 +76,101 @@ namespace CStat.Pages.Events
             ViewData["EventError"] = err;
         }
 
+        public string GetRoleName (string roleStr)
+        {
+            if (!int.TryParse(roleStr, out int role))
+                return "";
+
+            var att = _context.Attendance.Include(a => a.Person).FirstOrDefault(a => (a.EventId == _Event.Id) && (a.RoleType == role));
+            if (att == null)
+                return "";
+            return ((att.PersonId > 0) && (att.Person != null)) ? att.Person.FirstName + " " + att.Person.LastName : "";
+        }
+
+        // 128=~256=Eli Russo~512=~2048=~8192=Christine Gerkhardt~32768=~65536=~131072=~1048576=~
+        public bool UpdateAttendance(int evid, string staffStr)
+        {
+            try
+            {
+                List<KeyValuePair<int, string>> kvpList = new List<KeyValuePair<int, string>>();
+                var pairs = staffStr.Split("~");
+                if (pairs.Length == 0)
+                    return false;
+                foreach (var p in pairs)
+                {
+                    var flds = p.Split("=");
+                    if (flds.Length >= 1)
+                    {
+                        var keyStr = flds[0].Trim();
+                        if (!string.IsNullOrEmpty(keyStr))
+                        {
+                            if (int.TryParse(keyStr, out int key))
+                            {
+                                var val = (flds.Length == 2) ? flds[1].Trim() : "";
+                                var kvp = new KeyValuePair<int, string>(key, val);
+                                kvpList.Add(kvp);
+                            }
+                        }
+                    }
+                }
+
+                kvpList.ForEach(kv =>
+                {
+                    Attendance att = _context.Attendance.AsNoTracking().FirstOrDefault(a => (a.EventId == evid) && (a.RoleType == kv.Key));
+                    if (att != null)
+                    {
+                        if (string.IsNullOrEmpty(kv.Value))
+                        {
+                            // Delete current
+                            _context.Attendance.Remove(att);
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            // Update Current
+                            List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
+                            if (persList.Count == 1)
+                            {
+                                att.PersonId = persList[0].Id;
+
+                                _context.Attendance.Attach(att);
+                                _context.Entry(att).State = EntityState.Modified;
+                                _context.SaveChanges();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(kv.Value))
+                        {
+                            // Add new Attendance
+                            var newAtt = new Attendance();
+                            newAtt.EventId = evid;
+                            newAtt.RoleType = kv.Key;
+
+                            List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
+                            newAtt.PersonId = (persList.Count == 1) ? persList[0].Id : Person.AddPersonFromNameHint(_context, kv.Value);
+                            if (newAtt.PersonId > 0)
+                            {
+                                _context.Attendance.Add(newAtt);
+                                _context.SaveChanges();
+                            }
+                        }
+                    }
+                });
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if ((Event.Description == null) || (Event.Description.Trim().Length == 0) || (Event.Type <= 0))
+            if ((_Event.Description == null) || (_Event.Description.Trim().Length == 0) || (_Event.Type <= 0))
             {
                 UpdateViewData("Event Type and/or Event Description must be set.");
                 return Page();
@@ -89,19 +182,21 @@ namespace CStat.Pages.Events
                 return Page();
             }
 
-            if (Event.ChurchId == -1)
-                Event.ChurchId = null;
+            if (_Event.ChurchId == -1)
+                _Event.ChurchId = null;
 
-            if (Event.StartTime >= Event.EndTime)
+            if (_Event.StartTime >= _Event.EndTime)
             {
                 UpdateViewData("End Date/Time must be later than Start Date/Time.");
                 return Page();
             }
 
             // Check if Start or End Dates have changed and delete tasks associated with event and generate new ones.
-            int NumTasksRemoved = RemoveChangedEventTasks(_context, Event);
+            int NumTasksRemoved = RemoveChangedEventTasks(_context, _Event);
 
-            _context.Attach(Event).State = EntityState.Modified;
+            UpdateAttendance(_Event.Id, _Staff);
+
+            _context.Attach(_Event).State = EntityState.Modified;
 
             try
             {
@@ -109,7 +204,7 @@ namespace CStat.Pages.Events
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EventExists(Event.Id))
+                if (!EventExists(_Event.Id))
                 {
                     return NotFound();
                 }
@@ -152,10 +247,35 @@ namespace CStat.Pages.Events
             }
             return NumDeleted;
         }
-
         private bool EventExists(int id)
         {
             return _context.Event.Any(e => e.Id == id);
+        }
+
+        public JsonResult OnGetFindPersonEvent()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            string name = "";
+            var idx = rawQS.IndexOf("{'name':");
+            if (idx != -1)
+            {
+                name = rawQS.Substring(idx + 8);
+                var eidx = name.IndexOf("'}");
+                if (eidx != -1)
+                    name = name.Substring(0, eidx);
+            }
+
+            var pList = Person.PeopleFromNameHint(_context, name);
+            if (pList.Count == 0)
+                return new JsonResult("FAIL");
+
+            string options = "";
+            pList.ForEach(p =>
+            {
+                options += "   <option value=\"" + p.FirstName + " " + p.LastName + "\">\n";
+            });
+              
+            return new JsonResult(options);
         }
 
         public JsonResult OnGetDeleteEvent()
@@ -169,14 +289,14 @@ namespace CStat.Pages.Events
             Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
             if (NVPairs.TryGetValue("eventId", out int eventId))
             {
-                Event = _context.Event.Find(eventId);
+                _Event = _context.Event.Find(eventId);
 
-                if (Event != null)
+                if (_Event != null)
                 {
                     try
                     {
                         // Delete Event
-                        _context.Event.Remove(Event);
+                        _context.Event.Remove(_Event);
                         _context.SaveChanges();
                     }
                     catch (DbUpdateConcurrencyException)

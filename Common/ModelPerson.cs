@@ -133,6 +133,46 @@ namespace CStat.Models
             return "Person #" + Id.ToString();
         }
 
+        public static List<Person> PeopleFromNameHint(CStatContext context, string hint)
+        {
+            string fn, ln;
+
+            var parts = hint.Trim().Split(" ");
+            switch (parts.Length)
+            {
+                case 0:
+                    return new List<Person>();
+                case 1:
+                    fn = parts[0];
+                    return context.Person.Where(p => p.FirstName.StartsWith(fn) || p.Alias.StartsWith(fn)).ToList();
+                case 2:
+                default:
+                    fn = parts[0];
+                    ln = parts[1];
+                    return context.Person.Where(p => (p.FirstName.StartsWith(fn) || p.Alias.StartsWith(fn)) && p.LastName.StartsWith(ln)).ToList();
+            }                
+        }
+
+        public static int AddPersonFromNameHint(CStatContext context, string hint)
+        {
+            var names = hint.Split(" ");
+            if (names.Length < 2)
+                return -1;
+            try
+            {
+                Person pers = new Person();
+                pers.FirstName = names[0].Trim();
+                pers.LastName = names[1].Trim();
+                context.Person.Add(pers);
+                context.SaveChanges();
+                return pers.Id;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
         public static string FindPeople(CStatContext entities, string id)
         {
             String target = "Lookup Person:";

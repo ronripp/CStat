@@ -372,17 +372,24 @@ namespace CStat.Common
                 if (!string.IsNullOrEmpty(match))
                 {
                     _cmdAction = (CmdAction)Enum.Parse(typeof(CmdAction), match);
-                    _cmdSrcIdx = i;
-                    return true;
+                    _cmdActionIdx = i;
+                    break;
                 }
 
                 if (CmdActionDict.TryGetValue(word, out CmdAction cmdAction))
                 {
                     _cmdAction = cmdAction;
                     _cmdActionIdx = i;
-                    return true;
+                    break;
                 }
             }
+
+            if ((_cmdSrc == CmdSource.QUESTION) && (_cmdAction == CmdAction.NEED))
+            {
+                _cmdSrc = CmdSource.URGENCY; // Set Cmd Source when a generic need, needs, needed is requested.
+                _cmdSrcIdx = _cmdActionIdx;
+            }
+
             return true;
         }
         public bool FindInsts(List<string> words)
@@ -561,6 +568,8 @@ namespace CStat.Common
             var ar = am.ReportLastestValues(ref report, true); // Ard only : No propane
             PropaneMgr pm = new PropaneMgr(_hostEnv, _config, _userManager);
             pm.ReportLatestValue(ref report); // propane only
+
+            report += GetEventNeeds(_context);
 
             return report;
         }

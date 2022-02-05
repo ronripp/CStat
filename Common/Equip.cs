@@ -909,6 +909,15 @@ namespace CStat.Common
             }
         }
 
+        public static string DTStr (DateTime dt)
+        {
+            return dt.ToString("M/d/yy h:mm tt");
+        }
+        public static string DStr(DateTime dt)
+        {
+            return dt.ToString("M/d/yy");
+        }
+
         public static DateTime MissingDT
         {
             get

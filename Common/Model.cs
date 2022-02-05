@@ -1332,6 +1332,35 @@ namespace CStat.Models
                     return context.Event.OrderBy(ev => ev.StartTime).ToList();
             }
         }
+
+        public static string GetEventNeeds(CStatContext context)
+        {
+            string needsStr = "";
+            var eList = Event.GetEvents(context, PropMgr.ESTNow, DateRangeType.On_or_After_Date);
+
+            var startRole = (int)CStat.Models.Attendance.AttendanceRoles.Sch_Host;
+            eList.ForEach(e =>
+            {
+                int eRoleNeeds = e.Staff ?? 0;
+                var aList = context.Attendance.Where(a => (a.EventId == e.Id) && (a.RoleType >= startRole)).ToList();
+                aList.ForEach(a =>
+                {
+                    eRoleNeeds &= ~a.RoleType;
+                });
+                List<int> RoleList = Enum.GetValues(typeof(Attendance.AttendanceRoles)).Cast<int>().Where(r => (int)r >= (int)CStat.Models.Attendance.AttendanceRoles.Sch_Host).Select(x => x).ToList();
+
+                RoleList.ForEach(r =>
+                {
+                    if ((r & eRoleNeeds) != 0)
+                    {
+                        string roleStr = ((Attendance.AttendanceRoles)Enum.ToObject(typeof(Attendance.AttendanceRoles), r)).ToString().Replace("Sch_", "").Replace("_", " ");
+                        needsStr += roleStr + " needed: " + e.Description + "(" + PropMgr.DTStr(e.StartTime) + "-" + PropMgr.DTStr(e.EndTime) +  ").\n";
+                    }
+                });
+            });
+
+            return needsStr;
+        }
     }
 
     public partial class Attendance

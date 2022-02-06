@@ -257,7 +257,6 @@
             $("#" + this.id).toggleClass("onStaff offStaff");
         });
 
-
         $(document).on('keyup', "[id^=spers]", function () {
             var rid = "#" + $(this).attr("id").replace("spers", "srole");
             if ($(rid).hasClass("offStaff")) {
@@ -340,8 +339,10 @@
 
     <div class="row">
         <div class="form-group row ediv lpad">
-            <label asp-for="_Event.Type" class="control-label col-md-2 ILabel">Type:</label>
-            <div class="col-sm-10 IValue">
+            <div class="col-xs-3 IValue">
+                <label asp-for="_Event.Type" class="control-label ILabel">Type:</label>
+            </div>
+            <div class="col-xs-9 IValue">
                 <select asp-for="_Event.Type" class="form-control" asp-items="ViewBag.Type"></select>
             </div>
         </div>
@@ -349,8 +350,10 @@
 
     <div class="row">
         <div class="form-group row ediv lpad">
-            <label asp-for="_Event.Description" class="control-label col-md-3 ILabel">Description:</label>
-            <div class="col-sm-9 IValue">
+            <div class="col-xs-4 IValue">
+                <label asp-for="_Event.Description" class="control-label ILabel">Description:</label>
+            </div>
+            <div class="col-xs-8 IValue">
                 <input asp-for="_Event.Description" class="form-control" />
                 <span asp-validation-for="_Event.Description" class="text-danger"></span>
             </div>

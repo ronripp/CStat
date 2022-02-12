@@ -33,12 +33,14 @@
             border-color: #C0FFC0;
             background-color: #F2FFF2;
             padding-bottom: 3px;
+            padding-bottom: 3px;
         }
 
         .ILabel {
             padding-right: 2px;
             padding-top: 7px;
             padding-bottom: 2px;
+            padding-left: 3px;
             margin-bottom: 2px;
         }
 
@@ -47,8 +49,13 @@
             padding-left: 4px;
         }
 
-        .lpad {
+
+        .lmargin {
             margin-left: 4px;
+        }
+
+        .lmargin2 {
+            margin-left: 3em;
         }
 
         * {
@@ -104,6 +111,12 @@
             font-weight: bold;
             padding-left: 4px;
         }
+
+        .ICost {
+            min-width: 3em;
+            max-width: 8em;
+        }
+
     </style>
 
     <script>
@@ -338,7 +351,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="row">
-        <div class="form-group row ediv lpad">
+        <div class="form-group row ediv lmargin">
             <div class="col-xs-3 IValue">
                 <label asp-for="_Event.Type" class="control-label ILabel">Type:</label>
             </div>
@@ -349,7 +362,7 @@
     </div>
 
     <div class="row">
-        <div class="form-group row ediv lpad">
+        <div class="form-group row ediv lmargin">
             <div class="col-xs-4 IValue">
                 <label asp-for="_Event.Description" class="control-label ILabel">Description:</label>
             </div>
@@ -361,7 +374,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-6 form-group row ediv lpad">
+        <div class="col-sm-6 form-group row ediv lmargin">
             <label asp-for="_Event.StartTime" class="control-label ILabel">Start Time:</label>
             <div class=" IValue">
                 <input asp-for="_Event.StartTime" class="form-control lgi" />
@@ -369,7 +382,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 form-group row ediv lpad">
+        <div class="col-sm-6 form-group row ediv lmargin">
             <label asp-for="_Event.EndTime" class="control-label ILabel">End Time:</label>
             <div class="IValue">
                 <input asp-for="_Event.EndTime" class="form-control lgi" />
@@ -409,7 +422,7 @@
             }
         }
 
-        <div class="row form-group lpad">
+        <div class="row form-group lmargin">
             <div class="IValue">
                 <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.ExtraRoles"></select>
             </div>
@@ -417,56 +430,62 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-4 form-group row ediv lpad">
+        <div class="col-xs-6 form-group row ediv lmargin">
             <label asp-for="_Event.CostChild" class="control-label ILabel">Child $</label>
             <div class="IValue">
-                <input asp-for="_Event.CostChild" class="form-control" style="max-width: 6em;" />
+                <input asp-for="_Event.CostChild" class="form-control ICost" />
                 <span asp-validation-for="_Event.CostChild" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv lpad">
-            <label asp-for="_Event.CostAdult" class="control-label ILabel">Adult $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostAdult" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="_Event.CostAdult" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-sm-4 form-group row ediv lpad">
-            <label asp-for="_Event.CostFamily" class="control-label ILabel">Family $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostFamily" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="_Event.CostFamily" class="text-danger"></span>
+        <div class="row">
+            <div class="col-xs-6 form-group row ediv lmargin2">
+                <label asp-for="_Event.CostAdult" class="control-label ILabel">Adult $</label>
+                <div class="IValue">
+                    <input asp-for="_Event.CostAdult" class="form-control ICost" />
+                    <span asp-validation-for="_Event.CostAdult" class="text-danger"></span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-sm-4 form-group row ediv lpad">
-            <label asp-for="_Event.CostCabin" class="control-label ILabel">Cabin $</label>
+        <div class="col-xs-6 form-group row ediv lmargin">
+            <label asp-for="_Event.CostFamily" class="control-label ILabel">Family $</label>
             <div class="IValue">
-                <input asp-for="_Event.CostCabin" class="form-control" style="max-width: 6em;" />
-                <span asp-validation-for="_Event.CostCabin" class="text-danger"></span>
+                <input asp-for="_Event.CostFamily" class="form-control ICost" />
+                <span asp-validation-for="_Event.CostFamily" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv lpad">
+        <div class="row">
+            <div class="col-xs-6 form-group row ediv lmargin2">
+                <label asp-for="_Event.CostCabin" class="control-label ILabel">Cabin $</label>
+                <div class="IValue">
+                    <input asp-for="_Event.CostCabin" class="form-control ICost" />
+                    <span asp-validation-for="_Event.CostCabin" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 form-group row ediv lmargin">
             <label asp-for="_Event.CostLodge" class="control-label ILabel">Lodge $</label>
             <div class="IValue">
-                <input asp-for="_Event.CostLodge" class="form-control" style="max-width: 6em;" />
+                <input asp-for="_Event.CostLodge" class="form-control ICost" />
                 <span asp-validation-for="_Event.CostLodge" class="text-danger"></span>
             </div>
         </div>
-        <div class="col-sm-4 form-group row ediv lpad">
+        <div class="col-xs-6 form-group row ediv lmargin2">
             <label asp-for="_Event.CostTent" class="control-label ILabel">Tent $</label>
             <div class="IValue">
-                <input asp-for="_Event.CostTent" class="form-control" style="max-width: 6em;" />
+                <input asp-for="_Event.CostTent" class="form-control ICost" />
                 <span asp-validation-for="_Event.CostTent" class="text-danger"></span>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <span class="lpad" style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
-        <div class="form-group col-sm-12 lpad">
+        <span class="lmargin" style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
+        <div class="form-group col-sm-12 lmargin">
             <label asp-for="_Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
             <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
@@ -475,7 +494,7 @@
     </div>
 
     <div class="row">
-        <div class="form-group row ediv col-sm-12 lpad">
+        <div class="form-group row ediv col-sm-12 lmargin">
             <label asp-for="_Event.ChurchId" class="control-label ILabel">Church:</label>
             <div class="IValue">
                 <select asp-for="_Event.ChurchId" class="form-control" asp-items="ViewBag.Church"></select>

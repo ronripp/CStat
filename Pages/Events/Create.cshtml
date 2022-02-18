@@ -98,6 +98,11 @@
         padding-left: 4px;
     }
 
+    .ICost {
+        min-width: 3em;
+        max-width: 5em;
+    }
+
 </style>
 
 <script>
@@ -340,10 +345,10 @@
                     if ((rowId > 11) && (selClass == "offStaff"))
                         mainDivClass += " fhide";
 
-            <div class="@mainDivClass">
-                <div class="fcolumn @staffCls @selClass" id="@srId" value="@sr.Value">@sr.Text:</div>
-                <div class="fcolumn"><input id="@spId" rval="@sr.Value" value="" /></div>
-            </div>
+                    <div class="@mainDivClass">
+                        <div class="fcolumn @staffCls @selClass" id="@srId" value="@sr.Value">@sr.Text:</div>
+                        <div class="fcolumn"><input id="@spId" rval="@sr.Value" value="" /></div>
+                    </div>
                 }
                 ++rowId;
             }

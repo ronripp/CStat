@@ -40,7 +40,7 @@
             padding-right: 2px;
             padding-top: 7px;
             padding-bottom: 2px;
-            padding-left: 3px;
+            padding-left: 4px;
             margin-bottom: 2px;
         }
 
@@ -49,13 +49,8 @@
             padding-left: 4px;
         }
 
-
-        .lmargin {
-            margin-left: 4px;
-        }
-
         .lmargin2 {
-            margin-left: 3em;
+            margin-left: 1.5em;
         }
 
         * {
@@ -114,7 +109,7 @@
 
         .ICost {
             min-width: 3em;
-            max-width: 8em;
+            max-width: 5em;
         }
 
     </style>
@@ -162,7 +157,7 @@
         });
 
         if (window.location.href.indexOf("EventDoc=1") != -1) {
-            $("#Event_ContractLink").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
+            $("#zEvent_ContractLink").val(sessionStorage.getItem("EventDocFolder") + " > " + sessionStorage.getItem("EventDocFile"));
             sessionStorage.setItem("EventDocFolder", "");
             sessionStorage.setItem("EventDocFile", "");
             sessionStorage.setItem("EventDocReturn", "");
@@ -171,11 +166,16 @@
             if (!!costTent && (costTent.indexOf("~~~") === 0)) {
                 $("#Event_CostTent").val(costTent.substr(3));
             }
-            $("#OpenDoc").prop("disabled", true);
+            $("#OpenDoc").prop("disabled", false);
         }
+        else {
+            var docVal = $("#zEvent_ContractLink").val();
+            $("#OpenDoc").prop("disabled", !(!!docVal));
+        }
+        //$("#zEvent_ContractLink").prop("disabled", true);
 
         function openFileShare() {
-            var docVal = $("#Event_ContractLink").val();
+            var docVal = $("#zEvent_ContractLink").val();
             var dvp = docVal.split(" > ");
             if (!dvp || dvp.length !== 2) {
                 return;
@@ -320,18 +320,21 @@
             }
         })
 
-    });
+        $("#BrowseDoc").click(function (event) {
+            $("#OpenDoc").prop("disabled", true);
+            let costTent = $("#Event_CostTent").val();
+            if (!costTent || (costTent.indexOf("~~~") != 0)) {
+                costTent = "~~~" + (!!costTent ? costTent : "");
+                $("#Event_CostTent").val(costTent);
+            }
+            sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
+            let newUrl = "../Docs?selectStr=Event";
+            $("#zRedirectURL").attr("value", newUrl);
+            window.location.href = "/Docs?selectStr=Event";
+            return false;
+        });
 
-    function getDoc() {
-        $("#OpenDoc").prop("disabled", true);
-        let costTent = $("#Event_CostTent").val();
-        if (!costTent || (costTent.indexOf("~~~") != 0)) {
-            costTent = "~~~" + (!!costTent ? costTent : "");
-            $("#Event_CostTent").val(costTent);
-        }
-       sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
-       window.location.href = "/Docs?selectStr=Event";
-    }
+    });
 
     </script>
 </head>
@@ -348,33 +351,30 @@
     <input type="hidden" asp-for="_Event.Staff" />
     <input type="hidden" asp-for="_Event.Id" />
     <input type="hidden" asp-for="_Staff" />
+    <input type="hidden" asp-for="_RedirectURL" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="row">
-        <div class="form-group row ediv lmargin">
-            <div class="col-xs-3 IValue">
-                <label asp-for="_Event.Type" class="control-label ILabel">Type:</label>
-            </div>
-            <div class="col-xs-9 IValue">
-                <select asp-for="_Event.Type" class="form-control" asp-items="ViewBag.Type"></select>
-            </div>
+    <div class="row form-group ediv">
+        <div class="col-xs-3">
+            <label asp-for="_Event.Type" class="control-label ILabel">Type:</label>
+        </div>
+        <div class="col-xs-9 IValue">
+            <select asp-for="_Event.Type" class="form-control IValue" asp-items="ViewBag.Type"></select>
+        </div>
+    </div>
+
+    <div class="row form-group ediv">
+        <div class="col-xs-4 ">
+            <label asp-for="_Event.Description" class="control-label ILabel">Description:</label>
+        </div>
+        <div class="col-xs-8 IValue">
+            <input asp-for="_Event.Description" class="form-control IValue" />
+            <span asp-validation-for="_Event.Description" class="text-danger"></span>
         </div>
     </div>
 
     <div class="row">
-        <div class="form-group row ediv lmargin">
-            <div class="col-xs-4 IValue">
-                <label asp-for="_Event.Description" class="control-label ILabel">Description:</label>
-            </div>
-            <div class="col-xs-8 IValue">
-                <input asp-for="_Event.Description" class="form-control" />
-                <span asp-validation-for="_Event.Description" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-6 form-group row ediv lmargin">
+        <div class="col-sm-6 form-group row ediv">
             <label asp-for="_Event.StartTime" class="control-label ILabel">Start Time:</label>
             <div class=" IValue">
                 <input asp-for="_Event.StartTime" class="form-control lgi" />
@@ -382,7 +382,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 form-group row ediv lmargin">
+        <div class="col-sm-6 form-group row ediv">
             <label asp-for="_Event.EndTime" class="control-label ILabel">End Time:</label>
             <div class="IValue">
                 <input asp-for="_Event.EndTime" class="form-control lgi" />
@@ -391,11 +391,7 @@
         </div>
     </div>
 
-    <div class="row">
-
-    </div>
-
-    <div class="ediv form-group" style="margin-left:-12px; padding:6px 6px 0px 6px">
+    <div class="ediv form-group" style="padding:6px 6px 0px 6px">
         <div class="frow">
             <div class="fcolumn" style="max-width:13em">Click Roles Below </div>
             <div class="fcolumn">Add F L Name</div>
@@ -422,70 +418,66 @@
             }
         }
 
-        <div class="row form-group lmargin">
+        <div class="row form-group" style="margin-left:6px">
             <div class="IValue">
                 <select id="StaffRoles" class="form-control" style="max-width:15em" asp-items="ViewBag.ExtraRoles"></select>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-xs-6 form-group row ediv lmargin">
-            <label asp-for="_Event.CostChild" class="control-label ILabel">Child $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostChild" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostChild" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-xs-6 form-group row ediv lmargin2">
-            <label asp-for="_Event.CostAdult" class="control-label ILabel">Adult $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostAdult" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostAdult" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostChild">Child $</label>
+                        <input asp-for="_Event.CostChild" class="ICost IValue" />
+                    </div>
+                </td>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostAdult" class="ILabel">Adult $</label>
+                        <input asp-for="_Event.CostAdult" class="ICost IValue" />
+                    </div>
+                <td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostFamily">Familty $</label>
+                        <input asp-for="_Event.CostFamily" class="ICost IValue" />
+                    </div>
+                </td>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostCabin" class="ILabel">Cabin $</label>
+                        <input asp-for="_Event.CostCabin" class="ICost IValue" />
+                    </div>
+                <td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostLodge">Lodge $</label>
+                        <input asp-for="_Event.CostLodge" class="ICost IValue" />
+                    </div>
+                </td>
+                <td>
+                    <div class="ediv">
+                        <label asp-for="_Event.CostTent" class="ILabel">Tent $</label>
+                        <input asp-for="_Event.CostTent" class="ICost IValue" />
+                    </div>
+                <td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="row">
-        <div class="col-xs-6 form-group row ediv lmargin">
-            <label asp-for="_Event.CostFamily" class="control-label ILabel">Family $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostFamily" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostFamily" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-xs-6 form-group row ediv lmargin2">
-            <label asp-for="_Event.CostCabin" class="control-label ILabel">Cabin $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostCabin" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostCabin" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-6 form-group row ediv lmargin">
-            <label asp-for="_Event.CostLodge" class="control-label ILabel">Lodge $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostLodge" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostLodge" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-xs-6 form-group row ediv lmargin2">
-            <label asp-for="_Event.CostTent" class="control-label ILabel">Tent $</label>
-            <div class="IValue">
-                <input asp-for="_Event.CostTent" class="form-control ICost" />
-                <span asp-validation-for="_Event.CostTent" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <span class="lmargin" style="color:maroon; font-weight:bold">To add a Contract Link, First Create this Event then go back and Edit it.</span>
         <div class="form-group col-sm-12 lmargin">
-            <label asp-for="_Event.ContractLink" class="control-label" ;padding-right:3px;"></label>
-            <input type="text" id="EventDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
-            <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
-            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
+            <label asp-for="_Event.ContractLink" class="control-label"></label>
+            <input type="text" asp-for="_Event.ContractLink" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
+            <button id="OpenDoc" style="margin-left:6px; margin-right:6px;"><b>Open Doc</b></button>
+            <button id="BrowseDoc" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>
 
@@ -509,7 +501,6 @@
             <input type="button" id="DelBtn" value="Delete" class="alignRight" style="background-color: #FFCCCC" />
         </span>
     </div>
-
 </form>
 
     <div>

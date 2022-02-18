@@ -29,7 +29,7 @@ namespace CStat.Pages.Events
         }
 
         [BindProperty]
-        public Event _Event { get; set; }
+        public Event _Event { get; set; } = null;
 
         [BindProperty]
         public string _Staff { get; set; } = "";
@@ -60,16 +60,6 @@ namespace CStat.Pages.Events
         public bool IsStaffSelected(int index)
         {
             return (_Event != null) && _Event.Staff.HasValue && ((int.Parse(rList[index].Value) & _Event.Staff.Value) != 0);
-        }
-        public string GetRoleName(string roleStr)
-        {
-            if (!int.TryParse(roleStr, out int role))
-                return "";
-
-            var att = _context.Attendance.Include(a => a.Person).FirstOrDefault(a => (a.EventId == _Event.Id) && (a.RoleType == role));
-            if (att == null)
-                return "";
-            return ((att.PersonId > 0) && (att.Person != null)) ? att.Person.FirstName + " " + att.Person.LastName : "";
         }
 
         // 128=~256=Eli Russo~512=~2048=~8192=Christine Gerkhardt~32768=~65536=~131072=~1048576=~

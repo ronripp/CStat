@@ -66,7 +66,6 @@ namespace CStat
                 {
                     options.Conventions.AuthorizePage("/Index");
                     options.Conventions.AuthorizePage("/Docs");
-                    options.Conventions.AuthorizePage("/Events/Edit");
                     options.Conventions.AuthorizePage("/Inventory/Index");
                     options.Conventions.AuthorizePage("/Index1");
                     options.Conventions.AuthorizeFolder("/Inventory");

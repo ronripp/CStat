@@ -30,6 +30,9 @@ namespace CStat.Pages.Events
         [BindProperty]
         public string _Staff { get; set; } = "";
 
+        [BindProperty]
+        public string _RedirectURL { get; set; } = "";
+
         private IList<SelectListItem> rList = null;
         private IList<SelectListItem> eList = null;
 
@@ -48,6 +51,7 @@ namespace CStat.Pages.Events
                 return NotFound();
             }
 
+            _RedirectURL = "";
             UpdateViewData();
 
             return Page();
@@ -109,6 +113,8 @@ namespace CStat.Pages.Events
                     }
                 }
 
+                if (string.IsNullOrEmpty(staffStr))
+                    return false;
                 List<KeyValuePair<int, string>> kvpList = new List<KeyValuePair<int, string>>();
                 var pairs = staffStr.Split("~");
                 if (pairs.Length == 0)
@@ -238,7 +244,9 @@ namespace CStat.Pages.Events
                 autogen.GenTasks(_hostEnv);
             }
 
-            return RedirectToPage("./Index");
+            if (string.IsNullOrEmpty(_RedirectURL))
+                return RedirectToPage("./Index");
+            return NotFound();
         }
 
         public static int RemoveChangedEventTasks (CStat.Models.CStatContext context, Event newEvent)

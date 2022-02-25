@@ -1,0 +1,57 @@
+﻿@page
+@model CStat.Pages.CameraModel
+@using Common
+
+@{
+    ViewData["Title"] = "Camera";
+    Layout = "_LayoutCam";
+}
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+
+        function setCBHeight() {
+
+            const elem = document.documentElement;
+            let hdrDiv = document.querySelector(".header");
+            let refBtn = document.querySelector(".refBtn");
+            let setBtn = document.querySelector(".setBtn");
+            let btnSVG = document.querySelector("#btnSVG");
+
+            let totW = Math.min(document.documentElement.clientWidth, window.innerWidth || 0);
+            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        }
+
+        screen.orientation.addEventListener("change", function (e) { setCBHeight(); }, false);
+        //screen.window.orientation.addEventListener("change", function (e) { setCBHeight(); }, false)
+        //$(window).bind("resize", function(){
+        //    screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
+        //});
+        //$(window).bind("resize", setCBHeight());
+
+
+        $(document).ready(function () {
+
+
+        });
+
+    </script>
+
+    <style>
+
+        .camSize {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
+
+    <img src="@Model.CameraLink" class="camSize" alt="CCA Camera" />
+
+</body>
+

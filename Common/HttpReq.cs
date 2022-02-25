@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
 
@@ -44,14 +45,26 @@ namespace CStat.Common
             try
             {
                 WebResponse webResp = _request.GetResponse();
+                HttpWebResponse httpWebResp = (HttpWebResponse)webResp;
 
                 // Get the stream containing content returned by the server.
                 // The using block ensures the stream is automatically closed.
 
                 using (Stream dataStream = webResp.GetResponseStream())
                 {
-                    StreamReader reader = new StreamReader(dataStream); // Open the stream using a StreamReader for easy access.
-                    responseStr = reader.ReadToEnd(); // Read the content.
+                    Stream dataStream2;
+                    var cenc = httpWebResp.ContentEncoding;
+                    var cencStr = string.IsNullOrEmpty(cenc) ? " " : cenc.ToLower();
+                    
+                    if (cencStr.Contains("gzip"))
+                        dataStream2 = new GZipStream(dataStream, CompressionMode.Decompress);
+                    else if (cencStr.Contains("deflate"))
+                        dataStream2 = new DeflateStream(dataStream, CompressionMode.Decompress);
+                    else
+                        dataStream2 = dataStream;
+                    StreamReader Reader = new StreamReader(dataStream2, Encoding.Default);
+                    responseStr = Reader.ReadToEnd(); // Read the content.
+                    dataStream2.Close();
                 }
                 webResp.Close(); // Close the response.
                 return (HttpWebResponse)webResp;

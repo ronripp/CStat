@@ -29,7 +29,7 @@ namespace CStat.Pages
             if (preset == 100)
             {
                 ptzCam.ToggleLight();
-                Thread.Sleep(6000); // need time to turn off light. This may be reduced.
+
                 preset = 0;
             }
             CameraLink = ptzCam.GetPicture(_hostEnv, preset);

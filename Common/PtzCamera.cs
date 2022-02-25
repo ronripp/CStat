@@ -86,8 +86,8 @@ namespace CStat.Common
                     if (LoginResp[0].value.rspCode != 200)
                         return "";
 
-                    // Give time for Camera to move
-                    Thread.Sleep(4000);
+                    // Give time for Camera to move. Delay can be adjusted
+                    Thread.Sleep(6000);
                 }
 
                 return GetSnapshot(hostEnv);
@@ -192,12 +192,12 @@ namespace CStat.Common
                 req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application /json; charset=utf-8");
                 sRespStat = req2.Send(out sResult);
 
-                // value.PowerLed.state : 0 | 1
-                dynamic SWLResp2 = JsonConvert.DeserializeObject(sResult);
+                Thread.Sleep(6000); // need time to turn off light. This may be reduced.
             }
             catch (Exception e)
             {
                 _ = e;
+                Logout();
             }
         }
     }

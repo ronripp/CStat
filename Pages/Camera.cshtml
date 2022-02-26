@@ -36,8 +36,11 @@
 
         $(document).ready(function () {
 
-
         });
+
+        function onCamOp(op) {
+            location.assign("/Camera?op=" + op);
+        }
 
     </script>
 
@@ -47,11 +50,97 @@
             width: 100%;
             height: auto;
         }
+
+        .tbl {
+            color: orange;
+            width: 100%;
+            font-size: 1.3em;
+        }
+
+        .pic {
+
+        }
+
+        .orth {
+            color: yellow;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .diag {
+            color: orange;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .ctr {
+            color: lawngreen;
+            padding-left: 4px;
+            padding-right: 4px;
+            font-weight: bold;
+        }
+
+        .cview {
+            color: cyan;
+            margin-left: 4px;
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .topnav {
+            color: lawngreen;
+            margin-left: 20px;
+            padding-left: 6px;
+            padding-right: 6px;
+            font-size:1.3em;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
-
-    <img src="@Model.CameraLink" class="camSize" alt="CCA Camera" />
-
+    <div>
+        <table class="topnav">
+            <tr>
+                <td onclick="onCamOp(301)"><b>Z+</b></td>
+                <td onclick="onCamOp(300)">z-</td>
+                <td onclick="onCamOp(100)">&#128161;</td>
+                <td onclick="onCamOp(101)">&#128266;</td>
+                <td onclick="onCamOp(401)"><b>F+</b></td>
+                <td onclick="onCamOp(400)">f-</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table class="tbl">
+            <tr>
+                <td class="cview" onclick="onCamOp(1)">Wall Flag</td>
+                <td class="cview" onclick="onCamOp(2)">Kangaroo</td>
+                <td>&nbsp;</td>
+                <td class="diag" onclick="onCamOp(200)">&#129156;</td>
+                <td class="orth" onclick="onCamOp(201)">&#129153;</td>
+                <td class="diag" onclick="onCamOp(202)">&#129157;</td>
+            </tr>
+            <tr>
+                <td class="cview" onclick="onCamOp(3)">Exit Door</td>
+                <td class="cview" onclick="onCamOp(4)">Full Watch</td>
+                <td>&nbsp;</td>
+                <td class="orth" onclick="onCamOp(203)">&#129152;</td>
+                <td class="ctr" onclick="onCamOp(0)">&#10227</td>
+                <td class="orth" onclick="onCamOp(204)">&#129154;</td>
+            </tr>
+            <tr>
+                <td class="cview">---</td>
+                <td class="cview">---</td>
+                <td>&nbsp;</td>
+                <td class="diag" onclick="onCamOp(205)">&#129159;</td>
+                <td class="orth" onclick="onCamOp(206)">&#129155;</td>
+                <td class="diag" onclick="onCamOp(207)">&#129158;</td>
+            </tr>
+        </table>
+    </div>
+    <div class="pic">
+        <img src="@Model.CameraLink" class="camSize" alt="Please Wait 6 secs ...or... Hit Button Again" />
+    </div>
 </body>
 

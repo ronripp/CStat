@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using CStat.Common;
+using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,47 @@ namespace CStat.Common
 {
     public class PtzCamera
     {
+        public enum COp
+        {
+            Refresh = 0,
+            Preset1 = 1,
+            Preset2 = 2,
+            Preset3 = 3,
+            Preset4 = 4,
+            Preset5 = 5,
+            Preset6 = 6,
+            ToggleLight = 100,
+            TurnOnAlarm = 101,
+            UL = 200,
+            UC = 201,
+            UR = 202,
+            CL = 203,
+            CR = 204,
+            LL = 205,
+            LC = 206,
+            LR = 207,
+            ZoomDec = 300,
+            ZoomInc = 301,
+            FocusDec = 400,
+            FocusInc = 401
+        };
+
+        public static Dictionary<COp, string> COpToStr = new Dictionary<COp, string>
+        {
+            {COp.UL       ,"LeftUp"},
+            {COp.UC       ,"Up"},
+            {COp.UR       ,"RightUp"},
+            {COp.CL       ,"Left"},
+            {COp.CR       ,"Right"},
+            {COp.LL       ,"LeftDown"},
+            {COp.LC       ,"Down"},
+            {COp.LR       ,"RightDown"},
+            {COp.ZoomDec  ,"ZoomDec"},
+            {COp.ZoomInc  ,"ZoomInc"},
+            {COp.FocusDec ,"FocusDec"},
+            {COp.FocusInc ,"FocusInc" }
+        };
+
         public string _token = "";
         public bool Login()
         {
@@ -35,7 +77,7 @@ namespace CStat.Common
             }
             catch
             {
-               return false;
+                return false;
             }
         }
 
@@ -64,20 +106,23 @@ namespace CStat.Common
             }
         }
 
-        public string GetPicture(IWebHostEnvironment hostEnv, int preset)
+        public string GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
         {
             try
             {
-                if (preset > 0)
+                if (preset > 99)
+                    return "";
+
+                if ((preset >= 1) && (preset <= 99))
                 {
-                    // Get Picture
+
+                    // Get Picture by Preset #
                     HttpReq req = new HttpReq();
                     req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
 
                     req.AddHeaderProp("Connection: keep-alive");
                     req.AddHeaderProp("Accept: */*");
                     req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-
                     req.AddBody("[{\"cmd\":\"PtzCtrl\",\"param\":{\"channel\":0,\"op\":\"ToPos\",\"id\":" + preset + ",\"speed\":32}}]", "application/json; charset=utf-8");
                     var sRespStat = req.Send(out string sResult);
 
@@ -89,7 +134,6 @@ namespace CStat.Common
                     // Give time for Camera to move. Delay can be adjusted
                     Thread.Sleep(6000);
                 }
-
                 return GetSnapshot(hostEnv);
             }
             catch (Exception e)
@@ -98,6 +142,58 @@ namespace CStat.Common
                 return "";
             }
         }
+        public string GetPtzPicture(IWebHostEnvironment hostEnv, int op)
+        {
+            try
+            {
+                if (op < 200)
+                    return "";
+ 
+                // Perform PTZ op
+                HttpReq req = new HttpReq();
+                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&user=admin&password=Red35845!");
+
+                req.AddHeaderProp("Connection: keep-alive");
+                req.AddHeaderProp("Accept: */*");
+                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":32}}]", "application/json; charset=utf-8");
+                var sRespStat = req.Send(out string sResult);
+
+                // "rspCode" : 200
+                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
+                if (LoginResp[0].value.rspCode != 200)
+                    return "";
+
+                Thread.Sleep(100);
+
+                // Perform Stop
+                HttpReq req2 = new HttpReq();
+                req2.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&user=admin&password=Red35845!");
+
+                req2.AddHeaderProp("Connection: keep-alive");
+                req2.AddHeaderProp("Accept: */*");
+                req2.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json; charset=utf-8");
+                                
+                var sRespStat2 = req2.Send(out string sResult2);
+
+                // "rspCode" : 200
+                dynamic LoginResp2 = JsonConvert.DeserializeObject(sResult2);
+                if (LoginResp2[0].value.rspCode != 200)
+                    return "";
+
+                // Give time for Camera to move. Delay can be adjusted
+                Thread.Sleep(6000);
+            
+                return GetSnapshot(hostEnv);
+            }
+            catch (Exception e)
+            {
+                Logout();
+                return "";
+            }
+        }
+
 
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
@@ -198,6 +294,32 @@ namespace CStat.Common
             {
                 _ = e;
                 Logout();
+            }
+        }
+        public bool TurnOnAlarm(int times)
+        {
+            try
+            {
+                // Get Light State
+                HttpReq req = new HttpReq();
+                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=AudioAlarmPlay&token=" + _token);
+
+                req.AddHeaderProp("Connection: keep-alive");
+                req.AddHeaderProp("Accept: */*");
+                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+
+                req.AddBody("[{\"cmd\": \"AudioAlarmPlay\",\"action\": 0,\"param\": {\"alarm_mode\": \"times\",\"manual_switch\": 0,\"times\":" + times + ",\"channel\": 0}}]", "application/json; charset=utf-8");
+                var sRespStat = req.Send(out string sResult);
+
+                // "rspCode" : 200
+                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
+                return (LoginResp[0].value.rspCode == 200);
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                Logout();
+                return false;
             }
         }
     }

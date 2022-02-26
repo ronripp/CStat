@@ -16,24 +16,51 @@ namespace CStat.Pages
         public string CameraLink { get; set; } = "";
 
         private readonly IWebHostEnvironment _hostEnv;
+        private static bool InCamOp=false;
+
         public CameraModel (IWebHostEnvironment hostEnv)
         {
             _hostEnv = hostEnv;
         }
 
-        public void OnGet(int preset)
+        ~CameraModel()
         {
-            var ptzCam = new PtzCamera();
-            ptzCam.Login();
+            
+        }
 
-            if (preset == 100)
+        public void OnGet(int op)
+        {
+            try
             {
-                ptzCam.ToggleLight();
+                if (InCamOp)
+                    return;
+                InCamOp = true;
 
-                preset = 0;
+                var ptzCam = new PtzCamera();
+                ptzCam.Login();
+
+                if ((PtzCamera.COp)op == PtzCamera.COp.ToggleLight)
+                {
+                    ptzCam.ToggleLight();
+                    op = 0;
+                }
+                if ((PtzCamera.COp)op == PtzCamera.COp.TurnOnAlarm)
+                {
+                    ptzCam.TurnOnAlarm(10);
+                    op = 0;
+                }
+
+                CameraLink = (op <= 99) ? ptzCam.GetPresetPicture(_hostEnv, op) : ptzCam.GetPtzPicture(_hostEnv, op);
+                ptzCam.Logout();
             }
-            CameraLink = ptzCam.GetPicture(_hostEnv, preset);
-            ptzCam.Logout();
+            catch (Exception e)
+            {
+                InCamOp = false;
+            }
+            finally
+            {
+                InCamOp = false;
+            }
         }
     }
 }

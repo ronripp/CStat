@@ -60,11 +60,35 @@
         .pic {
         }
 
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: inherit;
+            background-color:blue;
+        }
+
+        a:active {
+            text-decoration: none;
+        }
+
+        a {
+            text-decoration: none;
+            color:inherit;
+        }
+
         .orth {
             color: yellow;
             padding-left: 4px;
             padding-right: 4px;
             width: 2.5em;
+            font-weight: bold;
         }
 
         .diag {
@@ -72,6 +96,7 @@
             padding-left: 4px;
             padding-right: 4px;
             width: 2.5em;
+            font-weight: bold;
         }
 
         .ctr {
@@ -79,6 +104,11 @@
             padding-left: 4px;
             padding-right: 4px;
             font-weight: bold;
+            width: 2.5em;
+            font-weight: bold;
+        }
+
+        .OpPM {
             width: 2.5em;
         }
 
@@ -91,7 +121,6 @@
 
         .topnav {
             color: lawngreen;
-            margin-left: 20px;
             padding-left: 6px;
             padding-right: 6px;
             font-size: 1.3em;
@@ -103,40 +132,40 @@
     <div>
         <table class="topnav">
             <tr>
-                <td onclick="onCamOp(301)"><b>Z+</b></td>
-                <td onclick="onCamOp(300)">z-</td>
-                <td onclick="onCamOp(100)">&#128161;</td>
-                <td onclick="onCamOp(101)">&#128266;</td>
-                <td onclick="onCamOp(401)"><b>F+</b></td>
-                <td onclick="onCamOp(400)">f-</td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(301)"><b>Z+</b></a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(300)">z-</a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(100)">&#128161;</a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(101)">&#128266;</a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(401)"><b>F+</b></a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(400)">f-</a></td>
             </tr>
         </table>
     </div>
-    <div>
+    <div style=" border-top: 2px solid green; ">
         <table class="tbl">
             <tr>
-                <td class="cview" onclick="onCamOp(1)">Wall Flag</td>
-                <td class="cview" onclick="onCamOp(2)">Kangaroo</td>
+                <td class="cview"><a href="#" onclick="onCamOp(1)">Wall Flag</a></td>
+                <td class="cview"><a href="#" onclick="onCamOp(2)">Kangaroo</a></td>
                 <td>&nbsp;</td>
-                <td class="diag" onclick="onCamOp(200)"><b>&#x21D6;</b></td>
-                <td class="orth" onclick="onCamOp(201)">&#x21E7;</td>
-                <td class="diag" onclick="onCamOp(202)">&#x21D7;</td>
+                <td class="diag"><a href="#" onclick="onCamOp(200)">&#x21D6;</a></td>
+                <td class="orth"><a href="#" onclick="onCamOp(201)">&#x21E7;</a></td>
+                <td class="diag"><a href="#" onclick="onCamOp(202)">&#x21D7;</a></td>
             </tr>
             <tr>
-                <td class="cview" onclick="onCamOp(3)">Exit Door</td>
-                <td class="cview" onclick="onCamOp(4)">Full Watch</td>
+                <td class="cview"><a href="#" onclick="onCamOp(3)">Exit Door</a></td>
+                <td class="cview"><a href="#" onclick="onCamOp(4)">Full Watch</a></td>
                 <td>&nbsp;</td>
-                <td class="orth" onclick="onCamOp(203)">&#x21E6;</td>
-                <td class="ctr" onclick="onCamOp(0)">&#10227;</td>
-                <td class="orth" onclick="onCamOp(204)">&#x21E8;</td>
+                <td class="orth"><a href="#" onclick="onCamOp(203)">&#x21E6;</a></td>
+                <td class="ctr"><a href="#" onclick="onCamOp(0)">&#10227;</a></td>
+                <td class="orth"><a href="#" onclick="onCamOp(204)">&#x21E8;</a></td>
             </tr>
             <tr>
                 <td class="cview">---</td>
                 <td class="cview">---</td>
                 <td>&nbsp;</td>
-                <td class="diag" onclick="onCamOp(205)">&#x21D9;</td>
-                <td class="orth" onclick="onCamOp(206)">&#x21E9;</td>
-                <td class="diag" onclick="onCamOp(207)">&#x21D8;</td>
+                <td class="diag"><a href="#" onclick="onCamOp(205)">&#x21D9;</a></td>
+                <td class="orth"><a href="#" onclick="onCamOp(206)">&#x21E9;</a></td>
+                <td class="diag"><a href="#" onclick="onCamOp(207)">&#x21D8;</a></td>
             </tr>
         </table>
     </div>

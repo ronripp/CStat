@@ -7,16 +7,18 @@ using CStat.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using static CStat.Common.PtzCamera;
 
 namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
+        private static CamOps _CamOps = new CamOps();
+
         [BindProperty]
         public string CameraLink { get; set; } = "";
 
         private readonly IWebHostEnvironment _hostEnv;
-        private static bool InCamOp=false;
 
         public CameraModel (IWebHostEnvironment hostEnv)
         {
@@ -32,34 +34,11 @@ namespace CStat.Pages
         {
             try
             {
-                if (InCamOp)
-                    return;
-                InCamOp = true;
-
-                var ptzCam = new PtzCamera();
-                ptzCam.Login();
-
-                if ((PtzCamera.COp)op == PtzCamera.COp.ToggleLight)
-                {
-                    ptzCam.ToggleLight();
-                    op = 0;
-                }
-                if ((PtzCamera.COp)op == PtzCamera.COp.TurnOnAlarm)
-                {
-                    ptzCam.TurnOnAlarm(10);
-                    op = 0;
-                }
-
-                CameraLink = (op <= 99) ? ptzCam.GetPresetPicture(_hostEnv, op) : ptzCam.GetPtzPicture(_hostEnv, op);
-                ptzCam.Logout();
+                CameraLink = _CamOps.HandleOp(_hostEnv, (COp)op);
             }
             catch (Exception e)
             {
-                InCamOp = false;
-            }
-            finally
-            {
-                InCamOp = false;
+                CameraLink = "";
             }
         }
     }

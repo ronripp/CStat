@@ -15,6 +15,7 @@ namespace CStat.Common
     {
         public enum COp
         {
+            None = -1,
             Refresh = 0,
             Preset1 = 1,
             Preset2 = 2,
@@ -54,6 +55,17 @@ namespace CStat.Common
             {COp.FocusInc ,"FocusInc" }
         };
 
+        public PtzCamera()
+        {
+            Login();
+        }
+
+        ~PtzCamera()
+        {
+            if (!string.IsNullOrEmpty(_token))
+                Logout();
+        }
+
         public string _token = "";
         public bool Login()
         {
@@ -83,11 +95,13 @@ namespace CStat.Common
 
         public bool Logout()
         {
+            var tok = _token;
+            _token = "";
             try
             {
                 // Get Token
                 HttpReq req = new HttpReq();
-                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + _token);
+                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
 
                 req.AddHeaderProp("Connection: keep-alive");
                 req.AddHeaderProp("Accept: */*");
@@ -103,16 +117,13 @@ namespace CStat.Common
             catch
             {
                 return false;
-            }
+            }          
         }
 
-        public string GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
+        public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
         {
             try
             {
-                if (preset > 99)
-                    return "";
-
                 if ((preset >= 1) && (preset <= 99))
                 {
 
@@ -129,26 +140,24 @@ namespace CStat.Common
                     // "rspCode" : 200
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     if (LoginResp[0].value.rspCode != 200)
-                        return "";
+                        return 0;
 
-                    // Give time for Camera to move. Delay can be adjusted
-                    Thread.Sleep(6000);
+                    return 6000;
                 }
-                return GetSnapshot(hostEnv);
+                return 0;
             }
             catch (Exception e)
             {
-                Logout();
-                return "";
+                return 0;
             }
         }
-        public string GetPtzPicture(IWebHostEnvironment hostEnv, int op)
+        public int GetPtzPicture(IWebHostEnvironment hostEnv, int op)
         {
             try
             {
                 if (op < 200)
-                    return "";
- 
+                    return 0;
+
                 // Perform PTZ op
                 HttpReq req = new HttpReq();
                 req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&user=admin&password=Red35845!");
@@ -162,7 +171,7 @@ namespace CStat.Common
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                 if (LoginResp[0].value.rspCode != 200)
-                    return "";
+                    return 0;
 
                 Thread.Sleep(100);
 
@@ -174,32 +183,45 @@ namespace CStat.Common
                 req2.AddHeaderProp("Accept: */*");
                 req2.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
                 req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json; charset=utf-8");
-                                
+
                 var sRespStat2 = req2.Send(out string sResult2);
 
                 // "rspCode" : 200
                 dynamic LoginResp2 = JsonConvert.DeserializeObject(sResult2);
                 if (LoginResp2[0].value.rspCode != 200)
-                    return "";
+                    return 0;
 
-                // Give time for Camera to move. Delay can be adjusted
-                Thread.Sleep(6000);
-            
-                return GetSnapshot(hostEnv);
+                return 6000;
             }
             catch (Exception e)
             {
-                Logout();
-                return "";
+                return 0;
             }
         }
 
+        public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
+        {
+            if ((cop == COp.None) || (cop == COp.Refresh))
+                return 0;
+            if ((int)cop <= 99)
+                return GetPresetPicture(hostEnv, (int)cop);
+
+            if (cop == PtzCamera.COp.ToggleLight)
+            {
+                return ToggleLight();
+            }
+            if (cop == PtzCamera.COp.TurnOnAlarm)
+            {
+                return TurnOnAlarm(10);
+
+            }
+            return GetPtzPicture(hostEnv, (int)cop);
+        }
 
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
             try
             {
-
                 string folderName = @"Camera\Images";
                 string webRootPath = hostEnv.WebRootPath;
                 string newPath = Path.Combine(webRootPath, folderName);
@@ -253,12 +275,11 @@ namespace CStat.Common
             }
             catch
             {
-                Logout();
                 return "";
             }
         }
 
-        public void ToggleLight()
+        public int ToggleLight()
         {
             try
             {
@@ -288,15 +309,15 @@ namespace CStat.Common
                 req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application /json; charset=utf-8");
                 sRespStat = req2.Send(out sResult);
 
-                Thread.Sleep(6000); // need time to turn off light. This may be reduced.
+                return 6000; // need time to turn off light. This may be reduced.
             }
             catch (Exception e)
             {
                 _ = e;
-                Logout();
             }
+            return 0;
         }
-        public bool TurnOnAlarm(int times)
+        public int TurnOnAlarm(int times)
         {
             try
             {
@@ -313,14 +334,13 @@ namespace CStat.Common
 
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                return (LoginResp[0].value.rspCode == 200);
+                //return (LoginResp[0].value.rspCode == 200);
             }
             catch (Exception e)
             {
                 _ = e;
-                Logout();
-                return false;
             }
+            return 0;
         }
     }
 }

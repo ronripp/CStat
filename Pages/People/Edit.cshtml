@@ -62,8 +62,11 @@
 
             $("[id^=zAddress_]").change(function () {
 
-                if ($("#HandleAdrId").css("display") === "none") {
-                    $("#HandleAdrId").css("display", "block");
+                if ($(this).attr('id') !== "zAddress_Phone") {
+
+                    if ($("#HandleAdrId").css("display") === "none") {
+                        $("#HandleAdrId").css("display", "block");
+                    }
                 }
                 //alert("Address has been changed.");
             });

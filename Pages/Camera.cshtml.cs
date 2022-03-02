@@ -14,6 +14,7 @@ namespace CStat.Pages
     public class CameraModel : PageModel
     {
         private static CamOps _CamOps = new CamOps();
+        private const COp DefaultCOp = COp.Preset4;
 
         [BindProperty]
         public string CameraLink { get; set; } = "";
@@ -34,11 +35,14 @@ namespace CStat.Pages
         {
             try
             {
-                CameraLink = _CamOps.HandleOp(_hostEnv, (COp)op);
+                _CamOps.HandleOp(_hostEnv, (COp)op);
             }
             catch (Exception e)
             {
-                CameraLink = "";
+            }
+            finally
+            {
+                CameraLink = _CamOps.GetLink();
             }
         }
     }

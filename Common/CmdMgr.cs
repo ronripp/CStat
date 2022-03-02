@@ -583,11 +583,11 @@ namespace CStat.Common
             }
             else if (_cmdDescList.Count == 1)
             {
-               people = _context.Person.Where(p => p.FirstName == _cmdDescList[0]).Include(p => p.Address).ToList();
+               people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
             }
             else if (_cmdDescList.Count == 2)
             {
-                people = _context.Person.Where(p => (p.FirstName == _cmdDescList[0]) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
+                people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
             }
 
             if (people.Count > 0)

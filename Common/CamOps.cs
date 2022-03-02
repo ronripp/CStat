@@ -12,6 +12,7 @@ namespace CStat.Common
     {
         private static readonly object _qLock = new object();
         public Queue<COp> _queue;
+        private string _link = "";
         public CamOps()
         {
             lock (_qLock)
@@ -53,11 +54,13 @@ namespace CStat.Common
                 }
             }
         }
-        public string HandleOp (IWebHostEnvironment hostEnv, COp rcop)
+        public void HandleOp (IWebHostEnvironment hostEnv, COp rcop)
         {
             PtzCamera ptzCam = new PtzCamera();
             int MaxDelay = 0;
             var cop = Add(rcop);
+            if (cop == COp.None)
+                return;
             while (cop != COp.None)
             {
                 var delay = ptzCam.ExecuteOp(hostEnv, cop);
@@ -69,9 +72,26 @@ namespace CStat.Common
             // Give time for Camera to move. Delay can be adjusted
             Thread.Sleep(MaxDelay);
 
-            var link = ptzCam.GetSnapshot(hostEnv);
+            SetLink(ptzCam.GetSnapshot(hostEnv));
             ptzCam.Logout();
-            return link;
+        }
+
+        public void SetLink(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return;
+
+            lock (_qLock)
+            {
+                _link = str;
+            }
+        }
+        public string GetLink()
+        {
+            lock (_qLock)
+            {
+                return _link;
+            }
         }
     }
 }

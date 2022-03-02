@@ -14,7 +14,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-black box-shadow mb-3">
             <div class="container" style="background-color:#000000; color: #FFFFFF">
                 <span style="color:dodgerblue;"><b>Equipment : </b></span>
-                <span><button id="SecCam" onclick="onCamera(2)">Camera</button></span>
+                <span><button id="SecCam" onclick="onCamera(4)">Camera</button></span>
                 <span><img style="width: 1.2em;height: 1.2em;" src="~/images/Settings_16x.svg" alt="[=]" onclick="doSettings()"></span>
                 <span><a class="nav-link" style="background-color:#000000; color:darkorange" asp-area="" asp-page="/Index"><b>Home</b></a></span>
             </div>
@@ -37,8 +37,8 @@
     </script>
 
     <script>
-        function onCamera(preset) {
-            location.assign("/Camera?preset=" + preset);
+        function onCamera(op) {
+            location.assign("/Camera?op=" + op);
         }
     </script>
 

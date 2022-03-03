@@ -148,6 +148,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 return 0;
             }
         }
@@ -195,6 +196,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 return 0;
             }
         }

@@ -33,13 +33,27 @@
         //});
         //$(window).bind("resize", setCBHeight());
 
+         function onCamOp(op) {
+            var parameters = "{'op':'" + op + "'}";
+            $.ajax({
+                url: "/Camera?handler=CamOp",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        $("#CamImg").attr("src", response.substr(4));
+                    }
+                },
+                fail: function (response) {
+
+                }
+            });
+        }
+
         $(document).ready(function () {
 
         });
-
-        function onCamOp(op) {
-            location.assign("/Camera?op=" + op);
-        }
 
     </script>
 
@@ -169,7 +183,7 @@
         </table>
     </div>
     <div class="pic">
-        <img src="@Model.CameraLink" class="camSize" alt="Please Wait 6 secs ...or... Hit Button Again" />
+        <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Please Wait 6 secs ...or... Hit Button Again" />
     </div>
 </body>
 

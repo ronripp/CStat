@@ -38,6 +38,7 @@
             $.ajax({
                 url: "/Camera?handler=CamOp",
                 contentType: "application/json",
+                async: true,
                 dataType: "json",
                 data: parameters,
                 success: function (response) {

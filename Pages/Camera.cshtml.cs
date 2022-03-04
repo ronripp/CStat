@@ -38,7 +38,11 @@ namespace CStat.Pages
             try
             {
                 Debug.WriteLine("CAMERA.OnGet HandleOp " + op.ToString());
-                CameraLink = _CamOps.HandleOp(_hostEnv, (COp)op);
+                var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
+
+                // Give time for Camera to move. Delay can be adjusted
+                Thread.Sleep(delay);
+                CameraLink = _CamOps.SnapShot(_hostEnv);
             }
             catch (Exception e)
             {
@@ -62,9 +66,30 @@ namespace CStat.Pages
             try
             {
                 Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
-                var link = _CamOps.HandleOp(_hostEnv, (COp)op);
-                if (string.IsNullOrEmpty(link))
-                    return new JsonResult("ERROR~:Empty String");
+                var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
+                return new JsonResult("OK~:" + delay.ToString());
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: CamOp Exception");
+            }
+        }
+        public JsonResult OnGetSnapShot() 
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            JObject jObj = JObject.Parse(jsonQS);
+            string opVal = (string)jObj["op"];
+            if (!int.TryParse((string)jObj["op"], out int op))
+                return new JsonResult("ERROR~:Incorrect Parameters");
+            try
+            {
+                Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                var link = _CamOps.SnapShot(_hostEnv);
                 return new JsonResult("OK~:" + link);
             }
             catch (Exception e)
@@ -73,6 +98,8 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~: CamOp Exception");
             }
         }
+
+
 
     }
 }

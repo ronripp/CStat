@@ -161,7 +161,7 @@ namespace CStat.Common
 
                 // Perform PTZ op
                 HttpReq req = new HttpReq();
-                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&user=admin&password=Red35845!");
+                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=Red35845!");
 
                 req.AddHeaderProp("Connection: keep-alive");
                 req.AddHeaderProp("Accept: */*");
@@ -171,14 +171,14 @@ namespace CStat.Common
 
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                if (LoginResp[0].value.rspCode != 200)
+                if ((LoginResp[0].value != null) && (LoginResp[0].value.rspCode != 200))
                     return 0;
 
                 Thread.Sleep(100);
 
                 // Perform Stop
                 HttpReq req2 = new HttpReq();
-                req2.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&user=admin&password=Red35845!");
+                req2.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=Red35845!");
 
                 req2.AddHeaderProp("Connection: keep-alive");
                 req2.AddHeaderProp("Accept: */*");
@@ -189,7 +189,7 @@ namespace CStat.Common
 
                 // "rspCode" : 200
                 dynamic LoginResp2 = JsonConvert.DeserializeObject(sResult2);
-                if (LoginResp2[0].value.rspCode != 200)
+                if ((LoginResp[0].value != null) && (LoginResp[0].value.rspCode != 200))
                     return 0;
 
                 return 6000;

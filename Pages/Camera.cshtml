@@ -13,6 +13,8 @@
 
     <script type="text/javascript">
 
+        var gTimer;
+
         function setCBHeight() {
 
             const elem = document.documentElement;
@@ -33,6 +35,25 @@
         //});
         //$(window).bind("resize", setCBHeight());
 
+        function setSnapShot() {
+            var parameters = "{'op':'" + 0 + "'}";
+            $.ajax({
+                url: "/Camera?handler=SnapShot",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        $("#CamImg").attr("src", response.substr(4));
+                    }
+                },
+                fail: function (response) {
+
+                }
+            });
+        }
+
          function onCamOp(op) {
             var parameters = "{'op':'" + op + "'}";
             $.ajax({
@@ -43,7 +64,11 @@
                 data: parameters,
                 success: function (response) {
                     if (response.indexOf("OK~:") === 0) {
-                        $("#CamImg").attr("src", response.substr(4));
+                        let delay = parseInt(response.substr(4));
+                        if (gTimer !== null) {
+                            clearTimeout(gTimer);
+                        }
+                        gTimer = setTimeout(setSnapShot, delay);
                     }
                 },
                 fail: function (response) {

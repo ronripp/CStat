@@ -382,7 +382,7 @@ namespace CStat.Common
         {
             try
             {
-                GetPresetPicture(hostEnv, (int)COp.Preset4);
+                GetPresetPicture(hostEnv, (int)COp.Preset4); // reset back to full view so we can return to surveilence
 
                 // Delete all temp camera images
                 string[] filePaths = Directory.GetFiles(GetTempDir(hostEnv));

@@ -57,8 +57,11 @@
         }
 
         function camCleanup() {
+            if (gCleanTimer !== null) {
+                clearTimeout(gCleanTimer);
+                gCleanTimer = null;
+            }
             var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
-            var str = parameters;
             $.ajax({
                 url: "/Camera?handler=CamCleanup",
                 contentType: "application/json",
@@ -88,7 +91,7 @@
                 fail: function (response) {
 
                 },
-                finally: function (response) {
+                complete: function (response) {
                     if (gCleanTimer !== null) {
                         clearTimeout(gCleanTimer);
                     }

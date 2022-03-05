@@ -64,34 +64,64 @@ namespace CStat.Common
         }
         public int HandleOp (IWebHostEnvironment hostEnv, COp rcop)
         {
-            PtzCamera ptzCam = new PtzCamera();
-            int MaxDelay = 0;
-            var cop = Add(rcop);
-            if (cop == COp.None)
-                return 6000;
-            while (cop != COp.None)
+            try
             {
-                Debug.WriteLine("CamOps.HandleOp " + (int)cop);
-                var delay = ptzCam.ExecuteOp(hostEnv, cop);
-                if (delay > MaxDelay)
-                    MaxDelay = delay;
-                cop = Delete();
-            }
+                using (PtzCamera ptzCam = new PtzCamera())
+                {
+                    int MaxDelay = 0;
+                    var cop = Add(rcop);
+                    if (cop == COp.None)
+                        return 6000;
+                    while (cop != COp.None)
+                    {
+                        Debug.WriteLine("CamOps.HandleOp " + (int)cop);
+                        var delay = ptzCam.ExecuteOp(hostEnv, cop);
+                        if (delay > MaxDelay)
+                            MaxDelay = delay;
+                        cop = Delete();
+                    }
 
-            // Give time for Camera to move. Delay can be adjusted
-            ptzCam.Logout();
-            return MaxDelay;
+                    // Give time for Camera to move. Delay can be adjusted
+                    ptzCam.Logout();
+                    return MaxDelay;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         public string SnapShot(IWebHostEnvironment hostEnv)
         {
-            PtzCamera ptzCam = new PtzCamera();
-
-            var link = ptzCam.GetSnapshot(hostEnv);
-            ptzCam.Logout();
-            return link;
+            try
+            {
+                using (PtzCamera ptzCam = new PtzCamera())
+                {
+                    var link = ptzCam.GetSnapshot(hostEnv);
+                    ptzCam.Logout();
+                    return link;
+                }
+            }
+            catch
+            {
+                return "";
+            }
         }
 
+        public void Cleanup(IWebHostEnvironment hostEnv, string exceptFile = "")
+        {
+            try
+            {
+                using (PtzCamera ptzCam = new PtzCamera())
+                {
+                    ptzCam.Cleanup(hostEnv, exceptFile);
+                }
+            }
+            catch
+            {
+            }
+        }
 
         //public void SetLink(string str)
         //{

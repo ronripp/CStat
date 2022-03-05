@@ -99,7 +99,26 @@ namespace CStat.Pages
             }
         }
 
-
+        public JsonResult OnGetCamCleanup()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            JObject jObj = JObject.Parse(jsonQS);
+            string exceptFile = (string)jObj["except"] ?? "";
+            try
+            {
+                 _CamOps.Cleanup(_hostEnv, exceptFile);
+                return new JsonResult("OK~:Cleanup");
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: OnGetCamCleanup Exception");
+            }
+        }
 
     }
 }

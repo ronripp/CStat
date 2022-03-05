@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CStat.Common
 {
-    public class PtzCamera
+    public class PtzCamera : System.IDisposable
     {
         public enum COp
         {
@@ -60,6 +60,32 @@ namespace CStat.Common
             Login();
         }
 
+        //***************** start DISPOSABLE **********************
+        private bool disposed;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed objects
+                Logout();
+            }
+            // Dispose unmanaged objects
+
+            disposed = true;
+        }
+
+        //********************* end DISPOSABLE *****************************
+
         ~PtzCamera()
         {
             if (!string.IsNullOrEmpty(_token))
@@ -95,6 +121,9 @@ namespace CStat.Common
 
         public bool Logout()
         {
+            if (string.IsNullOrEmpty(_token))
+                return false;
+
             var tok = _token;
             _token = "";
             try
@@ -116,8 +145,9 @@ namespace CStat.Common
             }
             catch
             {
-                return false;
-            }          
+              
+            }
+            return false;
         }
 
         public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
@@ -219,27 +249,32 @@ namespace CStat.Common
             }
             return GetPtzPicture(hostEnv, (int)cop);
         }
+        private string GetTempDir(IWebHostEnvironment hostEnv)
+        {
+            string folderName = @"Camera\Images";
+            string webRootPath = hostEnv.WebRootPath;
+            string TempPath = Path.Combine(webRootPath, folderName);
+            if (!Directory.Exists(TempPath))
+            {
+                Directory.CreateDirectory(TempPath);
+            }
+            return TempPath;
+        }
 
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
             try
             {
-                string folderName = @"Camera\Images";
-                string webRootPath = hostEnv.WebRootPath;
-                string newPath = Path.Combine(webRootPath, folderName);
-                if (!Directory.Exists(newPath))
-                {
-                    Directory.CreateDirectory(newPath);
-                }
+                var tempPath = GetTempDir(hostEnv);
 
                 var now = PropMgr.ESTNow;
                 string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
                 string actFilename = baseFilename + ".jpg";
-                string fullPath = Path.Combine(newPath, actFilename);
+                string fullPath = Path.Combine(tempPath, actFilename);
                 for (int i = 1; File.Exists(fullPath); ++i)
                 {
                     actFilename = baseFilename + i.ToString("00") + ".jpg";
-                    fullPath = Path.Combine(newPath, actFilename);
+                    fullPath = Path.Combine(tempPath, actFilename);
                 }
 
                 //HttpReq req = new HttpReq();
@@ -280,7 +315,6 @@ namespace CStat.Common
                 return "";
             }
         }
-
         public int ToggleLight()
         {
             try
@@ -343,6 +377,34 @@ namespace CStat.Common
                 _ = e;
             }
             return 0;
+        }
+        public void Cleanup(IWebHostEnvironment hostEnv, string exceptFile="")
+        {
+            try
+            {
+                GetPresetPicture(hostEnv, (int)COp.Preset4);
+
+                // Delete all temp camera images
+                string[] filePaths = Directory.GetFiles(GetTempDir(hostEnv));
+
+                // Get the file name of the exception. Example : camera/images/cam220304173422.jpg
+                var LFull = exceptFile.ToLower();
+                var idx = LFull.IndexOf("/images/");
+                var LExcept = (idx != -1) ? LFull[(idx + 8)..] : LFull;
+
+                foreach (string filePath in filePaths)
+                {
+                    var LName = new FileInfo(filePath).Name.ToLower();
+                    if (LName != LExcept)
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
         }
     }
 }

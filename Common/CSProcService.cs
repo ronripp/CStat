@@ -131,6 +131,12 @@ namespace CStat.Common
                     ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                     amgr.GetAll(true);
 
+                    // Clean/{Reset to full view} Camera
+                    using (var ptz = new PtzCamera())
+                    {
+                        ptz.Cleanup(_hostEnv);
+                    }
+
                     _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
                 }
 

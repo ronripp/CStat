@@ -8,12 +8,19 @@
 }
 
 <head>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0; text/html; charset=utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
     <script type="text/javascript">
 
         var gTimer;
+        var gCleanTimer;
+        var isOKToExit = false;
 
         function setCBHeight() {
 
@@ -35,6 +42,36 @@
         //});
         //$(window).bind("resize", setCBHeight());
 
+        function onExit() {
+            isOKToExit = true;
+            camCleanup();
+
+            if (gTimer !== null) {
+                clearTimeout(gTimer);
+            }
+            if (gCleanTimer !== null) {
+                clearTimeout(gCleanTimer);
+            }
+
+            location.assign("/Equip");
+        }
+
+        function camCleanup() {
+            var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
+            var str = parameters;
+            $.ajax({
+                url: "/Camera?handler=CamCleanup",
+                contentType: "application/json",
+                async: false, // Synchronous because it is called within onunload
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                },
+                fail: function (response) {
+                }
+            });
+        }
+
         function setSnapShot() {
             var parameters = "{'op':'" + 0 + "'}";
             $.ajax({
@@ -50,11 +87,17 @@
                 },
                 fail: function (response) {
 
+                },
+                finally: function (response) {
+                    if (gCleanTimer !== null) {
+                        clearTimeout(gCleanTimer);
+                    }
+                    gTimer = setTimeout(camCleanup, 30000); // Clean camera and restore to full view after 30 secs for stability and security reasons
                 }
             });
         }
 
-         function onCamOp(op) {
+        function onCamOp(op) {
             var parameters = "{'op':'" + op + "'}";
             $.ajax({
                 url: "/Camera?handler=CamOp",
@@ -72,10 +115,23 @@
                     }
                 },
                 fail: function (response) {
-
                 }
             });
         }
+
+        window.addEventListener('beforeunload', function (e) {
+            if (!isOKToExit) {
+                // Cancel the event
+                e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+                // Chrome requires returnValue to be set
+                e.returnValue = '';
+            }
+            else {
+                // the absence of a returnValue property on the event will guarantee the browser unload happens
+                delete e['returnValue'];
+            }
+        });
+
 
         $(document).ready(function () {
 
@@ -110,7 +166,7 @@
         a:hover {
             text-decoration: none;
             color: inherit;
-            background-color:blue;
+            background-color: blue;
         }
 
         a:active {
@@ -119,7 +175,7 @@
 
         a {
             text-decoration: none;
-            color:inherit;
+            color: inherit;
         }
 
         .orth {
@@ -151,6 +207,14 @@
             width: 2.5em;
         }
 
+        .OpExit {
+            width: 1.5em;
+            font-weight: bold;
+            color: white;
+            text-align: right;
+            padding-right: 6px;
+        }
+
         .cview {
             color: cyan;
             margin-left: 4px;
@@ -177,6 +241,7 @@
                 <td class="OpPM"><a href="#" onclick="onCamOp(101)">&#128266;</a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(401)"><b>F+</b></a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(400)">f-</a></td>
+                <td class="OpExit"><a href="#" onclick="onExit()">X</a></td>
             </tr>
         </table>
     </div>
@@ -209,7 +274,7 @@
         </table>
     </div>
     <div class="pic">
-        <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Please Wait 6 secs ...or... Hit Button Again" />
+        <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Hit Refresh. Note : Always Hit X to Exit" />
     </div>
 </body>
 

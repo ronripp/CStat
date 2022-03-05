@@ -8,6 +8,8 @@ namespace CStat.Common
 {
     public class HttpReq
     {
+        private HttpWebRequest _request = null;
+
         public void Open(string method, string url)
         {
             _request = (HttpWebRequest)WebRequest.Create(url); // Create a request using a URL that can receive a post.
@@ -76,7 +78,5 @@ namespace CStat.Common
                 return new HttpWebResponse();
             }
         }
-
-        HttpWebRequest _request = null;
     }
 }

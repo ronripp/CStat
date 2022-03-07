@@ -21,6 +21,8 @@ namespace CStat.Pages
         [BindProperty]
         public string CameraLink { get; set; } = "";
 
+        private string _Videos;
+
         private readonly IWebHostEnvironment _hostEnv;
 
         public CameraModel (IWebHostEnvironment hostEnv)
@@ -43,6 +45,7 @@ namespace CStat.Pages
                 // Give time for Camera to move. Delay can be adjusted
                 Thread.Sleep(delay);
                 CameraLink = _CamOps.SnapShot(_hostEnv);
+                _Videos = _CamOps.GetVideos();
             }
             catch (Exception e)
             {

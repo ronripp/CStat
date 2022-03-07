@@ -123,6 +123,21 @@ namespace CStat.Common
             }
         }
 
+        public string GetVideos()
+        {
+            try
+            {
+                using (PtzCamera ptzCam = new PtzCamera())
+                {
+                    return ptzCam.GetVideos();
+                }
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         //public void SetLink(string str)
         //{
         //    if (string.IsNullOrEmpty(str))

@@ -260,7 +260,6 @@ namespace CStat.Common
             }
             return TempPath;
         }
-
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
             try
@@ -315,6 +314,32 @@ namespace CStat.Common
                 return "";
             }
         }
+
+        public string GetVideos() // TBD : Dates
+        {
+            try
+            {
+                var ed = PropMgr.ESTNow;
+
+                HttpReq req = new HttpReq();
+                req.Open("Post", "http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=Red35845!");
+
+                req.AddHeaderProp("content-type: application/json");
+                req.AddHeaderProp("accept: application/json");
+                req.AddHeaderProp("accept-encoding: en-US,en;q=0.8");
+                req.AddHeaderProp("user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
+//                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 1,\"min\": 0,\"sec\": 0},\"EndTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 15,\"min\": 0,\"sec\": 0}}}}]");
+                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + 0 + ",\"min\": " + 0 + ",\"sec\": " + 0 + "},\"EndTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + ed.Hour + ",\"min\": " + ed.Minute + ",\"sec\": " + ed.Second + "}}}}]");
+                var resp = req.Send(out string sResult);
+                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
+                return sResult;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         public int ToggleLight()
         {
             try

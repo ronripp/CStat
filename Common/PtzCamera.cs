@@ -11,7 +11,55 @@ using System.Threading.Tasks;
 
 namespace CStat.Common
 {
-    public class PtzCamera : System.IDisposable
+    public class MonthStatus
+    {
+        public int mon;
+        public string table;
+        public int year;
+    }
+
+    public class DateTimeV
+    {
+        public int day;  // 6
+        public int hour; // 2
+        public int min;  // 1
+        public int mon;  // 3
+        public int sec;  // 18
+        public int year; // 2022
+    }
+
+    public class VideoFile
+    {
+        public string name;      // "Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4",
+        public string type;      // "main"
+        public long size;        // 42081868
+        public int frameRate;    // 0
+        public int width;        // 0
+        public int height;       // 0
+        public DateTimeV StartTime;
+        public DateTimeV EndTime;
+    }
+
+    public class VideoSearch
+    {
+        public VideoFile[] File;
+        public MonthStatus[] Status;
+        public int channel;
+    }
+
+    public class SearchRes
+    {
+        public VideoSearch SearchResult;
+    }
+
+    public class SearchCmd
+    {
+        public string cmd;
+        public int code;
+        public SearchRes value;
+    }
+
+public class PtzCamera : System.IDisposable
     {
         public enum COp
         {
@@ -315,7 +363,7 @@ namespace CStat.Common
             }
         }
 
-        public string GetVideos() // TBD : Dates
+        public SearchCmd GetVideos() // TBD : Dates
         {
             try
             {
@@ -331,12 +379,12 @@ namespace CStat.Common
 //                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 1,\"min\": 0,\"sec\": 0},\"EndTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 15,\"min\": 0,\"sec\": 0}}}}]");
                 req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + 0 + ",\"min\": " + 0 + ",\"sec\": " + 0 + "},\"EndTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + ed.Hour + ",\"min\": " + ed.Minute + ",\"sec\": " + ed.Second + "}}}}]");
                 var resp = req.Send(out string sResult);
-                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                return sResult;
+                SearchCmd [] searchCmds =  JsonConvert.DeserializeObject<SearchCmd[]>(sResult);
+                return (searchCmds.Count() >= 1) ? searchCmds[0] : null;
             }
-            catch
+            catch (Exception e)
             {
-                return "";
+                return null;
             }
         }
 

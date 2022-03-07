@@ -123,7 +123,7 @@ namespace CStat.Common
             }
         }
 
-        public string GetVideos()
+        public SearchCmd GetVideos()
         {
             try
             {
@@ -134,7 +134,7 @@ namespace CStat.Common
             }
             catch
             {
-                return "";
+                return null;
             }
         }
 

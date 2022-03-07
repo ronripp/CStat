@@ -45,7 +45,7 @@ namespace CStat.Pages
                 // Give time for Camera to move. Delay can be adjusted
                 Thread.Sleep(delay);
                 CameraLink = _CamOps.SnapShot(_hostEnv);
-                _Videos = _CamOps.GetVideos();
+                SearchCmd vres = _CamOps.GetVideos();
             }
             catch (Exception e)
             {

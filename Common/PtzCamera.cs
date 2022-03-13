@@ -362,13 +362,150 @@ public class PtzCamera : System.IDisposable
                 return "";
             }
         }
-
-        public SearchCmd GetVideos() // TBD : Dates
+        public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
             try
             {
-                var ed = PropMgr.ESTNow;
+                CleanupMP4(hostEnv); // Delete any older MP4s as they take up a lot of room.
 
+                var tempPath = GetTempDir(hostEnv);
+
+                var now = PropMgr.ESTNow;
+                string baseFilename = "Vid" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+                string actFilename = baseFilename + ".mp4";
+                string fullPath = Path.Combine(tempPath, actFilename);
+                for (int i = 1; File.Exists(fullPath); ++i)
+                {
+                    actFilename = baseFilename + i.ToString("00") + ".mp4";
+                    fullPath = Path.Combine(tempPath, actFilename);
+                }
+
+                //HttpReq req = new HttpReq();
+                //req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+
+                //req.AddHeaderProp("Connection: keep-alive");
+                //req.AddHeaderProp("Accept: */*");
+                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                //req.Send(out string sResult);
+
+                byte[] content;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
+                WebResponse response = request.GetResponse();
+                Stream stream = response.GetResponseStream();
+
+                using (BinaryReader br = new BinaryReader(stream))
+                {
+                    content = br.ReadBytes(150000000);
+                    br.Close();
+                }
+                response.Close();
+
+                FileStream fs = new FileStream(fullPath, FileMode.Create);
+                BinaryWriter bw = new BinaryWriter(fs);
+                try
+                {
+                    bw.Write(content);
+                }
+                finally
+                {
+                    fs.Close();
+                    bw.Close();
+                }
+                return "Camera/Images/" + actFilename;  // Send back URL
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public string GetVideoAnchors(DateTime sdt, DateTime edt, ref int ancCount)
+        {
+            string allAnchors = "";
+            try
+            {
+                DateTime sf = new DateTime(sdt.Year, sdt.Month, sdt.Day, 0, 0, 0);
+                DateTime ef = new DateTime(edt.Year, edt.Month, edt.Day, 23, 59, 59);
+                SearchCmd scmd = GetVideos(sf, ef);
+
+                if (sdt.Date == edt.Date)
+                {
+                    if ((scmd.value == null) || (scmd.value.SearchResult == null) || (scmd.value.SearchResult.File == null) || (scmd.value.SearchResult.File.Length == 0))
+                        return "";
+
+                    // Return anchors for this day
+                    foreach (var vf in scmd.value.SearchResult.File)
+                    {
+                        string timeStr;
+                        if (vf.StartTime.hour > 12)
+                            timeStr = (vf.StartTime.hour - 12) + ":" + vf.StartTime.min.ToString("00") + " PM]";
+                        else
+                            timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + " AM]";
+
+                        //http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=Red35845!
+
+                        string title = " [" + vf.StartTime.mon + "/" + vf.StartTime.day + " @" + timeStr;
+                        if (ancCount++ % 3 == 0)
+                            allAnchors += "</tr><tr>\n";
+
+                        allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "')\">" + title + "</a></td>\n";
+                    }
+                    return allAnchors;
+                }
+
+                // Determine Days that have videos
+                if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.Status == null) || (scmd.value.SearchResult.Status.Count() <= 0))
+                    return "";
+                int year = sdt.Year;
+                var lastMonth = sdt.Month;
+                var vDays = new List<DateTime>();
+                foreach (var rmon in scmd.value.SearchResult.Status)
+                {
+                    if (rmon.mon < lastMonth)
+                        year = edt.Year;
+
+                    char[] dayArr = rmon.table.ToCharArray();
+                    for (int i = 0; i < dayArr.Length; ++i)
+                    {
+                        if (dayArr[i] == '1')
+                        {
+                            var vDay = new DateTime(year, rmon.mon, i + 1);
+                            if (vDay.Date < sdt.Date)
+                                continue;
+                            if (vDay.Date > edt.Date)
+                                break;
+                            vDays.Add(vDay);
+                        }
+                    }
+                    lastMonth = rmon.mon;
+                }
+
+                allAnchors = "<table id=\"vtid\"><tr>\n";
+                ancCount = 0;
+
+                // Get Links for each day from newer to older
+                var NumVD = vDays.Count;
+                for (int i = NumVD-1; i >= 0; --i)
+                {
+                    allAnchors += GetVideoAnchors(vDays[i], vDays[i], ref ancCount);
+                }
+
+                allAnchors += "</tr></table>\n";
+
+                return allAnchors;
+            }
+            catch
+            {
+
+            }
+
+            return "";
+        }
+
+        public SearchCmd GetVideos(DateTime sdt, DateTime edt) // TBD : Dates
+        {
+            try
+            {
                 HttpReq req = new HttpReq();
                 req.Open("Post", "http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=Red35845!");
 
@@ -377,7 +514,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("accept-encoding: en-US,en;q=0.8");
                 req.AddHeaderProp("user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
 //                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 1,\"min\": 0,\"sec\": 0},\"EndTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 15,\"min\": 0,\"sec\": 0}}}}]");
-                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + 0 + ",\"min\": " + 0 + ",\"sec\": " + 0 + "},\"EndTime\": {\"year\": " + ed.Year + ",\"mon\": " + ed.Month + ",\"day\": " + ed.Day + ",\"hour\": " + ed.Hour + ",\"min\": " + ed.Minute + ",\"sec\": " + ed.Second + "}}}}]");
+                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": " + sdt.Year + ",\"mon\": " + sdt.Month + ",\"day\": " + sdt.Day + ",\"hour\": " + sdt.Hour + ",\"min\": " + sdt.Minute + ",\"sec\": " + sdt.Second + "},\"EndTime\": {\"year\": " + edt.Year + ",\"mon\": " + edt.Month + ",\"day\": " + edt.Day + ",\"hour\": " + edt.Hour + ",\"min\": " + edt.Minute + ",\"sec\": " + edt.Second + "}}}}]");
                 var resp = req.Send(out string sResult);
                 SearchCmd [] searchCmds =  JsonConvert.DeserializeObject<SearchCmd[]>(sResult);
                 return (searchCmds.Count() >= 1) ? searchCmds[0] : null;
@@ -451,6 +588,28 @@ public class PtzCamera : System.IDisposable
             }
             return 0;
         }
+
+        public void CleanupMP4(IWebHostEnvironment hostEnv)
+        {
+            try
+            {
+                // Delete all temp camera images
+                string[] filePaths = Directory.GetFiles(GetTempDir(hostEnv));
+                foreach (string filePath in filePaths)
+                {
+                    var LName = new FileInfo(filePath).Name.ToLower();
+                    if (LName.EndsWith(".mp4"))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
         public void Cleanup(IWebHostEnvironment hostEnv, string exceptFile="")
         {
             try

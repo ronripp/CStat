@@ -91,6 +91,22 @@ namespace CStat.Common
                 return 0;
             }
         }
+        public string GetVideo(IWebHostEnvironment hostEnv, string url)
+        {
+            try
+            {
+                using (PtzCamera ptzCam = new PtzCamera())
+                {
+                    var link = ptzCam.GetVideo(hostEnv, url);
+                    ptzCam.Logout();
+                    return link;
+                }
+            }
+            catch
+            {
+                return "";
+            }
+        }
 
         public string SnapShot(IWebHostEnvironment hostEnv)
         {
@@ -123,13 +139,14 @@ namespace CStat.Common
             }
         }
 
-        public SearchCmd GetVideos()
+        public string GetVideoAnchors (DateTime sdt, DateTime edt)
         {
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
-                    return ptzCam.GetVideos();
+                    int ancCount = 0;
+                    return ptzCam.GetVideoAnchors(sdt, edt, ref ancCount);
                 }
             }
             catch

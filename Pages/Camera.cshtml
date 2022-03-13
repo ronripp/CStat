@@ -75,6 +75,26 @@
             });
         }
 
+        function getVideo(url) {
+            var parameters = "{'url':'" + url + "'}";
+            $.ajax({
+                url: "/Camera?handler=Video",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                timeout: 90000,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        $("#mp4Src").attr("src", response.substr(4));
+                        $("#videoId").css("display", "block");
+                    }
+                },
+                fail: function (response) {
+                }
+            });
+        }
+
         function setSnapShot() {
             var parameters = "{'op':'" + 0 + "'}";
             $.ajax({
@@ -210,6 +230,16 @@
             width: 2.5em;
         }
 
+        #vtid {
+            width: 100%;
+            color: darkorange;
+        }
+
+        #videoId {
+            width: 100%;
+            display:none;
+        }
+
         .OpExit {
             width: 1.5em;
             font-weight: bold;
@@ -278,6 +308,13 @@
     </div>
     <div class="pic">
         <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Hit Refresh. Note : Always Hit X to Exit" />
+        <video controls id="videoId"> 
+            <source id="mp4Src" src="Camera/Images/Vid220312174339.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div>
+            @Html.Raw(@Model._VideoLinks)
+        </div>
     </div>
 </body>
 

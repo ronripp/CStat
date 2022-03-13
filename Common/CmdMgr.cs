@@ -608,6 +608,8 @@ namespace CStat.Common
                 // Persist Daily Reading and Notify if needed for Propane
                 PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
                 var plNow = pmgr.GetTUTank(); // get value, log to file and check
+                if (plNow == null)
+                    return result;
 
                 if (_cmdDateRange != null)
                 {

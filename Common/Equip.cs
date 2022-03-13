@@ -476,6 +476,9 @@ namespace CStat.Common
 
         public bool CheckValue(PropaneLevel pl) // propane only
         {
+            if (pl == null)
+                return false;
+
             CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
             foreach (var ep in cset.EquipProps)
             {
@@ -493,6 +496,9 @@ namespace CStat.Common
         public bool ReportLatestValue(ref string report) // propane only
         {
             var pl = this.GetTUTank();
+            if (pl == null)
+                return false;
+
             CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
             foreach (var ep in cset.EquipProps)
             {
@@ -509,34 +515,43 @@ namespace CStat.Common
 
         public PropaneLevel GetTUTank(bool appendToFile=false) // Tank Utility Propane meter
         {
-            var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
-
-            string token = vals["token"];
-            if (token == null)
-                return null;
-
-            var readings = PropMgr.GetSiteProperties("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
-
-            double level;
-            double temp;
-            DateTime readTime;
-            if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
+            try
             {
-                PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
-                if (appendToFile)
+                var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
+
+                string token = vals["token"];
+                if (token == null)
+                    return null;
+
+                var readings = PropMgr.GetSiteProperties("https://data.tankutility.com/api/devices/003a0028363537330b473931?token=" + token, null, null, "device.lastReading.tank", "device.lastReading.temperature", "device.lastReading.time_iso");
+                if (readings.Count < 3)
+                    return null;
+
+                double level;
+                double temp;
+                DateTime readTime;
+                if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
                 {
-                    using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
+                    PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                    if (appendToFile)
                     {
-                        sw.WriteLine(JsonConvert.SerializeObject(pl));
-                        sw.Close();
+                        using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
+                        {
+                            sw.WriteLine(JsonConvert.SerializeObject(pl));
+                            sw.Close();
+                        }
+                        using (StreamWriter sw = new StreamWriter(PropaneHistAll, true))
+                        {
+                            sw.WriteLine(JsonConvert.SerializeObject(pl));
+                            sw.Close();
+                        }
                     }
-                    using (StreamWriter sw = new StreamWriter(PropaneHistAll, true))
-                    {
-                        sw.WriteLine(JsonConvert.SerializeObject(pl));
-                        sw.Close();
-                    }
+                    return pl;
                 }
-                return pl;
+            }
+            catch
+            {
+
             }
             return null;
         }

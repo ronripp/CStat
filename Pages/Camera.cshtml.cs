@@ -21,7 +21,8 @@ namespace CStat.Pages
         [BindProperty]
         public string CameraLink { get; set; } = "";
 
-        private string _Videos;
+        [BindProperty]
+        public string _VideoLinks { get; set; } = "";
 
         private readonly IWebHostEnvironment _hostEnv;
 
@@ -42,10 +43,11 @@ namespace CStat.Pages
                 Debug.WriteLine("CAMERA.OnGet HandleOp " + op.ToString());
                 var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
 
-                // Give time for Camera to move. Delay can be adjusted
-                Thread.Sleep(delay);
+                
+                Thread.Sleep(delay); // Give time for Camera to move. Delay can be adjusted
                 CameraLink = _CamOps.SnapShot(_hostEnv);
-                SearchCmd vres = _CamOps.GetVideos();
+                var now = PropMgr.ESTNow;
+                _VideoLinks = _CamOps.GetVideoAnchors(now.AddDays(-14), now);
             }
             catch (Exception e)
             {
@@ -71,6 +73,27 @@ namespace CStat.Pages
                 Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
                 return new JsonResult("OK~:" + delay.ToString());
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: CamOp Exception");
+            }
+        }
+
+        public JsonResult OnGetVideo()         {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+            JObject jObj = JObject.Parse(jsonQS);
+            string url = (string)jObj["url"];
+
+            try
+            {
+                var link = _CamOps.GetVideo(_hostEnv, url);
+                return new JsonResult("OK~:" + link);
             }
             catch (Exception e)
             {

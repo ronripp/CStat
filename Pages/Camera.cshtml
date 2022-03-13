@@ -16,152 +16,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-    <script type="text/javascript">
-
-        var gTimer;
-        var gCleanTimer;
-        var isOKToExit = false;
-
-        function setCBHeight() {
-
-            const elem = document.documentElement;
-            let hdrDiv = document.querySelector(".header");
-            let refBtn = document.querySelector(".refBtn");
-            let setBtn = document.querySelector(".setBtn");
-            let btnSVG = document.querySelector("#btnSVG");
-
-            let totW = Math.min(document.documentElement.clientWidth, window.innerWidth || 0);
-            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
-
-        }
-
-        screen.orientation.addEventListener("change", function (e) { setCBHeight(); }, false);
-        //screen.window.orientation.addEventListener("change", function (e) { setCBHeight(); }, false)
-        //$(window).bind("resize", function(){
-        //    screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
-        //});
-        //$(window).bind("resize", setCBHeight());
-
-        function onExit() {
-            isOKToExit = true;
-            camCleanup();
-
-            if (gTimer !== null) {
-                clearTimeout(gTimer);
-            }
-            if (gCleanTimer !== null) {
-                clearTimeout(gCleanTimer);
-            }
-
-            location.assign("/Equip");
-        }
-
-        function camCleanup() {
-            if (gCleanTimer !== null) {
-                clearTimeout(gCleanTimer);
-                gCleanTimer = null;
-            }
-            var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
-            $.ajax({
-                url: "/Camera?handler=CamCleanup",
-                contentType: "application/json",
-                async: false, // Synchronous because it is called within onunload
-                dataType: "json",
-                data: parameters,
-                success: function (response) {
-                },
-                fail: function (response) {
-                }
-            });
-        }
-
-        function getVideo(url) {
-            var parameters = "{'url':'" + url + "'}";
-            $.ajax({
-                url: "/Camera?handler=Video",
-                contentType: "application/json",
-                async: true,
-                dataType: "json",
-                data: parameters,
-                timeout: 90000,
-                success: function (response) {
-                    if (response.indexOf("OK~:") === 0) {
-                        $("#mp4Src").attr("src", response.substr(4));
-                        $("#videoId").css("display", "block");
-                    }
-                },
-                fail: function (response) {
-                }
-            });
-        }
-
-        function setSnapShot() {
-            var parameters = "{'op':'" + 0 + "'}";
-            $.ajax({
-                url: "/Camera?handler=SnapShot",
-                contentType: "application/json",
-                async: true,
-                dataType: "json",
-                data: parameters,
-                success: function (response) {
-                    if (response.indexOf("OK~:") === 0) {
-                        $("#CamImg").attr("src", response.substr(4));
-                    }
-                },
-                fail: function (response) {
-
-                },
-                complete: function (response) {
-                    if (gCleanTimer !== null) {
-                        clearTimeout(gCleanTimer);
-                    }
-                    gTimer = setTimeout(camCleanup, 30000); // Clean camera and restore to full view after 30 secs for stability and security reasons
-                }
-            });
-        }
-
-        function onCamOp(op) {
-            var parameters = "{'op':'" + op + "'}";
-            $.ajax({
-                url: "/Camera?handler=CamOp",
-                contentType: "application/json",
-                async: true,
-                dataType: "json",
-                data: parameters,
-                success: function (response) {
-                    if (response.indexOf("OK~:") === 0) {
-                        let delay = parseInt(response.substr(4));
-                        if (gTimer !== null) {
-                            clearTimeout(gTimer);
-                        }
-                        gTimer = setTimeout(setSnapShot, delay);
-                    }
-                },
-                fail: function (response) {
-                }
-            });
-        }
-
-        window.addEventListener('beforeunload', function (e) {
-            if (!isOKToExit) {
-                // Cancel the event
-                e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-                // Chrome requires returnValue to be set
-                e.returnValue = '';
-            }
-            else {
-                // the absence of a returnValue property on the event will guarantee the browser unload happens
-                delete e['returnValue'];
-            }
-        });
-
-
-        $(document).ready(function () {
-
-        });
-
-    </script>
-
     <style>
 
         .camSize {
@@ -237,7 +91,7 @@
 
         #videoId {
             width: 100%;
-            display:none;
+            display: block;
         }
 
         .OpExit {
@@ -263,6 +117,152 @@
             width: 100%;
         }
     </style>
+
+    <script type="text/javascript">
+
+        var gTimer;
+        var gCleanTimer;
+        var isOKToExit = false;
+
+        function setCBHeight() {
+
+            const elem = document.documentElement;
+            let hdrDiv = document.querySelector(".header");
+            let refBtn = document.querySelector(".refBtn");
+            let setBtn = document.querySelector(".setBtn");
+            let btnSVG = document.querySelector("#btnSVG");
+
+            let totW = Math.min(document.documentElement.clientWidth, window.innerWidth || 0);
+            let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        }
+
+        screen.orientation.addEventListener("change", function (e) { setCBHeight(); }, false);
+        //screen.window.orientation.addEventListener("change", function (e) { setCBHeight(); }, false)
+        //$(window).bind("resize", function(){
+        //    screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
+        //});
+        //$(window).bind("resize", setCBHeight());
+
+        function onExit() {
+            isOKToExit = true;
+            camCleanup();
+
+            if (gTimer !== null) {
+                clearTimeout(gTimer);
+            }
+            if (gCleanTimer !== null) {
+                clearTimeout(gCleanTimer);
+            }
+
+            location.assign("/Equip");
+        }
+
+        function camCleanup() {
+            if (gCleanTimer !== null) {
+                clearTimeout(gCleanTimer);
+                gCleanTimer = null;
+            }
+            var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
+            $.ajax({
+                url: "/Camera?handler=CamCleanup",
+                contentType: "application/json",
+                async: false, // Synchronous because it is called within onunload
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                },
+                fail: function (response) {
+                }
+            });
+        }
+
+        function getVideo(url) {
+            var parameters = "{'url':'" + url + "'}";
+            $.ajax({
+                url: "/Camera?handler=Video",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                timeout: 90000,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        let vfile = response.substr(4);
+                        $("#videoDiv").html("<video controls id=\"videoId\">\n<source src=\"" + vfile + "\" type=\"video/mp4\">\nYour browser does not support the video tag.\n</video>");
+                    }
+                },
+                fail: function (response) {
+                }
+            });
+        }
+
+        function setSnapShot() {
+            var parameters = "{'op':'" + 0 + "'}";
+            $.ajax({
+                url: "/Camera?handler=SnapShot",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        $("#CamImg").attr("src", response.substr(4));
+                    }
+                },
+                fail: function (response) {
+
+                },
+                complete: function (response) {
+                    if (gCleanTimer !== null) {
+                        clearTimeout(gCleanTimer);
+                    }
+                    gTimer = setTimeout(camCleanup, 30000); // Clean camera and restore to full view after 30 secs for stability and security reasons
+                }
+            });
+        }
+
+        function onCamOp(op) {
+            var parameters = "{'op':'" + op + "'}";
+            $.ajax({
+                url: "/Camera?handler=CamOp",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        let delay = parseInt(response.substr(4));
+                        if (gTimer !== null) {
+                            clearTimeout(gTimer);
+                        }
+                        gTimer = setTimeout(setSnapShot, delay);
+                    }
+                },
+                fail: function (response) {
+                }
+            });
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            if (!isOKToExit) {
+                // Cancel the event
+                e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+                // Chrome requires returnValue to be set
+                e.returnValue = '';
+            }
+            else {
+                // the absence of a returnValue property on the event will guarantee the browser unload happens
+                delete e['returnValue'];
+            }
+        });
+
+
+        $(document).ready(function () {
+
+        });
+
+    </script>
 </head>
 <body onload="setCBHeight()" onresize="setCBHeight()" bgcolor="black" margin="0">
     <div>
@@ -308,10 +308,7 @@
     </div>
     <div class="pic">
         <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Hit Refresh. Note : Always Hit X to Exit" />
-        <video controls id="videoId"> 
-            <source id="mp4Src" src="Camera/Images/Vid220312174339.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+        <div id="videoDiv"></div>
         <div>
             @Html.Raw(@Model._VideoLinks)
         </div>

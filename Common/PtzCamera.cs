@@ -448,7 +448,7 @@ public class PtzCamera : System.IDisposable
                         if (ancCount++ % 3 == 0)
                             allAnchors += "</tr><tr>\n";
 
-                        allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "')\">" + title + "</a></td>\n";
+                        allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "','" + title + "')\">" + title + "</a></td>\n";
                     }
                     return allAnchors;
                 }

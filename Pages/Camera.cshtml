@@ -89,9 +89,17 @@
             color: darkorange;
         }
 
-        #videoId {
+        #videoIns {
             width: 100%;
-            display: block;
+            color: darkorange;
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        #videoDiv {
+            width: 100%;
+            color : yellow;
         }
 
         .OpExit {
@@ -177,7 +185,8 @@
             });
         }
 
-        function getVideo(url) {
+        function getVideo(url, title) {
+            $("#videoDiv").text("Preparing " + title + " . . . Please wait a minute.");
             var parameters = "{'url':'" + url + "'}";
             $.ajax({
                 url: "/Camera?handler=Video",
@@ -188,11 +197,14 @@
                 timeout: 90000,
                 success: function (response) {
                     if (response.indexOf("OK~:") === 0) {
-                        let vfile = response.substr(4);
-                        $("#videoDiv").html("<video controls id=\"videoId\">\n<source src=\"" + vfile + "\" type=\"video/mp4\">\nYour browser does not support the video tag.\n</video>");
+                        let vFile = response.substr(4);
+                    //    $("#videoDiv").html("<video controls id=\"videoId\">\n<source src=\"" + vfile + "\" type=\"video/mp4\">\nYour browser does not support the video tag.\n</video>");
+                        $("#videoDiv").text("");
+                        $("#videoDiv").html("<a href=\"" + vFile + "\" download>Download " + title + "</a>");
                     }
                 },
                 fail: function (response) {
+                    $("#videoDiv").text("Failed to get " + title + " " + response);
                 }
             });
         }
@@ -309,9 +321,8 @@
     <div class="pic">
         <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Hit Refresh. Note : Always Hit X to Exit" />
         <div id="videoDiv"></div>
-        <div>
-            @Html.Raw(@Model._VideoLinks)
-        </div>
+        <div id="videoIns">Click to download a video below :</div>
+        <div>@Html.Raw(@Model._VideoLinks)</div>
     </div>
 </body>
 

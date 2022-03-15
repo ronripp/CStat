@@ -390,30 +390,40 @@ public class PtzCamera : System.IDisposable
 
                 byte[] content;
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
+                using (WebResponse response = request.GetResponse())
+                {
+                    long bytesToRead = response.ContentLength + 5000;
+                    if (bytesToRead > (100000000 + 5000))
+                    {
+                        response.Close();
+                        return "";
+                    }
 
-                using (BinaryReader br = new BinaryReader(stream))
-                {
-                    content = br.ReadBytes(150000000);
-                    br.Close();
-                }
-                response.Close();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        using (BinaryReader br = new BinaryReader(stream))
+                        {
+                            content = br.ReadBytes((int)bytesToRead);
+                            br.Close();
+                        }
+                        response.Close();
 
-                FileStream fs = new FileStream(fullPath, FileMode.Create);
-                BinaryWriter bw = new BinaryWriter(fs);
-                try
-                {
-                    bw.Write(content);
+                        FileStream fs = new FileStream(fullPath, FileMode.Create);
+                        BinaryWriter bw = new BinaryWriter(fs);
+                        try
+                        {
+                            bw.Write(content);
+                        }
+                        finally
+                        {
+                            fs.Close();
+                            bw.Close();
+                        }
+                        return "Camera/Images/" + actFilename;  // Send back URL
+                    }
                 }
-                finally
-                {
-                    fs.Close();
-                    bw.Close();
-                }
-                return "Camera/Images/" + actFilename;  // Send back URL
             }
-            catch
+            catch (Exception e)
             {
                 return "";
             }

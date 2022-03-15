@@ -198,13 +198,18 @@
                 success: function (response) {
                     if (response.indexOf("OK~:") === 0) {
                         let vFile = response.substr(4);
-                    //    $("#videoDiv").html("<video controls id=\"videoId\">\n<source src=\"" + vfile + "\" type=\"video/mp4\">\nYour browser does not support the video tag.\n</video>");
+                        //    $("#videoDiv").html("<video controls id=\"videoId\">\n<source src=\"" + vfile + "\" type=\"video/mp4\">\nYour browser does not support the video tag.\n</video>");
                         $("#videoDiv").text("");
                         $("#videoDiv").html("<a href=\"" + vFile + "\" download>Download " + title + "</a>");
                     }
+                    else {
+                        $("#videoDiv").html("");
+                        $("#videoDiv").text("Failed to get " + title + ". " + response);
+                    }
                 },
                 fail: function (response) {
-                    $("#videoDiv").text("Failed to get " + title + " " + response);
+                    $("#videoDiv").html("");
+                    $("#videoDiv").text("Failed to get " + title + ". " + response);
                 }
             });
         }

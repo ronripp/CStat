@@ -93,6 +93,8 @@ namespace CStat.Pages
             try
             {
                 var link = _CamOps.GetVideo(_hostEnv, url);
+                if (string.IsNullOrEmpty(link))
+                    return new JsonResult("ERROR~: Likely too large.");
                 return new JsonResult("OK~:" + link);
             }
             catch (Exception e)

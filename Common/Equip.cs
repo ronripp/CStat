@@ -879,7 +879,7 @@ namespace CStat.Common
                 }
                 if (p.Value.Type == JTokenType.Object)
                 {
-                    return TraverseObject(p.Value.ToObject<JObject>(), ref numFinds, names, dict, fullName);
+                    TraverseObject(p.Value.ToObject<JObject>(), ref numFinds, names, dict, fullName);
                 }
             }
             return false;

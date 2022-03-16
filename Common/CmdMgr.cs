@@ -67,7 +67,8 @@ namespace CStat.Common
             MENU     = 0x00008000,
             URGENCY  = 0x00010000,
             CSTEST   = 0x00020000,
-            TRUSTEE  = 0x00040000
+            TRUSTEE  = 0x00040000,
+            EC       = 0x00080000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -127,6 +128,9 @@ namespace CStat.Common
             {"delegates", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
             {"director", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, false) },
             {"directors", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
+            {"ec", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
+            {"executive committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
+            {"executive board", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) }
         };
 
@@ -197,6 +201,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.TASK, HandleTasks);
             _srcDelegateDict.Add(CmdSource.PERSON, HandlePeople);
             _srcDelegateDict.Add(CmdSource.TRUSTEE, HandlePeople);
+            _srcDelegateDict.Add(CmdSource.EC, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
@@ -581,6 +586,12 @@ namespace CStat.Common
             {
                 people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).ToList();
             }
+            else if (_cmdSrc == CmdSource.EC)
+            {
+                    //President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000
+                    long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
+                    people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).ToList();
+            }
             else if (_cmdDescList.Count == 1)
             {
                people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
@@ -594,8 +605,8 @@ namespace CStat.Common
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
-                    result += p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
-                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + $"\n";
+                    result += (p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
+                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + " " + (!string.IsNullOrEmpty(p.Email) ? p.Email : "")).Trim() + $"\n";
                 }
             }
             return result;

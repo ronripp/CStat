@@ -425,6 +425,7 @@ public class PtzCamera : System.IDisposable
             }
             catch (Exception e)
             {
+                _ = e;
                 return "";
             }
         }
@@ -531,6 +532,7 @@ public class PtzCamera : System.IDisposable
             }
             catch (Exception e)
             {
+                _ = e;
                 return null;
             }
         }

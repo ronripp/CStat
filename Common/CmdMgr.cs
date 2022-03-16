@@ -131,6 +131,7 @@ namespace CStat.Common
             {"ec", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive board", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
+            {"committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) }
         };
 

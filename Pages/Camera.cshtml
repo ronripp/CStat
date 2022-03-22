@@ -128,8 +128,11 @@
 
     <script type="text/javascript">
 
-        var gTimer;
-        var gCleanTimer;
+        var gCleanupTimer = null;
+
+        var gRepaintTimer = null;
+        var gRepaintCnt = 0;
+
         var isOKToExit = false;
 
         function setCBHeight() {
@@ -143,6 +146,7 @@
             let totW = Math.min(document.documentElement.clientWidth, window.innerWidth || 0);
             let totH = Math.min(document.documentElement.clientHeight, window.innerHeight || 0);
 
+            setRepaint();
         }
 
         screen.orientation.addEventListener("change", function (e) { setCBHeight(); }, false);
@@ -155,22 +159,13 @@
         function onExit() {
             isOKToExit = true;
             camCleanup();
-
-            if (gTimer !== null) {
-                clearTimeout(gTimer);
-            }
-            if (gCleanTimer !== null) {
-                clearTimeout(gCleanTimer);
-            }
-
+            clearRepaint();
+            clearCleanup();
             location.assign("/Equip");
         }
 
         function camCleanup() {
-            if (gCleanTimer !== null) {
-                clearTimeout(gCleanTimer);
-                gCleanTimer = null;
-            }
+            resetCleanup();
             var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
             $.ajax({
                 url: "/Camera?handler=CamCleanup",
@@ -214,6 +209,57 @@
             });
         }
 
+        function resetCleanup() {
+            if (gCleanupTimer !== null) {
+                clearTimeout(gCleanupTimer);
+                gCleanupTimer = null;
+            }
+            gCleanupTimer = setTimeout(camCleanup, 60000); // Clean camera and restore to full view 30 secs after every operation for stability & security reasons
+        }
+
+        function setRepaint() {
+            gRepaintCnt = 1;
+            if (gRepaintTimer !== null) {
+                clearTimeout(gRepaintTimer);
+            }
+            gRepaintTimer = setTimeout(repaintImage, 1000);
+        }
+
+        function updateRepaint() {
+            if (gRepaintCnt === 0)
+                return;
+
+            if (++gRepaintCnt > 8) {
+                gRepaintCnt = 0;
+                if (gRepaintTimer !== null) {
+                    clearTimeout(gRepaintTimer);
+                    gRepaintTimer = null;
+                }
+            }
+            else {
+                gRepaintTimer = setTimeout(repaintImage, 1000);
+            }
+        }
+
+        function clearRepaint() {
+            gRepaintCnt = 0;
+            if (gRepaintTimer !== null) {
+                clearTimeout(gRepaintTimer);
+                gRepaintTimer = null;
+            }
+        }
+
+        function repaintEnabled() {
+            return gRepaintCnt != 0;
+        }
+
+        function clearCleanup() {
+            if (gCleanupTimer !== null) {
+                clearTimeout(gCleanupTimer);
+                gCleanupTimer = null;
+            }
+        }
+
         function setSnapShot() {
             var parameters = "{'op':'" + 0 + "'}";
             $.ajax({
@@ -231,15 +277,42 @@
 
                 },
                 complete: function (response) {
-                    if (gCleanTimer !== null) {
-                        clearTimeout(gCleanTimer);
+                    resetCleanup();
+                }
+            });
+        }
+
+        function repaintImage() {
+
+            if (!repaintEnabled())
+                return;
+
+            var parameters = "{'op':'" + 0 + "'}";
+            $.ajax({
+                url: "/Camera?handler=SnapShot",
+                contentType: "application/json",
+                async: true,
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("OK~:") === 0) {
+                        if (repaintEnabled())
+                            $("#CamImg").attr("src", response.substr(4));
                     }
-                    gTimer = setTimeout(camCleanup, 30000); // Clean camera and restore to full view after 30 secs for stability and security reasons
+                },
+                fail: function (response) {
+
+                },
+                complete: function (response) {
+                    updateRepaint();
+                    resetCleanup();
                 }
             });
         }
 
         function onCamOp(op) {
+            clearCleanup();
+            clearRepaint();
             var parameters = "{'op':'" + op + "'}";
             $.ajax({
                 url: "/Camera?handler=CamOp",
@@ -248,16 +321,24 @@
                 dataType: "json",
                 data: parameters,
                 success: function (response) {
-                    if (response.indexOf("OK~:") === 0) {
-                        let delay = parseInt(response.substr(4));
-                        if (gTimer !== null) {
-                            clearTimeout(gTimer);
+                    if (response.indexOf("OK~:delay=") === 0) {
+                        let endIdx = response.indexOf(";link=");
+                        if (endIdx == -1) {
+                            return;
                         }
-                        gTimer = setTimeout(setSnapShot, delay);
+                        let delay = parseInt(response.substr(10, endIdx - 10));
+                        $("#CamImg").attr("src", response.substr(endIdx + 6));
+                        //if (!!delay)
+                        //    setRepaint();
+                        setRepaint();
                     }
                 },
                 fail: function (response) {
+                },
+                complete: function (response) {
+                    resetCleanup();
                 }
+
             });
         }
 

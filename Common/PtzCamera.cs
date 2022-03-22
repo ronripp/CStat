@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -220,7 +221,8 @@ public class PtzCamera : System.IDisposable
                     if (LoginResp[0].value.rspCode != 200)
                         return 0;
 
-                    return 6000;
+                    return CheckForSomeStability();
+
                 }
                 return 0;
             }
@@ -244,15 +246,11 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Connection: keep-alive");
                 req.AddHeaderProp("Accept: */*");
                 req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":32}}]", "application/json; charset=utf-8");
+                req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":16}}]", "application/json; charset=utf-8");
                 var sRespStat = req.Send(out string sResult);
-
-                // "rspCode" : 200
-                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                if ((LoginResp[0].value != null) && (LoginResp[0].value.rspCode != 200))
+                dynamic PostResp = JsonConvert.DeserializeObject(sResult);
+                if ((PostResp[0].value != null) && (PostResp[0].value.rspCode != 200)) // "rspCode" : 200
                     return 0;
-
-                Thread.Sleep(100);
 
                 // Perform Stop
                 HttpReq req2 = new HttpReq();
@@ -262,21 +260,121 @@ public class PtzCamera : System.IDisposable
                 req2.AddHeaderProp("Accept: */*");
                 req2.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
                 req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json; charset=utf-8");
-
                 var sRespStat2 = req2.Send(out string sResult2);
-
-                // "rspCode" : 200
-                dynamic LoginResp2 = JsonConvert.DeserializeObject(sResult2);
-                if ((LoginResp[0].value != null) && (LoginResp[0].value.rspCode != 200))
+                dynamic PostResp2 = JsonConvert.DeserializeObject(sResult2);
+                if ((PostResp2[0].value != null) && (PostResp2[0].value.rspCode != 200)) // "rspCode" : 200
                     return 0;
 
-                return 6000;
+                var delay = CheckForSomeStability();
+                if (delay == 500)
+                    return 0; // no need for that extra snap with non-preset
+                return delay;
             }
             catch (Exception e)
             {
                 _ = e;
                 return 0;
             }
+        }
+        public bool IsCameraDone(int retries = 1, int delay = 0)
+        {
+            // Get PTZ Check State
+            HttpReq req3 = new HttpReq();
+            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=Red35845!");
+
+            req3.AddHeaderProp("Connection: keep-alive");
+            req3.AddHeaderProp("Accept: */*");
+            req3.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            req3.AddBody("[{\"cmd\":\"GetPtzCheckState\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
+
+            for (int i = 0; i < retries; ++i)
+            {
+                var sRespStat3 = req3.Send(out string sResult3);
+                dynamic PostResp3 = JsonConvert.DeserializeObject(sResult3);
+                // PtzCheckState 0:idle, 1:doing, 2:finish
+                if (PostResp3[0].value != null)
+                {
+                    //Debug.WriteLine("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
+                    if (PostResp3[0].value.PtzCheckState != 1)
+                        return true;
+                }            
+               Thread.Sleep(delay);
+            }
+            return false;
+        }
+        public int CheckForSomeStability()
+        {
+            return 500;
+            //int zoomC = -1;
+            //int focusC = -1;
+            //int CCount = 0;
+            //int MaxCount = 20;
+            //int MatchesNeeded = 8;
+            //int MinMatches = 3;
+            //int Needed = MatchesNeeded - MinMatches;
+
+            //for (int i=0; i<MaxCount; ++i)
+            //{
+            //    GetZoomAndFocus(out int zoom, out int focus);
+            //    if ((zoom == zoomC) && (focus == focusC))
+            //    {
+            //        if (++CCount >= MatchesNeeded)
+            //        {
+            //            //Debug.WriteLine("*** PICTURE DONE ***");
+            //            return 500;
+            //        }
+            //        if ((CCount == MinMatches) && (MaxCount< 30))
+            //        {
+            //            int diff = (MaxCount - i) - 1;
+            //            if (diff<Needed)
+            //                MaxCount += Needed - diff; // try a few more times to see if we can reach 10
+            //        }
+            //    }
+            //    else
+            //    {
+            //        zoomC = zoom;
+            //        focusC = focus;
+            //        CCount = 0;
+            //    }
+            //    Thread.Sleep(20);
+            //}
+            //return IsCameraDone(20, 10) ? 500 : 1000; // still doing.. likely focusing and zooming
+        }
+
+        //http://IPC_IP/api.cgi?cmd=GetZoomFocus&token=TOKEN
+        public bool GetZoomAndFocus(out int zoom, out int focus)
+        {
+            zoom = focus = -1;
+
+            // Get PTZ Check State
+            HttpReq req3 = new HttpReq();
+            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=Red35845!");
+
+            req3.AddHeaderProp("Connection: keep-alive");
+            req3.AddHeaderProp("Accept: */*");
+            req3.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            req3.AddBody("[{\"cmd\":\"GetZoomFocus\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
+
+            var sRespStat3 = req3.Send(out string sResult3);
+            dynamic PostResp3 = JsonConvert.DeserializeObject(sResult3);
+            if ((PostResp3[0].value != null) && (PostResp3[0].value.ZoomFocus != null))
+            {
+                try
+                {
+                    zoom = PostResp3[0].value.ZoomFocus.zoom.pos;
+                    focus = PostResp3[0].value.ZoomFocus.focus.pos;
+                }
+                catch
+                {
+                    zoom = -1;
+                    focus = -1;
+                    //Debug.WriteLine("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+                }
+                //Debug.WriteLine("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
+                return true;
+            }
+            //Debug.WriteLine("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+            return false;
         }
 
         public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
@@ -355,6 +453,7 @@ public class PtzCamera : System.IDisposable
                     fs.Close();
                     bw.Close();
                 }
+                GetZoomAndFocus(out int zoom, out int focus);
                 return "Camera/Images/" + actFilename;  // Send back URL
             }
             catch
@@ -567,7 +666,7 @@ public class PtzCamera : System.IDisposable
                 req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application /json; charset=utf-8");
                 sRespStat = req2.Send(out sResult);
 
-                return 6000; // need time to turn off light. This may be reduced.
+                return 500; // need time to turn off light. This may be reduced.
             }
             catch (Exception e)
             {

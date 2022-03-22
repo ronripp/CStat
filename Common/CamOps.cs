@@ -29,9 +29,9 @@ namespace CStat.Common
                 try
                 {
                     bool _qEmpty = _queue.Count == 0;
-                    Debug.WriteLine("CamOps.Add to Queue " + (int)cop);
+                    //Debug.WriteLine("CamOps.Add to Queue " + (int)cop);
                     _queue.Enqueue(cop);
-                    Debug.WriteLine("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
+                    //Debug.WriteLine("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
                     return (_qEmpty) ? cop : COp.None; // Indicate what if anything to execute COp now
                 }
                 catch
@@ -49,10 +49,10 @@ namespace CStat.Common
                     bool _qEmpty = _queue.Count <= 1;
                     if (_queue.Count > 0)
                     {
-                        Debug.WriteLine("CamOps.Delete from Queue " + (int)_queue.Peek());
+                        //Debug.WriteLine("CamOps.Delete from Queue " + (int)_queue.Peek());
                         _queue.Dequeue();
                     }
-                    Debug.WriteLine("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
+                    //Debug.WriteLine("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
 
                     return (_qEmpty) ? COp.None : _queue.Peek(); // Indicate what if anything to execute COp now
                 }
@@ -74,7 +74,7 @@ namespace CStat.Common
                         return 6000;
                     while (cop != COp.None)
                     {
-                        Debug.WriteLine("CamOps.HandleOp " + (int)cop);
+                        //Debug.WriteLine("CamOps.HandleOp " + (int)cop);
                         var delay = ptzCam.ExecuteOp(hostEnv, cop);
                         if (delay > MaxDelay)
                             MaxDelay = delay;

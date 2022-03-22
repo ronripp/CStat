@@ -40,12 +40,13 @@ namespace CStat.Pages
         {
             try
             {
-                Debug.WriteLine("CAMERA.OnGet HandleOp " + op.ToString());
+                //Debug.WriteLine("CAMERA.OnGet HandleOp " + op.ToString());
                 var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
-
-                
-                Thread.Sleep(delay); // Give time for Camera to move. Delay can be adjusted
+                //if (delay == 500)
+                //    delay = 0;
+                //Thread.Sleep(delay); // Give time for Camera to move. Delay can be adjusted
                 CameraLink = _CamOps.SnapShot(_hostEnv);
+                //Debug.WriteLine("OnGet CameraLink[" + CameraLink + "]");
                 var now = PropMgr.ESTNow;
                 _VideoLinks = _CamOps.GetVideoAnchors(now.AddDays(-14), now);
             }
@@ -70,13 +71,16 @@ namespace CStat.Pages
 
             try
             {
-                Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                //Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                var link = _CamOps.SnapShot(_hostEnv);
                 var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
-                return new JsonResult("OK~:" + delay.ToString());
+                //Debug.WriteLine("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
+                return new JsonResult("OK~:delay=" + delay.ToString() + ";link=" + link);
             }
             catch (Exception e)
             {
                 _ = e;
+                //Debug.WriteLine("AJAX.OnGetCamOp [ERROR~: CamOp Exception]");
                 return new JsonResult("ERROR~: CamOp Exception");
             }
         }
@@ -116,7 +120,7 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             try
             {
-                Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                //Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 var link = _CamOps.SnapShot(_hostEnv);
                 return new JsonResult("OK~:" + link);
             }

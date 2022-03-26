@@ -239,8 +239,7 @@
         }
 
         $("#DelBtn").click(function () {
-            if (confirm("Delete Event : " + $("#z
-                Event_Description").val() + " ? ")) {
+            if (confirm("Delete Event : " + $("#zEvent_Description").val() + " ? ")) {
                 var parameters = "{'eventId':'" + @Model._Event.Id + "'}";
                 $.ajax({
                     url: "/Events/Edit?handler=DeleteEvent",

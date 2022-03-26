@@ -189,6 +189,29 @@ namespace CStat.Models
         {
             return string.IsNullOrEmpty(newFld) ? oldFld : newFld;
         }
+
+        public static string FormatAddress(Address a, bool addPhone = false)
+        {
+            string astr = "";
+            if (a == null)
+                return astr;
+
+            if (!string.IsNullOrEmpty(a.Street))
+                astr += " " + a.Street;
+            if (!string.IsNullOrEmpty(a.Town))
+                astr += " " + a.Town;
+            if (!string.IsNullOrEmpty(a.State))
+                astr += " " + a.Street;
+            if (!string.IsNullOrEmpty(a.ZipCode))
+                astr += " " + a.ZipCode;
+            if (addPhone)
+            {
+                if (!string.IsNullOrEmpty(a.Phone))
+                    astr += " " + Models.Person.FixPhone(a.Phone);
+            }
+            return astr;
+        }
+
     }
 
     static class LevenshteinDistance
@@ -1820,6 +1843,9 @@ namespace CStat.Models
                 return String.Format("{0,20} {1,2} {2,20} {3,10} {4,15} {5,15}", PersonName, AgeAtEvent, EventName, role.ToString(), StartDT.ToString(), EndDT.ToString());
             }
         }
-
+        public partial class Business
+        {
+            enum Type {NYS, USGov, Propane, Electric, Phone, Internet, Refuse, PortaPotty, Hardware, Accounting, Supplies, Insurance }
+        }
     }
 }

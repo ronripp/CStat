@@ -48,27 +48,28 @@ namespace CStat.Common
         //=================================================================
         public enum CmdSource
         {
-            QUESTION = 0x00000000,
-            INVENTORY = 0x00000001,
-            PROPANE = 0x00000002,
-            PERSON = 0x00000004,
-            DOC = 0x00000008,
-            TASK = 0x00000010,
-            EQUIP = 0x00000020,
-            FRIDGE = 0x00000040,
-            FREEZER = 0x00000080,
-            PRESSURE = 0x00000100,
-            ELECTRIC = 0x00000200,
-            CAMERA   = 0x00000400,
-            REQ      = 0x00000800,
-            BYLAWS   = 0x00001000,
-            EVENT    = 0x00002000,
+            QUESTION   = 0x00000000,
+            INVENTORY  = 0x00000001,
+            PROPANE    = 0x00000002,
+            PERSON     = 0x00000004,
+            DOC        = 0x00000008,
+            TASK       = 0x00000010,
+            EQUIP      = 0x00000020,
+            FRIDGE     = 0x00000040,
+            FREEZER    = 0x00000080,
+            PRESSURE   = 0x00000100,
+            ELECTRIC   = 0x00000200,
+            CAMERA     = 0x00000400,
+            REQ        = 0x00000800,
+            BYLAWS     = 0x00001000,
+            EVENT      = 0x00002000,
             ATTENDANCE = 0x00004000,
-            MENU     = 0x00008000,
-            URGENCY  = 0x00010000,
-            CSTEST   = 0x00020000,
-            TRUSTEE  = 0x00040000,
-            EC       = 0x00080000
+            MENU       = 0x00008000,
+            URGENCY    = 0x00010000,
+            CSTEST     = 0x00020000,
+            TRUSTEE    = 0x00040000,
+            EC         = 0x00080000,
+            CHURCH     = 0x00100000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -132,7 +133,9 @@ namespace CStat.Common
             {"executive committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive board", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
-            {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) }
+            {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) },
+            {"church", new Tuple<CmdSource, bool>(CmdSource.CHURCH, false) },
+            {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) }
         };
 
         //===============================================================
@@ -219,7 +222,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
-            _srcDelegateDict.Add(CmdSource.CSTEST, HandleCSTest);
+            _srcDelegateDict.Add(CmdSource.CHURCH, HandleChurch);
         }
 
         public static List<string> GetWords(string cmdStr)
@@ -235,7 +238,7 @@ namespace CStat.Common
             List<string> words = new List<string>();
             for (int i = 0; i < NumWords; ++i)
             {
-                var word = rawWords[i].ToLower().Replace("-", "");
+                var word = rawWords[i].ToLower().Replace("-", "").Replace("'s", "");
                 if (rawWords[i] == "camp")
                     continue; // skip because it is implied / gets in the way
                 int j = i + 1;
@@ -882,6 +885,48 @@ namespace CStat.Common
                     var DateStr = e.StartTime.Date.ToShortDateString() + "-" + e.EndTime.Date.ToShortDateString();
                     report += e.Description + "(" + DateStr + ").\n";
                 }
+            }
+            return report;
+        }
+
+        //***************************************************************
+        private string HandleChurch(List<string> words)
+        //***************************************************************
+        {
+            var churches = new List<Church>();
+            var people = new List<Person>();
+            if (_isPlural)
+            {
+                if (_cmdSrc == CmdSource.CHURCH)
+                {
+                    people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Church).ToList();
+                }
+            }
+            else
+            {
+                if (_cmdDescList.Count == 1)
+                {
+                    people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Church).ToList();
+                }
+                else if (_cmdDescList.Count == 2)
+                {
+                    people  = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Church).ToList();
+                }
+                else
+                    return "Unable to determine a specific church";
+            }
+
+            foreach (var p in people)
+            {
+                if (p.Church != null)
+                    churches.Add(p.Church);
+            }
+            var DistChurches = churches.Distinct<Church>().OrderBy(c => c.Name).ToList();
+
+            string report = "";
+            foreach (var c in DistChurches)
+            {
+                report += "CHURCH: " + c.Name + Address.FormatAddress(c.Address, true) + ".\n";
             }
             return report;
         }

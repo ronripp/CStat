@@ -1,0 +1,76 @@
+﻿@page
+@model CStat.Pages.Vendors.CreateModel
+
+<h4>Business</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Business.Name" class="control-label"></label>
+                <input asp-for="Business.Name" class="form-control" />
+                <span asp-validation-for="Business.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.AddressId" class="control-label"></label>
+                <select asp-for="Business.AddressId" class ="form-control" asp-items="ViewBag.AddressId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.Type" class="control-label"></label>
+                <input asp-for="Business.Type" class="form-control" />
+                <span asp-validation-for="Business.Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.Terms" class="control-label"></label>
+                <input asp-for="Business.Terms" class="form-control" />
+                <span asp-validation-for="Business.Terms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.Fees" class="control-label"></label>
+                <input asp-for="Business.Fees" class="form-control" />
+                <span asp-validation-for="Business.Fees" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.Status" class="control-label"></label>
+                <input asp-for="Business.Status" class="form-control" />
+                <span asp-validation-for="Business.Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.StatusDetails" class="control-label"></label>
+                <input asp-for="Business.StatusDetails" class="form-control" />
+                <span asp-validation-for="Business.StatusDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.PocId" class="control-label"></label>
+                <select asp-for="Business.PocId" class ="form-control" asp-items="ViewBag.PocId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.ContractLink" class="control-label"></label>
+                <input asp-for="Business.ContractLink" class="form-control" />
+                <span asp-validation-for="Business.ContractLink" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.UserLink" class="control-label"></label>
+                <input asp-for="Business.UserLink" class="form-control" />
+                <span asp-validation-for="Business.UserLink" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Business.ApiLink" class="control-label"></label>
+                <input asp-for="Business.ApiLink" class="form-control" />
+                <span asp-validation-for="Business.ApiLink" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

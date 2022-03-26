@@ -1,0 +1,79 @@
+﻿@page
+@model CStat.Pages.Vendors.DetailsModel
+
+<div>
+    <h4>Business</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Type)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Type)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Terms)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Terms)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Fees)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Fees)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Status)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Status)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.StatusDetails)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.StatusDetails)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.ContractLink)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.ContractLink)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.UserLink)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.UserLink)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.ApiLink)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.ApiLink)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Address.Country)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Business.Poc)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Business.Poc.FirstName)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Business.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

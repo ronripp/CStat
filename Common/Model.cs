@@ -98,7 +98,6 @@ namespace CStat.Models
             return _context;
         }
     }
-
     public partial class Tasks
     {
     }
@@ -165,6 +164,83 @@ namespace CStat.Models
     }
     public partial class Address
     {
+        public static readonly Dictionary<string, string> StateDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"AL", "Alabama"},
+            {"AK", "Alaska"},
+            {"AZ", "Arizona"},
+            {"AR", "Arkansas"},
+            {"CT", "Connecticut"},
+            {"CA", "California"},
+            {"CO", "Colorado"},
+            {"DE", "Delaware"},
+            {"DC", "DC"},
+            {"FL", "Florida"},
+            {"GA", "Georgia"},
+            {"HI", "Hawaii"},
+            {"ID", "Idaho"},
+            {"IL", "Illinois"},
+            {"IN", "Indiana"},
+            {"IA", "Iowa"},
+            {"KS","Kansas"},
+            {"KY", "Kentucky"},
+            {"LA", "Louisiana"},
+            {"ME", "Maine"},
+            {"MD", "Maryland"},
+            {"MA", "Massachusetts"},
+            {"MI", "Michigan"},
+            {"MN", "Minnesota"},
+            {"MS", "Mississippi"},
+            {"MO", "Missouri"},
+            {"MT", "Montana"},
+            {"NY", "New York"},
+            {"NJ", "New Jersey"},
+            {"NE", "Nebraska"},
+            {"NV", "Nevada"},
+            {"NH", "New Hampshire"},
+            {"NM", "New Mexico"},
+            {"NC", "North Carolina"},
+            {"ND", "North Dakota"},
+            {"OH", "Ohio"},
+            {"OK", "Oklahoma"},
+            {"OR", "Oregon"},
+            {"PA", "Pennsylvania"},
+            {"RI", "Rhode Island"},
+            {"SC", "South Carolina"},
+            {"SD", "South Dakota"},
+            {"TN", "Tennessee"},
+            {"TX", "Texas"},
+            {"UT", "Utah"},
+            {"VT", "Vermont"},
+            {"VA", "Virginia"},
+            {"WA", "Washington"},
+            {"WV", "West Virginia"},
+            {"WI", "Wisconsin"},
+            {"WY", "Wyoming"},
+            {"AS","American Samoa"},
+            {"GU", "Guam"},
+            {"MP", "N Mariana Isls."},
+            {"PR", "Puerto Rico"},
+            {"UM", "US Minor Outl Isls."},
+            {"VI", "Virgin Islands"},
+            {"AA", "Armed Forces Am."},
+            {"AP", "Armed Forces Pac."},
+            {"AE", "Armed Forces Others"}
+        };
+
+        public static string GetStateOptions()
+        {
+            string ops = "";
+            foreach (var kvp in StateDict)
+            {
+                //<option value="AL" id="Alabama">Alabama</option>
+                ops += "<option value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";
+                if ((kvp.Key == "WY") || (kvp.Key == "VI"))
+                    ops += "<option value=\"\" disabled=\"disabled\" class=\"SelectSeparator\">--------</option>\n";
+            }
+            return ops;
+        }
+
         public Address ShallowCopy()
         {
             return (Address)this.MemberwiseClone();
@@ -1843,9 +1919,9 @@ namespace CStat.Models
                 return String.Format("{0,20} {1,2} {2,20} {3,10} {4,15} {5,15}", PersonName, AgeAtEvent, EventName, role.ToString(), StartDT.ToString(), EndDT.ToString());
             }
         }
-        public partial class Business
-        {
-            enum Type {NYS, USGov, Propane, Electric, Phone, Internet, Refuse, PortaPotty, Hardware, Accounting, Supplies, Insurance }
-        }
+    }
+    public partial class Business
+    {
+        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Supplies, Insurance }
     }
 }

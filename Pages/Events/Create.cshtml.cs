@@ -84,72 +84,75 @@ namespace CStat.Pages.Events
                     }
                 }
 
-                List<KeyValuePair<int, string>> kvpList = new List<KeyValuePair<int, string>>();
-                var pairs = staffStr.Split("~");
-                if (pairs.Length == 0)
-                    return false;
-                foreach (var p in pairs)
+                if (!string.IsNullOrEmpty(staffStr))
                 {
-                    var flds = p.Split("=");
-                    if (flds.Length >= 1)
+                    List<KeyValuePair<int, string>> kvpList = new List<KeyValuePair<int, string>>();
+                    var pairs = staffStr.Split("~");
+                    if (pairs.Length == 0)
+                        return false;
+                    foreach (var p in pairs)
                     {
-                        var keyStr = flds[0].Trim();
-                        if (!string.IsNullOrEmpty(keyStr))
+                        var flds = p.Split("=");
+                        if (flds.Length >= 1)
                         {
-                            if (int.TryParse(keyStr, out int key))
+                            var keyStr = flds[0].Trim();
+                            if (!string.IsNullOrEmpty(keyStr))
                             {
-                                var val = (flds.Length == 2) ? flds[1].Trim() : "";
-                                var kvp = new KeyValuePair<int, string>(key, val);
-                                kvpList.Add(kvp);
+                                if (int.TryParse(keyStr, out int key))
+                                {
+                                    var val = (flds.Length == 2) ? flds[1].Trim() : "";
+                                    var kvp = new KeyValuePair<int, string>(key, val);
+                                    kvpList.Add(kvp);
+                                }
                             }
                         }
                     }
-                }
 
-                kvpList.ForEach(kv =>
-                {
-                    Attendance att = _context.Attendance.AsNoTracking().FirstOrDefault(a => (a.EventId == evid) && (a.RoleType == kv.Key));
-                    if (att != null)
+                    kvpList.ForEach(kv =>
                     {
-                        if (string.IsNullOrEmpty(kv.Value))
+                        Attendance att = _context.Attendance.AsNoTracking().FirstOrDefault(a => (a.EventId == evid) && (a.RoleType == kv.Key));
+                        if (att != null)
                         {
+                            if (string.IsNullOrEmpty(kv.Value))
+                            {
                             // Delete current
                             _context.Attendance.Remove(att);
-                            _context.SaveChanges();
+                                _context.SaveChanges();
+                            }
+                            else
+                            {
+                            // Update Current
+                            List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
+                                if (persList.Count == 1)
+                                {
+                                    att.PersonId = persList[0].Id;
+
+                                    _context.Attendance.Attach(att);
+                                    _context.Entry(att).State = EntityState.Modified;
+                                    _context.SaveChanges();
+                                }
+                            }
                         }
                         else
                         {
-                            // Update Current
-                            List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
-                            if (persList.Count == 1)
+                            if (!string.IsNullOrEmpty(kv.Value))
                             {
-                                att.PersonId = persList[0].Id;
-
-                                _context.Attendance.Attach(att);
-                                _context.Entry(att).State = EntityState.Modified;
-                                _context.SaveChanges();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(kv.Value))
-                        {
                             // Add new Attendance
                             var newAtt = new Attendance();
-                            newAtt.EventId = evid;
-                            newAtt.RoleType = kv.Key;
+                                newAtt.EventId = evid;
+                                newAtt.RoleType = kv.Key;
 
-                            List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
-                            newAtt.PersonId = (persList.Count == 1) ? persList[0].Id : Person.AddPersonFromNameHint(_context, kv.Value);
-                            if (newAtt.PersonId > 0)
-                            {
-                                _context.Attendance.Add(newAtt);
-                                _context.SaveChanges();
+                                List<Person> persList = Person.PeopleFromNameHint(_context, kv.Value);
+                                newAtt.PersonId = (persList.Count == 1) ? persList[0].Id : Person.AddPersonFromNameHint(_context, kv.Value);
+                                if (newAtt.PersonId > 0)
+                                {
+                                    _context.Attendance.Add(newAtt);
+                                    _context.SaveChanges();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
             catch
             {

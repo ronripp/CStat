@@ -20,13 +20,21 @@ namespace CStat.Pages.Vendors
 
         public IActionResult OnGet()
         {
-        ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
-        ViewData["PocId"] = new SelectList(_context.Person, "Id", "FirstName");
+            IList<SelectListItem> BizTypeList = Enum.GetValues(typeof(Business.EType)).Cast<Business.EType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["BizTypeList"] = BizTypeList;
+
+            ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
             return Page();
         }
 
         [BindProperty]
         public Business Business { get; set; }
+
+        [BindProperty]
+        public int _pocId { get; set; } = -1;
+
+        [BindProperty]
+        public string _poc { get; set; } = "";
 
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://aka.ms/RazorPagesCRUD.

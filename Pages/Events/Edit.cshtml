@@ -120,38 +120,38 @@
 
     $(document).ready(function () {
 
-        costTent = $("#Event_CostTent").val();
+        costTent = $("#zEvent_CostTent").val();
         if (!!costTent && (costTent.indexOf("~~~") === 0)) {
-            $("#Event_CostTent").val(costTent.substr(3));
+            $("#zEvent_CostTent").val(costTent.substr(3));
         }
 
-        $("#Event_Type").change(function () {
-            let eName = $("#Event_Type option:selected").text();
+        $("#zEvent_Type").change(function () {
+            let eName = $("#zEvent_Type option:selected").text();
             let eYear = EditStartDate.getFullYear();
-            let eDesc = $("#Event_Description").val().trim();
+            let eDesc = $("#zEvent_Description").val().trim();
             if (!eDesc && ((eName.indexOf(" Retreat") != -1) || (eName.indexOf(" Week") != -1) || (eName.indexOf(" Meeting") != -1))) {
                 let desc = eYear + " " + eName;
-                $("#Event_Description").val(desc);
+                $("#zEvent_Description").val(desc);
             }
 
-            $("#Event_StartTime").trigger('change');
+            $("#zEvent_StartTime").trigger('change');
         });
 
-        $("#Event_StartTime").change(function () {
-            let sDate = $("#Event_StartTime").val();
-            let eDate = $("#Event_EndTime").val();
-            let eType = $("#Event_Type option:selected").text();
+        $("#zEvent_StartTime").change(function () {
+            let sDate = $("#zEvent_StartTime").val();
+            let eDate = $("#zEvent_EndTime").val();
+            let eType = $("#zEvent_Type option:selected").text();
             if ((sDate.indexOf("T") != -1) && (eDate.trim().length == 0) && (eType.length > 5)) {
                 let sDT = new Date(Date.parse(sDate));
                 let eDT = new Date(sDT);
                 if (eType.indexOf(" Retreat") != -1) {
                     eDT.setDate(eDT.getDate() + 3);
                     let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth() + 1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
-                    $("#Event_EndTime").val(dts);
+                    $("#zEvent_EndTime").val(dts);
                 } else if (eType.indexOf(" Week") != -1) {
                     eDT.setDate(eDT.getDate() + 7);
                     let dts = eDT.getFullYear().toString() + "-" + (eDT.getMonth() + 1).toString().padStart(2, 0) + "-" + eDT.getDate().toString().padStart(2, 0) + "T" + eDT.getHours().toString().padStart(2, 0) + ":" + eDT.getMinutes().toString().padStart(2, 0);
-                    $("#Event_EndTime").val(dts);
+                    $("#zEvent_EndTime").val(dts);
                 }
             }
         });
@@ -162,9 +162,9 @@
             sessionStorage.setItem("EventDocFile", "");
             sessionStorage.setItem("EventDocReturn", "");
 
-            let costTent = $("#Event_CostTent").val();
+            let costTent = $("#zEvent_CostTent").val();
             if (!!costTent && (costTent.indexOf("~~~") === 0)) {
-                $("#Event_CostTent").val(costTent.substr(3));
+                $("#zEvent_CostTent").val(costTent.substr(3));
             }
             $("#OpenDoc").prop("disabled", false);
         }
@@ -198,19 +198,19 @@
                     }
                 },
                 complete: function (data) {
-                    costTent = $("#Event_CostTent").val();
+                    costTent = $("#zEvent_CostTent").val();
                     if (!!costTent && (costTent.indexOf("~~~") === 0)) {
-                        $("#Event_CostTent").val(costTent.substr(3));
+                        $("#zEvent_CostTent").val(costTent.substr(3));
                     }
                 }
             });
         }
 
         $("#OpenDoc").click(function () {
-            let costTent = $("#Event_CostTent").val();
+            let costTent = $("#zEvent_CostTent").val();
             if (!costTent || (costTent.indexOf("~~~") != 0)) {
                 costTent = "~~~" + (!!costTent ? costTent : "");
-                $("#Event_CostTent").val(costTent);
+                $("#zEvent_CostTent").val(costTent);
             }
             openFileShare();
         });
@@ -312,7 +312,7 @@
 
         });
 
-        $('#StaffRoles').change(function () {
+        $('#zStaffRoles').change(function () {
             var sel = $(this).val();
             var selDiv = $("div").find("[value=" + "'" + sel + "']");
             if (!!selDiv) {
@@ -322,10 +322,10 @@
 
         $("#BrowseDoc").click(function (event) {
             $("#OpenDoc").prop("disabled", true);
-            let costTent = $("#Event_CostTent").val();
+            let costTent = $("#zEvent_CostTent").val();
             if (!costTent || (costTent.indexOf("~~~") != 0)) {
                 costTent = "~~~" + (!!costTent ? costTent : "");
-                $("#Event_CostTent").val(costTent);
+                $("#zEvent_CostTent").val(costTent);
             }
             sessionStorage.setItem("EventDocReturn", window.location.href + "&EventDoc=1");
             let newUrl = "../Docs?selectStr=Event";

@@ -239,6 +239,26 @@ namespace CStat.Common
             for (int i = 0; i < NumWords; ++i)
             {
                 var word = rawWords[i].ToLower().Replace("-", "").Replace("'s", "");
+
+                if (i == NumWords - 1)
+                {
+                    // Interpret and clear out ending punctuation
+                    if (word.EndsWith("?"))
+                    {
+                        _isQuestion = true;
+                        word = word.Replace("?", "");
+                    }
+                    if (word.EndsWith("."))
+                    {
+                        word = word.Replace(".", "");
+                    }
+                    if (word.EndsWith("!"))
+                    {
+                        _isUrgent = true;
+                        word = word.Replace("!", "");
+                    }
+                }
+
                 if (rawWords[i] == "camp")
                     continue; // skip because it is implied / gets in the way
                 int j = i + 1;
@@ -865,9 +885,20 @@ namespace CStat.Common
                     }
                     else
                     {
-                        eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
-                        sidx = 0;
-                        eidx = eList.Count - 1;
+                        if (_cmdInstsList.FindAll(c => c == CmdInsts.ALL).Any())
+                        {
+                            eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
+                            sidx = 0;
+                            eidx = eList.Count - 1;
+                        }
+                        else if (_cmdInstsList.Count == 0) // Just "Events" -> now and in the future
+                        {
+                            eList = Event.GetEvents(_context, PropMgr.ESTNow, DateRangeType.On_or_After_Date);
+                            if (_cmdNumber < 1)
+                                _cmdNumber = _isPlural ? eList.Count : 1;
+                            sidx = 0;
+                            eidx = _cmdNumber - 1;
+                        }
                     }
                 }
             }
@@ -999,6 +1030,8 @@ namespace CStat.Common
         private bool _isPlural = false;
         private bool _hasDoneOnly = false;
         private int _hasMyIdx = -1;
+        private bool _isQuestion = false;
+        private bool _isUrgent = false;
 
         private List<string> _cmdDescList = new List<string>();
 

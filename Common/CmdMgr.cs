@@ -245,7 +245,7 @@ namespace CStat.Common
                     // Interpret and clear out ending punctuation
                     if (word.EndsWith("?"))
                     {
-                        _isQuestion = true;
+                        //_isQuestion = true;
                         word = word.Replace("?", "");
                     }
                     if (word.EndsWith("."))
@@ -254,7 +254,7 @@ namespace CStat.Common
                     }
                     if (word.EndsWith("!"))
                     {
-                        _isUrgent = true;
+                        //_isUrgent = true;
                         word = word.Replace("!", "");
                     }
                 }
@@ -1030,8 +1030,8 @@ namespace CStat.Common
         private bool _isPlural = false;
         private bool _hasDoneOnly = false;
         private int _hasMyIdx = -1;
-        private bool _isQuestion = false;
-        private bool _isUrgent = false;
+        //private bool _isQuestion = false;
+        //private bool _isUrgent = false;
 
         private List<string> _cmdDescList = new List<string>();
 

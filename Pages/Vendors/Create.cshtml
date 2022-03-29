@@ -1,20 +1,24 @@
 ﻿@page
 @model CStat.Pages.Vendors.CreateModel
 @using CStat.Models
-<h4>Business</h4>
-<hr />
-
+@Html.AntiForgeryToken()
+@{
+    ViewData["Title"] = "Create Business/Dept";
+}
 
 <form method="post">
     <input type="hidden" asp-for="_pocId" />
 
     <div class="row">
-        <div class="col-sm-12">
-            <div class="form-group">
-                <label asp-for="Business.Name" class="control-label"></label>
-                <input asp-for="Business.Name" class="form-control" />
-                <span asp-validation-for="Business.Name" class="text-danger"></span>
-            </div>
+        <div class="form-group col-sm-6">
+            <label asp-for="Business.Name" class="control-label">Name:</label>
+            <input asp-for="Business.Name" class="form-control" />
+            <span asp-validation-for="Business.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group col-sm-6">
+            <label asp-for="Business.AcctId" class="control-label">Acct#:</label>
+            <input asp-for="Business.AcctId" class="form-control" />
+            @*<span asp-validation-for="Business.AcctId" class="text-danger"></span>*@
         </div>
     </div>
     <div class="row">
@@ -39,7 +43,7 @@
             <input asp-for="Business.Address.ZipCode" class="form-control" />
         </div>
     </div>
-    <div  class="row">
+    <div class="row">
         <div class="form-group col-sm-6">
             <label asp-for="Business.Address.Phone" class="control-label">Phone:</label>
             <input asp-for="Business.Address.Phone" class="form-control" />
@@ -87,7 +91,7 @@
         <span asp-validation-for="Business.ContractLink" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Business.UserLink" class="control-label"></label>
+        <label asp-for="Business.UserLink" class="control-label">Login URL:</label>
         <input asp-for="Business.UserLink" class="form-control" />
         <span asp-validation-for="Business.UserLink" class="text-danger"></span>
     </div>

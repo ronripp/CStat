@@ -228,13 +228,17 @@ namespace CStat.Models
             {"AE", "Armed Forces Others"}
         };
 
-        public static string GetStateOptions()
+        public static string GetStateOptions(string defState="NY")
         {
             string ops = "";
             foreach (var kvp in StateDict)
             {
                 //<option value="AL" id="Alabama">Alabama</option>
-                ops += "<option value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";
+                if (kvp.Key == defState)
+                    ops += "<option selected=\"selected\" value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";
+                else
+                    ops += "<option value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";
+
                 if ((kvp.Key == "WY") || (kvp.Key == "VI"))
                     ops += "<option value=\"\" disabled=\"disabled\" class=\"SelectSeparator\">--------</option>\n";
             }
@@ -1922,6 +1926,6 @@ namespace CStat.Models
     }
     public partial class Business
     {
-        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Supplies, Insurance }
+        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Supplies, Inspection, Insurance }
     }
 }

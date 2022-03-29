@@ -1,8 +1,10 @@
 ﻿@page
 @model CStat.Pages.Vendors.EditModel
+@Html.AntiForgeryToken()
+@{
+    ViewData["Title"] = "Edit Business/Dept";
+}
 
-<h4>Business</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">

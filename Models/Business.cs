@@ -47,6 +47,14 @@ namespace CStat.Models
         [Column("API_Link")]
         [StringLength(255)]
         public string ApiLink { get; set; }
+        [Column("Acct_id")]
+        [StringLength(50)]
+        public string AcctId { get; set; }
+        [Column("User_Name")]
+        [StringLength(30)]
+        public string UserName { get; set; }
+        [StringLength(30)]
+        public string Password { get; set; }
 
         [ForeignKey(nameof(AddressId))]
         [InverseProperty("Business")]

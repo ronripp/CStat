@@ -22,6 +22,8 @@ namespace CStat.Pages.Vendors
         {
             IList<SelectListItem> BizTypeList = Enum.GetValues(typeof(Business.EType)).Cast<Business.EType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["BizTypeList"] = BizTypeList;
+            IList<SelectListItem> BizStatusList = Enum.GetValues(typeof(Business.EStatus)).Cast<Business.EStatus>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+            ViewData["BizStatusList"] = BizStatusList;
 
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
             return Page();

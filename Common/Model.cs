@@ -1927,5 +1927,7 @@ namespace CStat.Models
     public partial class Business
     {
         public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Supplies, Inspection, Insurance }
+        public enum EStatus { Unknown = 0, Vendor = 1, Preferred_Vendor, Secondary_Vendor, Required_Gov, Suspended, Black_Listed, Out_of_Bus }
+
     }
 }

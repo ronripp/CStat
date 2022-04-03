@@ -1244,7 +1244,7 @@ namespace CStat
                     a.Country = "USA";
                 else
                 {
-                    a.ZipCode = a.ZipCode.Trim();
+                    a.ZipCode = a.ZipCode.Trim(); // TBD : Why is this code here
                     if (a.ZipCode.Length < 1)
                         a.Country = "USA";
                     else

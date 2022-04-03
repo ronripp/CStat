@@ -27,7 +27,10 @@ namespace CStat.Models
             bool bFoundAdrId = inAdr.Id > 0;
             int FoundAdrId = bFoundAdrId ? inAdr.Id : 0;
             if (!bFoundAdrId && (!bHasStreet || !bHasCS))
-                return 0;
+                return 0; // nothing can be done.
+
+            if (bFoundAdrId && (!bHasStreet || !bHasCS))
+                return FoundAdrId; // not going to attempt to update address
 
             if (!bFoundAdrId && bHasStreet && (bHasZip || bHasCS))
             {
@@ -113,10 +116,13 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(inAdr.Phone))
                 newAdr.Phone = inAdr.Phone;
 
+            if (!string.IsNullOrEmpty(inAdr.Fax))
+                newAdr.Fax = inAdr.Fax;
+
             AddressMgr amgr = new AddressMgr(ce);
             bValidAddress = amgr.Validate(ref newAdr);
             if (!bFoundAdrId && !bValidAddress)
-                return 0;
+                return 0; // nothing can be done
 
             // Add / Update Address
             try

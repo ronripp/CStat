@@ -22,7 +22,7 @@ namespace CStat.Models
         public enum TitleRoles
         {
             Undefined = 0, Blds_NGnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, Health_Dir = 0x20, nurse = 0x40, Manager = 0x80,
-            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000
+            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000, POC = 0x80000
         };
 
         public enum eGender
@@ -133,6 +133,52 @@ namespace CStat.Models
             return "Person #" + Id.ToString();
         }
 
+        public static int? PersonIdFromExactName(CStatContext context, string name, string defaultLast="<unknown>")
+        {
+            string fn, ln;
+
+            var parts = name.Trim().Split(" ");
+            switch (parts.Length)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    {
+                        fn = parts[0].ToLower();
+                        var person = context.Person.Where(p => ((p.FirstName.ToLower() == fn) || (p.Alias.ToLower() == fn)) && (p.LastName.ToLower() == defaultLast)).FirstOrDefault();
+                        if (person == default(Person))
+                        {
+                            Person pers = new Person();
+                            pers.FirstName = parts[0];
+                            pers.LastName = defaultLast;
+                            context.Person.Add(pers);
+                            context.SaveChanges();
+                            return pers.Id;
+                        }
+                        else
+                            return person.Id;
+                    }
+                case 2:
+                default:
+                    {
+                        fn = parts[0].ToLower();
+                        ln = parts[parts.Length-1].ToLower();
+                        var person = context.Person.Where(p => ((p.FirstName.ToLower() == fn) || (p.Alias.ToLower() == fn)) && (p.LastName.ToLower() == ln)).FirstOrDefault();
+                        if (person == default(Person))
+                        {
+                            Person pers = new Person();
+                            pers.FirstName = parts[0];
+                            pers.LastName = parts[parts.Length - 1];
+                            context.Person.Add(pers);
+                            context.SaveChanges();
+                            return pers.Id;
+                        }
+                        else
+                            return person.Id;
+                    }
+            }       
+        }
+
         public static List<Person> PeopleFromNameHint(CStatContext context, string hint)
         {
             string fn, ln;
@@ -156,13 +202,14 @@ namespace CStat.Models
         public static int AddPersonFromNameHint(CStatContext context, string hint)
         {
             var names = hint.Split(" ");
-            if (names.Length < 2)
+            var NumStrs = names.Length;
+            if (NumStrs < 2)
                 return -1;
             try
             {
                 Person pers = new Person();
                 pers.FirstName = names[0].Trim();
-                pers.LastName = names[1].Trim();
+                pers.LastName = names[NumStrs-1].Trim();
                 context.Person.Add(pers);
                 context.SaveChanges();
                 return pers.Id;

@@ -26,15 +26,25 @@ namespace CStat.Pages.Vendors
             ViewData["BizStatusList"] = BizStatusList;
 
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
+
+            Business = new Business();
             return Page();
         }
 
         [BindProperty]
         public Business Business { get; set; }
-
         [BindProperty]
-        public int _pocId { get; set; } = -1;
-
+        public string _Street { get; set; } = "";
+        [BindProperty]
+        public string _Town { get; set; } = "";
+        [BindProperty]
+        public string _State { get; set; } = "";
+        [BindProperty]
+        public string _ZipCode { get; set; } = "";
+        [BindProperty]
+        public string _Phone { get; set; } = "";
+        [BindProperty]
+        public string _Fax { get; set; } = "";
         [BindProperty]
         public string _poc { get; set; } = "";
 
@@ -42,14 +52,29 @@ namespace CStat.Pages.Vendors
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return Page();
+                if (!ModelState.IsValid)
+                {
+                    return Page();
+                }
+                Address adr = new Address();
+                adr.Street = _Street;
+                adr.Town = _Town;
+                adr.ZipCode = _ZipCode;
+                adr.Phone = _Phone;
+                adr.State = _State;
+                adr.Fax = _Fax;
+                adr.Country = "USA";
+
+                int? id = Address.UpdateAddress(_context, adr);
+                Business.AddressId = (id > 0) ? id : null;
+                Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
+                _context.Business.Add(Business);
+                await _context.SaveChangesAsync();
             }
-
-            _context.Business.Add(Business);
-            await _context.SaveChangesAsync();
-
+            catch
+            { }
             return RedirectToPage("./Index");
         }
     }

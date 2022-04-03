@@ -102,7 +102,6 @@
 
 
 <form method="post">
-    <input type="hidden" asp-for="_pocId" />
 
     <div class="ediv">
         <div class="row">
@@ -114,41 +113,40 @@
             <div class="form-group col-sm-6">
                 <label asp-for="Business.AcctId" class="control-label">Acct#:</label>
                 <input asp-for="Business.AcctId" class="form-control" />
-                @*<span asp-validation-for="Business.AcctId" class="text-danger"></span>*@
             </div>
         </div>
     </div>
     <div class="ediv">
         <div class="row">
             <div class="form-group col-sm-6">
-                <label asp-for="Business.Address.Street" class="control-label">Street</label>
-                <input asp-for="Business.Address.Street" class="form-control llen" />
+                <label asp-for="_Street" class="control-label">Street</label>
+                <input asp-for="_Street" class="form-control llen" />
             </div>
             <div class="form-group col-sm-6">
-                <label asp-for="Business.Address.Town" class="control-label">Town</label>
-                <input asp-for="Business.Address.Town" class="form-control llen" />
+                <label asp-for="_Town" class="control-label">Town</label>
+                <input asp-for="_Town" class="form-control llen" />
             </div>
         </div>
         <div class="row">
             <div class="form-group col-sm-6" style="min-width:40%">
-                <label asp-for="Business.Address.State" class="control-label rgap">State:</label>
-                <select asp-for="Business.Address.State" style="min-height:2em">
+                <label asp-for="_State" class="control-label rgap">State:</label>
+                <select asp-for="_State" style="min-height:2em">
                     @Html.Raw(Address.GetStateOptions())
                 </select>
             </div>
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.Address.ZipCode" class="control-label rgap">Zip:</label>
-                <input asp-for="Business.Address.ZipCode" class="form-control slen" />
+                <label asp-for="_ZipCode" class="control-label rgap">Zip:</label>
+                <input asp-for="_ZipCode" class="form-control slen" />
             </div>
         </div>
         <div class="row">
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.Address.Phone" class="control-label rgap">Phone:</label>
-                <input asp-for="Business.Address.Phone" class="form-control mlen" />
+                <label asp-for="_Phone" class="control-label rgap">Phone:</label>
+                <input asp-for="_Phone" class="form-control mlen" />
             </div>
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.Address.Fax" class="control-label rgap">Fax:</label>
-                <input asp-for="Business.Address.Fax" class="form-control mlen" />
+                <label asp-for="_Fax" class="control-label rgap">Fax:</label>
+                <input asp-for="_Fax" class="form-control mlen" />
             </div>
         </div>
     </div>

@@ -1,81 +1,227 @@
 ﻿@page
 @model CStat.Pages.Vendors.EditModel
+@using CStat.Models
 @Html.AntiForgeryToken()
 @{
     ViewData["Title"] = "Edit Business/Dept";
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Business.Id" />
-            <div class="form-group">
-                <label asp-for="Business.Name" class="control-label"></label>
+<style>
+
+    .ediv {
+        border-width: 1px;
+        border-style: solid;
+        border-color: #C0FFC0;
+        background-color: #F2FFF2;
+        padding-top: 3px;
+        padding-right: 3px;
+        padding-bottom: 0px;
+        padding-left: 3px;
+        margin-bottom: 8px;
+    }
+
+    .slen {
+        max-width: 6em;
+    }
+
+    .mlen {
+        max-width: 12em;
+    }
+
+    .llen {
+        max-width: 18em;
+    }
+
+    .rgap {
+        margin-right: 4px;
+    }
+
+    .horzLI {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center
+    }
+
+    label {
+        margin-bottom: 0px;
+    }
+</style>
+
+<script>
+
+    $(document).ready(function () {
+
+        if (window.location.href.indexOf("VendorDoc=1") != -1) {
+            $("#VendorDoc").val(sessionStorage.getItem("VendorDocFolder") + " > " + sessionStorage.getItem("VendorDocFile"));
+            sessionStorage.setItem("VendorDocFolder", "");
+            sessionStorage.setItem("VendorDocFile", "");
+            sessionStorage.setItem("VendorDocReturn", "");
+        }
+
+        function openFileShare() {
+            var docVal = $("#EvenDoc").val();
+            var dvp = docVal.split(" > ");
+            if (!dvp || dvp.length !== 2) {
+                return;
+            }
+
+            var parameters = "{'Folder':'" + dvp[0].trim() + "','File':'" + dvp[1].trim() + "'}";
+            $.ajax({
+                url: "/Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        if (response.indexOf("http") == 0) {
+                            window.location.href = response;
+                        }
+                        else {
+                            window.location.href = "../" + response;
+                        }
+                    }
+                },
+            });
+        }
+
+        $("#VendorDoc").click(function () {
+            openFileShare();
+        });
+
+        $("#OpenDoc").click(function () {
+            openFileShare();
+        });
+    });
+
+    function getDoc() {
+        sessionStorage.setItem("VendorDocReturn", window.location.href + "&VendorDoc=1");
+        window.location.href = "/Docs?selectStr=Event";
+    }
+
+</script>
+
+<form method="post">
+    <input type="hidden" asp-for="_pocId" />
+    <input type="hidden" asp-for="Business.Id" />
+    <input type="hidden" asp-for="Business.Address.Id" />
+
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="Business.Name" class="control-label">Name:</label>
                 <input asp-for="Business.Name" class="form-control" />
                 <span asp-validation-for="Business.Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Business.AddressId" class="control-label"></label>
-                <select asp-for="Business.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
-                <span asp-validation-for="Business.AddressId" class="text-danger"></span>
+            <div class="form-group col-sm-6">
+                <label asp-for="Business.AcctId" class="control-label">Acct#:</label>
+                <input asp-for="Business.AcctId" class="form-control" />
             </div>
-            <div class="form-group">
-                <label asp-for="Business.Type" class="control-label"></label>
-                <input asp-for="Business.Type" class="form-control" />
-                <span asp-validation-for="Business.Type" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.Terms" class="control-label"></label>
-                <input asp-for="Business.Terms" class="form-control" />
-                <span asp-validation-for="Business.Terms" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.Fees" class="control-label"></label>
-                <input asp-for="Business.Fees" class="form-control" />
-                <span asp-validation-for="Business.Fees" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.Status" class="control-label"></label>
-                <input asp-for="Business.Status" class="form-control" />
-                <span asp-validation-for="Business.Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.StatusDetails" class="control-label"></label>
-                <input asp-for="Business.StatusDetails" class="form-control" />
-                <span asp-validation-for="Business.StatusDetails" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.PocId" class="control-label"></label>
-                <select asp-for="Business.PocId" class="form-control" asp-items="ViewBag.PocId"></select>
-                <span asp-validation-for="Business.PocId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.ContractLink" class="control-label"></label>
-                <input asp-for="Business.ContractLink" class="form-control" />
-                <span asp-validation-for="Business.ContractLink" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.UserLink" class="control-label"></label>
-                <input asp-for="Business.UserLink" class="form-control" />
-                <span asp-validation-for="Business.UserLink" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Business.ApiLink" class="control-label"></label>
-                <input asp-for="Business.ApiLink" class="form-control" />
-                <span asp-validation-for="Business.ApiLink" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="_Street" class="control-label">Street</label>
+                <input asp-for="_Street" class="form-control llen" />
+            </div>
+            <div class="form-group col-sm-6">
+                <label asp-for="_Town" class="control-label">Town</label>
+                <input asp-for="_Town" class="form-control llen" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6" style="min-width:40%">
+                <label asp-for="_State" class="control-label rgap">State:</label>
+                <select asp-for="_State" style="min-height:2em">
+                    @Html.Raw(Address.GetStateOptions())
+                </select>
+            </div>
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_ZipCode" class="control-label rgap">Zip:</label>
+                <input asp-for="_ZipCode" class="form-control slen" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_Phone" class="control-label rgap">Phone:</label>
+                <input asp-for="_Phone" class="form-control mlen" />
+            </div>
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_Fax" class="control-label rgap">Fax:</label>
+                <input asp-for="_Fax" class="form-control mlen" />
+            </div>
+        </div>
+    </div>
+
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="Business.Type" class="control-label rgap">Type:</label>
+                <select asp-for="Business.Type" asp-items="ViewBag.BizTypeList" style="max-width:16em; min-height:2em" data-val="false"></select>
+            </div>
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_poc" class="control-label rgap">Contact:</label>
+                <input asp-for="_poc" class="form-control llen" />
+            </div>
+        </div>
+    </div>
+
+    <div class="ediv">
+        <div class="form-group">
+            <label asp-for="Business.UserLink" class="control-label">Login URL:</label>
+            <input asp-for="Business.UserLink" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="Business.UserName" class="control-label rgap">Username:</label>
+                <input asp-for="Business.UserName" class="form-control mlen" />
+            </div>
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="Business.Password" class="control-label rgap">Password:</label>
+                <input asp-for="Business.Password" class="form-control mlen" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row ediv">
+        <div class="form-group col-sm-4 horzLI">
+            <label asp-for="Business.Status" class="control-label rgap">Status:</label>
+            <select asp-for="Business.Status" asp-items="ViewBag.BizStatusList" style="max-width:15em; min-height:2em" data-val="false"></select>
+        </div>
+        <div class="form-group col-sm-8 horzLI">
+            <label asp-for="Business.StatusDetails" class="control-label rgap">Status Notes:</label>
+            <input asp-for="Business.StatusDetails" class="form-control llen" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Business.Terms" class="control-label"></label>
+        <input asp-for="Business.Terms" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Business.Fees" class="control-label"></label>
+        <input asp-for="Business.Fees" class="form-control" />
+    </div>
+    <div class="ediv row">
+        <div class="form-group col-sm-12 lpad">
+            <label asp-for="Business.ContractLink" class="control-label">Contract Link:</label>
+            <input type="text" id="VendorDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
+            <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
+            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary" />
+    </div>
+</form>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a asp-page="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

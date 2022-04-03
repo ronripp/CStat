@@ -20,7 +20,7 @@ namespace CStat.Pages.Vendors
         }
 
         [BindProperty]
-        public Business Business { get; set; }
+        public Business _Business { get; set; }
         [BindProperty]
         public string _Street { get; set; } = "";
         [BindProperty]
@@ -45,15 +45,21 @@ namespace CStat.Pages.Vendors
                 return NotFound();
             }
 
-            Business = await _context.Business
+            _Business = await _context.Business
                 .Include(b => b.Address)
                 .Include(b => b.Poc).FirstOrDefaultAsync(m => m.Id == id);
-            if (Business == null)
+            if (_Business == null)
             {
                 return NotFound();
             }
 
-            _poc = (Business.PocId != null) ? Business.Poc.FirstName + " " + Business.Poc.LastName : "";
+            _poc = (_Business.PocId != null) ? _Business.Poc.FirstName + " " + _Business.Poc.LastName : "";
+            _Street = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Street)) ? _Business.Address.Street : "";
+            _Town = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Town)) ? _Business.Address.Town : "";
+            _State = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.State)) ? _Business.Address.State : "";
+            _ZipCode = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.ZipCode)) ? _Business.Address.ZipCode : "";
+            _Phone = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Phone)) ? _Business.Address.Phone : "";
+            _Fax = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Fax)) ? _Business.Address.Fax : "";
             ViewData["PocId"] = new SelectList(_context.Person, "Id", "FirstName");
 
             IList<SelectListItem> BizTypeList = Enum.GetValues(typeof(Business.EType)).Cast<Business.EType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -68,7 +74,7 @@ namespace CStat.Pages.Vendors
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrEmpty(_Business.Name) || (_Business.Type == (int)Business.EType.Unknown))
             {
                 return Page();
             }
@@ -83,11 +89,11 @@ namespace CStat.Pages.Vendors
             adr.Country = "USA";
 
             int? id = Address.UpdateAddress(_context, adr);
-            Business.AddressId = (id > 0) ? id : null;
-            Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
+            _Business.AddressId = (id > 0) ? id : null;
+            _Business.Address = null;
+            _Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
 
-
-            _context.Attach(Business).State = EntityState.Modified;
+            _context.Attach(_Business).State = EntityState.Modified;
 
             try
             {
@@ -95,7 +101,7 @@ namespace CStat.Pages.Vendors
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BusinessExists(Business.Id))
+                if (!BusinessExists(_Business.Id))
                 {
                     return NotFound();
                 }
@@ -111,6 +117,18 @@ namespace CStat.Pages.Vendors
         private bool BusinessExists(int id)
         {
             return _context.Business.Any(e => e.Id == id);
+        }
+        public Business.EType GetBusinessType()
+        {
+            return _Business.Type.HasValue ? (Business.EType)_Business.Type.Value : Business.EType.Unknown;
+        }
+        public Business.EStatus GetBusinessStatus()
+        {
+            return _Business.Status.HasValue ? (Business.EStatus)_Business.Status.Value : Business.EStatus.Vendor;
+        }
+        public string GetAdrState()
+        {
+            return !string.IsNullOrEmpty(_State) ? _State : "NY";
         }
     }
 }

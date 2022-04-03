@@ -16,6 +16,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Runtime.Serialization.Json;
+using System.Web.WebPages.Html;
 
 namespace CStat.Models
 {
@@ -1927,7 +1928,40 @@ namespace CStat.Models
     public partial class Business
     {
         public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Supplies, Inspection, Insurance }
-        public enum EStatus { Unknown = 0, Vendor = 1, Preferred_Vendor, Secondary_Vendor, Required_Gov, Suspended, Black_Listed, Out_of_Bus }
+        public enum EStatus { Vendor = 0, Required_Gov = 1, Preferred_Vendor, Secondary_Vendor, Suspended, Excluded, Out_of_Bus }
+
+        public static string GetBizTypeOptions(EType selVal)
+        {
+            var selStr = ((int)selVal).ToString();
+
+            IList<SelectListItem> BizTypeList = Enum.GetValues(typeof(Business.EType)).Cast<Business.EType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+
+            string ops = "";
+            foreach (var bt in BizTypeList)
+            {
+                if (bt.Value == selStr)
+                    ops += "<option selected=\"selected\" value=\"" + bt.Value + "\" id=\"" + bt.Text + "\">" + bt.Text + "</option>\n";
+                else
+                    ops += "<option value=\"" + bt.Value + "\" id=\"" + bt.Text + "\">" + bt.Text + "</option>\n";
+            }
+            return ops;
+        }
+        public static string GetBizStatusOptions(EStatus selVal)
+        {
+            var selStr = ((int)selVal).ToString();
+
+            IList<SelectListItem> BizStatList = Enum.GetValues(typeof(Business.EStatus)).Cast<Business.EStatus>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+
+            string ops = "";
+            foreach (var bt in BizStatList)
+            {
+                if (bt.Value == selStr)
+                    ops += "<option selected=\"selected\" value=\"" + bt.Value + "\" id=\"" + bt.Text + "\">" + bt.Text + "</option>\n";
+                else
+                    ops += "<option value=\"" + bt.Value + "\" id=\"" + bt.Text + "\">" + bt.Text + "</option>\n";
+            }
+            return ops;
+        }
 
     }
 }

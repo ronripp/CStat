@@ -6,6 +6,12 @@
     ViewData["Title"] = "Edit Business/Dept";
 }
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
 <style>
 
     .ediv {
@@ -103,19 +109,19 @@
 
 <form method="post">
     <input type="hidden" asp-for="_pocId" />
-    <input type="hidden" asp-for="Business.Id" />
-    <input type="hidden" asp-for="Business.Address.Id" />
+    <input type="hidden" asp-for="_Business.Id" />
+    <input type="hidden" asp-for="_Business.Address.Id" />
 
     <div class="ediv">
         <div class="row">
             <div class="form-group col-sm-6">
-                <label asp-for="Business.Name" class="control-label">Name:</label>
-                <input asp-for="Business.Name" class="form-control" />
-                <span asp-validation-for="Business.Name" class="text-danger"></span>
+                <label asp-for="_Business.Name" class="control-label">Name:</label>
+                <input asp-for="_Business.Name" class="form-control" />
+                <span asp-validation-for="_Business.Name" class="text-danger"></span>
             </div>
             <div class="form-group col-sm-6">
-                <label asp-for="Business.AcctId" class="control-label">Acct#:</label>
-                <input asp-for="Business.AcctId" class="form-control" />
+                <label asp-for="_Business.AcctId" class="control-label">Acct#:</label>
+                <input asp-for="_Business.AcctId" class="form-control" />
             </div>
         </div>
     </div>
@@ -134,7 +140,7 @@
             <div class="form-group col-sm-6" style="min-width:40%">
                 <label asp-for="_State" class="control-label rgap">State:</label>
                 <select asp-for="_State" style="min-height:2em">
-                    @Html.Raw(Address.GetStateOptions())
+                    @Html.Raw(Address.GetStateOptions(Model.GetAdrState()))
                 </select>
             </div>
             <div class="form-group col-sm-6 horzLI">
@@ -157,8 +163,8 @@
     <div class="ediv">
         <div class="row">
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.Type" class="control-label rgap">Type:</label>
-                <select asp-for="Business.Type" asp-items="ViewBag.BizTypeList" style="max-width:16em; min-height:2em" data-val="false"></select>
+                <label asp-for="_Business.Type" class="control-label rgap">Type:</label>
+                <select asp-for="_Business.Type" style="max-width:16em; min-height:2em" data-val="false">@Html.Raw(Business.GetBizTypeOptions(Model.GetBusinessType()))</select>
             </div>
             <div class="form-group col-sm-6 horzLI">
                 <label asp-for="_poc" class="control-label rgap">Contact:</label>
@@ -169,46 +175,46 @@
 
     <div class="ediv">
         <div class="form-group">
-            <label asp-for="Business.UserLink" class="control-label">Login URL:</label>
-            <input asp-for="Business.UserLink" class="form-control" />
+            <label asp-for="_Business.UserLink" class="control-label">Login URL:</label>
+            <input asp-for="_Business.UserLink" class="form-control" />
         </div>
         <div class="row">
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.UserName" class="control-label rgap">Username:</label>
-                <input asp-for="Business.UserName" class="form-control mlen" />
+                <label asp-for="_Business.UserName" class="control-label rgap">Username:</label>
+                <input asp-for="_Business.UserName" class="form-control mlen" />
             </div>
             <div class="form-group col-sm-6 horzLI">
-                <label asp-for="Business.Password" class="control-label rgap">Password:</label>
-                <input asp-for="Business.Password" class="form-control mlen" />
+                <label asp-for="_Business.Password" class="control-label rgap">Password:</label>
+                <input asp-for="_Business.Password" class="form-control mlen" />
             </div>
         </div>
     </div>
 
     <div class="row ediv">
         <div class="form-group col-sm-4 horzLI">
-            <label asp-for="Business.Status" class="control-label rgap">Status:</label>
-            <select asp-for="Business.Status" asp-items="ViewBag.BizStatusList" style="max-width:15em; min-height:2em" data-val="false"></select>
+            <label asp-for="_Business.Status" class="control-label rgap">Status:</label>
+            <select asp-for="_Business.Status" asp-items="ViewBag.BizStatusList" style="max-width:15em; min-height:2em" data-val="false">@Html.Raw(Business.GetBizStatusOptions(Model.GetBusinessStatus()))</select></select>
         </div>
         <div class="form-group col-sm-8 horzLI">
-            <label asp-for="Business.StatusDetails" class="control-label rgap">Status Notes:</label>
-            <input asp-for="Business.StatusDetails" class="form-control llen" />
+            <label asp-for="_Business.StatusDetails" class="control-label rgap">Status Notes:</label>
+            <input asp-for="_Business.StatusDetails" class="form-control llen" />
         </div>
     </div>
 
     <div class="form-group">
-        <label asp-for="Business.Terms" class="control-label"></label>
-        <input asp-for="Business.Terms" class="form-control" />
+        <label asp-for="_Business.Terms" class="control-label"></label>
+        <input asp-for="_Business.Terms" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Business.Fees" class="control-label"></label>
-        <input asp-for="Business.Fees" class="form-control" />
+        <label asp-for="_Business.Fees" class="control-label"></label>
+        <input asp-for="_Business.Fees" class="form-control" />
     </div>
     <div class="ediv row">
         <div class="form-group col-sm-12 lpad">
-            <label asp-for="Business.ContractLink" class="control-label">Contract Link:</label>
+            <label asp-for="_Business.ContractLink" class="control-label">Contract Link:</label>
             <input type="text" id="VendorDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
-            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;" disabled>Set Doc</button>
+            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>
 

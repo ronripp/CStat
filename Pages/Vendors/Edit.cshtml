@@ -59,14 +59,20 @@
     $(document).ready(function () {
 
         if (window.location.href.indexOf("VendorDoc=1") != -1) {
-            $("#VendorDoc").val(sessionStorage.getItem("VendorDocFolder") + " > " + sessionStorage.getItem("VendorDocFile"));
+            $("#zBusiness_ContractLink").val(sessionStorage.getItem("VendorDocFolder") + " > " + sessionStorage.getItem("VendorDocFile"));
             sessionStorage.setItem("VendorDocFolder", "");
             sessionStorage.setItem("VendorDocFile", "");
             sessionStorage.setItem("VendorDocReturn", "");
+            $("#OpenDoc").prop("disabled", false);
+        }
+        else {
+            var docVal2 = $("#zBusiness_ContractLink").val();
+            $("#OpenDoc").prop("disabled", !(!!docVal2));
         }
 
-        function openFileShare() {
-            var docVal = $("#EvenDoc").val();
+        $("#OpenDoc").click(function () {
+            $("#zRedirectURL").attr("value", "OpenDoc");
+            var docVal = $("#zBusiness_ContractLink").val();
             var dvp = docVal.split(" > ");
             if (!dvp || dvp.length !== 2) {
                 return;
@@ -89,21 +95,17 @@
                     }
                 },
             });
-        }
-
-        $("#VendorDoc").click(function () {
-            openFileShare();
         });
 
-        $("#OpenDoc").click(function () {
-            openFileShare();
+        $("#BrowseDoc").click(function () {
+            sessionStorage.setItem("VendorDocReturn", window.location.href + "&VendorDoc=1");
+            let newUrl = "../Docs?selectStr=Vendor";
+            $("#zRedirectURL").attr("value", newUrl);
+            window.location.href = "/Docs?selectStr=Vendor";
+            return false;
         });
+
     });
-
-    function getDoc() {
-        sessionStorage.setItem("VendorDocReturn", window.location.href + "&VendorDoc=1");
-        window.location.href = "/Docs?selectStr=Event";
-    }
 
 </script>
 
@@ -111,6 +113,7 @@
     <input type="hidden" asp-for="_pocId" />
     <input type="hidden" asp-for="_Business.Id" />
     <input type="hidden" asp-for="_Business.Address.Id" />
+    <input type="hidden" asp-for="_RedirectURL" />
 
     <div class="ediv">
         <div class="row">
@@ -212,9 +215,9 @@
     <div class="ediv row">
         <div class="form-group col-sm-12 lpad">
             <label asp-for="_Business.ContractLink" class="control-label">Contract Link:</label>
-            <input type="text" id="VendorDoc" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" disabled />
+            <input type="text" asp-for="_Business.ContractLink" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold"/>
             <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
-            <button id="BrowseDoc" onclick="getDoc()" style="margin-right:6px;">Set Doc</button>
+            <button id="BrowseDoc" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>
 

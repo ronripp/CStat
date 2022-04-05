@@ -246,6 +246,7 @@ namespace CStat.Pages.Events
 
             if (string.IsNullOrEmpty(_RedirectURL))
                 return RedirectToPage("./Index");
+            _RedirectURL = "";
             return NotFound();
         }
 

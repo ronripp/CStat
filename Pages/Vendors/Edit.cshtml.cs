@@ -37,6 +37,8 @@ namespace CStat.Pages.Vendors
         public int _pocId { get; set; } = -1;
         [BindProperty]
         public string _poc { get; set; } = "";
+        [BindProperty]
+        public string _RedirectURL { get; set; } = "";
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -66,6 +68,7 @@ namespace CStat.Pages.Vendors
             ViewData["BizTypeList"] = BizTypeList;
             IList<SelectListItem> BizStatusList = Enum.GetValues(typeof(Business.EStatus)).Cast<Business.EStatus>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["BizStatusList"] = BizStatusList;
+            _RedirectURL = "";
 
             return Page();
         }
@@ -74,6 +77,12 @@ namespace CStat.Pages.Vendors
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!string.IsNullOrEmpty(_RedirectURL) && _RedirectURL == "OpenDoc")
+            {
+                _RedirectURL = "";
+                return NotFound();
+            }
+
             if (string.IsNullOrEmpty(_Business.Name) || (_Business.Type == (int)Business.EType.Unknown))
             {
                 return Page();
@@ -111,7 +120,10 @@ namespace CStat.Pages.Vendors
                 }
             }
 
-            return RedirectToPage("./Index");
+            if (string.IsNullOrEmpty(_RedirectURL))
+                return RedirectToPage("./Index");
+            _RedirectURL = "";
+            return NotFound();
         }
 
         private bool BusinessExists(int id)

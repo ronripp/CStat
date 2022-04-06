@@ -1,5 +1,6 @@
 ﻿@page
 @model CStat.Pages.Vendors.IndexModel
+@using CStat.Models
 
 @{
     ViewData["Title"] = "Business/Depts";
@@ -18,65 +19,60 @@
                 @Html.DisplayNameFor(model => model.Business[0].Type)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Business[0].AcctId)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Business[0].Status)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Business[0].Poc)
+                Acct#
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Business[0].Address)
+                P.O.C
+            </th>
+            <th>
+                Phone#
             </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.Business)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Terms)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Fees)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StatusDetails)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ContractLink)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserLink)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ApiLink)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Address.Country)
-                </td>
-                <td>
-                    @{
-                        var name = (item.Poc == null) ? "" : item.Poc.FirstName + " " + @item.Poc.LastName;
-                    }
-                    @name
-                </td>
-                <td>
-                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+            </td>
+            <td>
+                @{
+                    var bType = item.Type.HasValue ? ((Business.EType)(item.Type)).ToString() : "";
+                }
+                @bType
+            </td>
+            <td>
+                @{
+                    var bStatus = item.Status.HasValue ? ((Business.EStatus)(item.Status)).ToString() : "";
+                }
+                @bStatus
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AcctId)
+            </td>
+            <td>
+                @{
+                    var name = (item.Poc == null) ? "" : item.Poc.FirstName + " " + item.Poc.LastName;
+                }
+                @name
+            </td>
+            <td>
+                @{
+                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : item.Address.Phone);
+                }
+                @phone
+            </td>
+
+            @*<td>
+            <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+        </td>*@
+        </tr>
         }
     </tbody>
 </table>

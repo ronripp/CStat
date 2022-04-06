@@ -789,7 +789,7 @@ namespace CStat.Models
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = LevenshteinDistance.Compute(a.Street, streetValue);
+                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;
@@ -851,7 +851,7 @@ namespace CStat.Models
                 newAdr.Phone = hphone.Value;
 
             AddressMgr amgr = new AddressMgr(ce);
-            if (!(bValidAddress = amgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
+            if (!(bValidAddress = AddressMgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
             {
                 ResPerson = null;
                 ResAddress = null;

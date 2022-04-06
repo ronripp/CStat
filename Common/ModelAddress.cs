@@ -67,7 +67,7 @@ namespace CStat.Models
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = LevenshteinDistance.Compute(a.Street, inAdr.Street);
+                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;
@@ -119,8 +119,8 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(inAdr.Fax))
                 newAdr.Fax = inAdr.Fax;
 
-            AddressMgr amgr = new AddressMgr(ce);
-            bValidAddress = amgr.Validate(ref newAdr);
+            //AddressMgr amgr = new AddressMgr(ce);
+            bValidAddress = AddressMgr.Validate(ref newAdr);
             if (!bFoundAdrId && !bValidAddress)
                 return 0; // nothing can be done
 

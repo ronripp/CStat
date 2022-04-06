@@ -71,7 +71,6 @@
         }
 
         $("#OpenDoc").click(function () {
-            $("#zRedirectURL").attr("value", "OpenDoc");
             var docVal = $("#zBusiness_ContractLink").val();
 
             var dvp = docVal.split(" > ");
@@ -104,6 +103,13 @@
             $("#zRedirectURL").attr("value", newUrl);
             window.location.href = "/Docs?selectStr=Vendor";
             return false;
+        });
+
+        $("#OpenUrl").click(function () {
+            var urlVal = $("#zBusiness_UserLink").val();
+            if (!!urlVal.trim()) {
+                window.open(urlVal, '_blank').focus;
+            }
         });
 
     });
@@ -179,7 +185,7 @@
 
     <div class="ediv">
         <div class="form-group">
-            <label asp-for="_Business.UserLink" class="control-label">Login URL:</label>
+            <label asp-for="_Business.UserLink" class="control-label" style="color:blue; text-decoration:underline" id="OpenUrl">Login URL:</label>
             <input asp-for="_Business.UserLink" class="form-control" />
         </div>
         <div class="row">

@@ -1203,7 +1203,7 @@ namespace CStat
             ce = csc;
         }
 
-        public bool Validate(ref Address a)
+        public static bool Validate(ref Address a)
             {
                 if (a.Street == null)
                     return false;
@@ -1244,7 +1244,7 @@ namespace CStat
                     a.Country = "USA";
                 else
                 {
-                    a.ZipCode = a.ZipCode.Trim(); // TBD : Why is this code here
+                    a.Country = a.Country.Trim();
                     if (a.ZipCode.Length < 1)
                         a.Country = "USA";
                     else
@@ -1290,26 +1290,35 @@ namespace CStat
                     // Try to find an existing address by looping here up to 2 times.
                     do
                     {
+// TBD ADD 10000 instead of 1000 : zip != "11111") !city.Contains("<missing>"))
                         int ld, MinLD = 10000;
                         List<Address> adrList = new List<Address>();
+
                         if (bHasZip && !bTrySCS)
                         {
-                            var adrL = from adr in ce.Address
-                                       where (adr.ZipCode == zip)
-                                       select adr;
-                            foreach (Address a in adrL)
+                            if (zip != "11111")
                             {
-                                adrList.Add(a);
+                                var adrL = from adr in ce.Address
+                                           where (adr.ZipCode == zip)
+                                           select adr;
+                                foreach (Address a in adrL)
+                                {
+                                    adrList.Add(a);
+                                }
                             }
                         }
                         else
                         {
-                            var adrL = from adr in ce.Address
-                                       where (adr.Town == city) && (adr.State == state)
-                                       select adr;
-                            foreach (Address a in adrL)
+                            if (!city.Contains("<missing>"))
                             {
-                                adrList.Add(a);
+                                var adrL = from adr in ce.Address
+                                           where (adr.Town == city) && (adr.State == state)
+                                           select adr;
+
+                                foreach (Address a in adrL)
+                                {
+                                    adrList.Add(a);
+                                }
                             }
                         }
 
@@ -1318,8 +1327,8 @@ namespace CStat
                             Address MinAdr = new Address();
                             foreach (Address a in adrList)
                             {
-                                ld = LevenshteinDistance.Compute(a.Street, streetValue);
-                                if (ld < MinLD)
+                                ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            if (ld < MinLD)
                                 {
                                     MinAdr = a;
                                     MinLD = ld;
@@ -1366,8 +1375,8 @@ namespace CStat
                 if (hphone.Length > 0)
                     newAdr.Phone = hphone;
 
-                AddressMgr amgr = new AddressMgr(ce);
-                if (!amgr.Validate(ref newAdr))
+                //AddressMgr amgr = new AddressMgr(ce);
+                if (!AddressMgr.Validate(ref newAdr))
                 {
                     return MgrStatus.Invalid_Address;
                 }
@@ -1647,7 +1656,7 @@ namespace CStat
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = LevenshteinDistance.Compute(a.Street, streetValue);
+                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;
@@ -1707,8 +1716,8 @@ namespace CStat
             if (!hphone.Equals(default(KeyValuePair<String, String>)) && (hphone.Value.Length > 0))
                 newAdr.Phone = hphone.Value;
 
-            AddressMgr amgr = new AddressMgr(ce);
-            if (!(bValidAddress = amgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
+            //AddressMgr amgr = new AddressMgr(ce);
+            if (!(bValidAddress = AddressMgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
             {
                 ResPerson = null;
                 ResAddress = null;

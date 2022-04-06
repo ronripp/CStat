@@ -47,7 +47,7 @@ namespace CStat.Pages.Vendors
                 return NotFound();
             }
 
-            _Business = await _context.Business
+            _Business = await _context.Business.AsNoTracking()
                 .Include(b => b.Address)
                 .Include(b => b.Poc).FirstOrDefaultAsync(m => m.Id == id);
             if (_Business == null)
@@ -56,12 +56,12 @@ namespace CStat.Pages.Vendors
             }
 
             _poc = (_Business.PocId != null) ? _Business.Poc.FirstName + " " + _Business.Poc.LastName : "";
-            _Street = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Street)) ? _Business.Address.Street : "";
-            _Town = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Town)) ? _Business.Address.Town : "";
-            _State = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.State)) ? _Business.Address.State : "";
-            _ZipCode = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.ZipCode)) ? _Business.Address.ZipCode : "";
-            _Phone = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Phone)) ? _Business.Address.Phone : "";
-            _Fax = ((_Business.Address != null) && string.IsNullOrEmpty(_Business.Address.Fax)) ? _Business.Address.Fax : "";
+            _Street = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Street)) ? _Business.Address.Street : "";
+            _Town = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Town)) ? _Business.Address.Town : "";
+            _State = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.State)) ? _Business.Address.State : "";
+            _ZipCode = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.ZipCode)) ? _Business.Address.ZipCode : "";
+            _Phone = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Phone)) ? _Business.Address.Phone : "";
+            _Fax = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Fax)) ? _Business.Address.Fax : "";
             ViewData["PocId"] = new SelectList(_context.Person, "Id", "FirstName");
 
             IList<SelectListItem> BizTypeList = Enum.GetValues(typeof(Business.EType)).Cast<Business.EType>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -77,12 +77,6 @@ namespace CStat.Pages.Vendors
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!string.IsNullOrEmpty(_RedirectURL) && _RedirectURL == "OpenDoc")
-            {
-                _RedirectURL = "";
-                return Page(); // TBD fix
-            }
-
             if (string.IsNullOrEmpty(_Business.Name) || (_Business.Type == (int)Business.EType.Unknown))
             {
                 return Page();
@@ -97,9 +91,28 @@ namespace CStat.Pages.Vendors
             adr.Fax = _Fax;
             adr.Country = "USA";
 
+            if (!string.IsNullOrEmpty(adr.Phone) || !string.IsNullOrEmpty(adr.Fax))
+            {
+                if (!AddressMgr.Validate(ref adr))
+                {
+                    if (string.IsNullOrEmpty(adr.Street)) adr.Street = "<missing>";
+                    if (string.IsNullOrEmpty(adr.Town)) adr.Town = "<missing>";
+                    if (string.IsNullOrEmpty(adr.State)) adr.State = "NY";
+                    if (string.IsNullOrEmpty(adr.ZipCode)) adr.ZipCode = "11111";
+                }
+            }
+
             int? id = Address.UpdateAddress(_context, adr);
-            _Business.AddressId = (id > 0) ? id : null;
-            _Business.Address = null;
+            if (id.HasValue && (id.Value > 0))
+            {
+                _Business.AddressId = id;
+                _Business.Address = null;
+            }
+            else
+            {
+                _Business.AddressId = null;
+                _Business.Address = null;
+            }
             _Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
 
             _context.Attach(_Business).State = EntityState.Modified;

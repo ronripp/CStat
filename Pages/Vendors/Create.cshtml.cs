@@ -67,8 +67,30 @@ namespace CStat.Pages.Vendors
                 adr.Fax = _Fax;
                 adr.Country = "USA";
 
+                if (!string.IsNullOrEmpty(adr.Phone) || !string.IsNullOrEmpty(adr.Fax))
+                {
+                    if (!AddressMgr.Validate(ref adr))
+                    {
+                        if (string.IsNullOrEmpty(adr.Street)) adr.Street = "<missing>";
+                        if (string.IsNullOrEmpty(adr.Town)) adr.Town = "<missing>";
+                        if (string.IsNullOrEmpty(adr.State)) adr.State = "NY";
+                        if (string.IsNullOrEmpty(adr.ZipCode)) adr.ZipCode = "11111";
+                    }
+                }
+
                 int? id = Address.UpdateAddress(_context, adr);
-                Business.AddressId = (id > 0) ? id : null;
+                if (id.HasValue && (id.Value > 0))
+                {
+                    Business.AddressId = id;
+                    Business.Address = adr;
+                    Business.Address.Id = id.Value;
+                }
+                else
+                {
+                    Business.AddressId = null;
+                    Business.Address = null;
+                }
+
                 Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
                 _context.Business.Add(Business);
                 await _context.SaveChangesAsync();

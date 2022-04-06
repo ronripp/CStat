@@ -73,6 +73,7 @@
         $("#OpenDoc").click(function () {
             $("#zRedirectURL").attr("value", "OpenDoc");
             var docVal = $("#zBusiness_ContractLink").val();
+
             var dvp = docVal.split(" > ");
             if (!dvp || dvp.length !== 2) {
                 return;
@@ -215,8 +216,8 @@
     <div class="ediv row">
         <div class="form-group col-sm-12 lpad">
             <label asp-for="_Business.ContractLink" class="control-label">Contract Link:</label>
-            <input type="text" asp-for="_Business.ContractLink" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold"/>
-            <button id="OpenDoc" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
+            <input type="text" asp-for="_Business.ContractLink" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
+            <button id="OpenDoc" type="button" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
             <button id="BrowseDoc" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>

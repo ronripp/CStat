@@ -80,7 +80,7 @@ namespace CStat.Pages.Vendors
             if (!string.IsNullOrEmpty(_RedirectURL) && _RedirectURL == "OpenDoc")
             {
                 _RedirectURL = "";
-                return NotFound();
+                return Page(); // TBD fix
             }
 
             if (string.IsNullOrEmpty(_Business.Name) || (_Business.Type == (int)Business.EType.Unknown))

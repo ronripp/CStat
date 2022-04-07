@@ -43,22 +43,28 @@ namespace CStat.Models
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
-                        var adrL = from adr in ce.Address.AsNoTracking()
-                                   where (adr.ZipCode == inAdr.ZipCode)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (inAdr.ZipCode != "11111")
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address.AsNoTracking()
+                                       where (adr.ZipCode == inAdr.ZipCode)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
                     else
                     {
-                        var adrL = from adr in ce.Address.AsNoTracking()
-                                   where (adr.Town == inAdr.Town) && (adr.State == inAdr.State)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (!inAdr.Town.Contains("<missing>"))
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address.AsNoTracking()
+                                       where (adr.Town == inAdr.Town) && (adr.State == inAdr.State)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
 
@@ -67,7 +73,7 @@ namespace CStat.Models
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);
+                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;

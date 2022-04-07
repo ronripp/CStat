@@ -62,9 +62,9 @@
             </td>
             <td>
                 @{
-                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : item.Address.Phone);
+                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : Person.FixPhone(item.Address.Phone, true));
                 }
-                @phone
+                @Html.Raw(phone)
             </td>
 
             @*<td>

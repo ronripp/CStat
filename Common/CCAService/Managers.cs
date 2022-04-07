@@ -1290,7 +1290,6 @@ namespace CStat
                     // Try to find an existing address by looping here up to 2 times.
                     do
                     {
-// TBD ADD 10000 instead of 1000 : zip != "11111") !city.Contains("<missing>"))
                         int ld, MinLD = 10000;
                         List<Address> adrList = new List<Address>();
 
@@ -1327,8 +1326,8 @@ namespace CStat
                             Address MinAdr = new Address();
                             foreach (Address a in adrList)
                             {
-                                ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
-                            if (ld < MinLD)
+                                ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                                if (ld < MinLD)
                                 {
                                     MinAdr = a;
                                     MinLD = ld;
@@ -1632,22 +1631,28 @@ namespace CStat
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
-                        var adrL = from adr in ce.Address
-                                   where (adr.ZipCode == zip.Value)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (zip.Value != "11111")
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address
+                                       where (adr.ZipCode == zip.Value)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
                     else
                     {
-                        var adrL = from adr in ce.Address
-                                   where (adr.Town == city.Value) && (adr.State == state.Value)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (!city.Value.Contains("<missing>"))
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address
+                                       where (adr.Town == city.Value) && (adr.State == state.Value)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
 
@@ -1656,7 +1661,7 @@ namespace CStat
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;

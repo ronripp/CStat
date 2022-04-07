@@ -521,14 +521,17 @@ namespace CStat.Models
             return "ERROR~:No one found with Name";
         }
 
-        public static string FixPhone(string raw)
+        public static string FixPhone(string raw, bool bAnchor=false)
         {
             var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
-            if (numStr.StartsWith("1"))
+            if ((numStr.Length > 10) && numStr.StartsWith("1"))
                 numStr = numStr[1..];
             if (numStr.Length == 10)
             {
-                return numStr.Substring(0, 3) + "-" + numStr.Substring(3, 3) + "-" + numStr.Substring(6, 4);
+                var pNum = numStr.Substring(0, 3) + "-" + numStr.Substring(3, 3) + "-" + numStr.Substring(6, 4);
+                if (bAnchor)
+                    return "<a href=\"tel:" + numStr + "\">" + pNum + "</a>"; 
+                return pNum;
             }
             return raw;
         }
@@ -765,22 +768,28 @@ namespace CStat.Models
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
-                        var adrL = from adr in ce.Address.AsNoTracking()
-                                   where (adr.ZipCode == zip.Value)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (zip.Value != "11111")
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address.AsNoTracking()
+                                       where (adr.ZipCode == zip.Value)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
                     else
                     {
-                        var adrL = from adr in ce.Address.AsNoTracking()
-                                   where (adr.Town == city.Value) && (adr.State == state.Value)
-                                   select adr;
-                        foreach (Address a in adrL)
+                        if (!city.Value.Contains("<missing>"))
                         {
-                            adrList.Add(a);
+                            var adrL = from adr in ce.Address.AsNoTracking()
+                                       where (adr.Town == city.Value) && (adr.State == state.Value)
+                                       select adr;
+                            foreach (Address a in adrL)
+                            {
+                                adrList.Add(a);
+                            }
                         }
                     }
 
@@ -789,7 +798,7 @@ namespace CStat.Models
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 1000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < MinLD)
                             {
                                 MinAdr = a;

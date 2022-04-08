@@ -82,8 +82,7 @@ namespace CStat.Pages.Vendors
                 if (id.HasValue && (id.Value > 0))
                 {
                     Business.AddressId = id;
-                    Business.Address = adr;
-                    Business.Address.Id = id.Value;
+                    Business.Address = null;
                 }
                 else
                 {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
+using Newtonsoft.Json;
 
 namespace CStat.Pages.Vendors
 {
@@ -154,6 +155,36 @@ namespace CStat.Pages.Vendors
         public string GetAdrState()
         {
             return !string.IsNullOrEmpty(_State) ? _State : "NY";
+        }
+        public JsonResult OnGetDeleteVendor()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            if (NVPairs.TryGetValue("vendorId", out int vendorId))
+            {
+                _Business = _context.Business.Find(vendorId);
+
+                if (_Business != null)
+                {
+                    try
+                    {
+                        // Delete Event
+                        _context.Business.Remove(_Business);
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        return new JsonResult("ERROR~: Exception : Delete Business/Dept Failed.");
+                    }
+                    return new JsonResult("SUCCESS~:Delete Business/Dept Succeeded.");
+                }
+            }
+            return new JsonResult("ERROR~: Delete Business/Dept Failed.");
         }
     }
 }

@@ -6,6 +6,19 @@
     ViewData["Title"] = "Business/Depts";
 }
 
+<script>
+
+    $(document).ready(function () {
+
+        if (localStorage.getItem("refreshVnds") == "true") {
+            localStorage.removeItem("refreshVnds");
+            location.reload();
+        }
+
+    });
+
+</script>
+
 <p>
     <a asp-page="Create">Create New</a>
 </p>

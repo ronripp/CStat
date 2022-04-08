@@ -14,6 +14,14 @@
 
 <style>
 
+    .center {
+        text-align: center
+    }
+
+    .TRight {
+        text-align: right
+    }
+
     .ediv {
         border-width: 1px;
         border-style: solid;
@@ -109,6 +117,30 @@
             var urlVal = $("#zBusiness_UserLink").val();
             if (!!urlVal.trim()) {
                 window.open(urlVal, '_blank').focus;
+            }
+        });
+
+        $("#DelBtn").click(function () {
+            if (confirm("Delete Bus./Dept : " + $("#zBusiness_Name").val() + " ? ")) {
+                var parameters = "{'vendorId':'" + @Model._Business.Id + "'}";
+                $.ajax({
+                    url: "/Vendors/Edit?handler=DeleteVendor",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            alert("Bus./Dept deleted.");
+                        }
+                    },
+                    fail: function (response) {
+                        alert("ERROR : Bus./Dept NOT deleted.");
+                    },
+                    complete: function (response) {
+                        localStorage.setItem("refreshVnds", "true");
+                        window.history.go(-1);
+                    }
+                });
             }
         });
 
@@ -228,9 +260,19 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <input type="submit" value="Update" class="btn btn-primary" />
+    <div class="row form-group center">
+        <span class="col-md-8">
+            <input type="submit" value="Update" class="btn btn-primary" />
+        </span>
+        <span class="col-md-2">
+            <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+        </span>
+        <span class="col-md-2">
+            <input type="button" id="DelBtn" value="Delete" style="background-color: #FFCCCC" />
+        </span>
     </div>
+
+
 </form>
 
 <div>

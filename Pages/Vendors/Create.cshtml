@@ -30,6 +30,10 @@
         max-width: 6em;
     }
 
+    .smlen {
+        max-width: 9em;
+    }
+
     .mlen {
         max-width: 12em;
     }
@@ -135,15 +139,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="form-group col-sm-6" style="min-width:40%">
+            <div class="form-group col-sm-5" style="min-width:40%">
                 <label asp-for="_State" class="control-label rgap">State:</label>
                 <select asp-for="_State" style="min-height:2em">
                     @Html.Raw(Address.GetStateOptions())
                 </select>
             </div>
-            <div class="form-group col-sm-6 horzLI">
+            <div class="form-group col-sm-7 horzLI">
                 <label asp-for="_ZipCode" class="control-label rgap">Zip:</label>
-                <input asp-for="_ZipCode" class="form-control slen" />
+                <input asp-for="_ZipCode" class="form-control smlen" />
             </div>
         </div>
         <div class="row">
@@ -198,10 +202,9 @@
             <input asp-for="Business.StatusDetails" class="form-control llen" />
         </div>
     </div>
-
     <div class="form-group">
-        <label asp-for="Business.Terms" class="control-label"></label>
-        <input asp-for="Business.Terms" class="form-control" />
+        <label asp-for="Business.Terms" class="control-label">Relation:</label>
+        <textarea rows="2" asp-for="Business.Terms" class="form-control"></textarea>
     </div>
     <div class="form-group">
         <label asp-for="Business.Fees" class="control-label"></label>

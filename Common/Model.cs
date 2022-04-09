@@ -1927,7 +1927,7 @@ namespace CStat.Models
     }
     public partial class Business
     {
-        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Supplies, Inspection, Insurance }
+        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Kitch_Supplies, Bldg_Supplies, Offc_Supplies, Inspection, Insurance, Water_Testing }
         public enum EStatus { Vendor = 0, Required_Gov = 1, Preferred_Vendor, Secondary_Vendor, Suspended, Excluded, Out_of_Bus }
 
         public static string GetBizTypeOptions(EType selVal)

@@ -38,6 +38,10 @@
         max-width: 12em;
     }
 
+    .mllen {
+        max-width: 15em;
+    }
+
     .llen {
         max-width: 18em;
     }
@@ -181,11 +185,11 @@
             <input asp-for="Business.UserLink" class="form-control" />
         </div>
         <div class="row">
-            <div class="form-group col-sm-6 horzLI">
+            <div class="form-group col-sm-7 horzLI">
                 <label asp-for="Business.UserName" class="control-label rgap">Username:</label>
-                <input asp-for="Business.UserName" class="form-control mlen" />
+                <input asp-for="Business.UserName" class="form-control mllen" />
             </div>
-            <div class="form-group col-sm-6 horzLI">
+            <div class="form-group col-sm-5 horzLI">
                 <label asp-for="Business.Password" class="control-label rgap">Password:</label>
                 <input asp-for="Business.Password" class="form-control mlen" />
             </div>

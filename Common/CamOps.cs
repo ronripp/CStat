@@ -40,6 +40,16 @@ namespace CStat.Common
                 }
             }
         }
+
+        public int PendingOps()
+        {
+            lock (_qLock)
+            {
+                return _queue.Count();
+            }
+        }
+
+
         public COp Delete()
         {
             lock (_qLock)

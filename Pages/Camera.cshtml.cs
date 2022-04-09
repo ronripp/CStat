@@ -122,7 +122,8 @@ namespace CStat.Pages
             {
                 //Debug.WriteLine("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 var link = _CamOps.SnapShot(_hostEnv);
-                return new JsonResult("OK~:" + link);
+                var pending = _CamOps.PendingOps();
+                return new JsonResult("OK~:todo=" + pending + "&" + link);
             }
             catch (Exception e)
             {

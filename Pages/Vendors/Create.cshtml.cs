@@ -28,6 +28,7 @@ namespace CStat.Pages.Vendors
             ViewData["AddressId"] = new SelectList(_context.Address, "Id", "Country");
 
             Business = new Business();
+
             return Page();
         }
 
@@ -91,6 +92,8 @@ namespace CStat.Pages.Vendors
                 }
 
                 Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
+                if (!string.IsNullOrEmpty(Business.UserLink))
+                    Business.UserLink = Business.UserLink.Trim();
                 _context.Business.Add(Business);
                 await _context.SaveChangesAsync();
             }

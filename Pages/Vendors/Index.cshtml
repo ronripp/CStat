@@ -32,16 +32,16 @@
                 @Html.DisplayNameFor(model => model.Business[0].Type)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Business[0].Status)
-            </th>
-            <th>
-                Acct#
+                Phone#
             </th>
             <th>
                 P.O.C
             </th>
             <th>
-                Phone#
+                Acct#
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Business[0].Status)
             </th>
         </tr>
     </thead>
@@ -54,18 +54,15 @@
             </td>
             <td>
                 @{
-                    var bType = item.Type.HasValue ? ((Business.EType)(item.Type)).ToString() : "";
+                    var bType = item.Type.HasValue ? ((Business.EType)(item.Type)).ToString().Replace("_", " ") : "";
                 }
                 @bType
             </td>
             <td>
                 @{
-                    var bStatus = item.Status.HasValue ? ((Business.EStatus)(item.Status)).ToString() : "";
+                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : Person.FixPhone(item.Address.Phone, true));
                 }
-                @bStatus
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcctId)
+                @Html.Raw(phone)
             </td>
             <td>
                 @{
@@ -74,10 +71,13 @@
                 @name
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.AcctId)
+            </td>
+            <td>
                 @{
-                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : Person.FixPhone(item.Address.Phone, true));
+                    var bStatus = item.Status.HasValue ? ((Business.EStatus)(item.Status)).ToString().Replace("_", " ") : "";
                 }
-                @Html.Raw(phone)
+                @bStatus
             </td>
 
             @*<td>

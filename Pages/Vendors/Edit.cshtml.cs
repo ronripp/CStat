@@ -55,6 +55,8 @@ namespace CStat.Pages.Vendors
             {
                 return NotFound();
             }
+            if (!string.IsNullOrEmpty(_Business.UserLink))
+                _Business.UserLink = _Business.UserLink.Trim();
 
             _poc = (_Business.PocId != null) ? _Business.Poc.FirstName + " " + _Business.Poc.LastName : "";
             _Street = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Street)) ? _Business.Address.Street : "";
@@ -115,6 +117,8 @@ namespace CStat.Pages.Vendors
                 _Business.Address = null;
             }
             _Business.PocId = !string.IsNullOrEmpty(_poc) ? Person.PersonIdFromExactName(_context, _poc) : null;
+            if (!string.IsNullOrEmpty(_Business.UserLink))
+                _Business.UserLink = _Business.UserLink.Trim();
 
             _context.Attach(_Business).State = EntityState.Modified;
 

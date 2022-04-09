@@ -298,7 +298,7 @@ public class PtzCamera : System.IDisposable
                     if (PostResp3[0].value.PtzCheckState != 1)
                         return true;
                 }            
-               Thread.Sleep(delay);
+               //Thread.Sleep(delay);
             }
             return false;
         }

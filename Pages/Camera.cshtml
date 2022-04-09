@@ -214,7 +214,7 @@
                 clearTimeout(gCleanupTimer);
                 gCleanupTimer = null;
             }
-            gCleanupTimer = setTimeout(camCleanup, 60000); // Clean camera and restore to full view 30 secs after every operation for stability & security reasons
+            gCleanupTimer = setTimeout(camCleanup, 60000); // Clean camera and restore to full view 60 secs after every operation for stability & security reasons
         }
 
         function setRepaint() {
@@ -269,8 +269,11 @@
                 dataType: "json",
                 data: parameters,
                 success: function (response) {
-                    if (response.indexOf("OK~:") === 0) {
-                        $("#CamImg").attr("src", response.substr(4));
+                    let endIdx = response.indexOf("&");
+                    if (endIdx == -1) {
+                        alert("Problem with snapshot endIdx=-1");
+                    } else {
+                        $("#CamImg").attr("src", response.substr(endIdx+1));
                     }
                 },
                 fail: function (response) {
@@ -296,8 +299,19 @@
                 data: parameters,
                 success: function (response) {
                     if (response.indexOf("OK~:") === 0) {
-                        if (repaintEnabled())
-                            $("#CamImg").attr("src", response.substr(4));
+                        let endIdx = response.indexOf("&");
+                        if (endIdx != -1) {
+                            // "OK~:todo=2&link
+                            let todo = parseInt(response.substr(9, endIdx));
+                            if (repaintEnabled()) {
+                                if (todo > 0) {
+                                    setRepaint();
+                                }
+                                $("#CamImg").attr("src", response.substr(endIdx + 1));
+                            }
+                        } else {
+                            alert ("Problem with snapshot endIdx=-1");
+                        }
                     }
                 },
                 fail: function (response) {

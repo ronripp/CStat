@@ -6,6 +6,12 @@
     ViewData["Title"] = "Business/Depts";
 }
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
 <script>
 
     $(document).ready(function () {
@@ -46,46 +52,46 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Business)
+        @foreach (var item in Model.Business.OrderBy(b => b.Name))
         {
-        <tr>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
-            </td>
-            <td>
-                @{
-                    var bType = item.Type.HasValue ? ((Business.EType)(item.Type)).ToString().Replace("_", " ") : "";
-                }
-                @bType
-            </td>
-            <td>
-                @{
-                    var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : Person.FixPhone(item.Address.Phone, true));
-                }
-                @Html.Raw(phone)
-            </td>
-            <td>
-                @{
-                    var name = (item.Poc == null) ? "" : item.Poc.FirstName + " " + item.Poc.LastName;
-                }
-                @name
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AcctId)
-            </td>
-            <td>
-                @{
-                    var bStatus = item.Status.HasValue ? ((Business.EStatus)(item.Status)).ToString().Replace("_", " ") : "";
-                }
-                @bStatus
-            </td>
+            <tr>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+                </td>
+                <td>
+                    @{
+                        var bType = item.Type.HasValue ? ((Business.EType)(item.Type)).ToString().Replace("_", " ") : "";
+                    }
+                    @bType
+                </td>
+                <td>
+                    @{
+                        var phone = (item.Address == null) ? "" : (string.IsNullOrEmpty(item.Address.Phone) ? "" : Person.FixPhone(item.Address.Phone, true));
+                    }
+                    @Html.Raw(phone)
+                </td>
+                <td>
+                    @{
+                        var name = (item.Poc == null) ? "" : item.Poc.FirstName + " " + item.Poc.LastName;
+                    }
+                    @name
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AcctId)
+                </td>
+                <td>
+                    @{
+                        var bStatus = item.Status.HasValue ? ((Business.EStatus)(item.Status)).ToString().Replace("_", " ") : "";
+                    }
+                    @bStatus
+                </td>
 
-            @*<td>
-            <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-            <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-        </td>*@
-        </tr>
+                @*<td>
+                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>*@
+            </tr>
         }
     </tbody>
 </table>

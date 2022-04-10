@@ -180,5 +180,19 @@ namespace CStat.Models
             }
             return 0;
         }
+
+        public static string StripZip(string raw)
+        {
+            var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
+            return numStr;
+        }
+
+        public static string FixZip(string raw)
+        {
+            var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
+            if ((numStr.Length > 5))
+                return numStr.Substring(0, 5) + "-" + numStr.Substring(5);
+            return numStr;
+        }
     }
 }

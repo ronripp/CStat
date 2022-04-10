@@ -253,7 +253,7 @@
 
     <div class="form-group">
         <label asp-for="_Business.Terms" class="control-label">Relation:</label>
-        <textarea rows="2"  asp-for="_Business.Terms" class="form-control" ></textarea>
+        <textarea rows="2" asp-for="_Business.Terms" class="form-control"></textarea>
     </div>
     <div class="form-group">
         <label asp-for="_Business.Fees" class="control-label"></label>
@@ -262,14 +262,13 @@
     <div class="ediv row">
         <div class="form-group col-sm-12 lpad">
             <label asp-for="_Business.ContractLink" class="control-label">Contract Link:</label>
-            <input type="text" asp-for="_Business.ContractLink" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
+            <input type="text" asp-for="_Business.ContractLink" class="form-control" style="padding-left:3px;padding-right:3px; border-style:inset; font-weight:bold" />
             <button id="OpenDoc" type="button" style="margin-left:6px; margin-right:6px;" disabled><b>Open Doc</b></button>
             <button id="BrowseDoc" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>
-
     <div class="form-group center">
-        <span class="col-md-8">
+        <span class="md-8">
             <input type="submit" value="Update" class="btn btn-primary" />
         </span>
         <span class="col-md-2">
@@ -279,8 +278,6 @@
             <input type="button" id="DelBtn" value="Delete" style="background-color: #FFCCCC" />
         </span>
     </div>
-
-
 </form>
 
 <div>

@@ -62,7 +62,7 @@ namespace CStat.Pages.Vendors
             _Street = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Street)) ? _Business.Address.Street : "";
             _Town = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Town)) ? _Business.Address.Town : "";
             _State = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.State)) ? _Business.Address.State : "";
-            _ZipCode = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.ZipCode)) ? _Business.Address.ZipCode : "";
+            _ZipCode = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.ZipCode)) ? Address.FixZip(_Business.Address.ZipCode) : "";
             _Phone = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Phone)) ? _Business.Address.Phone : "";
             _Fax = ((_Business.Address != null) && !string.IsNullOrEmpty(_Business.Address.Fax)) ? _Business.Address.Fax : "";
             ViewData["PocId"] = new SelectList(_context.Person, "Id", "FirstName");
@@ -84,6 +84,9 @@ namespace CStat.Pages.Vendors
             {
                 return Page();
             }
+
+            if (!string.IsNullOrEmpty(_ZipCode))
+                _ZipCode = Address.StripZip(_ZipCode);
 
             Address adr = new Address();
             adr.Street = _Street;

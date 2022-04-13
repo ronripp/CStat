@@ -69,7 +69,10 @@ namespace CStat.Common
             CSTEST     = 0x00020000,
             TRUSTEE    = 0x00040000,
             EC         = 0x00080000,
-            CHURCH     = 0x00100000
+            CHURCH     = 0x00100000,
+            TRASH      = 0x00200000,
+            INTERNET   = 0x00400000,
+            NYSDOH     = 0x00800000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -135,7 +138,18 @@ namespace CStat.Common
             {"committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) },
             {"church", new Tuple<CmdSource, bool>(CmdSource.CHURCH, false) },
-            {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) }
+            {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) },
+            {"garbage", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
+            {"rubbish", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
+            {"cable", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
+            {"mtc", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
+            {"new york", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"ny", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"nys", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"state", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"doh", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"health", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"department", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
         };
 
         //===============================================================
@@ -219,6 +233,10 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.ELECTRIC, HandleEquip);
             _srcDelegateDict.Add(CmdSource.CAMERA, HandleEquip);
 
+            _srcDelegateDict.Add(CmdSource.INTERNET, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.TRASH, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.NYSDOH, HandleBiz);
+
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
@@ -291,6 +309,12 @@ namespace CStat.Common
             FindDates(words);
             FindEvent(words);
             FindDesc(words); // Check for descriptive hints
+
+            if ((words.Count == 1) && (words[0].Length == 0))
+            {
+                _cmdSrc = CmdSource.MENU;
+                return true;
+            }
 
             if ((_cmdSrc == default) && ((_cmdAction == CmdAction.CALL) || (_cmdDescList.Count == 1) || (_cmdDescList.Count == 2)))
                 _cmdSrc = CmdSource.PERSON;
@@ -570,7 +594,7 @@ namespace CStat.Common
         }
         private string HandleMenu(List<string> words)
         {
-            return "Ask about Inventory, propane, specific measuments, people, camera, Requirements, By-Laws, docs, Events, urgencies, attendance";
+            return "Ask about Inventory, propane, specific measuments, people, camera, Requirements, By-Laws, docs, Events, urgencies, churches, trustees, EC and much more...";
         }
         private string HandleInventory(List<string> words)
         {
@@ -921,6 +945,45 @@ namespace CStat.Common
         }
 
         //***************************************************************
+        private string HandleBiz(List<string> words)
+        //***************************************************************
+        {
+            List<Business> bizList = new List<Business>();
+
+            if (_cmdSrc == CmdSource.INTERNET)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Internet)).ToList();
+            }
+            else if (_cmdSrc == CmdSource.TRASH)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Refuse)).ToList();
+            }
+            else if (_cmdSrc == CmdSource.NYSDOH)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.NYS)).ToList();
+            }
+
+            string report = "";
+            if (bizList.Count == 0)
+                report = "Not Found.";
+            else
+            {
+                foreach (var b in bizList)
+                {
+                    report += b.Name;
+                    if (b.Poc != null)
+                    {
+                        report += " : " + b.Poc.FirstName + " " + b.Poc.LastName;
+                    }
+                    if ((b.Address != null) && !string.IsNullOrEmpty(b.Address.Phone))
+                        report += " : " + Person.FixPhone(b.Address.Phone); 
+                }
+            }
+            report += "\n";
+            return report;
+        }
+
+        //***************************************************************
         private string HandleChurch(List<string> words)
         //***************************************************************
         {
@@ -941,7 +1004,7 @@ namespace CStat.Common
                 }
                 else if (_cmdDescList.Count == 2)
                 {
-                    people  = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Church).ToList();
+                    people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Church).ToList();
                 }
                 else
                     return "Unable to determine a specific church";

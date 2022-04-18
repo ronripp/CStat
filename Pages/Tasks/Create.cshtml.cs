@@ -192,7 +192,7 @@ namespace CStat.Pages.Tasks
             personList.Insert(0, new SelectListItem(" ", "-1"));
             ViewData["PersonId"] = personList;
 
-            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " & "), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> trList = Enum.GetValues(typeof(Person.TitleRoles)).Cast<Person.TitleRoles>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["TitleRoles"] = new SelectList(trList, "Value", "Text");
 
             return Page();
@@ -516,6 +516,12 @@ namespace CStat.Pages.Tasks
 
                     task.EstimatedManHours = 0;
                     task.RequiredSkills = "";
+
+                    if (IsTemplate)
+                    {
+                        // Remove exist non-done tasks so new ones can be created without task multiplicity
+                        Models.Task.RemoveActiveChildTasks(_context, task.Id);
+                    }
 
                     fStr = "Save File Update";
                     taskData.Write(hostEnv);

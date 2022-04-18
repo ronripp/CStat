@@ -792,8 +792,9 @@
                 if (!!compVal) {
                     if (compVal < 100) {
                         $("#markDone").prop("disabled", false).css('opacity', 1.0).css("color", "black");
-                        if ($("#taskData_state").val() === "4096") {
-                            $("#taskData_state").val("1024");
+                        let tState = $("#taskData_state").val();
+                        if ((tState === "4096") || (tState === "128")) {
+                            $("#taskData_state").val("1024"); // Set Status as Active if Not_Started or Completed.
                         }
                         $("#taskData_reason").val(0x04000000);
                     } else {

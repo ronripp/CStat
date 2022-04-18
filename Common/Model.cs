@@ -99,10 +99,6 @@ namespace CStat.Models
             return _context;
         }
     }
-    public partial class Tasks
-    {
-    }
-
     public partial class InventoryItem
     {
         public enum States { InStock = 0, OpenNeed = 1, TakenNeed = 2, InInv = 3 };
@@ -292,7 +288,6 @@ namespace CStat.Models
             }
             return astr;
         }
-
     }
 
     static class LevenshteinDistance
@@ -463,7 +458,7 @@ namespace CStat.Models
         {
             if ((Type & (int)eTaskType.Template) != 0)
                 return false;
-            DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
+            //DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
             return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
         }
         public bool IsDone()
@@ -1927,7 +1922,7 @@ namespace CStat.Models
     }
     public partial class Business
     {
-        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Kitch_Supp, Bldg_Supp, Offc_Supp, Inspection, Insurance, Water_Test }
+        public enum EType { Unknown = 0, NYS = 1, USGov, Propane, Electric, Phone, Internet, Refuse, Rentals, Hardware, Accounting, Bank_CC, Food, Water, Septic, Kitch_Supp, Bldg_Supp, Offc_Supp, Inspection, Insurance, Water_Test, Law, Recreation }
         public enum EStatus { Vendor = 0, Required_Gov = 1, Preferred, Secondary, Suspended, Excluded, Out_of_Bus }
 
         public static string GetBizTypeOptions(EType selVal)

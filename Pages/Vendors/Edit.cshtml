@@ -190,7 +190,7 @@
             <div class="form-group col-sm-5" style="min-width:40%">
                 <label asp-for="_State" class="control-label rgap">State:</label>
                 <select asp-for="_State" style="min-height:2em">
-                    @Html.Raw(Address.GetStateOptions())
+                    @Html.Raw(Address.GetStateOptions(Model.GetAdrState()))
                 </select>
             </div>
             <div class="form-group col-sm-7 horzLI">

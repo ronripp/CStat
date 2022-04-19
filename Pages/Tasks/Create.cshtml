@@ -1015,21 +1015,17 @@
     <input type="hidden" asp-for="task.Type" />
     <input type="hidden" asp-for="task.ActualDoneDate" />
 
-    <div class="container" style="margin-bottom:4px;background-color:@bkColor">
-        <div class="row" style="background-color:@bkColor;">
-            <div class="col-xs-2" style="margin-right: 4px">
-                <label asp-for="task.Description" class="control-label">Title:</label>
-            </div>
-            <div class="col-xs-10">
-                <input asp-for="task.Description" style="font-weight:bold; min-width:20em" />
-            </div>
-            <span asp-validation-for="task.Description" class="text-danger"></span>
-            @*<div class="col-md-2" id="saveDiv">
-                <button id="SaveAll" onclick="saveTask()">@saveStr</button>
-                </div>*@
-        </div>
-    </div>
+    <table width="100%">
+       <tr style="width:100%">
+           <td>
+               <label  asp-for="task.Description">Title:</label>
+               <input asp-for="task.Description" style="font-weight:bold; width:85%" />
+               <span asp-validation-for="task.Description" class="text-danger"></span>
 
+           </td>
+       </tr>
+    </table>
+  
     <div style="background-color:@bkColor">
         <ul class="nav nav-tabs" role="tablist" id="taskTabs">
             <li class="nav-item">

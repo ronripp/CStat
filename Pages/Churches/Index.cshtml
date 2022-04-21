@@ -1,0 +1,132 @@
+﻿@page
+@model CStat.Pages.Churches.IndexModel
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Affiliation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].MembershipStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].StatusDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Alternate1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Alternate2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Alternate3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Elder1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Elder2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Elder3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Elder4)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Elder5)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].SeniorMinister)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Trustee1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Trustee2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].Trustee3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Church[0].YouthMinister)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Church) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Affiliation)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MembershipStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StatusDetails)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address.Country)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Alternate1.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Alternate2.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Alternate3.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Elder1.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Elder2.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Elder3.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Elder4.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Elder5.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeniorMinister.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trustee1.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trustee2.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trustee3.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.YouthMinister.FirstName)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

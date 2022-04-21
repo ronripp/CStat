@@ -1206,7 +1206,8 @@ namespace CStat.Models
         public enum AffiliationType
         {
             ICCOC = 0,
-            RC,
+            RCATH,
+            CATH,
             LUTH,
             ANG,
             EPIS,
@@ -1273,7 +1274,6 @@ namespace CStat.Models
                 else
                     return ms_type.ToString();
             }
-
         }
 
         public class ChurchLists
@@ -1281,7 +1281,8 @@ namespace CStat.Models
             public static ChurchAtt[] AffiliationList = new ChurchAtt[]
             {
                 new ChurchAtt("Indep. Christian / COC",   AffiliationType.ICCOC),
-                new ChurchAtt("Roman Catholic",       AffiliationType.RC),
+                new ChurchAtt("Roman Catholic",       AffiliationType.RCATH),
+                new ChurchAtt("Catholic",       AffiliationType.CATH),
                 new ChurchAtt("Lutheran",             AffiliationType.LUTH),
                 new ChurchAtt("Anglican",             AffiliationType.ANG),
                 new ChurchAtt("Episcopal",            AffiliationType.EPIS),
@@ -1291,7 +1292,7 @@ namespace CStat.Models
                 new ChurchAtt("Indep. Fund. Baptist",     AffiliationType.IFBAP),
                 new ChurchAtt("Assembly of God",      AffiliationType.AOG),
                 new ChurchAtt("Presbyterian",         AffiliationType.PRESB),
-                new ChurchAtt("Non Instrumental COC", AffiliationType.NICOC),
+                new ChurchAtt("Non-Instrumental COC", AffiliationType.NICOC),
                 new ChurchAtt("Congregational UCOC",    AffiliationType.CONG),
                 new ChurchAtt("Non Denominational",   AffiliationType.NOND),
                 new ChurchAtt("Other",                AffiliationType.OTHER),

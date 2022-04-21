@@ -1,0 +1,231 @@
+﻿@page
+@model CStat.Pages.Churches.CreateModel
+@using CStat.Models
+@Html.AntiForgeryToken()
+@{
+    ViewData["Title"] = "Create Church";
+}
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
+<style>
+
+    .ediv {
+        border-width: 1px;
+        border-style: solid;
+        border-color: #C0FFC0;
+        background-color: #F2FFF2;
+        padding-top: 3px;
+        padding-right: 3px;
+        padding-bottom: 0px;
+        padding-left: 3px;
+        margin-bottom: 8px;
+    }
+
+    .slen {
+        max-width: 6em;
+    }
+
+    .smlen {
+        max-width: 9em;
+    }
+
+    .mlen {
+        max-width: 12em;
+    }
+
+    .mllen {
+        max-width: 15em;
+    }
+
+    .llen {
+        max-width: 18em;
+    }
+
+    .rgap {
+        margin-right: 4px;
+    }
+
+    .horzLI {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center
+    }
+
+    label {
+        margin-bottom: 0px;
+    }
+</style>
+
+<script>
+
+    $(document).ready(function () {
+
+        function findPerson(nameStr, id, rval) {
+            var parameters = "{'name':" + encodeQuotes(nameStr) + "'}";
+            $.ajax({
+                url: "/Events/Edit?handler=FindPersonEvent",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("<option") !== -1) {
+                        var htmlStr = "<input type=\"text\" id=\"" + id + "\" rval=\"" + rval + "\" list=\"dl" + id + "\" />\n" + "<datalist id=\"dl" + id + "\">\n" + response + "</datalist>";
+                        //var inp = document.getElementById(id);
+                        document.getElementById(id).outerHTML = htmlStr;
+                        document.getElementById(id).value = nameStr;
+                        document.getElementById(id).focus();
+                    }
+                },
+                fail: function (response) {
+                },
+                complete: function (response) {
+                }
+            });
+        }
+
+        $(document).on('keyup', "[id^=spers]", function () {
+            var rid = "#" + $(this).attr("id").replace("spers", "srole");
+            if ($(rid).hasClass("offStaff")) {
+                $(rid).toggleClass("onStaff offStaff");
+            }
+
+            var name = $(this).val();
+            var id = $(this).attr('id');
+            var rval = $(this).attr('rval');
+            if (!!name && (name.length > 2)) {
+                findPerson(name, id, rval);
+            }
+        });
+
+    });
+
+</script>
+
+<form method="post">
+
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="Church.Name" class="control-label"></label>
+                <input asp-for="Church.Name" class="form-control" />
+                <span asp-validation-for="Church.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6">
+                <label asp-for="Church.Affiliation" class="control-label"></label>
+                <select asp-for="Church.Affiliation" class="form-control" style="min-height:2em" asp-items="ViewBag.Affil"></select>
+                <span asp-validation-for="Church.Affiliation" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="Church.MembershipStatus" class="control-label"></label>
+                <select asp-for="Church.MembershipStatus" class="form-control" style="min-height:2em" asp-items="ViewBag.Memb"></select>
+                <span asp-validation-for="Church.MembershipStatus" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="Church.StatusDetails" class="control-label"></label>
+                <input asp-for="Church.StatusDetails" class="form-control" />
+                <span asp-validation-for="Church.StatusDetails" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="_SeniorMinister" class="control-label">Senior Minister:</label>
+                <input id="persSM" asp-for="_SeniorMinister" class="form-control" />
+            </div>
+            <div class="form-group col-sm-6">
+                <label asp-for="_YouthMinister" class="control-label">Youth Minister:</label>
+                <input id="persYM" asp-for="_YouthMinister" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label asp-for="_Trustee1" class="control-label">Trustee 1:</label>
+                <input id="persT1" asp-for="_Trustee1" class="form-control" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label asp-for="_Trustee2" class="control-label">Trustee 2:</label>
+                <input id="persT2" asp-for="_Trustee2" class="form-control" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label asp-for="_Trustee3" class="control-label">Trustee 3:</label>
+                <input id="persT3" asp-for="_Trustee3" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label asp-for="_Alternate1" class="control-label">Alternate 1:</label>
+                <input id="persA1" asp-for="_Alternate1" class="form-control" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label asp-for="_Alternate2" class="control-label">Alternate 2:</label>
+                <input id="persA2" asp-for="_Alternate2" class="form-control" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label asp-for="_Alternate3" class="control-label">Alternate 3:</label>
+                <input id="persA3" asp-for="_Alternate3" class="form-control" />
+            </div>
+        </div>
+
+    </div>
+    <div class="ediv">
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label asp-for="_Street" class="control-label">Street:</label>
+                <input asp-for="_Street" class="form-control llen" />
+            </div>
+            <div class="form-group col-sm-6">
+                <label asp-for="_Town" class="control-label">Town:</label>
+                <input asp-for="_Town" class="form-control llen" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-5" style="min-width:40%">
+                <label asp-for="_State" class="control-label rgap">State:</label>
+                <select asp-for="_State" style="min-height:2em">
+                    @Html.Raw(Address.GetStateOptions())
+                </select>
+            </div>
+            <div class="form-group col-sm-7 horzLI">
+                <label asp-for="_ZipCode" class="control-label rgap">Zip:</label>
+                <input asp-for="_ZipCode" class="form-control smlen" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_Phone" class="control-label rgap">Phone:</label>
+                <input asp-for="_Phone" class="form-control mlen" />
+            </div>
+            <div class="form-group col-sm-6 horzLI">
+                <label asp-for="_Fax" class="control-label rgap">Fax:</label>
+                <input asp-for="_Fax" class="form-control mlen" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

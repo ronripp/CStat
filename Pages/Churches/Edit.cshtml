@@ -1,0 +1,114 @@
+﻿@page
+@model CStat.Pages.Churches.EditModel
+
+<h4>Church</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Church.Id" />
+            <div class="form-group">
+                <label asp-for="Church.Name" class="control-label"></label>
+                <input asp-for="Church.Name" class="form-control" />
+                <span asp-validation-for="Church.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.AddressId" class="control-label"></label>
+                <select asp-for="Church.AddressId" class="form-control" asp-items="ViewBag.AddressId"></select>
+                <span asp-validation-for="Church.AddressId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Affiliation" class="control-label"></label>
+                <input asp-for="Church.Affiliation" class="form-control" />
+                <span asp-validation-for="Church.Affiliation" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.MembershipStatus" class="control-label"></label>
+                <input asp-for="Church.MembershipStatus" class="form-control" />
+                <span asp-validation-for="Church.MembershipStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.StatusDetails" class="control-label"></label>
+                <input asp-for="Church.StatusDetails" class="form-control" />
+                <span asp-validation-for="Church.StatusDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.SeniorMinisterId" class="control-label"></label>
+                <select asp-for="Church.SeniorMinisterId" class="form-control" asp-items="ViewBag.SeniorMinisterId"></select>
+                <span asp-validation-for="Church.SeniorMinisterId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.YouthMinisterId" class="control-label"></label>
+                <select asp-for="Church.YouthMinisterId" class="form-control" asp-items="ViewBag.YouthMinisterId"></select>
+                <span asp-validation-for="Church.YouthMinisterId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Trustee1Id" class="control-label"></label>
+                <select asp-for="Church.Trustee1Id" class="form-control" asp-items="ViewBag.Trustee1Id"></select>
+                <span asp-validation-for="Church.Trustee1Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Trustee2Id" class="control-label"></label>
+                <select asp-for="Church.Trustee2Id" class="form-control" asp-items="ViewBag.Trustee2Id"></select>
+                <span asp-validation-for="Church.Trustee2Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Trustee3Id" class="control-label"></label>
+                <select asp-for="Church.Trustee3Id" class="form-control" asp-items="ViewBag.Trustee3Id"></select>
+                <span asp-validation-for="Church.Trustee3Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Alternate1Id" class="control-label"></label>
+                <select asp-for="Church.Alternate1Id" class="form-control" asp-items="ViewBag.Alternate1Id"></select>
+                <span asp-validation-for="Church.Alternate1Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Alternate2Id" class="control-label"></label>
+                <select asp-for="Church.Alternate2Id" class="form-control" asp-items="ViewBag.Alternate2Id"></select>
+                <span asp-validation-for="Church.Alternate2Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Alternate3Id" class="control-label"></label>
+                <select asp-for="Church.Alternate3Id" class="form-control" asp-items="ViewBag.Alternate3Id"></select>
+                <span asp-validation-for="Church.Alternate3Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Elder1Id" class="control-label"></label>
+                <select asp-for="Church.Elder1Id" class="form-control" asp-items="ViewBag.Elder1Id"></select>
+                <span asp-validation-for="Church.Elder1Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Elder2Id" class="control-label"></label>
+                <select asp-for="Church.Elder2Id" class="form-control" asp-items="ViewBag.Elder2Id"></select>
+                <span asp-validation-for="Church.Elder2Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Elder3Id" class="control-label"></label>
+                <select asp-for="Church.Elder3Id" class="form-control" asp-items="ViewBag.Elder3Id"></select>
+                <span asp-validation-for="Church.Elder3Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Elder4Id" class="control-label"></label>
+                <select asp-for="Church.Elder4Id" class="form-control" asp-items="ViewBag.Elder4Id"></select>
+                <span asp-validation-for="Church.Elder4Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Church.Elder5Id" class="control-label"></label>
+                <select asp-for="Church.Elder5Id" class="form-control" asp-items="ViewBag.Elder5Id"></select>
+                <span asp-validation-for="Church.Elder5Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -151,8 +151,15 @@ namespace CStat.Models
                             Person pers = new Person();
                             pers.FirstName = parts[0];
                             pers.LastName = defaultLast;
-                            context.Person.Add(pers);
-                            context.SaveChanges();
+                            try
+                            {
+                                context.Person.Add(pers);
+                                context.SaveChanges();
+                            }
+                            catch
+                            {
+                                return null;
+                            }
                             return pers.Id;
                         }
                         else
@@ -169,8 +176,15 @@ namespace CStat.Models
                             Person pers = new Person();
                             pers.FirstName = parts[0];
                             pers.LastName = parts[parts.Length - 1];
-                            context.Person.Add(pers);
-                            context.SaveChanges();
+                            try
+                            {
+                                context.Person.Add(pers);
+                                context.SaveChanges();
+                            }
+                            catch
+                            {
+                                return null;
+                            }
                             return pers.Id;
                         }
                         else

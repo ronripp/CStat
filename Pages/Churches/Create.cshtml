@@ -65,12 +65,22 @@
 
 <script>
 
+    function encodeQuotes(str) {
+        return str.replace(/\"/g, " ^ ^").replace(/\'/g, " ^ ");
+    }
+
     $(document).ready(function () {
 
+        $('#Church_Affiliation').val(16)
+
         function findPerson(nameStr, id, rval) {
+            let name = !!nameStr ? nameStr.trim() : "";
+            if (name.length < 3) {
+                return;
+            }
             var parameters = "{'name':" + encodeQuotes(nameStr) + "'}";
             $.ajax({
-                url: "/Events/Edit?handler=FindPersonEvent",
+                url: "/Churches/Create?handler=FindPersonChurch",
                 contentType: "application/json",
                 dataType: "json",
                 data: parameters,
@@ -90,12 +100,7 @@
             });
         }
 
-        $(document).on('keyup', "[id^=spers]", function () {
-            var rid = "#" + $(this).attr("id").replace("spers", "srole");
-            if ($(rid).hasClass("offStaff")) {
-                $(rid).toggleClass("onStaff offStaff");
-            }
-
+        $(document).on('keyup', "[id^=pers]", function () {
             var name = $(this).val();
             var id = $(this).attr('id');
             var rval = $(this).attr('rval');

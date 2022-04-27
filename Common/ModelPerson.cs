@@ -204,7 +204,9 @@ namespace CStat.Models
                     return new List<Person>();
                 case 1:
                     fn = parts[0];
-                    return context.Person.Where(p => p.FirstName.StartsWith(fn) || p.Alias.StartsWith(fn)).ToList();
+                    var fnList = context.Person.Where(p => p.FirstName.StartsWith(fn) || p.Alias.StartsWith(fn)).ToList();
+                    var lnList = context.Person.Where(p => p.LastName.StartsWith(fn)).ToList();
+                    return fnList.Concat(lnList).ToList();
                 case 2:
                 default:
                     fn = parts[0];

@@ -16,6 +16,7 @@
     <Compile Remove="wwwroot\items\**" />
     <Compile Remove="wwwroot\Tasks\**" />
     <Compile Remove="wwwroot\tmpDBox\**" />
+    <Compile Remove="_debugSU\**" />
     <Compile Remove="_Models\**" />
     <Compile Remove="__Models\**" />
     <Content Remove="CCAChurch\**" />
@@ -28,6 +29,7 @@
     <Content Remove="wwwroot\items\**" />
     <Content Remove="wwwroot\Tasks\**" />
     <Content Remove="wwwroot\tmpDBox\**" />
+    <Content Remove="_debugSU\**" />
     <Content Remove="_Models\**" />
     <Content Remove="__Models\**" />
     <EmbeddedResource Remove="CCAChurch\**" />
@@ -40,6 +42,7 @@
     <EmbeddedResource Remove="wwwroot\items\**" />
     <EmbeddedResource Remove="wwwroot\Tasks\**" />
     <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
+    <EmbeddedResource Remove="_debugSU\**" />
     <EmbeddedResource Remove="_Models\**" />
     <EmbeddedResource Remove="__Models\**" />
     <None Remove="CCAChurch\**" />
@@ -52,6 +55,7 @@
     <None Remove="wwwroot\items\**" />
     <None Remove="wwwroot\Tasks\**" />
     <None Remove="wwwroot\tmpDBox\**" />
+    <None Remove="_debugSU\**" />
     <None Remove="_Models\**" />
     <None Remove="__Models\**" />
   </ItemGroup>

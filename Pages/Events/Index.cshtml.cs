@@ -87,28 +87,28 @@ namespace CStat.Pages.Events
                 switch (matches.Count)
                 {
                     case 0:
-                        dayStr += "<div class=\"rowAttrs col-md-12 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
+                        dayStr += "<div class=\"rowAttrs col-sm-12 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
                         curID = -1;
                         break;
                     case 1:
                         if ((day.Date == matches[0].StartTime.Date) && (day.Date == matches[0].EndTime.Date))
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (" + matches[0].StartTime.ToString("h:mm tt") + " - " + matches[0].EndTime.ToString("h: mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (" + matches[0].StartTime.ToString("h:mm tt") + " - " + matches[0].EndTime.ToString("h: mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].StartTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (st. " + matches[0].StartTime.ToString("h:mm tt") + ")</a></div>";
                         }
                         else if (day.Date == matches[0].EndTime.Date)
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
-                            dayStr += "<div class=\"rowAttrs col-md-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-10 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + " (ends " + matches[0].EndTime.ToString("h:mm tt") + ")</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-2 AddDesc\"><a href=\"/Events/Create?" + dateStr + "\"><i>Add Event</i></a></div>";
                         }
                         else
                         {
-                            dayStr += "<div class=\"rowAttrs col-md-12 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
+                            dayStr += "<div class=\"rowAttrs col-sm-12 EventDesc " + GetEC(matches[0].Id) + "\"><a href=\"/Events/Edit?id=" + matches[0].Id + "\">" + matches[0].Description + "</a></div>";
                         }
                         curID = matches[0].Id;
                         break;

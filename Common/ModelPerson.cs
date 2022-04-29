@@ -135,6 +135,9 @@ namespace CStat.Models
 
         public static int? PersonIdFromExactName(CStatContext context, string name, string defaultLast="<unknown>")
         {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
             string fn, ln;
 
             var parts = name.Trim().Split(" ");
@@ -210,13 +213,16 @@ namespace CStat.Models
                 case 2:
                 default:
                     fn = parts[0];
-                    ln = parts[1];
+                    ln = parts[parts.Length-1];
                     return context.Person.Where(p => (p.FirstName.StartsWith(fn) || p.Alias.StartsWith(fn)) && p.LastName.StartsWith(ln)).ToList();
             }                
         }
 
         public static int AddPersonFromNameHint(CStatContext context, string hint)
         {
+            if (string.IsNullOrEmpty(hint))
+                return -1;
+
             var names = hint.Split(" ");
             var NumStrs = names.Length;
             if (NumStrs < 2)

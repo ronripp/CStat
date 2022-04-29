@@ -16,10 +16,10 @@
 <style>
 
     .ediv {
-        border-width: 1px;
+        border-width: 2px;
         border-style: solid;
-        border-color: #C0FFC0;
-        background-color: #F2FFF2;
+        border-color: #00C000;
+        background-color: #F0FFF0;
         padding-top: 3px;
         padding-right: 3px;
         padding-bottom: 0px;
@@ -71,7 +71,7 @@
 
     $(document).ready(function () {
 
-        $('#Church_Affiliation').val(16)
+        $('#Church_Affiliation').val(16);
 
         function findPerson(nameStr, id, rval) {
             let name = !!nameStr ? nameStr.trim() : "";
@@ -124,20 +124,18 @@
             </div>
             <div class="form-group col-sm-6">
                 <label asp-for="Church.Affiliation" class="control-label"></label>
-                <select asp-for="Church.Affiliation" class="form-control" style="min-height:2em" asp-items="ViewBag.Affil"></select>
+                <select asp-for="Church.Affiliation" class="form-control" style="min-height:2em; max-width:20em" asp-items="ViewBag.Affil"></select>
                 <span asp-validation-for="Church.Affiliation" class="text-danger"></span>
             </div>
         </div>
 
         <div class="row">
-            <div class="form-group col-sm-6">
+            <div class="form-group col-sm-4">
                 <label asp-for="Church.MembershipStatus" class="control-label"></label>
-                <select asp-for="Church.MembershipStatus" class="form-control" style="min-height:2em" asp-items="ViewBag.Memb"></select>
+                <select asp-for="Church.MembershipStatus" class="form-control" style="min-height: 2em; max-width:20em" asp-items="ViewBag.Memb"></select>
                 <span asp-validation-for="Church.MembershipStatus" class="text-danger"></span>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-6">
+            <div class="form-group col-sm-8">
                 <label asp-for="Church.StatusDetails" class="control-label"></label>
                 <input asp-for="Church.StatusDetails" class="form-control" />
                 <span asp-validation-for="Church.StatusDetails" class="text-danger"></span>

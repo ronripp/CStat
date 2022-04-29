@@ -38,5 +38,31 @@ namespace CStat.Pages.Churches
                 .Include(c => c.Trustee3)
                 .Include(c => c.YouthMinister).ToListAsync();
         }
+
+        public static string GetPOCMinister(Church church)
+        {
+            if (church.YouthMinister != null)
+                return church.YouthMinister.FirstName + " " + church.YouthMinister.LastName;
+            if (church.SeniorMinister != null)
+                return church.SeniorMinister.FirstName + " " + church.SeniorMinister.LastName;
+            return "???";
+        }
+        public static string GetPhone(Church church)
+        {
+            if ((church.Address != null) && (string.IsNullOrEmpty(church.Address.Phone)))
+                return Person.FixPhone(church.Address.Phone);
+            return "---";
+        }
+        public static string GetMembershipStatus(Church church)
+        {
+            if ((church.MembershipStatus < 0) || (church.MembershipStatus >= CStat.Models.Church.ChurchLists.MemberStatList.Length))
+                return "---";
+
+            return CStat.Models.Church.ChurchLists.MemberStatList[church.MembershipStatus].name;
+        }
+        public static string GetAffiliation(Church church)
+        {
+            return string.IsNullOrEmpty(church.Affiliation) ? "" : church.Affiliation;
+        }
     }
 }

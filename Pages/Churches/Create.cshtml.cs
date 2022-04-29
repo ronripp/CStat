@@ -110,6 +110,11 @@ namespace CStat.Pages.Churches
             Church.Alternate2Id = Person.PersonIdFromExactName(_context, _Alternate2);
             Church.Alternate3Id = Person.PersonIdFromExactName(_context, _Alternate3);
 
+            if (int.TryParse(Church.Affiliation, out int affIdx))
+                Church.Affiliation = ((AffiliationType)affIdx).ToString();
+            else
+                Church.Affiliation = AffiliationType.UNK.ToString();
+
             _context.Church.Add(Church);
             await _context.SaveChangesAsync();
 

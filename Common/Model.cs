@@ -1205,7 +1205,8 @@ namespace CStat.Models
         }
         public enum AffiliationType
         {
-            ICCOC = 0,
+            UNK,
+            ICCOC,
             RCATH,
             CATH,
             LUTH,
@@ -1221,7 +1222,6 @@ namespace CStat.Models
             CONG,
             NOND,
             OTHER,
-            UNK,
             NumAffiliations
         }
 
@@ -1280,6 +1280,7 @@ namespace CStat.Models
         {
             public static ChurchAtt[] AffiliationList = new ChurchAtt[]
             {
+                new ChurchAtt("Unknown",              AffiliationType.UNK),
                 new ChurchAtt("Indep. Christian / COC",   AffiliationType.ICCOC),
                 new ChurchAtt("Roman Catholic",       AffiliationType.RCATH),
                 new ChurchAtt("Catholic",       AffiliationType.CATH),
@@ -1295,8 +1296,8 @@ namespace CStat.Models
                 new ChurchAtt("Non-Instrumental COC", AffiliationType.NICOC),
                 new ChurchAtt("Congregational UCOC",    AffiliationType.CONG),
                 new ChurchAtt("Non Denominational",   AffiliationType.NOND),
-                new ChurchAtt("Other",                AffiliationType.OTHER),
-                new ChurchAtt("Unknown",              AffiliationType.UNK)
+                new ChurchAtt("Other",                AffiliationType.OTHER)
+                
             };
 
             public static ChurchAtt[] MemberStatList = new ChurchAtt[]

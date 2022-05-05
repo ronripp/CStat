@@ -180,7 +180,7 @@ namespace CStat.Pages.Vendors
                 {
                     try
                     {
-                        // Delete Event
+                        // Delete Vendor
                         _context.Business.Remove(_Business);
                         _context.SaveChanges();
                     }

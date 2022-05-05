@@ -1,6 +1,19 @@
 ﻿@page
 @model CStat.Pages.Churches.IndexModel
 
+<script>
+
+$(document).ready(function () {
+
+    if (localStorage.getItem("refreshChurches") == "true") {
+        localStorage.removeItem("refreshChurches");
+        location.reload();
+    }
+
+});
+
+</script>
+
 <p>
     <a asp-page="Create">Create New</a>
 </p>
@@ -29,7 +42,7 @@
 @foreach (var item in Model.Church) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                <a asp-page="./Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
             </td>
             <td>
                 @IndexModel.GetAffiliation(item)

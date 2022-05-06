@@ -129,7 +129,12 @@ namespace CStat
             _Person.Address.State = _State;
             _Person.Address.ZipCode = _ZipCode;
 
-            await _Person.AddPerson(_context, bapStr, _Church, _PG1.Trim(), _PG2.Trim());
+            var res = await _Person.AddPerson(_context, bapStr, _Church, _PG1.Trim(), _PG2.Trim());
+
+            if (res == false)
+            {
+                return Page();
+            }
 
             return RedirectToPage("./Find");
         }

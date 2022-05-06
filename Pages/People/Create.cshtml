@@ -98,6 +98,19 @@
 
         $(document).ready(function () {
 
+            document.getElementById('SubmitId2').addEventListener('click', (e) => {
+
+                var errMsg = document.getElementById("errMsg");
+                if (($("#zPerson_Gender").val() == "0") || ($("#zPerson_FirstName").val().trim() === "") || ($("#zPerson_LastName").val().trim() === "")) {
+                    e.preventDefault();
+                    errMsg.style.display = 'block';
+                }
+                else {
+                    errMsg.style.display = 'none';
+                }
+                return;
+            });
+
             $("button[id^='BtnId']").click(function () {
                 var skill = $(this).attr("value");
                 var skills = $("#zPerson_SkillSets").attr("value");
@@ -150,6 +163,8 @@
 </head>
 <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
+
     <div class="row">
         <div class="form-group col-xs-6 lpad" style="min-width:40%">
             <label asp-for="_Person.FirstName" class="control-label">First Name:</label>
@@ -284,8 +299,9 @@
             <input asp-for="_PG2" class="form-control xli" />
         </div>
     </div>
+    <div id="errMsg" style="display:none; color:red"> Add Incomplete : Set First, Last and Gender then click [Add]</div>
     <div class="form-group">
-        <input type="submit" value="Add Person" class="btn btn-primary" />
+        <input type="submit" id="SubmitId2" value="Add Person" class="btn btn-primary" />
     </div>
 </form>
 

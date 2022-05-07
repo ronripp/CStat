@@ -50,7 +50,14 @@ namespace CStat.Pages.Churches
             _Alternate2 = (_Church.Alternate2 != null) ? _Church.Alternate2.FirstName + " " + _Church.Alternate2.LastName : "";
             _Alternate3 = (_Church.Alternate3 != null) ? _Church.Alternate3.FirstName + " " + _Church.Alternate3.LastName : "";
 
-        ViewData["Affil"] = AffList;
+            _Street = (_Church.Address != null) ? _Church.Address.Street : "";
+            _Town = (_Church.Address != null) ? _Church.Address.Town : "";
+            _State = (_Church.Address != null) ? _Church.Address.State : "";
+            _ZipCode = (_Church.Address != null) ? _Church.Address.ZipCode : "";
+            _Phone = (_Church.Address != null) ? _Church.Address.Phone : "";
+            _Fax = (_Church.Address != null) ? _Church.Address.Fax : "";
+
+            ViewData["Affil"] = AffList;
             ViewData["Memb"] = MembList;
             return Page();
         }

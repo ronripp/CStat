@@ -160,5 +160,38 @@ namespace CStat
         {
             return _context.Person.Any(e => e.Id == id);
         }
+
+        public JsonResult OnGetDeletePerson()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            var idx = rawQS.IndexOf('{');
+            if (idx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(idx);
+
+            Dictionary<string, int> NVPairs = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonQS);
+            if (NVPairs.TryGetValue("personId", out int personId))
+            {
+                _Person = _context.Person.Find(personId);
+
+                if (_Person != null)
+                {
+                    try
+                    {
+                        // Delete Person
+                        _context.Person.Remove(_Person);
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        return new JsonResult("ERROR~: Exception : Delete Person Failed.");
+                    }
+                    return new JsonResult("SUCCESS~:Delete Person Succeeded.");
+                }
+            }
+            return new JsonResult("ERROR~: Delete Person Failed.");
+        }
+
+
     }
 }

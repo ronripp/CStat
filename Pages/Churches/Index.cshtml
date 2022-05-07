@@ -39,7 +39,7 @@ $(document).ready(function () {
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Church) {
+@foreach (var item in Model.Church.OrderBy(c => c.Name) ) {
         <tr>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>

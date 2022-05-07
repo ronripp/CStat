@@ -5,6 +5,20 @@
     ViewData["Title"] = "Index";
 }
 
+<script>
+
+$(document).ready(function () {
+
+    if (localStorage.getItem("refreshPeople") == "true") {
+        localStorage.removeItem("refreshPeople");
+        location.reload();
+    }
+
+});
+
+</script>
+
+
 <h1>Index</h1>
 
 <p>

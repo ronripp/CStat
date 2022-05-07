@@ -1,6 +1,6 @@
 ﻿@page
 @model CStat.EditModel
-
+@using CStat.Models
 @{
     ViewData["Title"] = "Edit Person";
 }
@@ -79,6 +79,30 @@
                 }
             });
 
+        $("#DelBtn").click(function () {
+            if (confirm("Delete Person : " + $("#zPerson_FirstName").val() + " " + $("#zPerson_LastName").val() + " ? ")) {
+                var parameters = "{'personId':'" + @Model._Person.Id + "'}";
+                $.ajax({
+                    url: "/People/Edit?handler=DeletePerson",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
+                    success: function (response) {
+                        if (response.indexOf("ERROR~:") === -1) {
+                            alert("Person deleted.");
+                        }
+                    },
+                    fail: function (response) {
+                        alert("ERROR : Person NOT deleted.");
+                    },
+                    complete: function (response) {
+                        localStorage.setItem("refreshPeople", "true");
+                        window.history.go(-1);
+                    }
+                });
+            }
+        });
+
         });
 
 
@@ -88,6 +112,7 @@
 <body>
     <div>
         <form method="post">
+            <input type="hidden" asp-for="_Person.Id" />
             <input style="display:none;" asp-for="_Person.SkillSets" class="form-control" data-val="false" />
 
             <div style="display: inline-block; margin-right: 10px; margin-bottom: 10px;">
@@ -118,9 +143,11 @@
                 <label asp-for="_Address.Town" +":">Town/C:</label>
                 <input asp-for="_Address.Town" style="max-width:6em" data-val="false" />
             </div>
-            <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Address.State" +":">State:</label>
-                <input asp-for="_Address.State" style="max-width:6em" data-val="false" />
+            <div class="form-group col-xs-6 lpad" style="min-width:40%">
+                <label asp-for="_Address.State" class="control-label">State:</label>
+                <select asp-for="_Address.State" class="mi" style="margin-top:0.2em; min-height:2em">
+                    @Html.Raw(Address.GetStateOptions(Model._Address.State))
+                </select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_Address.ZipCode" +":">Zip:</label>
@@ -160,11 +187,21 @@
             <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
                 @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
             </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="_Person.Id" />
-                <div class="form-group">
+
+            <div class="form-group center">
+                <span class="md-8">
                     <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
-                </div>
+                </span>
+                <span class="col-md-2">
+                    <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+                </span>
+                <span class="col-md-2">
+                    <input type="button" id="DelBtn" value="Delete" style="background-color: #FFCCCC" />
+                </span>
+            </div>
+
+            <div class="form-group">
+
             </div>
 
             @Html.HiddenFor(model => model._Person.Alias)

@@ -259,6 +259,29 @@ namespace CStat.Common
                             }
                             re.Attachments.Add(fileName);
                         }
+                        foreach (var attachment in msg.BodyParts)
+                        {
+                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att";
+                            fileName = re.GetUniqueTempFileName(fileName, true);
+                            using (var stream = File.Create(fileName))
+                            {
+                                if (attachment is MessagePart)
+                                {
+                                    var part = (MessagePart)attachment;
+
+                                    part.Message.WriteTo(stream);
+                                }
+                                else
+                                {
+                                    var part = (MimePart)attachment;
+
+                                    part.Content.DecodeTo(stream);
+                                }
+                            }
+                            re.Attachments.Add(fileName);
+                        }
+
+
                         if (EMailReceived > _settings.LastEMailRead)
                         {
                             NeedSave = true;
@@ -419,6 +442,7 @@ namespace CStat.Common
         }
 			
 
+        // TBD : To Do : PNG Files added blank into PDB : Add images separately to Misc Drop Box support at least jpg, png, bmp, mp4, mpg and tif
         public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
         {
             var cse = new CSEMail(config, userManager);

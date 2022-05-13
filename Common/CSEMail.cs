@@ -259,9 +259,13 @@ namespace CStat.Common
                             }
                             re.Attachments.Add(fileName);
                         }
+
+                        // Sometimes images are in BodyParts. filter out other content
                         foreach (var attachment in msg.BodyParts)
                         {
-                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att";
+                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "";
+                            if (string.IsNullOrEmpty(fileName))
+                                continue; // filter out other non-file content
                             fileName = re.GetUniqueTempFileName(fileName, true);
                             using (var stream = File.Create(fileName))
                             {
@@ -440,9 +444,7 @@ namespace CStat.Common
             }
             return ResDT;
         }
-			
-
-        // TBD : To Do : PNG Files added blank into PDB : Add images separately to Misc Drop Box support at least jpg, png, bmp, mp4, mpg and tif
+	
         public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
         {
             var cse = new CSEMail(config, userManager);

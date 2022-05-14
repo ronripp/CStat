@@ -224,10 +224,11 @@
                 data: parameters,
                 success: function (response) {
                     if (response.indexOf("<option") !== -1) {
+                        var curName = $("#" + id).val();
                         var htmlStr = "<input type=\"text\" id=\"" + id + "\" rval=\"" + rval + "\" list=\"dl" + id + "\" />\n" + "<datalist id=\"dl" + id + "\">\n" + response + "</datalist>";
                         //var inp = document.getElementById(id);
                         document.getElementById(id).outerHTML = htmlStr;
-                        document.getElementById(id).value = nameStr;
+                        document.getElementById(id).value = curName;
                         document.getElementById(id).focus();
                     }
                 },

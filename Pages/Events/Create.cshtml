@@ -191,10 +191,11 @@
                 data: parameters,
                 success: function (response) {
                     if (response.indexOf("<option") !== -1) {
+                        var curName = $("#" + id).val();
                         var htmlStr = "<input type=\"text\" id=\"" + id + "\" rval=\"" + rval + "\" list=\"dl" + id + "\" />\n" + "<datalist id=\"dl" + id + "\">\n" + response + "</datalist>";
                         //var inp = document.getElementById(id);
                         document.getElementById(id).outerHTML = htmlStr;
-                        document.getElementById(id).value = nameStr;
+                        document.getElementById(id).value = curName;
                         document.getElementById(id).focus();
                     }
                 },
@@ -221,7 +222,25 @@
             $("#" + this.id).toggleClass("onStaff offStaff");
         });
 
-        $(document).on('keyup', "[id^=spers]", function () {
+        $(document).on('keyup', "[id^=spers]", function (e) {
+
+            var code = e.keyCode || e.which;
+            if ((code == 8) || ((code >= 33) && (code <= 46))) {
+                var attr = $(this).attr('list');
+                if (typeof attr !== 'undefined' && attr !== false) {
+                    var start = this.selectionStart;
+                    var end = this.selectionEnd;
+                    var name = $(this).val();
+                    var id = $(this).attr('id');
+                    var rval = $(this).attr('rval');
+                    var htmlStr = "<input type=\"text\" id=\"" + id + "\" rval=\"" + rval + "\" value=\"" + name + "\" />\n";
+                    document.getElementById(id).outerHTML = htmlStr;
+                    document.getElementById(id).setSelectionRange(start, end);
+                    document.getElementById(id).focus();
+                }
+                return;
+            }
+
             var rid = "#" + $(this).attr("id").replace("spers", "srole");
             if ($(rid).hasClass("offStaff")) {
                 $(rid).toggleClass("onStaff offStaff");

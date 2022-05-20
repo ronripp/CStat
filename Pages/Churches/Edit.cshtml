@@ -84,7 +84,7 @@
                 success: function (response) {
                     if (response.indexOf("<option") !== -1) {
                         var curName = $("#" + id).val();
-                        var htmlStr = "<input type=\"text\" id=\"" + id + "\" class=\"form-control\" name=\"" + nameAV + "\" list=\"dl" + id + "\" />\n" + "<datalist id=\"dl" + id + "\">\n" + response + "</datalist>";
+                        var htmlStr = "<input type=\"text\" autocomplete=\"off\" id=\"" + id + "\" class=\"form-control\" name=\"" + nameAV + "\" list=\"dl" + id + "\" />\n" + "<datalist id=\"dl" + id + "\">\n" + response + "</datalist>";
                         //var inp = document.getElementById(id);
                         document.getElementById(id).outerHTML = htmlStr;
                         document.getElementById(id).value = curName;
@@ -101,7 +101,7 @@
         $(document).on('change', "[id^=pers]", function () {
             var id = $(this).attr('id');
             var iid = "i" + id;
-            $("\"#" + iid + "\"").val("");
+            $("#" + iid).val("");
         });
 
         $(document).on('keyup', "[id^=pers]", function (e) {
@@ -159,7 +159,7 @@
 
 </script>
 
-<form method="post">
+<form method="post" autocomplete="off">
 
     <input type="hidden" asp-for="_Church.Id" />
     <input type="hidden" asp-for="_Church.Address.Id" />

@@ -79,6 +79,22 @@
                 }
             });
 
+            $("#zTitleRoles").change(function () {
+
+                var roles = $("#zTitleRoles").val();
+                if (roles.any(r => {
+                    (r === @CStat.Models.Person.TitleRoles.President) ||
+                        (r === @CStat.Models.Person.TitleRoles.Vice_Pres) ||
+                        (r === @CStat.Models.Person.TitleRoles.Secretary) ||
+                        (r === @CStat.Models.Person.TitleRoles.Treasurer) ||
+                        (r === @CStat.Models.Person.TitleRoles.Memb_at_Lg)
+                })) {
+                    _ExpireYear$("#ECExpire").css('display', 'inline-block');
+                }
+                else
+                    _ExpireYear$("#ECExpire").css('display', 'inline-block');
+            });
+
         $("#DelBtn").click(function () {
             if (confirm("Delete Person : " + $("#zPerson_FirstName").val() + " " + $("#zPerson_LastName").val() + " ? ")) {
                 var parameters = "{'personId':'" + @Model._Person.Id + "'}";
@@ -128,19 +144,19 @@
                 <select asp-for="_Person.Gender" asp-items="ViewBag.Gender"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Person.ChurchId" +":">Church:</label>
+                <label asp-for="_Person.ChurchId">Church:</label>
                 <select asp-for="_Person.ChurchId" asp-items="ViewBag.ChurchId" style="max-width:12em"></select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Person.Dob" +":">DOB:</label>
+                <label asp-for="_Person.Dob">DOB:</label>
                 <input type="date" asp-for="_Person.Dob" style="max-width:9.7em" data-val="false" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Address.Street" +":">Street:</label>
+                <label asp-for="_Address.Street">Street:</label>
                 <input asp-for="_Address.Street" style="max-width:12em" data-val="false" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Address.Town" +":">Town/C:</label>
+                <label asp-for="_Address.Town">Town/C:</label>
                 <input asp-for="_Address.Town" style="max-width:6em" data-val="false" />
             </div>
             <div class="form-group col-xs-6 lpad" style="min-width:40%">
@@ -150,7 +166,7 @@
                 </select>
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Address.ZipCode" +":">Zip:</label>
+                <label asp-for="_Address.ZipCode">Zip:</label>
                 <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
             </div>
 
@@ -163,26 +179,33 @@
             </div>
 
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Person.CellPhone" +":">Cell:</label>
+                <label asp-for="_Person.CellPhone">Cell:</label>
                 <input asp-for="_Person.CellPhone" style="max-width:7em" data-val="false" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Address.Phone" +":">Home Phone:</label>
+                <label asp-for="_Address.Phone">Home Phone:</label>
                 <input asp-for="_Address.Phone" style="max-width:7em" data-val="false" />
             </div>
 
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Person.Email" +":">EMail:</label>
+                <label asp-for="_Person.Email">EMail:</label>
                 <input asp-for="_Person.Email" style="max-width:12em" data-val="false" />
             </div>
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_TitleRoles" +":">Roles:</label>
+                <label asp-for="_TitleRoles">Roles:</label>
                 <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
+            </div>
+            @{
+                var dispStr = Model._NeedECExpire ? "none" : "inline-block";
+            }
+            <div style="display:@dispStr; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_ECExpire">Year Term Expires Nov.:</label>
+                <input asp-for="_ECExpire" style="max-width:4em" data-val="false" />
             </div>
 
             <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_Person.Notes" +":">Comments:</label>
-                <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" />
+                <label asp-for="_Person.Notes">Comments:</label>
+                <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" maxlength="230" />
             </div>
             <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
                 @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))

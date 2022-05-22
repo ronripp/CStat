@@ -36,6 +36,58 @@ namespace CStat
             return Page();
         }
 
+        private void InitECExire(Person person)
+        {
+            _NeedECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+
+            _ECExpire = "";
+            if (!string.IsNullOrEmpty(person.Notes))
+            {
+                var sidx = person.Notes.IndexOf("{ExpiresNov:");
+                if (sidx != -1)
+                {
+                    sidx += 12;
+                    var eidx = person.Notes.Substring(sidx).IndexOf("}");
+                    if (eidx != -1)
+                    {
+                        string oldECExpire = person.Notes.Substring(sidx, (eidx - sidx));
+                        _ECExpire = person.Notes.Substring(sidx, (eidx - sidx) - 1);
+                        person.Notes.Replace(oldECExpire, "");
+                    }
+                }
+            }
+        }
+
+        private void UpdateECExire(Person person)
+        {
+            bool needECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+            string ECExpireYear = _ECExpire.Trim();
+            var expYearLen = ECExpireYear.Length;
+            if (expYearLen > 4)
+                ECExpireYear = ECExpireYear.Substring(0, 4);
+            else if (expYearLen == 2)
+                ECExpireYear = "20" + ECExpireYear;
+
+            if (!string.IsNullOrEmpty(person.Notes))
+            {
+                var sidx = person.Notes.IndexOf("{ExpiresNov:");
+                if (sidx != -1)
+                {
+                    sidx += 12;
+                    var eidx = person.Notes.Substring(sidx).IndexOf("}");
+                    if (eidx != -1)
+                    {
+                        string oldECExpire = person.Notes.Substring(sidx, (eidx - sidx));
+                        person.Notes.Replace(oldECExpire, "");
+                    }
+                }
+            }
+            if (needECExpire && (ECExpireYear.Length > 0))
+            {
+                person.Notes += "{ExpiresNov:" + ECExpireYear + "}";
+            }
+        }
+
         private void UpdateLists(int? cid)
         {
             IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
@@ -91,6 +143,12 @@ namespace CStat
         [BindProperty]
         public string _HandleAdrId { get; set; }
 
+        [BindProperty]
+        public string _ECExpire { get; set; } = "";
+
+        [BindProperty]
+        public bool _NeedECExpire { get; set; } = false;
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public IActionResult OnPost()
@@ -115,6 +173,8 @@ namespace CStat
                 {
                     _Person.Roles |= (long)i;
                 }
+
+                UpdateECExire(_Person);
 
                 if ((_Person.AddressId == null) && isValidAdr)
                 {

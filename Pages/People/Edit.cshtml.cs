@@ -33,6 +33,8 @@ namespace CStat
             }
 
             UpdateLists(_Person.ChurchId);
+            InitECExire(_Person);
+
             return Page();
         }
 
@@ -48,11 +50,10 @@ namespace CStat
                 {
                     sidx += 12;
                     var eidx = person.Notes.Substring(sidx).IndexOf("}");
-                    if (eidx != -1)
+                    if ((eidx != -1) && (eidx > 0))
                     {
-                        string oldECExpire = person.Notes.Substring(sidx, (eidx - sidx));
-                        _ECExpire = person.Notes.Substring(sidx, (eidx - sidx) - 1);
-                        person.Notes.Replace(oldECExpire, "");
+                        _ECExpire = person.Notes.Substring(sidx, eidx);
+                        person.Notes = person.Notes.Replace("{ExpiresNov:" + _ECExpire + "}", "").Trim();
                     }
                 }
             }
@@ -73,18 +74,19 @@ namespace CStat
                 var sidx = person.Notes.IndexOf("{ExpiresNov:");
                 if (sidx != -1)
                 {
+                    // This should not happen but code is here to clean it up just in case.
                     sidx += 12;
                     var eidx = person.Notes.Substring(sidx).IndexOf("}");
-                    if (eidx != -1)
+                    if ((eidx != -1) && (eidx > 0))
                     {
-                        string oldECExpire = person.Notes.Substring(sidx, (eidx - sidx));
-                        person.Notes.Replace(oldECExpire, "");
+                        _ECExpire = person.Notes.Substring(sidx, eidx);
+                        person.Notes = person.Notes.Replace("{ExpiresNov:" + _ECExpire + "}", "").Trim();
                     }
                 }
             }
             if (needECExpire && (ECExpireYear.Length > 0))
             {
-                person.Notes += "{ExpiresNov:" + ECExpireYear + "}";
+                person.Notes = person.Notes.Trim() + "{ExpiresNov:" + ECExpireYear + "}";
             }
         }
 

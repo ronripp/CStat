@@ -196,7 +196,7 @@
                 <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
             </div>
             @{
-                var dispStr = Model._NeedECExpire ? "none" : "inline-block";
+                var dispStr = Model._NeedECExpire ? "inline-block" : "none";
             }
             <div style="display:@dispStr; margin-right:10px; margin-bottom:10px;">
                 <label asp-for="_ECExpire">Year Term Expires Nov.:</label>

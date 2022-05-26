@@ -104,6 +104,43 @@ namespace CStat
         [BindProperty]
         public string _Church { get; set; } = "";
 
+        [BindProperty]
+        public string _ECExpire { get; set; } = "";
+
+        [BindProperty]
+        public bool _NeedECExpire { get; set; } = false;
+
+        private void UpdateECExire(Person person)
+        {
+            bool needECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+            string ECExpireYear = _ECExpire.Trim();
+            var expYearLen = ECExpireYear.Length;
+            if (expYearLen > 4)
+                ECExpireYear = ECExpireYear.Substring(0, 4);
+            else if (expYearLen == 2)
+                ECExpireYear = "20" + ECExpireYear;
+
+            if (!string.IsNullOrEmpty(person.Notes))
+            {
+                var sidx = person.Notes.IndexOf("{ExpiresNov:");
+                if (sidx != -1)
+                {
+                    // This should not happen but code is here to clean it up just in case.
+                    sidx += 12;
+                    var eidx = person.Notes.Substring(sidx).IndexOf("}");
+                    if ((eidx != -1) && (eidx > 0))
+                    {
+                        _ECExpire = person.Notes.Substring(sidx, eidx);
+                        person.Notes = person.Notes.Replace("{ExpiresNov:" + _ECExpire + "}", "").Trim();
+                    }
+                }
+            }
+            if (needECExpire && (ECExpireYear.Length > 0))
+            {
+                person.Notes = person.Notes.Trim() + "{ExpiresNov:" + ECExpireYear + "}";
+            }
+        }
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -128,7 +165,7 @@ namespace CStat
             _Person.Address.Town = _Town;
             _Person.Address.State = _State;
             _Person.Address.ZipCode = _ZipCode;
-
+            UpdateECExire(_Person);
             var res = await _Person.AddPerson(_context, bapStr, _Church, _PG1.Trim(), _PG2.Trim());
 
             if (res == false)

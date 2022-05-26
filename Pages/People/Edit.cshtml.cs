@@ -34,6 +34,7 @@ namespace CStat
 
             UpdateLists(_Person.ChurchId);
             InitECExire(_Person);
+            _Person.Dob = Person.InitDOB(_Person.Dob);
 
             return Page();
         }
@@ -62,6 +63,8 @@ namespace CStat
         private void UpdateECExire(Person person)
         {
             bool needECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+            if (!needECExpire || string.IsNullOrEmpty(_ECExpire))
+                return;
             string ECExpireYear = _ECExpire.Trim();
             var expYearLen = ECExpireYear.Length;
             if (expYearLen > 4)
@@ -89,7 +92,6 @@ namespace CStat
                 person.Notes = person.Notes.Trim() + "{ExpiresNov:" + ECExpireYear + "}";
             }
         }
-
         private void UpdateLists(int? cid)
         {
             IList<SelectListItem> gList = Enum.GetValues(typeof(eGender)).Cast<eGender>().Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
@@ -177,6 +179,7 @@ namespace CStat
                 }
 
                 UpdateECExire(_Person);
+                _Person.Dob = Person.UpdateDOB(_Person.Dob);
 
                 if ((_Person.AddressId == null) && isValidAdr)
                 {
@@ -253,7 +256,5 @@ namespace CStat
             }
             return new JsonResult("ERROR~: Delete Person Failed.");
         }
-
-
     }
 }

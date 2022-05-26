@@ -1779,8 +1779,26 @@ namespace CStat.Models
             return ss.Trim().Replace("-", "");
         }
 
+        public static DateTime? InitDOB(DateTime? dt)
+        {
+            if (dt.HasValue && (dt.Value.Year == 1900) && (dt.Value.Month == 1) && (dt.Value.Day == 1))
+                return null;
+            return dt;
+        }
+
+        public static DateTime? UpdateDOB(DateTime? dt)
+        {
+            DateTime? retDT;
+            if (!dt.HasValue)
+            {
+                retDT = new DateTime(1900, 1, 1);
+                return retDT;
+            }
+            return dt;
+        }
+
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
 
-}
+    }
 }

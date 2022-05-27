@@ -15,6 +15,7 @@
             <div class="container" style="background-color:#fff090;">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">@ViewData["Title"]</a>
                 <button onclick="addNew()">Add New</button>
+                <button onclick="findPpl()" class="btn btn-primary">Find</button>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -26,8 +27,8 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         @*<li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                            </li>*@
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                </li>*@
                     </ul>
                 </div>
             </div>
@@ -52,6 +53,9 @@
     <script>
         function addNew() {
             location.assign("/People/Create");
+        }
+        function findPpl() {
+            findPeople();
         }
     </script>
 

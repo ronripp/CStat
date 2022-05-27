@@ -133,6 +133,8 @@ namespace CStat.Common
             {"director", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, false) },
             {"directors", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
             {"ec", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
+            {"term", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
+            {"terms", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive board", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
@@ -653,8 +655,13 @@ namespace CStat.Common
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
-                    result += (p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
-                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + " " + (!string.IsNullOrEmpty(p.Email) ? p.Email : "")).Trim() + $"\n";
+                    result += ("*" + p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
+                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + " " + (!string.IsNullOrEmpty(p.Email) ? p.Email : "")).Trim();
+
+                    var exp = p.GetTermExpire();
+                    if (exp != 0)
+                        result += " Exp Nov." + exp.ToString();
+                    result += $"\n";
                 }
             }
             return result;

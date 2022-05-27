@@ -1797,8 +1797,33 @@ namespace CStat.Models
             return dt;
         }
 
+        public int GetTermExpire()
+        {
+            if ((Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) == 0)
+                return 0;
+
+            if (!string.IsNullOrEmpty(Notes))
+            {
+                var sidx = Notes.IndexOf("{ExpiresNov:");
+                if (sidx != -1)
+                {
+                    sidx += 12;
+                    var eidx = this.Notes.Substring(sidx).IndexOf("}");
+                    if ((eidx != -1) && (eidx > 0))
+                    {
+                        try
+                        {
+                            if (int.TryParse(Notes.Substring(sidx, eidx), out int year))
+                                return year;
+                        }
+                        catch { }
+                    }
+                }
+            }
+            return 0;
+        }
+
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
-
     }
 }

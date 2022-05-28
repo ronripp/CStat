@@ -2,6 +2,7 @@
 using CStat.Data;
 using MailKit.Net.Pop3;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -125,6 +126,7 @@ namespace CStat.Common
 
     public class CSEMail
     {
+        public static readonly string[] dateFormats = { "M/d/yy", "MM/dd/yy", "MM/d/yy", "M/dd/yy", "M/d/yyyy", "MM/dd/yyyy", "MM/d/yyyy", "M/dd/yyyy"};
         private readonly string fromName = "CCA Informer";
         //		private readonly string fromSMTP = "cccaserve.org";
         private readonly string fromAdr = "inform@ccaserve.org";
@@ -444,8 +446,8 @@ namespace CStat.Common
             }
             return ResDT;
         }
-	
-        public static string SaveEMails(IConfiguration config, UserManager<CStatUser> userManager)
+
+        public static string ProcessEMails(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CSSettings csSettings, CStat.Models.CStatContext context)
         {
             var cse = new CSEMail(config, userManager);
             String report = "Save EMails.\n";
@@ -453,6 +455,9 @@ namespace CStat.Common
             foreach (var e in eList)
             {
                 report += e.Subject + ".\n";
+
+                if (ExecuteEMailCmd(hostEnv, config, userManager, csSettings, context, e))
+                    continue;
 
                 if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
                     e.AddHtmlAsPDFAttachment();
@@ -463,25 +468,94 @@ namespace CStat.Common
                     var destPath = "/Memorandums";
                     foreach (var a in e.Attachments)
                     {
-                        string FileName = e.GetFinalFileName(Path.GetFileName(a));
-                        if (dbox.FileExists(destPath + "/" + FileName))
+                        try
                         {
-                            var fBody = Path.GetFileNameWithoutExtension(FileName);
-                            var fExt = Path.GetExtension(FileName);
-                            for (char j = 'B'; j < 'Z'; ++j)
+                            string FileName = e.GetFinalFileName(Path.GetFileName(a));
+                            if (dbox.FileExists(destPath + "/" + FileName))
                             {
-                                FileName = fBody + "_Rev_" + j.ToString() + fExt;
-                                if (!dbox.FileExists(destPath + "/" + FileName))
-                                    break;
+                                var fBody = Path.GetFileNameWithoutExtension(FileName);
+                                var fExt = Path.GetExtension(FileName);
+                                for (char j = 'B'; j < 'Z'; ++j)
+                                {
+                                    FileName = fBody + "_Rev_" + j.ToString() + fExt;
+                                    if (!dbox.FileExists(destPath + "/" + FileName))
+                                        break;
+                                }
                             }
+                            if (dbox.UploadFile(a, destPath, FileName))
+                                report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
+
+                            File.Delete(a);
                         }
-                        if (dbox.UploadFile(a, destPath, FileName))
-                            report += "Saved to DropBox " + destPath + " > " + FileName + ".\n";
-                        File.Delete(a);
+                        catch
+                        {
+                        }
                     }
                 }
             }
             return report;
         }
+
+        // Check for requests
+        public static bool ExecuteEMailCmd(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CSSettings csSettings, CStat.Models.CStatContext context, REMail e)
+        {
+            // Examine the subject of email
+            var subject = e.Subject.Trim().ToLower();
+            Char[] delimiters = {' ', ','};
+            var words = subject.Split(delimiters);
+
+            if (words.Any(w => w == "meeting") || words.Any(w => w == "minutes") || words.Any(w => w == "meeting-minutes"))
+            {
+                DateTime mmDate = DateTime.MinValue; 
+                foreach (var w in words)
+                {
+                    if (DateTime.TryParseExact(w, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
+                        break;
+                }
+                if (mmDate != DateTime.MinValue)
+                {
+                    // Meeting Minutes with a specific date
+                    string mmFileName = mmDate.Year + "-" + mmDate.Month.ToString("D2") + "-" + mmDate.Day.ToString("D2") + "_MM.pdf";
+                    if (e.Attachments.Count == 0)
+                    {
+                        // This email is likely meeting minutes
+                        if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
+                            e.AddHtmlAsPDFAttachment(mmFileName);
+                    }
+                    else
+                    { 
+                        var dbox = new CSDropBox(Startup.CSConfig);
+                        var destPath = "/Corporate/CCA Minutes";
+                        foreach (var a in e.Attachments)
+                        {
+                            try
+                            {
+                                var FileName = mmFileName;
+                                if (dbox.FileExists(destPath + "/" + mmFileName))
+                                {
+                                    var fBody = Path.GetFileNameWithoutExtension(mmFileName);
+                                    var fExt = Path.GetExtension(mmFileName);
+                                    for (char j = 'B'; j < 'Z'; ++j)
+                                    {
+                                        FileName = fBody + "_Rev_" + j.ToString() + fExt;
+                                        if (!dbox.FileExists(destPath + "/" + FileName))
+                                            break;
+                                    }
+                                }
+                                dbox.UploadFile(a, destPath, FileName);
+                                File.Delete(a);
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     }
 }

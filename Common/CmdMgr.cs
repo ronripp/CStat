@@ -660,7 +660,7 @@ namespace CStat.Common
 
                     var exp = p.GetTermExpire();
                     if (exp != 0)
-                        result += " Exp Nov." + exp.ToString();
+                        result += " Exp.Nov." + exp.ToString();
                     result += $"\n";
                 }
             }

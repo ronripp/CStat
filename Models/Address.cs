@@ -18,7 +18,20 @@ namespace CStat.Models
             Person = new HashSet<Person>();
         }
 
-        [Key]
+        public void SetEmpty()
+        {
+            Id = 0;
+            Street = "";
+            Town = "";
+            State = "";
+            ZipCode = "";
+            Phone = "";
+            Fax = "";
+            Country = "";
+            WebSite = "";
+        }
+
+    [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }

@@ -14,8 +14,9 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container" style="background-color:#fff090;">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">@ViewData["Title"]</a>
-                <button onclick="addNew()">Add New</button>
-                <button onclick="findPpl()" class="btn btn-primary">Find</button>
+                <button onclick="addNew()" style="margin-right:10px">Add New</button>
+                <button onclick="findPpl()" style="margin-right:10px" class="btn btn-primary">Find</button>
+                <button onclick="history.back()">Back</button>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

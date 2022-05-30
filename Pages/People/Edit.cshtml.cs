@@ -27,10 +27,20 @@ namespace CStat
             int pid = int.Parse(id);
 
             _Person = _context.Person.FirstOrDefault(p => p.Id == pid);
-            if ((_Person != null) && (_Person.AddressId != null))
+            if (_Person != null)
             {
-                _Address = _context.Address.FirstOrDefault(a => a.Id == _Person.AddressId);
+                if (_Person.AddressId != null)
+                {
+                    _Address = _context.Address.FirstOrDefault(a => a.Id == _Person.AddressId);
+                }
+                else
+                {
+                    _Address = new Address();
+                    _Address.SetEmpty();
+                }
             }
+            else
+                return RedirectToPage("./Find");
 
             UpdateLists(_Person.ChurchId);
             InitECExire(_Person);
@@ -87,6 +97,9 @@ namespace CStat
                     }
                 }
             }
+            else
+                person.Notes = "";
+
             if (needECExpire && (ECExpireYear.Length > 0))
             {
                 person.Notes = person.Notes.Trim() + "{ExpiresNov:" + ECExpireYear + "}";

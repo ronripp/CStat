@@ -240,9 +240,11 @@ namespace CStat.Common
                         if (re.Date == default)
                             re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
                         re.Attachments = new List<string>();
+                        var attRawFileList = new List<string>();
                         foreach (var attachment in msg.Attachments)
                         {
                             var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att";
+                            attRawFileList.Add(fileName);
                             fileName = re.GetUniqueTempFileName(fileName, true);
                             using (var stream = File.Create(fileName))
                             {
@@ -268,6 +270,9 @@ namespace CStat.Common
                             var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "";
                             if (string.IsNullOrEmpty(fileName))
                                 continue; // filter out other non-file content
+                            if (attRawFileList.IndexOf(fileName) != -1)
+                                continue; // we already have this file from above attachments 
+
                             fileName = re.GetUniqueTempFileName(fileName, true);
                             using (var stream = File.Create(fileName))
                             {
@@ -514,8 +519,17 @@ namespace CStat.Common
                 }
                 if (mmDate != DateTime.MinValue)
                 {
+                    var year = (mmDate.Year < 2000) ? mmDate.Year + 100 : mmDate.Year; // ensure 21st century
+                    string adjWord;
+                    if (words.Any(w => w == "special"))
+                        adjWord = "_Special";
+                    else if (words.Any(w => w == "annual"))
+                        adjWord = "_Annual";
+                    else
+                        adjWord = "_EC";
+
                     // Meeting Minutes with a specific date
-                    string mmFileName = mmDate.Year + "-" + mmDate.Month.ToString("D2") + "-" + mmDate.Day.ToString("D2") + "_MM.pdf";
+                    string mmFileName = year + "-" + mmDate.Month.ToString("D2") + "-" + mmDate.Day.ToString("D2") + adjWord + "_MM.pdf";
                     if (e.Attachments.Count == 0)
                     {
                         // This email is likely meeting minutes
@@ -525,7 +539,7 @@ namespace CStat.Common
                     else
                     { 
                         var dbox = new CSDropBox(Startup.CSConfig);
-                        var destPath = "/Corporate/CCA Minutes";
+                        var destPath = "/Corporate/Meeting Minutes";
                         foreach (var a in e.Attachments)
                         {
                             try

@@ -1961,4 +1961,13 @@ namespace CStat.Models
         }
 
     }
+
+    public class UserInput
+    {
+        public string Pre { get; set; } = "";
+        public string Input { get; set; } = "";
+        public string Range { get; set; } = "";
+        public string Post { get; set; } = "";
+    }
+    
 }

@@ -1,5 +1,6 @@
 ﻿@page
 @model CStat.Pages.Tasks.TaskResModel
+@using CStat.Models;
 
 <h4>Task</h4>
 <hr />
@@ -7,7 +8,7 @@
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Task.Id" />
+            <input type="hidden" asp-for="_Task.Id" />
             @Model.CreateEntryFields();
             <div class="form-group">
                 <input type="submit" value="Submit" class="btn btn-primary" />

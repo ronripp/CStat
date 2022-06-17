@@ -26,6 +26,26 @@ namespace CStat.Pages.Tasks
         [BindProperty]
         public Task _Task { get; set; }
 
+        [BindProperty]
+        public string _str1 { get; set; } = "";
+        [BindProperty]
+        public string _str2 { get; set; } = "";
+        [BindProperty]
+        public string _str3 { get; set; } = "";
+        [BindProperty]
+        public string _dbl1 { get; set; } = "";
+        [BindProperty]
+        public string _dbl2 { get; set; } = "";
+        [BindProperty]
+        public string _dbl3 { get; set; } = "";
+        [BindProperty]
+        public string _int1 { get; set; } = "";
+        [BindProperty]
+        public string _int2 { get; set; } = "";
+        [BindProperty]
+        public string _int3 { get; set; } = "";
+
+        private int NumStr = 0, NumDbl = 0, NumInt = 0;
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -53,21 +73,65 @@ namespace CStat.Pages.Tasks
 
         public string CreateEntryFields()
         {
+            string Entries = "";
             if (_Task == null)
             {
                 return "";
             }
             TaskData tData = TaskData.ReadTaskData(_hostEnv, _Task.Id, _Task.ParentTaskId.HasValue ? _Task.ParentTaskId.Value : -1);
 
-            // !Request_Results_When_Done~Enter Free Cl PPM for %DueDate%: %8.2lf ppm~
-            string details = tData.Detail;
-            int idx;
-            while ((idx = details.IndexOf ("!Request_Results_When_Done~")) != -1)
+            try
             {
-                // TODO 
+                // ^{"Pre":"Enter Free Cl PPM for %DueDate%","Input":"%8.2lf","Range":"0 to 4",Post":" ppm"}^
+                string details = tData.Detail;
+                int sidx, eidx;
+                while ((sidx = details.IndexOf("'{")) != -1)
+                {
+                    // Get Prefix Label
+                    sidx += 1;
+                    if ((eidx = details.Substring(sidx).IndexOf("}'")) != -1)
+                    {
+                        string jsInput = details.Substring(sidx, eidx + 1);
+                        UserInput ui = Newtonsoft.Json.JsonConvert.DeserializeObject<UserInput>(jsInput);
+                        if (ui != null)
+                        {
+                            double inpWidth = 6;
+                            string inpVar = "";
+                            int inpDot = ui.Input.IndexOf(".");
+                            int inpIdx = -1;
+                            if (ui.Input.StartsWith("%"))
+                            {
+                                do
+                                {
+                                    inpIdx = ui.Input.IndexOf("lf");
+                                    if (inpIdx != -1) {inpVar = "Model._dbl" + (++NumDbl); break; }
+                                    inpIdx = ui.Input.IndexOf("f");
+                                    if (inpIdx != -1) { inpVar = "Model._dbl" + (++NumDbl); break; }
+                                    inpIdx = ui.Input.IndexOf("s");
+                                    if (inpIdx != -1) { inpVar = "Model._str" + (++NumStr); break; }
+                                    inpIdx = ui.Input.IndexOf("i");
+                                    if (inpIdx != -1) { inpVar = "Model._int" + (++NumInt); break; }
+                                    inpIdx = ui.Input.IndexOf("i");
+                                    if (inpIdx != -1) { inpVar = "Model._int" + (++NumInt); break; }
+                                }
+                                while (false);
+                                if ((NumDbl > 3) || (NumStr > 3) || (NumInt > 3))
+                                    continue;
 
-                idx += 27;
-                details = details.Substring(idx);
+                                if (inpIdx != -1)
+                                    inpWidth = int.Parse(ui.Input.Substring(1, ((inpDot != -1) ? inpDot : inpIdx)));
+     
+                            }
+                            Entries += "<div class=\"form-group\">\n" +
+                                      "<label for=\"" + inpVar + "\" class=\"control-label\">" + ui.Pre + "</label>\n" +
+                                      "<input asp-for=\"" + inpVar + "].Pre\" class=\"form-control\" />\n" + ui.Post + "</div>\n";
+                        }
+                    }
+                    details = details.Substring(eidx + 2);
+                }
+            }
+            catch
+            {
             }
 
             // < div class="form-group">
@@ -81,7 +145,7 @@ namespace CStat.Pages.Tasks
             //     <span asp-validation-for="Task.Priority" class="text-danger"></span>
             // </div>
 
-            return "";
+            return Entries;
         }
 
 
@@ -94,7 +158,7 @@ namespace CStat.Pages.Tasks
                 return Page();
             }
 
-            _context.Attach(Task).State = EntityState.Modified;
+            _context.Attach(_Task).State = EntityState.Modified;
 
             try
             {
@@ -102,7 +166,7 @@ namespace CStat.Pages.Tasks
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TaskExists(Task.Id))
+                if (!TaskExists(_Task.Id))
                 {
                     return NotFound();
                 }

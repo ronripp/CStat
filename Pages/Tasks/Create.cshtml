@@ -222,6 +222,7 @@
                 saveFormData.append("TillDay", $("#TillDay").val());
             }
             if (($("#task_ActualDoneDate").val() === "") && (inMarkDone || ($("#taskData_state").val() === 0x00001000))) {
+                inMarkDone = true;
                 $("#task_ActualDoneDate").val(Date.now().toString());
             }
             saveFormData.append("taskDoneDate", $("#task_ActualDoneDate").val());
@@ -237,6 +238,8 @@
             saveFormData.append("pics", pics_s);
             saveFormData.append("picTitles", picTitles_s);
             saveFormData.append("bom", bom_s);
+
+            let need
 
             jQuery.ajax({
                 url: "/Tasks/Create?handler=Save",
@@ -272,6 +275,20 @@
                 complete: function (res) {
                     $("#newPicId").hide();
                     $("#picHdrId").show();
+
+                    if (inMarkDone) {
+                        let taskDetail = $("#taskDetail").val();
+                        if (!!taskDetail && (taskDetail.indexOf("!{") != -1) && (taskDetail.indexOf("}!") != -1))
+                        {
+                            let allComments = $("#AllComments").val();
+                            if (allComments.indexOf("!{Results:") == -1) {
+                                window.location.href = "TaskRef?id=" + $("#task_Id").val();
+                                return;
+                            }
+                        }
+                    }
+
+    
                     inMarkDone = false;
                     if (goBackAfterSave) {
                         goBackAfterSave = false;
@@ -1016,16 +1033,16 @@
     <input type="hidden" asp-for="task.ActualDoneDate" />
 
     <table width="100%">
-       <tr style="width:100%">
-           <td>
-               <label  asp-for="task.Description">Title:</label>
-               <input asp-for="task.Description" style="font-weight:bold; width:85%" />
-               <span asp-validation-for="task.Description" class="text-danger"></span>
+        <tr style="width:100%">
+            <td>
+                <label asp-for="task.Description">Title:</label>
+                <input asp-for="task.Description" style="font-weight:bold; width:85%" />
+                <span asp-validation-for="task.Description" class="text-danger"></span>
 
-           </td>
-       </tr>
+            </td>
+        </tr>
     </table>
-  
+
     <div style="background-color:@bkColor">
         <ul class="nav nav-tabs" role="tablist" id="taskTabs">
             <li class="nav-item">
@@ -1067,18 +1084,21 @@
                             <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
                             <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
                             @{
+                                var DueDateStr = Model.IsTemplate ? "Due Day (each year):" : "Due Date:";
                                 var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
-                                var dueDateLabel = (Model.taskData.FixedDueDate) ? "Due Date:" : "Est. Done:";
+                                var dueDateLabel = (Model.taskData.FixedDueDate) ? @DueDateStr : "Est. Done:";
                             }
                             <div>
                                 <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
-                                @{if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
+                                @{
+                                    var maxDDWidth = Model.IsTemplate ? "max-width:5em" : "";
+                                    if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
                                     {
-                                        <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em;" />
+                                        <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em; @maxDDWidth" />
                                     }
                                     else
                                     {
-                                        <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em;" />
+                                        <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em; @maxDDWidth" />
                                     }
                                 }
 

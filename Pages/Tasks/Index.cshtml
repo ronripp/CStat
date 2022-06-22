@@ -134,7 +134,11 @@
                 contentType: false,
                 success: function (res) {
                     if (res.indexOf("Success") === 0) {
-                        window.location.reload(true);
+                        let taskRes = (res.length() > 7) ? res.subString(7) : "";
+                        if (!!taskRes)
+                            window.location.href("TaskRes" + taskRes);
+                        else
+                            window.location.reload(true);
                     }
                     else {
                         alert("FAILURE : Task NOT Marked Complete : " + res);
@@ -224,9 +228,13 @@
                 </td>
                 <td>
                     @{
-                        item.GetTaskStatus(out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
-                        var baseState = ((CTask.eTaskStatus)state).ToString().Replace("_", " ");
-                        var stateStr = ((baseState == "Not Started") && (pctComp == 0)) ? baseState : baseState + " (" + pctComp + "%)";
+                        var stateStr = "TEMPLATE";
+                        if (!Model.IsTemplate)
+                        {
+                            item.GetTaskStatus(out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
+                            var baseState = ((CTask.eTaskStatus)state).ToString().Replace("_", " ");
+                            stateStr = ((baseState == "Not Started") && (pctComp == 0)) ? baseState : baseState + " (" + pctComp + "%)";
+                        }
                     }
                     @stateStr
                 </td>
@@ -272,7 +280,7 @@
                 </td>
                 <td>
                     @{
-                    if (ClassNm.StartsWith("Done"))
+                    if (ClassNm.StartsWith("Done") || Model.IsTemplate)
                     {
                         <a asp-page="./Delete" class="@ClassNm" asp-route-id="@item.Id">[Delete]</a>
                     }

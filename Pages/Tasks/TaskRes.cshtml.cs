@@ -82,14 +82,15 @@ namespace CStat.Pages.Tasks
 
             try
             {
-                // ^{"Pre":"Enter Free Cl PPM for %DueDate%","Input":"%8.2lf","Range":"0 to 4",Post":" ppm"}^
+                // !{"Pre":"Enter Free Cl PPM for %DueDate%","Input":"%8.2lf","Range":"0 to 4",Post":" ppm"}!
+                // !{"Pre":"Enter Free Cl PPM for %DueDate%","Input":"SELECT,No Usage,0 ppm,0.5 ppm,1 ppm,1.5 ppm,2 ppm,2.5 ppm,3 ppm,3.5 ppm,4 ppm,+4 ppm","Range":"",Post":" ppm"}!
                 string details = tData.Detail;
                 int sidx, eidx;
-                while ((sidx = details.IndexOf("'{")) != -1)
+                while ((sidx = details.IndexOf("!{")) != -1)
                 {
                     // Get Prefix Label
                     sidx += 1;
-                    if ((eidx = details.Substring(sidx).IndexOf("}'")) != -1)
+                    if ((eidx = details.Substring(sidx).IndexOf("}!")) != -1)
                     {
                         string jsInput = details.Substring(sidx, eidx + 1);
                         UserInput ui = Newtonsoft.Json.JsonConvert.DeserializeObject<UserInput>(jsInput);
@@ -104,7 +105,7 @@ namespace CStat.Pages.Tasks
                                 do
                                 {
                                     inpIdx = ui.Input.IndexOf("lf");
-                                    if (inpIdx != -1) {inpVar = "Model._dbl" + (++NumDbl); break; }
+                                    if (inpIdx != -1) { inpVar = "Model._dbl" + (++NumDbl); break; }
                                     inpIdx = ui.Input.IndexOf("f");
                                     if (inpIdx != -1) { inpVar = "Model._dbl" + (++NumDbl); break; }
                                     inpIdx = ui.Input.IndexOf("s");
@@ -120,11 +121,30 @@ namespace CStat.Pages.Tasks
 
                                 if (inpIdx != -1)
                                     inpWidth = int.Parse(ui.Input.Substring(1, ((inpDot != -1) ? inpDot : inpIdx)));
-     
+
+                                Entries += "<div class=\"form-group\">\n" +
+                                          "<label for=\"" + inpVar + "\" class=\"control-label\">" + ui.Pre + "</label>\n" +
+                                          "<input asp-for=\"" + inpVar + "].Pre\" class=\"form-control\" />\n" + ui.Post + "</div>\n";
                             }
-                            Entries += "<div class=\"form-group\">\n" +
-                                      "<label for=\"" + inpVar + "\" class=\"control-label\">" + ui.Pre + "</label>\n" +
-                                      "<input asp-for=\"" + inpVar + "].Pre\" class=\"form-control\" />\n" + ui.Post + "</div>\n";
+                            else if (ui.Input.StartsWith("SELECT,"))
+                            {
+                                //<label for="cars">Choose a car:</label>
+                                //<select name="cars" id="cars" form="carform">
+                                //  <option value="volvo">Volvo</option>
+                                //  <option value="saab">Saab</option>
+                                //  <option value="opel">Opel</option>
+                                //  <option value="audi">Audi</option>
+                                //</select>
+                                string[] options = ui.Input.Substring(7).Split(',');
+                                Entries += "<div class=\"form-group\">\n" +
+                                          "<label for=\"sel1\" class=\"control-label\">" + ui.Pre + "</label>\n" +
+                                          "<select name=\"sel1\" id=\"sel1\">\n";
+                                foreach(string s in options)
+                                {
+                                    Entries += "<option value\"" + s + "\">" + s + "</option>/n"; 
+                                }
+                                Entries += "</select>\n";
+                            }
                         }
                     }
                     details = details.Substring(eidx + 2);

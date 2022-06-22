@@ -132,7 +132,10 @@ namespace CStat.Pages.Tasks
                         taskData.Write(hostEnv);
                         _context.Attach(task).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                         _context.SaveChanges();
-                        return this.Content("Success");
+                        if ((taskData.Detail.IndexOf("!{") != -1) && (taskData.Detail.IndexOf("!{") != -1) && (taskData.Detail.IndexOf("}!") != -1))
+                            return this.Content("Success?id=" + taskId);
+                        else
+                            return this.Content("Success");
                     }
                     catch { }
                 }

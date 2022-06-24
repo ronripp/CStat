@@ -1,14 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Mvc.RazorPages;
+//using Microsoft.AspNetCore.Mvc.Rendering;
+//using Microsoft.EntityFrameworkCore;
+//using CStat.Models;
+//using Task = CStat.Models.Task;
+//using Microsoft.AspNetCore.Hosting;
+
+using CStat.Areas.Identity.Data;
+using CStat.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CStat.Models;
-using Task = CStat.Models.Task;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Resources;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Threading.Tasks;
+using static CStat.Models.Person;
+using static CStat.Models.Task;
+using CTask = CStat.Models.Task;
 
 namespace CStat.Pages.Tasks
 {
@@ -24,7 +51,7 @@ namespace CStat.Pages.Tasks
         }
 
         [BindProperty]
-        public Task _Task { get; set; }
+        public CTask _Task { get; set; }
 
         [BindProperty]
         public string _str1 { get; set; } = "";
@@ -120,7 +147,7 @@ namespace CStat.Pages.Tasks
                                     continue;
 
                                 if (inpIdx != -1)
-                                    inpWidth = int.Parse(ui.Input.Substring(1, ((inpDot != -1) ? inpDot : inpIdx)));
+                                    inpWidth = int.Parse(ui.Input.Substring(1, ((inpDot != -1) ? inpDot-1 : inpIdx-1)));
 
                                 Entries += "<div class=\"form-group\">\n" +
                                           "<label for=\"" + inpVar + "\" class=\"control-label\">" + ui.Pre + "</label>\n" +
@@ -147,11 +174,12 @@ namespace CStat.Pages.Tasks
                             }
                         }
                     }
-                    details = details.Substring(eidx + 2);
+                    details = details.Substring(sidx + 2);
                 }
             }
-            catch
+            catch (Exception e)
             {
+
             }
 
             // < div class="form-group">

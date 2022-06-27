@@ -154,7 +154,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept: */*");
                 req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
 
-                req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"Red35845!\" }}}]", "application/json; charset=utf-8");
+                req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json; charset=utf-8");
                 var sRespStat = req.Send(out string sResult);
 
                 // "name" : "8da4c31df166a94"
@@ -241,7 +241,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform PTZ op
                 HttpReq req = new HttpReq();
-                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=Red35845!");
+                req.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
                 req.AddHeaderProp("Connection: keep-alive");
                 req.AddHeaderProp("Accept: */*");
@@ -254,7 +254,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform Stop
                 HttpReq req2 = new HttpReq();
-                req2.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=Red35845!");
+                req2.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
                 req2.AddHeaderProp("Connection: keep-alive");
                 req2.AddHeaderProp("Accept: */*");
@@ -280,7 +280,7 @@ public class PtzCamera : System.IDisposable
         {
             // Get PTZ Check State
             HttpReq req3 = new HttpReq();
-            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=Red35845!");
+            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
 
             req3.AddHeaderProp("Connection: keep-alive");
             req3.AddHeaderProp("Accept: */*");
@@ -348,7 +348,7 @@ public class PtzCamera : System.IDisposable
 
             // Get PTZ Check State
             HttpReq req3 = new HttpReq();
-            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=Red35845!");
+            req3.Open("Post", "http://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
 
             req3.AddHeaderProp("Connection: keep-alive");
             req3.AddHeaderProp("Accept: */*");
@@ -538,9 +538,12 @@ public class PtzCamera : System.IDisposable
                 DateTime ef = new DateTime(edt.Year, edt.Month, edt.Day, 23, 59, 59);
                 SearchCmd scmd = GetVideos(sf, ef);
 
+                if (scmd.value == null)
+                    return "";
+
                 if (sdt.Date == edt.Date)
                 {
-                    if ((scmd.value == null) || (scmd.value.SearchResult == null) || (scmd.value.SearchResult.File == null) || (scmd.value.SearchResult.File.Length == 0))
+                    if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.File == null) || (scmd.value.SearchResult.File.Length == 0))
                         return "";
 
                     // Return anchors for this day
@@ -552,7 +555,7 @@ public class PtzCamera : System.IDisposable
                         else
                             timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + " AM]";
 
-                        //http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=Red35845!
+                        //http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
 
                         string title = " [" + vf.StartTime.mon + "/" + vf.StartTime.day + " @" + timeStr;
                         if (ancCount++ % 3 == 0)
@@ -617,7 +620,7 @@ public class PtzCamera : System.IDisposable
             try
             {
                 HttpReq req = new HttpReq();
-                req.Open("Post", "http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=Red35845!");
+                req.Open("Post", "http://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
 
                 req.AddHeaderProp("content-type: application/json");
                 req.AddHeaderProp("accept: application/json");

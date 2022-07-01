@@ -447,7 +447,7 @@ namespace CStat.Models
                 if (IsDone())
                     name = "DoneStyle";
                 else
-                    name = IsDue() ? "DueStyle" : "NotDueStyle";
+                    name = IsDue() ? "DueStyle" : (IsDueToday() ? "DueTodayStyle" : "NotDueStyle");
             }
             if ((i % 2) != 0)
                 name = name + "Odd";
@@ -461,6 +461,15 @@ namespace CStat.Models
             //DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
             return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && DueDate.Value < PropMgr.ESTNow);
         }
+
+        public bool IsDueToday()
+        {
+            if ((Type & (int)eTaskType.Template) != 0)
+                return false;
+            //DateTime dtTol = PropMgr.ESTNow - TimeSpan.FromDays(1);
+            return (((Status & (int)CTask.eTaskStatus.Completed) == 0) && DueDate.HasValue && (DueDate.Value.Date == PropMgr.ESTNow.Date));
+        }
+
         public bool IsDone()
         {
             if (IsTemplate())

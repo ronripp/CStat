@@ -75,13 +75,15 @@ namespace CStat.Pages.Tasks
                                         .Include(t => t.Blocking1)
                                         .Include(t => t.Blocking2)
                                         .Include(t => t.Church)
-                                        .Include(t => t.Person).Where(t => ( (t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0)) ) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
+                                        //.Include(t => t.Person).Where(t => ((t.PersonId == -1) || (t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0)) ) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
+                                        .Include(t => t.Person).Where(t => ( (!t.PersonId.HasValue || (t.PersonId.Value == _personId)) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0))).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
 
                     CompTasks = await _context.Task
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => ((t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0))) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+                    //.Include(t => t.Person).Where(t => ((t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0))) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+                    .Include(t => t.Person).Where(t => ( (!t.PersonId.HasValue || (t.PersonId.Value == _personId)) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0))).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
 
                 }
 
@@ -89,6 +91,8 @@ namespace CStat.Pages.Tasks
                 {
                     Task.Add(ct);
                 }
+
+                
 
                 // TBD : Add AutoGen
 

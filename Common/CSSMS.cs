@@ -184,10 +184,10 @@ namespace CStat.Common
             var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
             var u = Settings.GetUser(username);
-            if ((u == null) || (u.PhoneNum.Length < 7))
+            if ((u == null) || (u.PhoneNum == null) || (u.PhoneNum.Length < 7) || !u.SendTaskText)
             {
                 var csRes = new CSResult();
-                csRes.Set(false, ((u == null) ? "No user found" : "No phone # found."), nt.ToString() + ">" + username, "");
+                csRes.Set(false, (((u != null) && !u.SendTaskText) ? "User does not allow texting." : ((u == null) ? "No user found." : "No phone # found.")), nt.ToString() + ">" + username, "");
                 return csRes;
             }
 

@@ -134,11 +134,11 @@
                 contentType: false,
                 success: function (res) {
                     if (res.indexOf("Success") === 0) {
-                        let taskRes = (res.length() > 7) ? res.subString(7) : "";
-                        if (!!taskRes)
-                            window.location.href("TaskRes" + taskRes);
-                        else
-                            window.location.reload(true);
+                        //let taskRes = (res.length() > 7) ? res.subString(7) : "";
+                        //if (!!taskRes)
+                        //    window.location.href("TaskRes" + taskRes);
+                        //else
+                        window.location.reload(true);
                     }
                     else {
                         alert("FAILURE : Task NOT Marked Complete : " + res);

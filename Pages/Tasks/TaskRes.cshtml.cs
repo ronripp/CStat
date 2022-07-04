@@ -179,7 +179,7 @@ namespace CStat.Pages.Tasks
             }
             catch (Exception e)
             {
-
+                _ = e;
             }
 
             // < div class="form-group">

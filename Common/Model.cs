@@ -17,6 +17,8 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Web.WebPages.Html;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace CStat.Models
 {
@@ -30,6 +32,19 @@ namespace CStat.Models
         {
             return (str.Length > 0) ? str.Replace("^^", "\"").Replace("^", "'") : "";
         }
+
+        public static CSUser GetCurUser (CStat.Models.CStatContext context, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
+        {
+            var csSettings = CSSettings.GetCSSettings(config, userManager);
+            string email = httpCA.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            if (email == null)
+                email = httpCA.HttpContext.User.Identity.Name;
+            var userSettings = csSettings.GetUser(email);
+            if (userSettings != null)
+                userSettings.SetPersonIDByEmail(context);
+            return userSettings;
+        }
+
     }
 
     public class DateRange

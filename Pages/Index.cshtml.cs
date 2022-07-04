@@ -2,6 +2,7 @@ using CStat.Areas.Identity.Data;
 using CStat.Common;
 using CStat.Models;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +17,15 @@ namespace CStat.Pages
         private readonly IWebHostEnvironment _hostEnv;
         private readonly UserManager<CStatUser> _userManager;
         private readonly IConfiguration _config;
+        private readonly IHttpContextAccessor _httpCA;
 
-        public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, IHttpContextAccessor httpCA)
         {
             _context = context;
             _hostEnv = hostEnv;
             _userManager = userManager;
             _config = config;
+            _httpCA = httpCA;
             CSSettings.GetCSSettings(config, userManager); // prime settings.
         }
 
@@ -47,11 +50,11 @@ namespace CStat.Pages
         }
         public string GetTasksColor()
         {
-            var dueTasks = Task.GetDueTasks(_context, null, 24);
+            CSUser curUser = CStat.Models.CCommon.GetCurUser(_context, _config, _httpCA, _userManager);
+            int? pid = ((curUser != null) && curUser.pid.HasValue && (curUser.pid.Value != -1) && !curUser.ShowAllTasks) ? curUser.pid : null;
+            var dueTasks = Task.GetDueTasks(_context, pid, 24);
             if (dueTasks.Count > 0)
-            {
                 return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? CSSettings.red : CSSettings.yellow;
-            }
             return CSSettings.green;
         }
         public string GetEquipColor()

@@ -47,6 +47,7 @@ namespace CStat.Common
                 converter.Options.PdfPageSize = PdfPageSize.A4;
                 converter.Options.PdfPageOrientation = PdfPageOrientation.Portrait;
                 converter.Options.WebPageWidth = 1024;
+                converter.Options.WebPageWidth = 1024;
                 converter.Options.WebPageHeight = 0;
 
                 if (string.IsNullOrEmpty(fname))
@@ -514,9 +515,43 @@ namespace CStat.Common
                 DateTime mmDate = DateTime.MinValue; 
                 foreach (var w in words)
                 {
-                    if (DateTime.TryParseExact(w, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
+                    string dw;
+                    if (w.Contains("-"))
+                        dw = w.Replace("-", "/");
+                    else if (w.Contains("."))
+                        dw = w.Replace(".", "/");
+                    else if (w.Contains("_"))
+                        dw = w.Replace("_", "/");
+                    else
+                        dw = w;
+                    if (DateTime.TryParseExact(dw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
                         break;
                 }
+
+                if (mmDate == DateTime.MinValue)
+                {
+                    // Try to get date from attachment filename or TBD text body
+                    foreach (var f in e.Attachments)
+                    {
+                        var fABody = Path.GetFileNameWithoutExtension(f);
+                        var fWords = fABody.Split(delimiters);
+                        foreach (var fw in fWords)
+                        {
+                            string dfw;
+                            if (fw.Contains("-"))
+                                dfw = fw.Replace("-", "/");
+                            else if (fw.Contains("."))
+                                dfw = fw.Replace(".", "/");
+                            else if (fw.Contains("_"))
+                                dfw = fw.Replace("_", "/");
+                            else
+                                dfw = fw;
+                            if (DateTime.TryParseExact(dfw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
+                                break;
+                        }
+                    }
+                }
+
                 if (mmDate != DateTime.MinValue)
                 {
                     var year = (mmDate.Year < 2000) ? mmDate.Year + 100 : mmDate.Year; // ensure 21st century
@@ -536,32 +571,29 @@ namespace CStat.Common
                         if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
                             e.AddHtmlAsPDFAttachment(mmFileName);
                     }
-                    else
-                    { 
-                        var dbox = new CSDropBox(Startup.CSConfig);
-                        var destPath = "/Corporate/Meeting Minutes";
-                        foreach (var a in e.Attachments)
+                    var dbox = new CSDropBox(Startup.CSConfig);
+                    var destPath = "/Corporate/Meeting Minutes";
+                    foreach (var a in e.Attachments)
+                    {
+                        try
                         {
-                            try
+                            var FileName = mmFileName;
+                            if (dbox.FileExists(destPath + "/" + mmFileName))
                             {
-                                var FileName = mmFileName;
-                                if (dbox.FileExists(destPath + "/" + mmFileName))
+                                var fBody = Path.GetFileNameWithoutExtension(mmFileName);
+                                var fExt = Path.GetExtension(mmFileName);
+                                for (char j = 'B'; j < 'Z'; ++j)
                                 {
-                                    var fBody = Path.GetFileNameWithoutExtension(mmFileName);
-                                    var fExt = Path.GetExtension(mmFileName);
-                                    for (char j = 'B'; j < 'Z'; ++j)
-                                    {
-                                        FileName = fBody + "_Rev_" + j.ToString() + fExt;
-                                        if (!dbox.FileExists(destPath + "/" + FileName))
-                                            break;
-                                    }
+                                    FileName = fBody + "_Rev_" + j.ToString() + fExt;
+                                    if (!dbox.FileExists(destPath + "/" + FileName))
+                                        break;
                                 }
-                                dbox.UploadFile(a, destPath, FileName);
-                                File.Delete(a);
                             }
-                            catch
-                            {
-                            }
+                            dbox.UploadFile(a, destPath, FileName);
+                            File.Delete(a);
+                        }
+                        catch
+                        {
                         }
                     }
                     return true;
@@ -570,6 +602,5 @@ namespace CStat.Common
 
             return false;
         }
-
     }
 }

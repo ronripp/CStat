@@ -549,6 +549,8 @@ namespace CStat.Common
                             if (DateTime.TryParseExact(dfw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
                                 break;
                         }
+                        if (mmDate != DateTime.MinValue)
+                            break;
                     }
                 }
 

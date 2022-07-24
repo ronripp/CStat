@@ -39,7 +39,7 @@ namespace CStat.Pages
             _ar = _ardMgr.GetLast();
             if (_ar == null)
                 _ar = new ArdRecord(PropMgr.NotSet, PropMgr.NotSet, PropMgr.NotSet, 0, PropMgr.ESTNow);
-            _pl = pmgr.GetTUTank();
+            _pl = pmgr.GetTUTank(false);
             if (_pl == null)
                 _pl = new PropaneLevel(0, PropMgr.ESTNow, PropMgr.NotSet);
 
@@ -73,16 +73,12 @@ namespace CStat.Pages
                 int plCount = propaneHist.Count;
                 if (plCount > 0)
                 {
-                    if (propaneHist[plCount - 1].ReadingTime != _pl.ReadingTime)
+                    if (_pl.ReadingTime > propaneHist[plCount - 1].ReadingTime)
                     {
-                        if (propaneHist[plCount - 2].ReadingTime == _pl.ReadingTime)
-                            _pl = pmgr.GetTUTank(); // get latest
-                        else
-                        {
-                            propaneHist.Add(_pl); // set latest
-                            if (plCount >= PropaneMgr.MAX_USE_PLS)
-                                propaneHist.RemoveAt(0);
-                        }
+                        propaneHist.Add(_pl); // set latest
+                        if (plCount >= PropaneMgr.MAX_USE_PLS)
+                            propaneHist.RemoveAt(0);
+                        pmgr.WritePropane(_pl);
                     }
                 }
 

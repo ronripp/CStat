@@ -51,6 +51,29 @@ namespace CStat
             FillDescMap(FolderName);
         }
 
+        public string GetFolderNameWL()
+        {
+            // <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
+
+            var fList = _FolderName.Split("/").Where(s => !string.IsNullOrWhiteSpace(s.Trim())).ToList();
+            int cnt = fList.Count();
+            if (cnt == 0)
+                return "";
+            string fnwl = "<b>";
+            if (cnt > 1)
+            { 
+                string curPath = "";
+                for (int i = 0; i < cnt - 1; ++i)
+                {
+                    string f = fList[i];
+                    curPath += "/" + f;
+                    fnwl += "<a href=\"Docs?id=" + Uri.EscapeDataString(curPath) + "\">" + f + "></a>";
+                }
+            }
+            fnwl += fList[cnt - 1];
+            return fnwl + "</b>";
+        }
+
         private void FillDescMap(string fldName)
         {
 

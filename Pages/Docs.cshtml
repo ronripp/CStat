@@ -127,11 +127,12 @@
 
 <body onbeforeunload="docsBeforeUnload()">
     @{
-    var DocTitle = Model.FolderName.Replace('/', '>');
-    if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
-    var SelStr = Model.IsSelect ? Model.SelectStr : "";
+        //var DocTitle = Model.FolderName.Replace('/', '>');
+        //if ((DocTitle.Length > 1) && DocTitle.StartsWith(">")) DocTitle = DocTitle.Substring(1);
+        var DocTitle = Model.GetFolderNameWL();
+        var SelStr = Model.IsSelect ? Model.SelectStr : "";
     }
-    <h4><b>@DocTitle</b></h4>
+    <h4>@Html.Raw(DocTitle)</h4>
 
     <div>
         <table class="table">

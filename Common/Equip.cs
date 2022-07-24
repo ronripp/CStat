@@ -515,6 +515,8 @@ namespace CStat.Common
 
         public PropaneLevel GetTUTank(bool appendToFile=false) // Tank Utility Propane meter
         {
+            var csl = new CSLogger(HostEnv);
+
             try
             {
                 var vals = PropMgr.GetSiteProperties("https://data.tankutility.com/api/getToken", "ronripp@outlook.com", "Red3581!", "token");
@@ -527,34 +529,66 @@ namespace CStat.Common
                 if (readings.Count < 3)
                     return null;
 
+                csl.Log("GetTUTank read Readings : " + readings["device.lastReading.tank"] + ", " + readings["device.lastReading.time_iso"] + ", " + readings["device.lastReading.temperature"]);
+
                 double level;
                 double temp;
                 DateTime readTime;
                 if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
                 {
                     PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
+                    csl.Log("GetTUTank read " + JsonConvert.SerializeObject(pl));
                     if (appendToFile)
                     {
-                        using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
-                        {
-                            sw.WriteLine(JsonConvert.SerializeObject(pl));
-                            sw.Close();
-                        }
-                        using (StreamWriter sw = new StreamWriter(PropaneHistAll, true))
-                        {
-                            sw.WriteLine(JsonConvert.SerializeObject(pl));
-                            sw.Close();
-                        }
+                        WritePropane(pl, csl);
                     }
                     return pl;
                 }
             }
-            catch
+            catch (Exception e)
             {
-
+                csl.Log("GetTUTank EXCEPTION " + e.Message);
             }
             return null;
         }
+
+        public bool WritePropane(PropaneLevel pl, CSLogger csl=null)
+        {
+            bool res = true;
+            if (fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    if (csl != null)
+                        csl.Log("WritePropane Appending to All and Hist Files : ");
+
+                    using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
+                    {
+                        sw.WriteLine(JsonConvert.SerializeObject(pl));
+                        sw.Close();
+                    }
+                    using (StreamWriter sw = new StreamWriter(PropaneHistAll, true))
+                    {
+                        sw.WriteLine(JsonConvert.SerializeObject(pl));
+                        sw.Close();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (csl != null)
+                        csl.Log("WritePropane EXCEPTION : " + e.Message);
+                    res = false;
+                }
+                finally
+                {
+                    PropaneMgr.fLock.ExitWriteLock();
+                }
+                return res;
+            }
+            else
+                return false;
+        }
+
 
         public double PctToGals(double pct)
         {
@@ -573,6 +607,7 @@ namespace CStat.Common
 
         public List<PropaneLevel> GetAll(int maxUsePls= MAX_USE_PLS)
         {
+            List<PropaneLevel> usplList = new List<PropaneLevel>();
             List<PropaneLevel> plList = new List<PropaneLevel>();
             List<string> rLineList = new List<string>();
             List<string> lineList = new List<string>();
@@ -593,9 +628,9 @@ namespace CStat.Common
 
                         lineList = rLineList.Distinct().ToList();
                         lineCount = lineList.Count;
-                        startIndex = lineList.Count > maxUsePls ? lineCount - maxUsePls : 0;
+                        var skipCnt = lineList.Count > maxUsePls ? lineCount - maxUsePls : 0;
 
-                        for (int i = startIndex; i < lineCount; ++i)
+                        for (int i = 0; i < lineCount; ++i) // need to ensure they are all sorted by date (due to issue found : TBD investigate)
                         {
                             raw = lineList[i];
                             if (raw.Length > 20)
@@ -611,10 +646,12 @@ namespace CStat.Common
                                 if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
                                 {
                                     PropaneLevel pl = new PropaneLevel(level, readTime, temp);
-                                    plList.Add(pl);
+                                    usplList.Add(pl);
                                 }
                             }
                         }
+
+                        plList = usplList.OrderBy(p => p.ReadingTime).Skip(skipCnt).ToList();
                     }
 
                     if (rLineList.Count > MAX_FILE_PLS)

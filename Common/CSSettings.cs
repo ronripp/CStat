@@ -94,13 +94,20 @@ namespace CStat.Common
         public void initialize ()
         {
             List<CStatUser> Users = GetUsers(_userManager);
+            List<CStatUser> FullUsers = GetFullUsers(_userManager);
+            List<CStatUser> AdminUsers = GetAdminUsers(_userManager);
+
             UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
             {
                 var cu = new CSUser();
                 cu.EMail = c.UserName;
                 cu.PhoneNum = c.PhoneNumber;
+                cu.UserId = c.Id;
+                cu.IsFull = FullUsers.Any(u => u.Id == c.Id);
+                cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
                 return cu;
             }).ToList();
+
             var csect = _config.GetSection("CSSettings");
             LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
             LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
@@ -514,6 +521,20 @@ namespace CStat.Common
             var task = userManager.Users.ToListAsync();
             task.Wait();
             return task.Result;
+        }
+
+        public static List<CStatUser> GetFullUsers(UserManager<CStatUser> userManager)
+        {
+            var task = userManager.GetUsersInRoleAsync("FULL");
+            task.Wait();
+            return task.Result.ToList();
+        }
+
+        public static List<CStatUser> GetAdminUsers(UserManager<CStatUser> userManager)
+        {
+            var task = userManager.GetUsersInRoleAsync("ADMIN");
+            task.Wait();
+            return task.Result.ToList();
         }
     }
 }

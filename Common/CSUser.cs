@@ -22,6 +22,9 @@ namespace CStat.Common
         [JsonIgnore]
         public string PhoneNum { get; set; } = "";
         public int? pid = null;
+        public string UserId = "";
+        public bool IsFull = false;
+        public bool IsAdmin = false;
         public bool SetPersonIDByEmail (CStat.Models.CStatContext context)
         {
             var lcEMail = !string.IsNullOrEmpty(EMail) ? EMail.ToLower() : "EMPTY";

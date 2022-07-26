@@ -21,7 +21,7 @@ namespace CStat.Areas.Identity
                         context.Configuration.GetConnectionString("DefaultConnection")));
 
                 services.AddDefaultIdentity<CStatUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                    .AddEntityFrameworkStores<CSIContext>();
+                    .AddRoles<IdentityRole>().AddEntityFrameworkStores<CSIContext>();
 
                 services.ConfigureApplicationCookie(options =>
                 {

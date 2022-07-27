@@ -6,16 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CStat.Models;
+using CStat.Common;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 
 namespace CStat
 {
     public class InfoModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
+        private readonly CSUser _curUser;
 
-        public InfoModel(CStat.Models.CStatContext context)
+        public InfoModel(CStat.Models.CStatContext context, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
             _context = context;
+            _curUser = CCommon.GetCurUser(context, config, httpCA, userManager);
+            IsFull = false; // (_curUser != null) ? _curUser.IsFull : false;
         }
 
         public IActionResult OnGet()
@@ -30,6 +38,9 @@ namespace CStat
 
         [BindProperty]
         public Attendance Attendance { get; set; }
+
+        [BindProperty]
+        public bool IsFull { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

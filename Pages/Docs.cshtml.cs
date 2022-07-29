@@ -10,6 +10,12 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using CStat.Common;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using CStat.Areas.Identity.Data;
 //using Microsoft.AspNetCore.Cors;
 
 namespace CStat
@@ -26,10 +32,13 @@ namespace CStat
         private const String RepStr = "~";
 
         private string _FolderName = "";
-        public DocsModel(IWebHostEnvironment hstEnv)
+        public DocsModel(IWebHostEnvironment hstEnv, IHttpContextAccessor httpContextAccessor, IConfiguration config, UserManager<CStatUser> userManager)
         {
             hostEnv = hstEnv;
-            dbox = new CSDropBox(Startup.CSConfig);
+            var csSettings = CSSettings.GetCSSettings(config, userManager);
+            string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            var curUser = csSettings.GetUser(UserId);
+            dbox = new CSDropBox(Startup.CSConfig, (curUser == null || curUser.IsFull));
         }
 
         public void OnGet(string id, string selectStr)

@@ -23,7 +23,7 @@ namespace CStat
         {
             _context = context;
             _curUser = CCommon.GetCurUser(context, config, httpCA, userManager);
-            IsFull = false; // (_curUser != null) ? _curUser.IsFull : false;
+            IsFull = (_curUser != null) ? _curUser.IsFull : false;
         }
 
         public IActionResult OnGet()

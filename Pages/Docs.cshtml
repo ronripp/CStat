@@ -150,50 +150,63 @@
                 </tr>
             </thead>
             <tbody>
+            @if (!Model.dbox._Allowed)
+            {
+                <tr>
+                    <td>
+                        <b>*** RESTRICTED ACCESS ***</b>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            }
+            else
+            {
                 @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
-        {
-                @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
-                <tr>
-                    <td>
-                        <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-        }
-                @{int idx = 0;}
-                @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
-        {
-                <tr>
-                    <td>
-                        @if (Model.IsSelect)
-                        {
-                            <a onclick='setSelected("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
-                        }
-                        else
-                        {
-                            <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
-                        }
+                {
+                    @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
+                    <tr>
+                        <td>
+                            <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+                int idx = 0;
+                foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
+                {
+                    <tr>
+                        <td>
+                            @if (Model.IsSelect)
+                            {
+                                <a onclick='setSelected("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                            }
+                            else
+                            {
+                                <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                            }
 
-                    </td>
-                    <td>
-                        @{
-                var sid = "sid" + idx;
-                var fid = "fid" + idx;
-                var iid = "iid" + idx;
-                var smtid = "smt" + idx;
-                var lgtid = "lgt" + idx;
-                        }
-                        <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
-                        <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
-                    </td>
-                    <td>
-                        <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
-                        <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
-                    </td>
-                </tr>
-            ++idx;
-        }
+                        </td>
+                        <td>
+                            @{
+                                var sid = "sid" + idx;
+                                var fid = "fid" + idx;
+                                var iid = "iid" + idx;
+                                var smtid = "smt" + idx;
+                                var lgtid = "lgt" + idx;
+                            }
+                            <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
+                            <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
+                        </td>
+                        <td>
+                            <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
+                            <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
+                        </td>
+                    </tr>
+                    ++idx;
+                }
+            }
             </tbody>
         </table>
     </div>

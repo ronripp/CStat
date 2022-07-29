@@ -15,9 +15,12 @@ namespace CStat.Data
         // Note : Dropbox path starts with /
         public DropboxClient dbx = null;
         public Dropbox.Api.Files.ListFolderResult FolderList = null;
-        public CSDropBox(IConfiguration configuration)
+        private bool _IsFullAccess = true;
+        public bool _Allowed = true;
+        public CSDropBox(IConfiguration configuration, bool isFullAccess=true)
         {
             Configuration = configuration;
+            _IsFullAccess = isFullAccess;
             var task = Task.Run((Func<Task>)Run);
             task.Wait();
         }
@@ -29,9 +32,31 @@ namespace CStat.Data
             Console.WriteLine("{0} - {1}", full.Name.DisplayName, full.Email);
         }
 
+        public bool AllowFolderList(string folder)
+        {
+            if (_IsFullAccess)
+                return true;
+
+            string lcFolder = folder.ToLower();
+            if (lcFolder.Contains("corporate") ||
+                lcFolder.Contains("camp events") ||
+                lcFolder.Contains("memorandums") ||
+                lcFolder.Contains("contacts") ||
+                lcFolder.Contains("mailings") ||
+                lcFolder.Contains("vault"))
+                return false;
+            return true;
+        }
+
         // Get Folder List
         public int GetFolderList (string folder)
         {
+            if (!(_Allowed = AllowFolderList(folder)))
+            {
+                FolderList = new ListFolderResult();
+                return 0;
+            }
+
             FolderList = dbx.Files.ListFolderAsync(folder).Result;
             return FolderList.Entries.Count();
         }

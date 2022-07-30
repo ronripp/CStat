@@ -164,7 +164,7 @@
             {
                 @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
                 {
-                    @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name == "Archive")) continue;
+                    @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name.ToLower() == "archive")) continue;
                     <tr>
                         <td>
                             <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>

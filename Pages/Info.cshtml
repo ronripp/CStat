@@ -123,11 +123,11 @@
         <button class="usBtn" onclick="window.location.href='Events/Index'">Event Planner</button>
         @if (Model.IsFull) {<button class="usBtn" onclick="openFileShare('/Corporate/By-Laws & IDs', 'CCA Vital IDs.pdf')">CCA IDs ...</button>}
         @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='People/Find'">People...</button>}
-        @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='Vendors/Index'" )">Business/Depts ...</button>}
+        <button class="usBtn" onclick="window.location.href='Vendors/Index'" )">Business/Depts ...</button>
         <button class="usBtn" onclick="location.href='CCAByLaws2021.html'">CCA By-Laws 2021...</button>
         <button class="usBtn" onclick="location.href='Required.html'">Required By Law...</button>
         <button class="usBtn" onclick="showMenu(12)">Forms/Docs/Manu...</button>
-        @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='Churches/Index'" )">Churches ...</button>}
+        <button class="usBtn" onclick="window.location.href='Churches/Index'" )">Churches ...</button>
         @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='Docs';">Drop Box</button>}
     </div>
 
@@ -158,8 +158,8 @@
     </div>
 
     <div id="userSel13" style="display:none">
-        @if (Model.IsFull) {<button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>People...</h2></button>}
-        @if (Model.IsFull) {<button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>Attendance...</h2></button>}
+        <button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>People...</h2></button>
+        <button class="usSubCBtn" onclick="window.location.href='People/Find'"><h2>Attendance...</h2></button>
         @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='Vendors/Index'" )">Business/Depts ...</button>}
         @if (Model.IsFull) {<button class="usBtn" onclick="window.location.href='Churches/Index'" )">Churches ...</button>}
     </div>

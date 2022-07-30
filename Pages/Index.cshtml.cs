@@ -18,6 +18,7 @@ namespace CStat.Pages
         private readonly UserManager<CStatUser> _userManager;
         private readonly IConfiguration _config;
         private readonly IHttpContextAccessor _httpCA;
+        public CSSettings _cset;
 
         public Index1Model(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, IHttpContextAccessor httpCA)
         {
@@ -26,7 +27,7 @@ namespace CStat.Pages
             _userManager = userManager;
             _config = config;
             _httpCA = httpCA;
-            CSSettings.GetCSSettings(config, userManager); // prime settings.
+            _cset = CSSettings.GetCSSettings(config, userManager); // prime settings.
         }
 
         public void OnGet()

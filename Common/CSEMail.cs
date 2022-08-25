@@ -2,6 +2,7 @@
 using CStat.Data;
 using MailKit.Net.Pop3;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -128,24 +129,27 @@ namespace CStat.Common
     public class CSEMail
     {
         public static readonly string[] dateFormats = { "M/d/yy", "MM/dd/yy", "MM/d/yy", "M/dd/yy", "M/d/yyyy", "MM/dd/yyyy", "MM/d/yyyy", "M/dd/yyyy"};
-        private readonly string fromName = "CCA Informer";
+        private readonly string fromName = "Cee Stat";
         //		private readonly string fromSMTP = "cccaserve.org";
-        private readonly string fromAdr = "inform@ccaserve.org";
-        private readonly string fromPass = null;
+        private readonly string fromSendAdr = "cstat@ccaserve.org";
+        private readonly string fromReadAdr = "cstat@ccaserve.org";
+        private readonly string fromSendPass = null;
+        private readonly string fromReadPass = null;
         public string sendResult = "";
         private MailKit.Net.Pop3.Pop3Client readClient = null;
         public CSSettings _settings { get; set; }
 
         public CSEMail(IConfiguration config, UserManager<CStatUser> userManager)
         {
-            fromPass = config["CSEMail:SenderPassword"];
+            fromSendPass = config["CSEMail:SenderPassword"];
+            fromReadPass = config["CSEMail:ReaderPassword"];
             _settings = CSSettings.GetCSSettings(config, userManager);
         }
 
         public bool Send(string toName, string toAdr, string subject, string body)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(this.fromName, fromAdr));
+            message.From.Add(new MailboxAddress(this.fromName, fromSendAdr));
             message.To.Add(new MailboxAddress(toName, toAdr));
             message.Subject = subject;
             message.Body = new TextPart("plain") { Text = body };
@@ -156,10 +160,10 @@ namespace CStat.Common
                     // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS)
                     client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                    client.Connect("mail.ccaserve.org", 587, false);
+                    client.Connect("smtp.ccaserve.org", 25, false);
 
                     // Note: only needed if the SMTP server requires authentication
-                    client.Authenticate(fromAdr, fromPass);
+                    client.Authenticate(fromSendAdr, fromSendPass);
 
                     client.Send(message);
                     client.Disconnect(true);
@@ -180,17 +184,22 @@ namespace CStat.Common
             {
                 using (readClient = new Pop3Client())
                 {
-                    var Server = "mail.ccaserve.org";
-                    var Port = "110";
-                    var UseSsl = false;
-                    var credentials = new NetworkCredential(fromAdr, fromPass);
-                    var cancel = new CancellationTokenSource();
-                    var uri = new Uri(string.Format("pop{0}://{1}:{2}", (UseSsl ? "s" : ""), Server, Port));
+                    var Server = "us2.pop.mailhostbox.com"; //"pop.ccaserve.org";
+                    var Port = 995; // 110;
+                    //var UseSsl = false;
+                    //var credentials = new NetworkCredential(fromReadAdr, fromReadPass);
+                    //var cancel = new CancellationTokenSource();
+                    //var uri = new Uri(string.Format("pop{0}://{1}:{2}", (UseSsl ? "s" : ""), Server, Port));
 
                     //Connect to email server
-                    readClient.Connect(uri, cancel.Token);
+                    //readClient.Connect(uri, cancel.Token);
+                    //readClient.AuthenticationMechanisms.Remove("XOAUTH2");
+                    //readClient.Authenticate(credentials, cancel.Token);
+
+                    readClient.SslProtocols = System.Security.Authentication.SslProtocols.Tls;
+                    readClient.Connect(Server, Port, SecureSocketOptions.SslOnConnect);
                     readClient.AuthenticationMechanisms.Remove("XOAUTH2");
-                    readClient.Authenticate(credentials, cancel.Token);
+                    readClient.Authenticate(fromReadAdr, fromReadPass);
 
                     // Read EMails roughly after those we read last
                     var reList = new List<REMail>();

@@ -26,7 +26,7 @@ namespace CStat.Common
             DELETE  = 0x00000004,
             UPDATE  = 0x00000008,
             CALL    = 0x00000010,
-            NEED    = 0x00000020
+            NEED    = 0x00000020,
         };
 
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
@@ -42,7 +42,9 @@ namespace CStat.Common
             {"Locate", CmdAction.FIND},
             {"Modify", CmdAction.UPDATE},
             {"Change", CmdAction.UPDATE},
-            {"Append", CmdAction.ADD}
+            {"Append", CmdAction.ADD},
+            {"we_need", CmdAction.ADD},
+            {"order", CmdAction.ADD}
         };
 
         //=================================================================

@@ -153,7 +153,6 @@ namespace CStat.Common
                         csl.Log("CSProc: DoWork() Check for new EMails");
                         CSEMail.ProcessEMails(_hostEnv, _configuration, _userManager, _csSettings, _context);
 
-
                         csl.Log("CSProc: DoWork() Check/Truncate Arduino file");
 
                         // Check/Truncate Size of Arduino file
@@ -163,10 +162,11 @@ namespace CStat.Common
                         // Clean/{Reset to full view} Camera
                         csl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        using (var ptz = new PtzCamera())
-                        {
-                            ptz.Cleanup(_hostEnv);
-                        }
+                        // TEMP Removed CAMERA DUE TO CONNECTION problem latency
+                        //using (var ptz = new PtzCamera())
+                        //{
+                        //    ptz.Cleanup(_hostEnv);
+                        //}
 
                         csl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");

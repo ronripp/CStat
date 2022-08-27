@@ -42,6 +42,13 @@ namespace CStat.Common
 
         public async Task DoWork(CancellationToken stoppingToken)
         {
+            // TEMP Removed CAMERA Cleanup DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+            // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+            // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+            // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+            // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+            // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
+
             var csl = new CSLogger(_hostEnv);
 
             csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
@@ -162,7 +169,7 @@ namespace CStat.Common
                         // Clean/{Reset to full view} Camera
                         csl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        // TEMP Removed CAMERA DUE TO CONNECTION problem latency
+                        // TEMP Removed CAMERA DUE TO CONNECTION problem latency !!!! RESTORE WHEN FIXED
                         //using (var ptz = new PtzCamera())
                         //{
                         //    ptz.Cleanup(_hostEnv);

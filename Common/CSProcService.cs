@@ -162,10 +162,10 @@ namespace CStat.Common
                         // Clean/{Reset to full view} Camera
                         csl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        using (var ptz = new PtzCamera())
-                        {
-                            ptz.Cleanup(_hostEnv);
-                        }
+                        // TEMP!!! FIX CAMERA THEN REINSTATE using (var ptz = new PtzCamera())
+                        //{
+                        //    ptz.Cleanup(_hostEnv);
+                        //}
 
                         csl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");

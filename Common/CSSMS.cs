@@ -61,6 +61,10 @@ namespace CStat.Common
 
         public bool NeededToSend(string SMSSentFile, string hashStr, bool allowResend, bool cleanLog)
         {
+            // Check for Debugging locally mode
+            if ((LogPath == "C:\\cstat\\wwwroot\\Tasks") && !hashStr.StartsWith("203-770-3393["))
+                return false; //only send to me when running local
+
             if (!File.Exists(SMSSentFile))
                 return true;
             List<string> lines = new List<string>();

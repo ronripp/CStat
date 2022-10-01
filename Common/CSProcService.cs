@@ -46,6 +46,13 @@ namespace CStat.Common
 
             csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 
+#if DEBUG
+            int MinWaitMins = 0; // for testing
+#else
+            // SET THE MINIMUM TIME BETWEEN PROCESSING RUNS IN MINUTES
+            int MinWaitMins = 180; // 3 hrs
+#endif
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -53,16 +60,12 @@ namespace CStat.Common
                     csl.Log("CSProc: Top of while Loop");
 
                     DateTime enow = PropMgr.ESTNow;
-                    DateTime expected = new DateTime(enow.Year, enow.Month, enow.Day, 3, 0, 0);
                     DateTime lastW = (_csSettings.LastTaskUpdate != null) ? _csSettings.LastTaskUpdate : new DateTime(2020, 1, 1);
-#if DEBUG
-                    double MinWait = 0; // for testing
-#else
-                    double MinWait = 360; // 6 hrs
-#endif
+
                     csl.Log("CSProc: DoWork() Now=" + PropMgr.ESTNowStr + " LastTaskUpdate=" + lastW.ToString());
 
-                    if (((enow - lastW).TotalMinutes >= MinWait) || (Math.Abs((enow - expected).TotalMinutes) < 65))  // done not more than twice a day and covers DST change with delay/offset
+                    // Has it been MinWait (minutes) or more since last run ?
+                    if ((enow - lastW).TotalMinutes >= MinWaitMins)
                     {
                         // Check Stock for possibly needed items
                         csl.Log("CSProc: DoWork() Check Stock");
@@ -153,19 +156,18 @@ namespace CStat.Common
                         csl.Log("CSProc: DoWork() Check for new EMails");
                         CSEMail.ProcessEMails(_hostEnv, _configuration, _userManager, _csSettings, _context);
 
-                        csl.Log("CSProc: DoWork() Check/Truncate Arduino file");
-
                         // Check/Truncate Size of Arduino file
+                        csl.Log("CSProc: DoWork() Check/Truncate Arduino file");
                         ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                         amgr.GetAll(true);
 
                         // Clean/{Reset to full view} Camera
                         csl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        // TEMP!!! FIX CAMERA THEN REINSTATE using (var ptz = new PtzCamera())
-                        //{
-                        //    ptz.Cleanup(_hostEnv);
-                        //}
+                        using (var ptz = new PtzCamera())
+                        {
+                            ptz.Cleanup(_hostEnv);
+                        }
 
                         csl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
@@ -176,13 +178,7 @@ namespace CStat.Common
                     csl.Log("CSProc: Exception : " + e.Message);
                 }
 
-                //// Run again at 3:00 AM
-                //DateTime now = PropMgr.ESTNow;
-                //DateTime tom = now.AddDays(1);
-                //DateTime start = new DateTime(tom.Year, tom.Month, tom.Day, 3, 0, 0); // Restart at 3:00 AM tomorrow
-                //int MSecsToStart = (int)Math.Round((start - now).TotalMilliseconds);
-
-                int MSecsToStart = 6*3600000; // sleep for 6 hours then do work again
+                int MSecsToStart = MinWaitMins * 60; // sleep for MinWaitMins then do work again
 
                 csl.Log($"CSProc: DoWork() Waiting " + MSecsToStart + " msecs.");
                 await System.Threading.Tasks.Task.Delay(MSecsToStart, stoppingToken);

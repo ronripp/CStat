@@ -607,11 +607,11 @@ namespace CStat.Common
 
         public List<PropaneLevel> GetAll(int maxUsePls= MAX_USE_PLS)
         {
-            List<PropaneLevel> usplList = new List<PropaneLevel>();
-            List<PropaneLevel> plList = new List<PropaneLevel>();
-            List<string> rLineList = new List<string>();
-            List<string> lineList = new List<string>();
-            int lineCount = 0;
+            List<PropaneLevel> usPList = new List<PropaneLevel>();
+            List<PropaneLevel> PList = new List<PropaneLevel>();
+            List<string> RawLineList = new List<string>();
+            List<string> DistLineList = new List<string>();
+            int DistLineCount = 0;
             int startIndex = 0;
             if (fLock.TryEnterWriteLock(250))
             {
@@ -622,17 +622,17 @@ namespace CStat.Common
                         string raw;
                         while ((raw = sr.ReadLine()) != null)
                         {
-                            rLineList.Add(raw);
+                            RawLineList.Add(raw);
                         }
                         sr.Close();
 
-                        lineList = rLineList.Distinct().ToList();
-                        lineCount = lineList.Count;
-                        var skipCnt = lineList.Count > maxUsePls ? lineCount - maxUsePls : 0;
+                        DistLineList = RawLineList.Distinct().ToList();
+                        DistLineCount = DistLineList.Count;
+                        var skipCnt = DistLineCount > maxUsePls ? DistLineCount - maxUsePls : 0;
 
-                        for (int i = 0; i < lineCount; ++i) // need to ensure they are all sorted by date (due to issue found : TBD investigate)
+                        for (int i = 0; i < DistLineCount; ++i) // need to ensure they are all sorted by date (due to issue found : TBD investigate)
                         {
-                            raw = lineList[i];
+                            raw = DistLineList[i];
                             if (raw.Length > 20)
                             {
                                 string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
@@ -646,27 +646,27 @@ namespace CStat.Common
                                 if (double.TryParse(props["LevelPct"], out level) && DateTime.TryParse(props["ReadingTime"], out readTime) && double.TryParse(props["OutsideTempF"], out temp))
                                 {
                                     PropaneLevel pl = new PropaneLevel(level, readTime, temp);
-                                    usplList.Add(pl);
+                                    usPList.Add(pl);
                                 }
                             }
                         }
 
-                        plList = usplList.OrderBy(p => p.ReadingTime).Skip(skipCnt).ToList();
+                        PList = usPList.OrderBy(p => p.ReadingTime).Skip(skipCnt).ToList();
                     }
 
-                    if (rLineList.Count > MAX_FILE_PLS)
+                    if (DistLineCount > MAX_FILE_PLS)
                     {
                         using (StreamWriter sw = new StreamWriter(PropaneFullAll, false))
                         {
-                            for (int i = startIndex; i < lineCount; ++i)
+                            for (int i = startIndex; i < DistLineCount; ++i)
                             {
-                                sw.WriteLine(lineList[i]);
+                                sw.WriteLine(DistLineList[i]);
                             }
                             sw.Close();
                         }
                     }
 
-                    return plList;
+                    return PList;
                 }
                 catch
                 {

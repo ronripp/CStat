@@ -781,7 +781,23 @@ public class PtzCamera : System.IDisposable
                         File.Delete(filePath);
                     }
                 }
-            }
+
+                // Delete FTP Capture folders 4 or more days old
+                var baseSnap = GetSnapDir(hostEnv);
+                int GoBackDays = 31;
+                var delDT = PropMgr.ESTNow.AddDays(-GoBackDays);
+                for (int i = 0; i < GoBackDays-4; ++i)
+                {
+                    try
+                    {
+                        var snapDir = Path.Combine(baseSnap, delDT.Year.ToString(), delDT.Month.ToString("D2"), delDT.Day.ToString("D2"));
+                        if (Directory.Exists(snapDir))
+                            Directory.Delete(snapDir, true);
+                    }
+                    catch { }
+                    delDT = delDT.AddDays(1);
+                }
+             }
             catch
             {
 

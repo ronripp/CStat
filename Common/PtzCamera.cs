@@ -62,6 +62,8 @@ namespace CStat.Common
         public SearchRes value;
     }
 
+// TBD : !!!! IMPORTANT !!! INVESTIGATE RESPONSE TRANSFER AS OPTIMIZATION INSTEAD OF COPYING TO JPG FILE.
+
 public class PtzCamera : System.IDisposable
     {
         public enum COp

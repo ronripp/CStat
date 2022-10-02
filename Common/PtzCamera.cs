@@ -159,6 +159,8 @@ public class PtzCamera : System.IDisposable
                 var sRespStat = req.Send(out string sResult);
 
                 // "name" : "8da4c31df166a94"
+                if (String.IsNullOrEmpty(sResult))
+                    return true;
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                 _token = LoginResp[0].value.Token.name;
                 return !string.IsNullOrEmpty(_token);
@@ -190,6 +192,8 @@ public class PtzCamera : System.IDisposable
                 var sRespStat = req.Send(out string sResult);
 
                 // "name" : "8da4c31df166a94"
+                if (String.IsNullOrEmpty(sResult))
+                    return true;
                 dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
                 return LogoutResp[0].value.rspCode == 200;
             }
@@ -218,6 +222,8 @@ public class PtzCamera : System.IDisposable
                     var sRespStat = req.Send(out string sResult);
 
                     // "rspCode" : 200
+                    if (String.IsNullOrEmpty(sResult))
+                        return CheckForSomeStability();
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     if (LoginResp[0].value.rspCode != 200)
                         return 0;
@@ -249,6 +255,8 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
                 req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":16}}]", "application/json; charset=utf-8");
                 var sRespStat = req.Send(out string sResult);
+                if (String.IsNullOrEmpty(sResult))
+                    return CheckForSomeStability();
                 dynamic PostResp = JsonConvert.DeserializeObject(sResult);
                 if ((PostResp[0].value != null) && (PostResp[0].value.rspCode != 200)) // "rspCode" : 200
                     return 0;
@@ -451,7 +459,7 @@ public class PtzCamera : System.IDisposable
 
                 using (BinaryReader br = new BinaryReader(stream))
                 {
-                    content = br.ReadBytes(10000000);
+                    content = br.ReadBytes(50000000);
                     br.Close();
                 }
                 response.Close();
@@ -669,6 +677,8 @@ public class PtzCamera : System.IDisposable
                 var sRespStat = req.Send(out string sResult);
 
                 // value.PowerLed.state : 0 | 1
+                if (String.IsNullOrEmpty(sResult))
+                    return 0;
                 dynamic GWLResp = JsonConvert.DeserializeObject(sResult);
                 var newState = (GWLResp[0].value.WhiteLed.state == 0) ? 1 : 0;
                 var SetJson = JsonConvert.SerializeObject(GWLResp);
@@ -705,6 +715,8 @@ public class PtzCamera : System.IDisposable
 
                 req.AddBody("[{\"cmd\": \"AudioAlarmPlay\",\"action\": 0,\"param\": {\"alarm_mode\": \"times\",\"manual_switch\": 0,\"times\":" + times + ",\"channel\": 0}}]", "application/json; charset=utf-8");
                 var sRespStat = req.Send(out string sResult);
+                if (String.IsNullOrEmpty(sResult))
+                    return 0;
 
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);

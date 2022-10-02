@@ -46,12 +46,8 @@ namespace CStat.Common
 
             csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 
-#if DEBUG
-            int MinWaitMins = 0; // for testing
-#else
             // SET THE MINIMUM TIME BETWEEN PROCESSING RUNS IN MINUTES
             int MinWaitMins = 180; // 3 hrs
-#endif
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -65,9 +61,14 @@ namespace CStat.Common
                     csl.Log("CSProc: DoWork() Now=" + PropMgr.ESTNowStr + " LastTaskUpdate=" + lastW.ToString());
 
                     // Has it been MinWait (minutes) or more since last run ?
+#if DEBUG
+                    if (true)
+#else
                     if ((enow - lastW).TotalMinutes >= MinWaitMins)
+#endif
                     {
                         // Check Stock for possibly needed items
+
                         csl.Log("CSProc: DoWork() Check Stock");
 
                         OrderedEvents ordEvs = new OrderedEvents(_context);
@@ -178,11 +179,10 @@ namespace CStat.Common
                     csl.Log("CSProc: Exception : " + e.Message);
                 }
 
-                int MSecsToStart = MinWaitMins * 60; // sleep for MinWaitMins then do work again
+                int MSecsToStart = MinWaitMins * 60000; // sleep for MinWaitMins then do work again
 
                 csl.Log($"CSProc: DoWork() Waiting " + MSecsToStart + " msecs.");
-                await System.Threading.Tasks.Task.Delay(MSecsToStart, stoppingToken);
-
+                await(System.Threading.Tasks.Task.Delay(MSecsToStart, stoppingToken));
             }
             csl.Log("CSProc: DoWork() **** TERMINATED ****");
             Interlocked.Decrement(ref CSPInstCnt);

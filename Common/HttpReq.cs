@@ -12,7 +12,26 @@ namespace CStat.Common
 
         public void Open(string method, string url)
         {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+            delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                                    System.Security.Cryptography.X509Certificates.X509Chain chain,
+                                    System.Net.Security.SslPolicyErrors sslPolicyErrors)
+            {
+                return true; // **** Always accept
+            };
+
+            //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             _request = (HttpWebRequest)WebRequest.Create(url); // Create a request using a URL that can receive a post.
+
+            //_request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            _request.ServerCertificateValidationCallback += delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                        System.Security.Cryptography.X509Certificates.X509Chain chain,
+                        System.Net.Security.SslPolicyErrors sslPolicyErrors)
+            {
+                return true; // **** Always accept
+            };
+
             _request.AutomaticDecompression = DecompressionMethods.All;
             _request.Method = method; // Set the Method property of the request.
         }

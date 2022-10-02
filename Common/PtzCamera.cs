@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -145,9 +146,12 @@ public class PtzCamera : System.IDisposable
         public string _token = "";
         public bool Login()
         {
+            csl.Log("PtzC.Login START");
+
             try
             {
                 // Get Token
+
                 HttpReq req = new HttpReq();
                 req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
 
@@ -160,21 +164,32 @@ public class PtzCamera : System.IDisposable
 
                 // "name" : "8da4c31df166a94"
                 if (String.IsNullOrEmpty(sResult))
+                {
+                    csl.Log("PtzC.Login EARLY RETURN : EMPTY sResult");
+
                     return true;
+                }
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                 _token = LoginResp[0].value.Token.name;
+                csl.Log("PtzC.Login RETURN token=" + _token);
                 return !string.IsNullOrEmpty(_token);
             }
-            catch
+            catch (Exception e)
             {
+                csl.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
                 return false;
             }
         }
 
         public bool Logout()
         {
+            csl.Log("PtzC.Logout token=" + _token);
+
             if (string.IsNullOrEmpty(_token))
+            {
+                csl.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
                 return false;
+            }
 
             var tok = _token;
             _token = "";
@@ -193,19 +208,24 @@ public class PtzCamera : System.IDisposable
 
                 // "name" : "8da4c31df166a94"
                 if (String.IsNullOrEmpty(sResult))
+                {
+                    csl.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
                     return true;
+                }
                 dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
+                csl.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
                 return LogoutResp[0].value.rspCode == 200;
             }
-            catch
+            catch (Exception e)
             {
-              
+                csl.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
             }
             return false;
         }
 
         public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
         {
+            csl.Log("PtzC.GetPresetPicture START preset=" + preset);
             try
             {
                 if ((preset >= 1) && (preset <= 99))
@@ -226,16 +246,22 @@ public class PtzCamera : System.IDisposable
                         return CheckForSomeStability();
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     if (LoginResp[0].value.rspCode != 200)
+                    {
+                        csl.Log("PtzC.GetPresetPicture ERR return rspCode=" + LoginResp[0].value.rspCode);
                         return 0;
+                    }
 
                     return CheckForSomeStability();
 
                 }
+                csl.Log("PtzC.GetPresetPicture DONE rspCode=");
+
                 return 0;
             }
             catch (Exception e)
             {
                 _ = e;
+                csl.Log("PtzC.GetPresetPicture EXCEPTION e.Msg=" + e.Message);
                 return 0;
             }
         }
@@ -388,6 +414,8 @@ public class PtzCamera : System.IDisposable
 
         public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
         {
+            csl.Log("PtzC.ExecuteOp START cop=" + (int)cop);
+
             if ((cop == COp.None) || (cop == COp.Refresh))
                 return 0;
             if ((int)cop <= 99)
@@ -430,6 +458,7 @@ public class PtzCamera : System.IDisposable
 
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
+            csl.Log("PtzC.GetSnapShot START");
             try
             {
                 var tempPath = GetTempDir(hostEnv);
@@ -476,10 +505,13 @@ public class PtzCamera : System.IDisposable
                     bw.Close();
                 }
                 GetZoomAndFocus(out int zoom, out int focus);
+                csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+
                 return "Camera/Images/" + actFilename;  // Send back URL
             }
-            catch
+            catch (Exception e)
             {
+                csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
                 return "";
             }
         }

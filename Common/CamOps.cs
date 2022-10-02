@@ -74,6 +74,7 @@ namespace CStat.Common
         }
         public int HandleOp (IWebHostEnvironment hostEnv, COp rcop)
         {
+            csl.Log("CamOps.HandleOp START rcop=" + (int)rcop);
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
@@ -84,7 +85,7 @@ namespace CStat.Common
                         return 6000;
                     while (cop != COp.None)
                     {
-                        //Debug.WriteLine("CamOps.HandleOp " + (int)cop);
+                        csl.Log("CamOps.HandleOp " + (int)cop);
                         var delay = ptzCam.ExecuteOp(hostEnv, cop);
                         if (delay > MaxDelay)
                             MaxDelay = delay;
@@ -93,6 +94,8 @@ namespace CStat.Common
 
                     // Give time for Camera to move. Delay can be adjusted
                     ptzCam.Logout();
+                    csl.Log("CamOps.HandleOp RETURN MaxDelay=" + rcop);
+
                     return MaxDelay;
                 }
             }
@@ -120,11 +123,13 @@ namespace CStat.Common
 
         public string SnapShot(IWebHostEnvironment hostEnv)
         {
+            csl.Log("CamOps.SnapShot START");
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
                     var link = ptzCam.GetSnapshot(hostEnv);
+                    csl.Log("CamOps.SnapShot LINK=" + link);
                     ptzCam.Logout();
                     return link;
                 }

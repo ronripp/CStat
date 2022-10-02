@@ -53,7 +53,7 @@ namespace CStat.Pages
             catch (Exception e)
             {
                 _ = e;
-                CameraLink = "";
+               CameraLink = "";
             }
         }
 

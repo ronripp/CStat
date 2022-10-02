@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,7 +10,16 @@ using System.Threading.Tasks;
 
 namespace CStat.Common
 {
-    public class CSLogger
+    public static class csl
+    {
+        public static void Log(string str)
+        { 
+            DateTime now = PropMgr.ESTNow;
+            long msecs = (long)Math.Round((now - new DateTime(now.Year, now.Month, now.Day, 0, 0, 0)).TotalMilliseconds);
+            Trace.WriteLine("[" + msecs + "] " + str + "\n");
+        }
+    }
+     public class CSLogger
     {
         [DllImport("Kernel32", EntryPoint = "GetCurrentThreadId", ExactSpelling = true)]
         public static extern Int32 GetCurrentWin32ThreadId();

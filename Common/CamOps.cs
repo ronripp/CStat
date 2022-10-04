@@ -154,14 +154,14 @@ namespace CStat.Common
             }
         }
 
-        public string GetVideoAnchors (DateTime sdt, DateTime edt)
+        public string GetVideoAnchors (IWebHostEnvironment hostEnv, DateTime sdt, DateTime edt)
         {
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
                     int ancCount = 0;
-                    return ptzCam.GetVideoAnchors(sdt, edt, ref ancCount);
+                    return ptzCam.GetVideoAnchors(hostEnv, sdt, edt, ref ancCount);
                 }
             }
             catch

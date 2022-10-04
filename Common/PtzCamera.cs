@@ -1,16 +1,10 @@
-﻿using CStat.Common;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CStat.Common
 {
@@ -145,10 +139,13 @@ public class PtzCamera : System.IDisposable
                 Logout();
         }
 
-        public string _token = "";
+        public static string _token = "";
         public bool Login()
         {
             csl.Log("PtzC.Login START");
+
+            if (!String.IsNullOrEmpty(_token))
+                return true;
 
             try
             {
@@ -186,6 +183,9 @@ public class PtzCamera : System.IDisposable
         public bool Logout()
         {
             csl.Log("PtzC.Logout token=" + _token);
+
+            if (!String.IsNullOrEmpty(_token))
+                return true;
 
             if (string.IsNullOrEmpty(_token))
             {
@@ -483,6 +483,11 @@ public class PtzCamera : System.IDisposable
                 //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
                 //req.Send(out string sResult);
 
+                if (true)
+                {
+                    return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
+                }
+
                 byte[] content;
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
                 WebResponse response = request.GetResponse();
@@ -543,6 +548,8 @@ public class PtzCamera : System.IDisposable
                 //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
                 //req.Send(out string sResult);
 
+                return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
+
                 byte[] content;
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
                 using (WebResponse response = request.GetResponse())
@@ -585,7 +592,7 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public string GetVideoAnchors(DateTime sdt, DateTime edt, ref int ancCount)
+        public string GetVideoAnchors(IWebHostEnvironment hostEnv, DateTime sdt, DateTime edt, ref int ancCount)
         {
             string allAnchors = "";
             try
@@ -617,7 +624,9 @@ public class PtzCamera : System.IDisposable
                         if (ancCount++ % 3 == 0)
                             allAnchors += "</tr><tr>\n";
 
-                        allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "','" + title + "')\">" + title + "</a></td>\n";
+                        // allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "','" + title + "')\">" + title + "</a></td>\n";
+                        allAnchors += "<td><a href=\"" + GetVideo(hostEnv, vf.name) + "\">" + title + "</a></td>\n";
+
                     }
                     return allAnchors;
                 }
@@ -656,7 +665,7 @@ public class PtzCamera : System.IDisposable
                 var NumVD = vDays.Count;
                 for (int i = NumVD-1; i >= 0; --i)
                 {
-                    allAnchors += GetVideoAnchors(vDays[i], vDays[i], ref ancCount);
+                    allAnchors += GetVideoAnchors(hostEnv, vDays[i], vDays[i], ref ancCount);
                 }
 
                 allAnchors += "</tr></table>\n";

@@ -48,7 +48,7 @@ namespace CStat.Pages
                 CameraLink = _CamOps.SnapShot(_hostEnv);
                 //Debug.WriteLine("OnGet CameraLink[" + CameraLink + "]");
                 var now = PropMgr.ESTNow;
-                _VideoLinks = _CamOps.GetVideoAnchors(now.AddDays(-14), now);
+                _VideoLinks = _CamOps.GetVideoAnchors(_hostEnv, now.AddDays(-14), now);
             }
             catch (Exception e)
             {

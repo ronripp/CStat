@@ -180,12 +180,13 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public bool Logout()
+        public bool Logout(bool force=false)
         {
             csl.Log("PtzC.Logout token=" + _token);
 
+            //if (!force && !String.IsNullOrEmpty(_token))
             if (!String.IsNullOrEmpty(_token))
-                return true;
+                    return true;
 
             if (string.IsNullOrEmpty(_token))
             {
@@ -342,40 +343,41 @@ public class PtzCamera : System.IDisposable
         public int CheckForSomeStability()
         {
             return 500;
-            //int zoomC = -1;
-            //int focusC = -1;
-            //int CCount = 0;
-            //int MaxCount = 20;
-            //int MatchesNeeded = 8;
-            //int MinMatches = 3;
-            //int Needed = MatchesNeeded - MinMatches;
 
-            //for (int i=0; i<MaxCount; ++i)
-            //{
-            //    GetZoomAndFocus(out int zoom, out int focus);
-            //    if ((zoom == zoomC) && (focus == focusC))
-            //    {
-            //        if (++CCount >= MatchesNeeded)
-            //        {
-            //            //Debug.WriteLine("*** PICTURE DONE ***");
-            //            return 500;
-            //        }
-            //        if ((CCount == MinMatches) && (MaxCount< 30))
-            //        {
-            //            int diff = (MaxCount - i) - 1;
-            //            if (diff<Needed)
-            //                MaxCount += Needed - diff; // try a few more times to see if we can reach 10
-            //        }
-            //    }
-            //    else
-            //    {
-            //        zoomC = zoom;
-            //        focusC = focus;
-            //        CCount = 0;
-            //    }
-            //    Thread.Sleep(20);
-            //}
-            //return IsCameraDone(20, 10) ? 500 : 1000; // still doing.. likely focusing and zooming
+            //RJR OLDint zoomC = -1;
+            //RJR OLDint focusC = -1;
+            //RJR OLDint CCount = 0;
+            //RJR OLDint MaxCount = 20;
+            //RJR OLDint MatchesNeeded = 8;
+            //RJR OLDint MinMatches = 3;
+            //RJR OLDint Needed = MatchesNeeded - MinMatches;
+
+            //RJR OLDfor (int i=0; i<MaxCount; ++i)
+            //RJR OLD{
+            //RJR OLD    GetZoomAndFocus(out int zoom, out int focus);
+            //RJR OLD    if ((zoom == zoomC) && (focus == focusC))
+            //RJR OLD    {
+            //RJR OLD        if (++CCount >= MatchesNeeded)
+            //RJR OLD        {
+            //RJR OLD            //Debug.WriteLine("*** PICTURE DONE ***");
+            //RJR OLD            return 500;
+            //RJR OLD        }
+            //RJR OLD        if ((CCount == MinMatches) && (MaxCount< 30))
+            //RJR OLD        {
+            //RJR OLD            int diff = (MaxCount - i) - 1;
+            //RJR OLD            if (diff<Needed)
+            //RJR OLD                MaxCount += Needed - diff; // try a few more times to see if we can reach 10
+            //RJR OLD        }
+            //RJR OLD    }
+            //RJR OLD    else
+            //RJR OLD    {
+            //RJR OLD        zoomC = zoom;
+            //RJR OLD        focusC = focus;
+            //RJR OLD        CCount = 0;
+            //RJR OLD    }
+            //RJR OLD    Thread.Sleep(20);
+            //RJR OLD}
+            //RJR OLDreturn IsCameraDone(20, 10) ? 500 : 1000; // still doing.. likely focusing and zooming
         }
 
         //http://IPC_IP/api.cgi?cmd=GetZoomFocus&token=TOKEN
@@ -460,136 +462,133 @@ public class PtzCamera : System.IDisposable
 
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
-            csl.Log("PtzC.GetSnapShot START");
-            try
-            {
-                var tempPath = GetTempDir(hostEnv);
+            csl.Log("PtzC.GetSnapShot");
+            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
 
-                var now = PropMgr.ESTNow;
-                string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
-                string actFilename = baseFilename + ".jpg";
-                string fullPath = Path.Combine(tempPath, actFilename);
-                for (int i = 1; File.Exists(fullPath); ++i)
-                {
-                    actFilename = baseFilename + i.ToString("00") + ".jpg";
-                    fullPath = Path.Combine(tempPath, actFilename);
-                }
+            //RJR OLDtry
+            //RJR OLD{
+            //RJR OLD    var tempPath = GetTempDir(hostEnv);
 
-                //HttpReq req = new HttpReq();
-                //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+            //RJR OLD    var now = PropMgr.ESTNow;
+            //RJR OLD    string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+            //RJR OLD    string actFilename = baseFilename + ".jpg";
+            //RJR OLD    string fullPath = Path.Combine(tempPath, actFilename);
+            //RJR OLD    for (int i = 1; File.Exists(fullPath); ++i)
+            //RJR OLD    {
+            //RJR OLD        actFilename = baseFilename + i.ToString("00") + ".jpg";
+            //RJR OLD        fullPath = Path.Combine(tempPath, actFilename);
+            //RJR OLD    }
 
-                //req.AddHeaderProp("Connection: keep-alive");
-                //req.AddHeaderProp("Accept: */*");
-                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //req.Send(out string sResult);
+            //RJR OLD    //HttpReq req = new HttpReq();
+            //RJR OLD    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
 
-                if (true)
-                {
-                    return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
-                }
+            //RJR OLD    //req.AddHeaderProp("Connection: keep-alive");
+            //RJR OLD    //req.AddHeaderProp("Accept: */*");
+            //RJR OLD    //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            //RJR OLD    //req.Send(out string sResult);
 
-                byte[] content;
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
+            //RJR OLD    byte[] content;
+            //RJR OLD    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
+            //RJR OLD    WebResponse response = request.GetResponse();
+            //RJR OLD    Stream stream = response.GetResponseStream();
 
-                using (BinaryReader br = new BinaryReader(stream))
-                {
-                    content = br.ReadBytes(50000000);
-                    br.Close();
-                }
-                response.Close();
+            //RJR OLD    using (BinaryReader br = new BinaryReader(stream))
+            //RJR OLD    {
+            //RJR OLD        content = br.ReadBytes(50000000);
+            //RJR OLD        br.Close();
+            //RJR OLD    }
+            //RJR OLD    response.Close();
 
-                FileStream fs = new FileStream(fullPath, FileMode.Create);
-                BinaryWriter bw = new BinaryWriter(fs);
-                try
-                {
-                    bw.Write(content);
-                }
-                finally
-                {
-                    fs.Close();
-                    bw.Close();
-                }
-                GetZoomAndFocus(out int zoom, out int focus);
-                csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+            //RJR OLD    FileStream fs = new FileStream(fullPath, FileMode.Create);
+            //RJR OLD    BinaryWriter bw = new BinaryWriter(fs);
+            //RJR OLD    try
+            //RJR OLD    {
+            //RJR OLD        bw.Write(content);
+            //RJR OLD    }
+            //RJR OLD    finally
+            //RJR OLD    {
+            //RJR OLD        fs.Close();
+            //RJR OLD        bw.Close();
+            //RJR OLD    }
+            //RJR OLD    GetZoomAndFocus(out int zoom, out int focus);
+            //RJR OLD    csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
 
-                return "Camera/Images/" + actFilename;  // Send back URL
-            }
-            catch (Exception e)
-            {
-                csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
-                return "";
-            }
+            //RJR OLD    return "Camera/Images/" + actFilename;  // Send back URL
+            //RJR OLD}
+            //RJR OLDcatch (Exception e)
+            //RJR OLD{
+            //RJR OLD    csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+            //RJR OLD    return "";
+            //RJR OLD}
         }
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
-            try
-            {
-                CleanupMP4(hostEnv); // Delete any older MP4s as they take up a lot of room.
+            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
 
-                var tempPath = GetTempDir(hostEnv);
-
-                var now = PropMgr.ESTNow;
-                string baseFilename = "Vid" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
-                string actFilename = baseFilename + ".mp4";
-                string fullPath = Path.Combine(tempPath, actFilename);
-                for (int i = 1; File.Exists(fullPath); ++i)
-                {
-                    actFilename = baseFilename + i.ToString("00") + ".mp4";
-                    fullPath = Path.Combine(tempPath, actFilename);
-                }
-
-                //HttpReq req = new HttpReq();
-                //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
-
-                //req.AddHeaderProp("Connection: keep-alive");
-                //req.AddHeaderProp("Accept: */*");
-                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //req.Send(out string sResult);
-
-                return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
-
-                byte[] content;
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
-                using (WebResponse response = request.GetResponse())
-                {
-                    long bytesToRead = response.ContentLength + 5000;
-                    if (bytesToRead > (100000000 + 5000))
-                    {
-                        response.Close();
-                        return "";
-                    }
-
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        using (BinaryReader br = new BinaryReader(stream))
-                        {
-                            content = br.ReadBytes((int)bytesToRead);
-                            br.Close();
-                        }
-                        response.Close();
-
-                        FileStream fs = new FileStream(fullPath, FileMode.Create);
-                        BinaryWriter bw = new BinaryWriter(fs);
-                        try
-                        {
-                            bw.Write(content);
-                        }
-                        finally
-                        {
-                            fs.Close();
-                            bw.Close();
-                        }
-                        return "Camera/Images/" + actFilename;  // Send back URL
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _ = e;
-                return "";
-            }
+            //RJR OLDtry
+            //RJR OLD{
+            //RJR OLD    CleanupMP4(hostEnv); // Delete any older MP4s as they take up a lot of room.
+            //RJR OLD
+            //RJR OLD    var tempPath = GetTempDir(hostEnv);
+            //RJR OLD
+            //RJR OLD    var now = PropMgr.ESTNow;
+            //RJR OLD    string baseFilename = "Vid" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+            //RJR OLD    string actFilename = baseFilename + ".mp4";
+            //RJR OLD    string fullPath = Path.Combine(tempPath, actFilename);
+            //RJR OLD    for (int i = 1; File.Exists(fullPath); ++i)
+            //RJR OLD    {
+            //RJR OLD        actFilename = baseFilename + i.ToString("00") + ".mp4";
+            //RJR OLD        fullPath = Path.Combine(tempPath, actFilename);
+            //RJR OLD    }
+            //RJR OLD
+            //RJR OLD    //HttpReq req = new HttpReq();
+            //RJR OLD    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+            //RJR OLD
+            //RJR OLD    //req.AddHeaderProp("Connection: keep-alive");
+            //RJR OLD    //req.AddHeaderProp("Accept: */*");
+            //RJR OLD    //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            //RJR OLD    //req.Send(out string sResult);
+            //RJR OLD
+            //RJR OLD    byte[] content;
+            //RJR OLD    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
+            //RJR OLD    using (WebResponse response = request.GetResponse())
+            //RJR OLD    {
+            //RJR OLD        long bytesToRead = response.ContentLength + 5000;
+            //RJR OLD        if (bytesToRead > (100000000 + 5000))
+            //RJR OLD        {
+            //RJR OLD            response.Close();
+            //RJR OLD            return "";
+            //RJR OLD        }
+            //RJR OLD
+            //RJR OLD        using (Stream stream = response.GetResponseStream())
+            //RJR OLD        {
+            //RJR OLD            using (BinaryReader br = new BinaryReader(stream))
+            //RJR OLD            {
+            //RJR OLD                content = br.ReadBytes((int)bytesToRead);
+            //RJR OLD                br.Close();
+            //RJR OLD            }
+            //RJR OLD            response.Close();
+            //RJR OLD
+            //RJR OLD            FileStream fs = new FileStream(fullPath, FileMode.Create);
+            //RJR OLD            BinaryWriter bw = new BinaryWriter(fs);
+            //RJR OLD            try
+            //RJR OLD            {
+            //RJR OLD                bw.Write(content);
+            //RJR OLD            }
+            //RJR OLD            finally
+            //RJR OLD            {
+            //RJR OLD                fs.Close();
+            //RJR OLD                bw.Close();
+            //RJR OLD            }
+            //RJR OLD            return "Camera/Images/" + actFilename;  // Send back URL
+            //RJR OLD        }
+            //RJR OLD    }
+            //RJR OLD}
+            //RJR OLDcatch (Exception e)
+            //RJR OLD{
+            //RJR OLD    _ = e;
+            //RJR OLD    return "";
+            //RJR OLD}
         }
 
         public string GetVideoAnchors(IWebHostEnvironment hostEnv, DateTime sdt, DateTime edt, ref int ancCount)
@@ -614,13 +613,14 @@ public class PtzCamera : System.IDisposable
                     {
                         string timeStr;
                         if (vf.StartTime.hour > 12)
-                            timeStr = (vf.StartTime.hour - 12) + ":" + vf.StartTime.min.ToString("00") + " PM]";
+                            timeStr = (vf.StartTime.hour - 12) + ":" + vf.StartTime.min.ToString("00") + "P]";
                         else
-                            timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + " AM]";
+                            timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + "A]";
 
                         //https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
 
-                        string title = " [" + vf.StartTime.mon + "/" + vf.StartTime.day + " @" + timeStr;
+                        int RMegs = (int)Math.Round((double)vf.size/1000000);
+                        string title = " [" + RMegs + "-" + vf.StartTime.mon + "/" + vf.StartTime.day + "@" + timeStr;
                         if (ancCount++ % 3 == 0)
                             allAnchors += "</tr><tr>\n";
 

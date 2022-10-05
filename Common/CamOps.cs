@@ -147,6 +147,7 @@ namespace CStat.Common
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
                     ptzCam.Cleanup(hostEnv, exceptFile);
+                    ptzCam.Logout(true);
                 }
             }
             catch

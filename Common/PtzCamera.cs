@@ -44,6 +44,35 @@ namespace CStat.Common
         public int channel;
     }
 
+    public class CamFile
+    {
+        public DateTime dt;
+        public string path = "";
+        public string desc = "";
+        public CamFile (string fpath)
+        {
+            //                                     YYYYMMDDhhmmss
+            //C:\cstat\wwwroot\Camera\Snap\camp_00_20221014033637.jpg
+            path = fpath;
+            var dot = fpath.LastIndexOf(".");
+            if (dot == -1) return;
+            int sec = int.Parse(fpath.Substring(dot - 2, 2));
+            int min = int.Parse(fpath.Substring(dot - 4, 2));
+            int hr = int.Parse(fpath.Substring(dot - 6, 2));
+            int day = int.Parse(fpath.Substring(dot - 8, 2));
+            int month = int.Parse(fpath.Substring(dot - 10, 2));
+            int year = int.Parse(fpath.Substring(dot - 14, 4));
+
+            dt = new DateTime(year, month, day, hr, min, sec, DateTimeKind.Local);
+        }
+        public string Url()
+        {
+            int sidx = path.ToLower().IndexOf("camera");
+            if (sidx == -1) return "";
+            return "https://ccaserve.org/" + path.Substring(sidx); 
+        }
+    }
+
     public class SearchRes
     {
         public VideoSearch SearchResult;
@@ -102,13 +131,16 @@ public class PtzCamera : System.IDisposable
             {COp.FocusInc ,"FocusInc" }
         };
 
+        public string _token = "";
+        private bool disposed = false;
+
         public PtzCamera()
         {
             Login();
         }
 
         //***************** start DISPOSABLE **********************
-        private bool disposed;
+
         public void Dispose()
         {
             Dispose(true);
@@ -135,11 +167,9 @@ public class PtzCamera : System.IDisposable
 
         ~PtzCamera()
         {
-            if (!string.IsNullOrEmpty(_token))
-                Logout();
+            Logout();
         }
 
-        public static string _token = "";
         public bool Login()
         {
             csl.Log("PtzC.Login START");
@@ -185,8 +215,8 @@ public class PtzCamera : System.IDisposable
             csl.Log("PtzC.Logout token=" + _token);
 
             //if (!force && !String.IsNullOrEmpty(_token))
-            if (!String.IsNullOrEmpty(_token))
-                    return true;
+            //if (!String.IsNullOrEmpty(_token))
+            //        return true;
 
             if (string.IsNullOrEmpty(_token))
             {
@@ -463,67 +493,68 @@ public class PtzCamera : System.IDisposable
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
             csl.Log("PtzC.GetSnapShot");
-            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
+            //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
 
-            //RJR OLDtry
-            //RJR OLD{
-            //RJR OLD    var tempPath = GetTempDir(hostEnv);
+            try
+            {
+                var tempPath = GetTempDir(hostEnv);
 
-            //RJR OLD    var now = PropMgr.ESTNow;
-            //RJR OLD    string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
-            //RJR OLD    string actFilename = baseFilename + ".jpg";
-            //RJR OLD    string fullPath = Path.Combine(tempPath, actFilename);
-            //RJR OLD    for (int i = 1; File.Exists(fullPath); ++i)
-            //RJR OLD    {
-            //RJR OLD        actFilename = baseFilename + i.ToString("00") + ".jpg";
-            //RJR OLD        fullPath = Path.Combine(tempPath, actFilename);
-            //RJR OLD    }
+                var now = PropMgr.ESTNow;
+                string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+                string actFilename = baseFilename + ".jpg";
+                string fullPath = Path.Combine(tempPath, actFilename);
+                for (int i = 1; File.Exists(fullPath); ++i)
+                {
+                    actFilename = baseFilename + i.ToString("00") + ".jpg";
+                    fullPath = Path.Combine(tempPath, actFilename);
+                }
 
-            //RJR OLD    //HttpReq req = new HttpReq();
-            //RJR OLD    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+                //HttpReq req = new HttpReq();
+                //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
 
-            //RJR OLD    //req.AddHeaderProp("Connection: keep-alive");
-            //RJR OLD    //req.AddHeaderProp("Accept: */*");
-            //RJR OLD    //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-            //RJR OLD    //req.Send(out string sResult);
+                //req.AddHeaderProp("Connection: keep-alive");
+                //req.AddHeaderProp("Accept: */*");
+                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                //req.Send(out string sResult);
 
-            //RJR OLD    byte[] content;
-            //RJR OLD    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
-            //RJR OLD    WebResponse response = request.GetResponse();
-            //RJR OLD    Stream stream = response.GetResponseStream();
+                byte[] content;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
+                WebResponse response = request.GetResponse();
+                Stream stream = response.GetResponseStream();
 
-            //RJR OLD    using (BinaryReader br = new BinaryReader(stream))
-            //RJR OLD    {
-            //RJR OLD        content = br.ReadBytes(50000000);
-            //RJR OLD        br.Close();
-            //RJR OLD    }
-            //RJR OLD    response.Close();
+                using (BinaryReader br = new BinaryReader(stream))
+                {
+                    content = br.ReadBytes(50000000);
+                    br.Close();
+                }
+                response.Close();
 
-            //RJR OLD    FileStream fs = new FileStream(fullPath, FileMode.Create);
-            //RJR OLD    BinaryWriter bw = new BinaryWriter(fs);
-            //RJR OLD    try
-            //RJR OLD    {
-            //RJR OLD        bw.Write(content);
-            //RJR OLD    }
-            //RJR OLD    finally
-            //RJR OLD    {
-            //RJR OLD        fs.Close();
-            //RJR OLD        bw.Close();
-            //RJR OLD    }
-            //RJR OLD    GetZoomAndFocus(out int zoom, out int focus);
-            //RJR OLD    csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+                FileStream fs = new FileStream(fullPath, FileMode.Create);
+                BinaryWriter bw = new BinaryWriter(fs);
+                try
+                {
+                    bw.Write(content);
+                }
+                finally
+                {
+                    fs.Close();
+                    bw.Close();
+                }
+                GetZoomAndFocus(out int zoom, out int focus);
+                csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
 
-            //RJR OLD    return "Camera/Images/" + actFilename;  // Send back URL
-            //RJR OLD}
-            //RJR OLDcatch (Exception e)
-            //RJR OLD{
-            //RJR OLD    csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
-            //RJR OLD    return "";
-            //RJR OLD}
+                return "Camera/Images/" + actFilename;  // Send back URL
+            }
+            catch (Exception e)
+            {
+                csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+                return "";
+            }
         }
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
-            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
+            return "";
+            //RJR return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
 
             //RJR OLDtry
             //RJR OLD{
@@ -593,91 +624,131 @@ public class PtzCamera : System.IDisposable
 
         public string GetVideoAnchors(IWebHostEnvironment hostEnv, DateTime sdt, DateTime edt, ref int ancCount)
         {
-            string allAnchors = "";
             try
             {
-                DateTime sf = new DateTime(sdt.Year, sdt.Month, sdt.Day, 0, 0, 0);
-                DateTime ef = new DateTime(edt.Year, edt.Month, edt.Day, 23, 59, 59);
-                SearchCmd scmd = GetVideos(sf, ef);
-
-                if (scmd.value == null)
-                    return "";
-
-                if (sdt.Date == edt.Date)
+                var tempPath = GetSnapDir(hostEnv);
+                List<CamFile> files = new List<CamFile>();
+                List<string> dirs = new List<string>(Directory.EnumerateDirectories(tempPath));
+                foreach (var dir in dirs)
                 {
-                    if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.File == null) || (scmd.value.SearchResult.File.Length == 0))
-                        return "";
-
-                    // Return anchors for this day
-                    foreach (var vf in scmd.value.SearchResult.File)
+                    List<string> sdirs = new List<string>(Directory.EnumerateDirectories(dir));
+                    foreach (var sdir in sdirs)
                     {
-                        string timeStr;
-                        if (vf.StartTime.hour > 12)
-                            timeStr = (vf.StartTime.hour - 12) + ":" + vf.StartTime.min.ToString("00") + "P]";
-                        else
-                            timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + "A]";
-
-                        //https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
-
-                        int RMegs = (int)Math.Round((double)vf.size/1000000);
-                        string title = " [" + RMegs + "-" + vf.StartTime.mon + "/" + vf.StartTime.day + "@" + timeStr;
-                        if (ancCount++ % 3 == 0)
-                            allAnchors += "</tr><tr>\n";
-
-                        // allAnchors += "<td><a href=\"#\" onclick=\"getVideo('" + vf.name + "','" + title + "')\">" + title + "</a></td>\n";
-                        allAnchors += "<td><a href=\"" + GetVideo(hostEnv, vf.name) + "\">" + title + "</a></td>\n";
-
-                    }
-                    return allAnchors;
-                }
-
-                // Determine Days that have videos
-                if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.Status == null) || (scmd.value.SearchResult.Status.Count() <= 0))
-                    return "";
-                int year = sdt.Year;
-                var lastMonth = sdt.Month;
-                var vDays = new List<DateTime>();
-                foreach (var rmon in scmd.value.SearchResult.Status)
-                {
-                    if (rmon.mon < lastMonth)
-                        year = edt.Year;
-
-                    char[] dayArr = rmon.table.ToCharArray();
-                    for (int i = 0; i < dayArr.Length; ++i)
-                    {
-                        if (dayArr[i] == '1')
+                        List<string> ssdirs = new List<string>(Directory.EnumerateDirectories(sdir));
+                        foreach (var ssdir in ssdirs)
                         {
-                            var vDay = new DateTime(year, rmon.mon, i + 1);
-                            if (vDay.Date < sdt.Date)
-                                continue;
-                            if (vDay.Date > edt.Date)
-                                break;
-                            vDays.Add(vDay);
+                            List<string> sssfiles = new List<string>(Directory.EnumerateFiles(ssdir));
+                            foreach (var sssfile in sssfiles)
+                            {
+                                files.Add(new CamFile(sssfile));
+                            }
                         }
                     }
-                    lastMonth = rmon.mon;
                 }
 
-                allAnchors = "<table id=\"vtid\"><tr>\n";
-                ancCount = 0;
-
-                // Get Links for each day from newer to older
-                var NumVD = vDays.Count;
-                for (int i = NumVD-1; i >= 0; --i)
+                //https://ccaserve.org/camera/snap/2022/10/14/camp_00_20221014003057.mp4
+                string anchors = "<table>\n";
+                files.ForEach(f =>
                 {
-                    allAnchors += GetVideoAnchors(hostEnv, vDays[i], vDays[i], ref ancCount);
-                }
+                    var title = (f.path.ToLower().Contains(".jpg") ? "Photo:" : "Video:") + f.dt.Month + "/" + f.dt.Day + "@" + (f.dt.Hour % 12) + ":" + f.dt.Minute + ((f.dt.Hour >= 12) ? "P" : "A");
 
-                allAnchors += "</tr></table>\n";
-
-                return allAnchors;
+                    anchors += "<tr><td><a href=\"" + f.Url() + "\">" + title + "</a></td></tr>\n";
+                });
+                anchors += "</table>\n";
+                return anchors;
             }
-            catch
-            {
 
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
             return "";
+            //RJROLD string allAnchors = "";
+            //RJROLD try
+            //RJROLD {
+            //RJROLD     DateTime sf = new DateTime(sdt.Year, sdt.Month, sdt.Day, 0, 0, 0);
+            //RJROLD     DateTime ef = new DateTime(edt.Year, edt.Month, edt.Day, 23, 59, 59);
+            //RJROLD     SearchCmd scmd = GetVideos(sf, ef);
+            //RJROLD 
+            //RJROLD     if ((scmd == null) || (scmd.value == null))
+            //RJROLD         return "";
+            //RJROLD 
+            //RJROLD     if (sdt.Date == edt.Date)
+            //RJROLD     {
+            //RJROLD         if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.File == null) || (scmd.value.SearchResult.File.Length == 0))
+            //RJROLD             return "";
+            //RJROLD 
+            //RJROLD         // Return anchors for this day
+            //RJROLD         foreach (var vf in scmd.value.SearchResult.File)
+            //RJROLD         {
+            //RJROLD             string timeStr;
+            //RJROLD             if (vf.StartTime.hour > 12)
+            //RJROLD                 timeStr = (vf.StartTime.hour - 12) + ":" + vf.StartTime.min.ToString("00") + "P]";
+            //RJROLD             else
+            //RJROLD                 timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + "A]";
+            //RJROLD 
+            //RJROLD             //https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
+            //RJROLD 
+            //RJROLD             int RMegs = (int)Math.Round((double)vf.size/1000000);
+            //RJROLD             string title = " [" + RMegs + "-" + vf.StartTime.mon + "/" + vf.StartTime.day + "@" + timeStr;
+            //RJROLD             if (ancCount++ % 3 == 0)
+            //RJROLD                 allAnchors += "</tr><tr>\n";
+            //RJROLD 
+            //RJROLD             // https://ccaserve.org/camera/snap/2022/10/14/camp_00_20221014003057.mp4
+            //RJROLD             allAnchors += "<td><a href=\"" + GetVideo(hostEnv, vf.name) + "\">" + title + "</a></td>\n";
+            //RJROLD 
+            //RJROLD         }
+            //RJROLD         return allAnchors;
+            //RJROLD     }
+            //RJROLD 
+            //RJROLD     // Determine Days that have videos
+            //RJROLD     if ((scmd.value.SearchResult == null) || (scmd.value.SearchResult.Status == null) || (scmd.value.SearchResult.Status.Count() <= 0))
+            //RJROLD         return "";
+            //RJROLD     int year = sdt.Year;
+            //RJROLD     var lastMonth = sdt.Month;
+            //RJROLD     var vDays = new List<DateTime>();
+            //RJROLD     foreach (var rmon in scmd.value.SearchResult.Status)
+            //RJROLD     {
+            //RJROLD         if (rmon.mon < lastMonth)
+            //RJROLD             year = edt.Year;
+            //RJROLD 
+            //RJROLD         char[] dayArr = rmon.table.ToCharArray();
+            //RJROLD         for (int i = 0; i < dayArr.Length; ++i)
+            //RJROLD         {
+            //RJROLD             if (dayArr[i] == '1')
+            //RJROLD             {
+            //RJROLD                 var vDay = new DateTime(year, rmon.mon, i + 1);
+            //RJROLD                 if (vDay.Date < sdt.Date)
+            //RJROLD                     continue;
+            //RJROLD                 if (vDay.Date > edt.Date)
+            //RJROLD                     break;
+            //RJROLD                 vDays.Add(vDay);
+            //RJROLD             }
+            //RJROLD         }
+            //RJROLD         lastMonth = rmon.mon;
+            //RJROLD     }
+            //RJROLD 
+            //RJROLD     allAnchors = "<table id=\"vtid\"><tr>\n";
+            //RJROLD     ancCount = 0;
+            //RJROLD 
+            //RJROLD     // Get Links for each day from newer to older
+            //RJROLD     var NumVD = vDays.Count;
+            //RJROLD     for (int i = NumVD-1; i >= 0; --i)
+            //RJROLD     {
+            //RJROLD         allAnchors += GetVideoAnchors(hostEnv, vDays[i], vDays[i], ref ancCount);
+            //RJROLD     }
+            //RJROLD 
+            //RJROLD     allAnchors += "</tr></table>\n";
+            //RJROLD 
+            //RJROLD     return allAnchors;
+            //RJROLD }
+            //RJROLD catch
+            //RJROLD {
+            //RJROLD 
+            //RJROLD }
+            //RJROLD 
+            //RJROLD return "";
         }
 
         public SearchCmd GetVideos(DateTime sdt, DateTime edt) // TBD : Dates

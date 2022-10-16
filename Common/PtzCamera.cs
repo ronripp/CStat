@@ -627,7 +627,7 @@ public class PtzCamera : System.IDisposable
             try
             {
                 var tempPath = GetSnapDir(hostEnv);
-                List<CamFile> files = new List<CamFile>();
+                List<CamFile> rawfiles = new List<CamFile>();
                 List<string> dirs = new List<string>(Directory.EnumerateDirectories(tempPath));
                 foreach (var dir in dirs)
                 {
@@ -640,20 +640,42 @@ public class PtzCamera : System.IDisposable
                             List<string> sssfiles = new List<string>(Directory.EnumerateFiles(ssdir));
                             foreach (var sssfile in sssfiles)
                             {
-                                files.Add(new CamFile(sssfile));
+                                rawfiles.Add(new CamFile(sssfile));
                             }
                         }
                     }
                 }
 
+                var files = rawfiles.OrderBy(f => f.dt).ToList();
                 //https://ccaserve.org/camera/snap/2022/10/14/camp_00_20221014003057.mp4
-                string anchors = "<table>\n";
-                files.ForEach(f =>
+                string anchors = "<table id=\"vtid\">\n";
+                bool inTR = false;
+                for (int i = 0; i < files.Count; ++i)
                 {
-                    var title = (f.path.ToLower().Contains(".jpg") ? "Photo:" : "Video:") + f.dt.Month + "/" + f.dt.Day + "@" + (f.dt.Hour % 12) + ":" + f.dt.Minute + ((f.dt.Hour >= 12) ? "P" : "A");
-
-                    anchors += "<tr><td><a href=\"" + f.Url() + "\">" + title + "</a></td></tr>\n";
-                });
+                    var f = files[i];
+                    if (i % 3 == 0)
+                    {
+                        if (inTR)
+                        {
+                            anchors += "</tr>";
+                            if (i < (files.Count - 1))
+                                anchors += "<tr>";
+                            else
+                                inTR = false;
+                        }
+                        else
+                        {
+                            anchors += "<tr>";
+                            inTR = true;
+                        }
+                    }
+                    int hr = (f.dt.Hour % 12);
+                    string hrStr = (hr != 0) ? hr.ToString() : "12";
+                    var title = (f.path.ToLower().Contains(".jpg") ? "Photo:" : "Video:") + f.dt.Month + "/" + f.dt.Day + "@" + hrStr + ":" + (f.dt.Minute).ToString().PadLeft(2,'0') + ((f.dt.Hour >= 12) ? "P" : "A");
+                    anchors += "<td><a href=\"" + f.Url() + "\">" + title + "</a></td>\n";
+                }
+                if (inTR)
+                    anchors += "</tr>";
                 anchors += "</table>\n";
                 return anchors;
             }

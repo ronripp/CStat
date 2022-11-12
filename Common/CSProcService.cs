@@ -37,6 +37,9 @@ namespace CStat.Common
             _context = context;
             _configuration = configuration;
             _userManager = userManager;
+
+            //var dr = new DateRange(new DateTime(2020, 1, 1), new DateTime(2022, 12, 1));
+            //var list = CStat.Models.Task.GetAllTasks(context, dr, null, false);
             _csSettings = CSSettings.GetCSSettings(_configuration, userManager);
         }
 

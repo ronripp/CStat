@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CStat.Models
 {
+    [Table("Address", Schema = "ronripp_CStat")]
     public partial class Address
     {
         public Address()
@@ -31,7 +32,7 @@ namespace CStat.Models
             WebSite = "";
         }
 
-    [Key]
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }

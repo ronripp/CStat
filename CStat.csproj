@@ -17,7 +17,6 @@
     <Compile Remove="wwwroot\Tasks\**" />
     <Compile Remove="wwwroot\tmpDBox\**" />
     <Compile Remove="_debugSU\**" />
-    <Compile Remove="_Models\**" />
     <Compile Remove="__Models\**" />
     <Content Remove="CCAChurch\**" />
     <Content Remove="Common\CCAService\CCADataAccess\**" />
@@ -30,7 +29,6 @@
     <Content Remove="wwwroot\Tasks\**" />
     <Content Remove="wwwroot\tmpDBox\**" />
     <Content Remove="_debugSU\**" />
-    <Content Remove="_Models\**" />
     <Content Remove="__Models\**" />
     <EmbeddedResource Remove="CCAChurch\**" />
     <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
@@ -43,7 +41,6 @@
     <EmbeddedResource Remove="wwwroot\Tasks\**" />
     <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
     <EmbeddedResource Remove="_debugSU\**" />
-    <EmbeddedResource Remove="_Models\**" />
     <EmbeddedResource Remove="__Models\**" />
     <None Remove="CCAChurch\**" />
     <None Remove="Common\CCAService\CCADataAccess\**" />
@@ -56,7 +53,6 @@
     <None Remove="wwwroot\Tasks\**" />
     <None Remove="wwwroot\tmpDBox\**" />
     <None Remove="_debugSU\**" />
-    <None Remove="_Models\**" />
     <None Remove="__Models\**" />
   </ItemGroup>
 
@@ -87,10 +83,11 @@
 
   <ItemGroup>
     <PackageReference Include="Dropbox.Api" Version="4.9.4" />
+    <PackageReference Include="Identity" Version="1.0.3" />
     <PackageReference Include="MailKit" Version="2.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.31" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.25" />

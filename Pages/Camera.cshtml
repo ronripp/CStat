@@ -343,6 +343,11 @@
                         }
                         let delay = parseInt(response.substr(10, endIdx - 10));
                         $("#CamImg").attr("src", response.substr(endIdx + 6));
+
+                        // Refresh test
+                        //ZZZ var content = $("#CamImg").innerHTML();
+                        //ZZZ $("#CamImg").innerHTML(content);
+
                         //if (!!delay)
                         //    setRepaint();
                         setRepaint();

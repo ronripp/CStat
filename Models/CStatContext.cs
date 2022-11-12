@@ -57,7 +57,7 @@ namespace CStat.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:DefaultSchema", "ronripp_CStat");
+            modelBuilder.HasAnnotation("Relational:DefaultSchema", "ronripp_DB2");
 
             modelBuilder.Entity<Account>(entity =>
             {

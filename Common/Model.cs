@@ -391,6 +391,7 @@ namespace CStat.Models
             Months_After_End = 0x00000014 << 26,
             Day_Of_Week_SunMon = 0x00000015 << 26,
             Every_Num_Years = 0x00000016 << 26,
+            //At_Time = 0x00000017 << 26,
             // MAX              = 0x0000001F << 26, 
 
             // Each    MASK   = 0x03E00000 
@@ -412,6 +413,7 @@ namespace CStat.Models
             Due_Day = 0x00000010 << 21,
             Day_from_Due_till = 0x00000011 << 21,
             Num_Start_Date = 0x00000012 << 21,
+            //Due_Date = 0x00000013 << 21,
             // MAX            = 0x0000001F << 21 
         }
 

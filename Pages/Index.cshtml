@@ -195,7 +195,7 @@
         var AtIdx = User.Identity.Name.IndexOf("@");
         if (AtIdx == -1) AtIdx = 6;
         var alias = Model._cset.GetUser(User.Identity.Name).Alias;
-        var user = (alias.Length > 1) ? alias : User.Identity.Name.Substring(0, AtIdx);
+        var user = ((alias != null) && (alias.Length > 1)) ? alias : User.Identity.Name.Substring(0, AtIdx);
     }
     <div class="header container space-between">
         <div>

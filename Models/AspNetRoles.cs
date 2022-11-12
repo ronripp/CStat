@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CStat.Models
 {
+    [Table("AspNetRoles", Schema = "ronripp_CStat")]
     public partial class AspNetRoles
     {
         public AspNetRoles()

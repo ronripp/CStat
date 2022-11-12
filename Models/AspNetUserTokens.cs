@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CStat.Models
 {
+    [Table("AspNetUserTokens", Schema = "ronripp_CStat")]
     public partial class AspNetUserTokens
     {
         [Key]

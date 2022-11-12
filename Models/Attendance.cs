@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CStat.Models
 {
+    [Table("Attendance", Schema = "ronripp_CStat")]
     public partial class Attendance
     {
         [Key]

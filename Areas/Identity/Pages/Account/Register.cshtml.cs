@@ -80,32 +80,35 @@ namespace CStat.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    return RedirectToPage("./Logout");
 
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code },
-                        protocol: Request.Scheme);
+                // RJR TEMP REMOVE     _logger.LogInformation("User created a new account with password.");
+                // RJR TEMP REMOVE 
+                // RJR TEMP REMOVE     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                // RJR TEMP REMOVE     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                // RJR TEMP REMOVE     var callbackUrl = Url.Page(
+                // RJR TEMP REMOVE         "/Account/ConfirmEmail",
+                // RJR TEMP REMOVE         pageHandler: null,
+                // RJR TEMP REMOVE         values: new { area = "Identity", userId = user.Id, code = code },
+                // RJR TEMP REMOVE         protocol: Request.Scheme);
+                // RJR TEMP REMOVE 
+                // RJR TEMP REMOVE     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                // RJR TEMP REMOVE         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                // RJR TEMP REMOVE 
+                // RJR TEMP REMOVE     if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                // RJR TEMP REMOVE     {
+                // RJR TEMP REMOVE         return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
+                // RJR TEMP REMOVE     }
+                // RJR TEMP REMOVE     else
+                // RJR TEMP REMOVE     {
+                // RJR TEMP REMOVE         await _signInManager.SignInAsync(user, isPersistent: false);
+                // RJR TEMP REMOVE         return LocalRedirect(returnUrl);
+                // RJR TEMP REMOVE     }
+                // RJR TEMP REMOVE }
+                // RJR TEMP REMOVE foreach (var error in result.Errors)
+                // RJR TEMP REMOVE {
+                // RJR TEMP REMOVE     ModelState.AddModelError(string.Empty, error.Description);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 

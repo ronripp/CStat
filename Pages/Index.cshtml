@@ -194,7 +194,8 @@
         var curDT = dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Day + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "P" : "A") + " ";
         var AtIdx = User.Identity.Name.IndexOf("@");
         if (AtIdx == -1) AtIdx = 6;
-        var alias = Model._cset.GetUser(User.Identity.Name).Alias;
+        var userObj = Model._cset.GetUser(User.Identity.Name);
+        var alias = (userObj != null) ? userObj.Alias : "";
         var user = ((alias != null) && (alias.Length > 1)) ? alias : User.Identity.Name.Substring(0, AtIdx);
     }
     <div class="header container space-between">

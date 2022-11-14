@@ -1,0 +1,10 @@
+﻿@page
+@model CStat.Areas.Identity.Pages.Account.RegDoneModel
+@{
+    ViewData["Title"] = "Registration Submitted";
+}
+
+<header>
+    <h1>@ViewData["Title"]</h1>
+    @Html.Raw(Model.Msg)
+</header>

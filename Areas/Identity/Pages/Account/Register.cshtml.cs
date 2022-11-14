@@ -80,7 +80,8 @@ namespace CStat.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    return RedirectToPage("./Logout");
+                    string msg = "<p>Thanks for registering as user, " + Input.Email + " !</p><p>Please wait until this registration is approved.</p><p>Once approved, a confirmation email will be sent to " + Input.Email + " indicating you can log into CStat.</p>";
+                    return RedirectToPage("./RegDone", "Display", new { Msg=msg} );
 
                 // RJR TEMP REMOVE     _logger.LogInformation("User created a new account with password.");
                 // RJR TEMP REMOVE 

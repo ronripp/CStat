@@ -103,8 +103,9 @@ namespace CStat.Common
                 cu.EMail = c.UserName;
                 cu.PhoneNum = c.PhoneNumber;
                 cu.UserId = c.Id;
-                cu.IsFull = FullUsers.Any(u => u.Id == c.Id);
                 cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
+                cu.IsFull = FullUsers.Any(u => u.Id == c.Id) || cu.IsAdmin;
+                
                 return cu;
             }).ToList();
 
@@ -525,7 +526,7 @@ namespace CStat.Common
 
         public static List<CStatUser> GetFullUsers(UserManager<CStatUser> userManager)
         {
-            var task = userManager.GetUsersInRoleAsync("FULL");
+            var task = userManager.GetUsersInRoleAsync("STANDARD");
             task.Wait();
             return task.Result.ToList();
         }

@@ -22,7 +22,8 @@ namespace CStat.Models
         public enum TitleRoles
         {
             Undefined = 0, Blds_NGnds = 0x1, Dean = 0x2, Counselor = 0x4, SWAT = 0x8, Worship = 0x10, Health_Dir = 0x20, nurse = 0x40, Manager = 0x80,
-            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000, Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000, POC = 0x80000
+            Cook = 0x100, FFE = 0x200, Trustee = 0x400, President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000,
+            Security = 0x10000, Unavailable = 0x20000, Admin = 0x40000, POC = 0x80000, Book_Keeper = 0x100000
         };
 
         public enum eGender
@@ -408,7 +409,7 @@ namespace CStat.Models
 
             // SQL Based Query
 
-            String sel = "Select * from Person FULL OUTER JOIN Address ON (Person.Address_id = Address.id)";
+            String sel = "Select * from ronripp_CStat.Person FULL OUTER JOIN ronripp_CStat.Address ON (ronripp_CStat.Person.Address_id = ronripp_CStat.Address.id)";
             int orgSelLen = sel.Length;
             bool bFiltered = false;
 
@@ -432,24 +433,24 @@ namespace CStat.Models
             //  "&PG2="
             //  "&SkillSets=" ...OR...  "&multicheckbox[]="
 
-            PersonMgr.AddToSelect(ref sel, "Person.FirstName", fp.FirstName, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.LastName", fp.LastName, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.Street", fa.Street, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.Town", fa.Town, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.CellPhone", fp.CellPhone, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.EMail", fp.Email, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Church_id", fp.ChurchId, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Ssnum", fp.Ssnum, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Address.State", fa.State, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Gender", fp.Gender.GetValueOrDefault(0), ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.SkillSets", fp.SkillSets, ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Roles", fp.Roles.GetValueOrDefault(0), ref bFiltered);
-            PersonMgr.AddToSelect(ref sel, "Person.Status", fp.Status, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.FirstName", fp.FirstName, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.LastName", fp.LastName, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Address.Street", fa.Street, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Address.Town", fa.Town, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.CellPhone", fp.CellPhone, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.EMail", fp.Email, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.Church_id", fp.ChurchId, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.Ssnum", fp.Ssnum, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Address.State", fa.State, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.Gender", fp.Gender.GetValueOrDefault(0), ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.SkillSets", fp.SkillSets, ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.Roles", fp.Roles.GetValueOrDefault(0), ref bFiltered);
+            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.Status", fp.Status, ref bFiltered);
             if (!fp.Dob.GetValueOrDefault().Equals(new DateTime(1900, 1, 1)))
-                PersonMgr.AddToSelect(ref sel, "Person.DOB", fp.Dob.GetValueOrDefault(), true, ref bFiltered);
+                PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.DOB", fp.Dob.GetValueOrDefault(), true, ref bFiltered);
 
             if (sel.Length == orgSelLen)
-                sel += "order by Address.Street ASC";
+                sel += "order by ronripp_CStat.Address.Street ASC";
 
             //                Also, it is recommended to use ISO8601 format YYYY - MM - DDThh:mm: ss.nnn[Z], as this one will not depend on your server's local culture.
             //SELECT*
@@ -536,8 +537,9 @@ namespace CStat.Models
                     return jstr;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                return "Error DB:" + e.Message;
             }
 
             return "ERROR~:No one found with Name";

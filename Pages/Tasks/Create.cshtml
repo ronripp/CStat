@@ -1019,8 +1019,8 @@
     }
     else
     {
-       disStr = "";
-       doneColor = "black";
+        disStr = "";
+        doneColor = "black";
     }
 }
 
@@ -1059,65 +1059,150 @@
             </li>
         </ul>
 
+        @{
+            var NewTTaskDisplay = Model.IsTemplate ? "inline-block" : "none";
+            var ComSpanDisplay = Model.IsTemplate ? "none" : "inline";
+            var ComTADisplay = Model.IsTemplate ? "none" : "inline-block";
+            var DueDateStr = Model.IsTemplate ? "Date:" : "Due Date:";
+            var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
+            var dueDateLabel = (Model.taskData.FixedDueDate) ? @DueDateStr : "Est. Done:";
+        }
+
         <div class="tab-content">
             <div class="tab-pane active" id="statusTab">
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group tborder" style="margin-top: 10px">
-                            <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.6em; text-align: left; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
-                            <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; margin-bottom:4px; border: 2px solid black;">
-                                <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
-                                    <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
-                                </div>
-                            </div>
-                            <div>
-                                <label asp-for="taskData.state" class="control-label">State:</label>
-                                <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
-                                <label asp-for="taskData.reason" class="control-label">Reason:</label>
-                                <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
-                            </div>
+                @if (Model.IsTemplate)
+                {
+                    // **** Template ****
+
+                <div class="tborder" id="NewTTask" style="display:@NewTTaskDisplay; margin-top:10px">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <b>Create a New Task ...</b>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="tborder" style="margin-top:10px">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="taskData.CreateTaskDue" class="control-label">Due:</label>
+                            <input type="text" id="CreateTaskDueVal" style="max-width: 4em; max-height: 1.4em;" value="@Model.taskData.CreateTaskDueVal" />
+                            <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="max-width:12em; margin-right:8px"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="taskData.CreateTaskEach" class="control-label"> of each:</label>
+                            <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="max-width:auto; margin-right:8px"></select>
+                            <input type="text" id="TillDay" style="max-width: 4em; max-height: 1.4em;" value="@Model.taskData.TillDay" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
+                        @{
+                            if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
+                            {
+                                <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em" /><span>= Due Day(each year) : MM/DD</Span>
+                            }
+                            else
+                            {
+                                <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em" /><span>= Due Day(each year) : MM/DD</span>
+                            }
+                        }
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
                             <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
                             <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
-                            @{
-                                var DueDateStr = Model.IsTemplate ? "Due Day (each year):" : "Due Date:";
-                                var checkedStr = (Model.taskData.FixedDueDate) ? "checked" : "";
-                                var dueDateLabel = (Model.taskData.FixedDueDate) ? @DueDateStr : "Est. Done:";
-                            }
-                            <div>
-                                <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
-                                @{
-                                    var maxDDWidth = Model.IsTemplate ? "max-width:5em" : "";
-                                    if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
-                                    {
-                                        <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em; @maxDDWidth" />
-                                    }
-                                    else
-                                    {
-                                        <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em; @maxDDWidth" />
-                                    }
-                                }
-
-                            </div>
-                            <div>
-                                <input type="checkbox" id="FixedDueDate" name="FixedDue" @checkedStr>
-                                <label id="FixedDueLabel" for="FixedDue">Fixed Date?</label>
-                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="tborder" style="margin-top:10px">
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label asp-for="taskData.Role1" class="control-label">Role 1:</label>
+                            <select asp-for="taskData.Role1" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="taskData.Role2" class="control-label">Role 2:</label>
+                            <select asp-for="taskData.Role2" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="taskData.Role3" class="control-label">Role 3:</label>
+                            <select asp-for="taskData.Role3" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
                             <label asp-for="task.Priority" class="control-label">Priority:</label>
                             <select asp-for="task.Priority" asp-items="ViewBag.Priority" style="max-height: 2.4em; max-width: 8.2em"></select>
                         </div>
                     </div>
+
                 </div>
+
+                }  // **** end Template ***
+                else
+                {
+                    // Normal Task
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="tborder" style="margin-top: 10px">
+                                <input type="text" id="pctComp" onClick="this.select();" style="max-width: 2.6em; text-align: left; font-weight: bold" value="@Model.taskData.PercentComplete" /><b> % Complete</b><button id="markDone" style="color:@doneColor;" @disStr>Mark Done</button>
+                                <div class="progress" style="max-height:2.4em; max-width:16em; margin-top:4px; margin-bottom:4px; border: 2px solid black;">
+                                    <div id="pbarComp" class="progress-bar" role="progressbar" aria-valuenow="@Model.taskData.PercentComplete" aria-valuemin="0" aria-valuemax="100" style="width:@Model.taskData.PercentComplete%">
+                                        <div id="srComp" class="sr-only">@Model.taskData.PercentComplete% Complete</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label asp-for="taskData.state" class="control-label">State:</label>
+                                    <select asp-for="taskData.state" asp-items="ViewBag.State" style="max-width:10em; margin-right:8px"></select>
+                                    <label asp-for="taskData.reason" class="control-label">Reason:</label>
+                                    <select asp-for="taskData.reason" asp-items="ViewBag.Reason" style="max-width:10em; margin-right:8px"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="tborder" style="margin-top:10px">
+                                <label asp-for="task.PersonId" class="control-label">Assigned to:</label>
+                                <select asp-for="task.PersonId" asp-items="ViewBag.PersonId" style="max-width:10em; margin-right:8px; margin-bottom:6px"></select>
+                                <div>
+                                    <label id="DueDateLabel" asp-for="task.DueDate" class="control-label" style="margin-right:1.3em">@dueDateLabel</label>
+                                    @{
+                                        if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
+                                        {
+                                            <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em" />
+                                        }
+                                        else
+                                        {
+                                            <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em" />
+                                        }
+                                    }
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="FixedDueDate" name="FixedDue" @checkedStr>
+                                    <label id="FixedDueLabel" for="FixedDue">Fixed Date?</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="tborder" style="margin-top:10px">
+                                <label asp-for="task.Priority" class="control-label">Priority:</label>
+                                <select asp-for="task.Priority" asp-items="ViewBag.Priority" style="max-height: 2.4em; max-width: 8.2em"></select>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
+
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="form-group tcborder">
                             <label asp-for="task.CommittedCost" class="control-label">Funded&nbsp;&nbsp;&nbsp;&nbsp;$</label>
                             <input type="text" id="Funded" style="max-width:5em; text-align:left; font-weight:bold;" value="@Model.task.CommittedCost.Value.ToString("F", CultureInfo.CurrentCulture)" />
@@ -1130,42 +1215,6 @@
                             <span id="TCostStat" style="max-width:5em; text-align:left; font-weight:bold">@Model.task.TotalCost</span>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        @{
-                            var NewTTaskDisplay = Model.IsTemplate ? "inline-block" : "none";
-                            var ComSpanDisplay = Model.IsTemplate ? "none" : "inline";
-                            var ComTADisplay = Model.IsTemplate ? "none" : "inline-block";
-                        }
-                        <div class="tccborder" id="NewTTask" style="display:@NewTTaskDisplay; margin-top:10px">
-                            <b>Create a New Task ...</b>
-                            <div>
-                                <label asp-for="taskData.CreateTaskDue" class="control-label">due:</label>
-                                <input type="text" id="CreateTaskDueVal" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.CreateTaskDueVal" />
-                                <select asp-for="taskData.CreateTaskDue" asp-items="ViewBag.CreateTaskDue" style="display:inline;max-width:12em; margin-right:8px"></select>
-                            </div>
-                            <div>
-                                <label asp-for="taskData.CreateTaskEach" class="control-label" style="display:inline"> of each:</label>
-                                <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="display:inline;max-width:auto; margin-right:8px"></select>
-                                <input type="text" id="TillDay" style="display:inline; max-width: 4em; max-height: 1.4em;" value="@Model.taskData.TillDay" />
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row tborder" style="display:@NewTTaskDisplay; margin-top:10px; margin-left:0px;">
-                    <div class="col-md-3">
-                        <label asp-for="taskData.Role1" class="control-label" style="display:inline">Role 1:</label>
-                        <select asp-for="taskData.Role1" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
-                    </div>
-                    <div class="col-md-3">
-                        <label asp-for="taskData.Role2" class="control-label" style="display:inline">Role 2:</label>
-                        <select asp-for="taskData.Role2" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
-
-                    </div>
-                    <div class="col-md-3">
-                        <label asp-for="taskData.Role3" class="control-label" style="display:inline">Role 3:</label>
-                        <select asp-for="taskData.Role3" asp-items="ViewBag.TitleRoles" style="display:inline;max-width:10em; margin-right:8px"></select>
-                    </div>
                 </div>
 
                 <span style="display:@ComSpanDisplay">
@@ -1175,111 +1224,111 @@
                 <textarea asp-for="taskData.comments" class="form-control" id="AllComments" disabled style="display:@ComTADisplay; min-height:8em; color:black; background-color:white"></textarea>
 
             </div>
-            <div class="tab-pane" id="descTab" style="background-color: #FFFF80;">
-                <section class="row">
-                    <div class="col-md-12" width="100%">
-                        @{
-                            var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "";
-                            var disableStr = ""; // (TaskDocVal.Length == 0) ? "disabled" : "";
-                        }
-                        <input type="text" class="col-md-10" id="TaskDoc" style="padding-left: 3px; padding-right: 3px; border-style: inset; font-weight: bold;" value='@TaskDocVal' />
-                        <button id="OpenDoc" style="max-width:4em;" @disableStr><b>Open</b></button>
-                        <button id="BrowseDoc" onclick="getDoc()" style="max-width:3em;">Set</button>
-                    </div>
-                    <div class="col-md-12" width="100%" style="margin-top:4px">
-                        <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>
-                    </div>
-                </section>
-
-            </div>
-            <div class="tab-pane" id="picTab">
-                <div id="picHdrId" class="col-md-12" width="100%">
-                    <table width="100%" style="margin-top:4px">
-                        <tr>
-                            <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
-                            <td><button id="imgPriorBtn">&#60;&#60;</button></td>
-                            <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
-                            <td><button id="imgNextBtn">&#62;&#62;</button></td>
-                            <td><button id="delPicBtn" style="margin-left:6px"><b>X</b></button></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
-                    <div class="col-md-12">
-                        <h4>Add New Picture with Title ...</h4>
-                    </div>
-                    <div class="col-md-3" style="margin-top:4px">
-                        <input id="newImg" type="file" name="file">
-                    </div>
-                    <div class="col-md-6" style="margin-top:4px">
-                        <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
-                    </div>
-                    <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
-                        <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
-                        <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
-                    </div>
-                </div>
-                <div id="imgDiv">
-                </div>
-            </div>
-
-            <div class="tab-pane" id="bomTab">
-
-                <section class="row">
-                    <div class="col-md-12" width="100%">
-                        <table width="100%" style="margin-top:4px">
-                            <tr>
-                                <th><h4><b>Materials/Labor/Fees</b></h4></th>
-                                <th>&nbsp;&nbsp;&nbsp;</th>
-                                <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
-                                <th>&nbsp;&nbsp;&nbsp;</th>
-                                <th id="gtId" style="text-align:right;"></th>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-12" width="100%">
-                        <table id="bomTable" width="100%" style="margin-top:4px">
-                            <tr>
-                                <th class="hdrBk">Item Description</th>
-                                <th class="rjust hdrBk">UCost</th>
-                                <th class="cjust hdrBk">Unit</th>
-                                <th class="rjust hdrBk">Qty</th>
-                                <th class="rjust hdrBk">TCost</th>
-                            </tr>
-                            <tbody>
-
+                    <div class="tab-pane" id="descTab" style="background-color: #FFFF80;">
+                        <section class="row">
+                            <div class="col-md-12" width="100%">
                                 @{
-                                    int i = 1;
-                                    foreach (var bl in Model.taskData.bom)
-                                    {
-                                        var mid = "mid" + i;
-                                        var miu = "miu" + i;
-                                        var mis = "mis" + i;
-                                        var miq = "miq" + i;
-                                        var mit = "mit" + i;
-
-                                        <tr>
-                                            <td id="mdd@{@bl.id}">@bl.desc</td>
-                                            <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
-                                            <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
-                                            <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
-                                            <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
-                                            <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
-                                            <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
-                                            <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
-                                            <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
-                                            <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
-                                        </tr>
-                                        ++i;
-                                    }
+                                    var TaskDocVal = ((Model.task.PlanLink != null) && (Model.task.PlanLink.Length > 5)) ? Model.task.PlanLink : "";
+                                    var disableStr = ""; // (TaskDocVal.Length == 0) ? "disabled" : "";
                                 }
-                            </tbody>
-                        </table>
+                                <input type="text" class="col-md-10" id="TaskDoc" style="padding-left: 3px; padding-right: 3px; border-style: inset; font-weight: bold;" value='@TaskDocVal' />
+                                <button id="OpenDoc" style="max-width:4em;" @disableStr><b>Open</b></button>
+                                <button id="BrowseDoc" onclick="getDoc()" style="max-width:3em;">Set</button>
+                            </div>
+                            <div class="col-md-12" width="100%" style="margin-top:4px">
+                                <textarea asp-for="taskData.Detail" class="form-control" id="taskDetail"></textarea>
+                            </div>
+                        </section>
+
                     </div>
-                </section>
-            </div>
-        </div>
+                    <div class="tab-pane" id="picTab">
+                        <div id="picHdrId" class="col-md-12" width="100%">
+                            <table width="100%" style="margin-top:4px">
+                                <tr>
+                                    <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
+                                    <td><button id="imgPriorBtn">&#60;&#60;</button></td>
+                                    <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
+                                    <td><button id="imgNextBtn">&#62;&#62;</button></td>
+                                    <td><button id="delPicBtn" style="margin-left:6px"><b>X</b></button></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
+                            <div class="col-md-12">
+                                <h4>Add New Picture with Title ...</h4>
+                            </div>
+                            <div class="col-md-3" style="margin-top:4px">
+                                <input id="newImg" type="file" name="file">
+                            </div>
+                            <div class="col-md-6" style="margin-top:4px">
+                                <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
+                            </div>
+                            <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
+                                <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
+                                <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
+                            </div>
+                        </div>
+                        <div id="imgDiv">
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="bomTab">
+
+                        <section class="row">
+                            <div class="col-md-12" width="100%">
+                                <table width="100%" style="margin-top:4px">
+                                    <tr>
+                                        <th><h4><b>Materials/Labor/Fees</b></h4></th>
+                                        <th>&nbsp;&nbsp;&nbsp;</th>
+                                        <th><button id="mopId" onclick="updateBOM()" style="margin-left:10px; max-height:2.2em">+</button></th>
+                                        <th>&nbsp;&nbsp;&nbsp;</th>
+                                        <th id="gtId" style="text-align:right;"></th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-12" width="100%">
+                                <table id="bomTable" width="100%" style="margin-top:4px">
+                                    <tr>
+                                        <th class="hdrBk">Item Description</th>
+                                        <th class="rjust hdrBk">UCost</th>
+                                        <th class="cjust hdrBk">Unit</th>
+                                        <th class="rjust hdrBk">Qty</th>
+                                        <th class="rjust hdrBk">TCost</th>
+                                    </tr>
+                                    <tbody>
+
+                                        @{
+                                            int i = 1;
+                                            foreach (var bl in Model.taskData.bom)
+                                            {
+                                                var mid = "mid" + i;
+                                                var miu = "miu" + i;
+                                                var mis = "mis" + i;
+                                                var miq = "miq" + i;
+                                                var mit = "mit" + i;
+
+                                                <tr>
+                                                    <td id="mdd@{@bl.id}">@bl.desc</td>
+                                                    <td id="med@{@bl.id}" class="mhidel"><input id="@mid" type="text" class="ledit"></td>
+                                                    <td id="mdu@{@bl.id}" class="rjust">@bl.ucost</td>
+                                                    <td id="meu@{@bl.id}" class="mhider"><input id="@miu" type="text" class="redit"></td>
+                                                    <td id="mds@{@bl.id}" class="cjust">@bl.units</td>
+                                                    <td id="mes@{@bl.id}" class="mhidec"><input id="@mis" type="text" class="cedit"></td>
+                                                    <td id="mdq@{@bl.id}" class="rjust">@bl.qty</td>
+                                                    <td id="meq@{@bl.id}" class="mhider"><input id="@miq" type="text" class="redit" style="max-width:2em;"></td>
+                                                    <td id="mdt@{@bl.id}" class="rjust">@bl.tcost</td>
+                                                    <td id="met@{@bl.id}" class="mhider"><input id="@mit" type="text" class="redit"></td>
+                                                </tr>
+                                                ++i;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
     </div>
     <div>
         <p style="margin-top:1em;"><a asp-page="Index">Back to List</a></p>

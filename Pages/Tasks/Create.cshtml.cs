@@ -143,6 +143,7 @@ namespace CStat.Pages.Tasks
                         taskData.CreateTaskEach = (int)CreateTaskEach;
                         taskData.TillDay = ((taskData.CreateTaskEach == (int)CTask.eTaskType.Day_from_Due_till) && task.EstimatedDoneDate.HasValue) ?
                                                 task.EstimatedDoneDate.Value.Month + "/" + task.EstimatedDoneDate.Value.Day : "";
+                        taskData.NumMOYs = task.Status.ToString();
                         switch (CreateTaskDue)
                         {
                             case CTask.eTaskType.Day_Of_Week_SunMon:
@@ -178,7 +179,7 @@ namespace CStat.Pages.Tasks
             IList<SelectListItem> dueList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Before_Start) && ((int)e <= (int)CTask.eTaskType.Day_Of_Week_SunMon)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskDue"] = dueList;
 
-            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e < (int)CTask.eTaskType.Num_Start_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " ").Replace(" n ", "/"), Value = ((int)x).ToString() }).ToList();
+            IList<SelectListItem> eachList = Enum.GetValues(typeof(CTask.eTaskType)).Cast<CTask.eTaskType>().Where(e => ((int)e >= (int)CTask.eTaskType.Retreat_Event) && ((int)e <= (int)CTask.eTaskType.Years_Period_from_Date)).Select(x => new SelectListItem { Text = x.ToString().Replace("_", " ").Replace(" n ", "/"), Value = ((int)x).ToString() }).ToList();
             ViewData["CreateTaskEach"] = eachList;
 
             IList<SelectListItem> pList = Enum.GetValues(typeof(CTask.ePriority)).Cast<CTask.ePriority>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
@@ -282,20 +283,11 @@ namespace CStat.Pages.Tasks
 
                 ******************/
 
-                string fStr = "% Comp";
+                string fStr = "Start";
                 try
                 {
-                    uint pctComp = uint.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "pctComp").Value);
-                    fStr = "Status";
-                    ulong status = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskState").Value);
-                    fStr = "Reason";
-                    ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
                     fStr = "Priority";
                     task.Priority = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPriority").Value);
-                    task.SetTaskStatus((CTask.eTaskStatus)status, (CTask.eTaskStatus)reason, (int)pctComp);
-                    taskData.state = (int)status;
-                    taskData.reason = (int)reason;
-                    taskData.PercentComplete = (int)pctComp;
                     fStr = "Title must be filled";
                     string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value).Trim();
                     if (title.Length == 0)
@@ -335,6 +327,10 @@ namespace CStat.Pages.Tasks
                     IsTemplate = (task.Type & (int)CTask.eTaskType.Template) != 0;
                     if (IsTemplate)
                     {
+                        //*******************************************************
+                        //************** Template ****************************
+                        //*******************************************************
+
                         fStr = "Template Task";
 
                         // Make sure to initialize ABOVE and also get these HERE only for a Template Task.
@@ -361,8 +357,7 @@ namespace CStat.Pages.Tasks
                                 (dueType == (int)CTask.eTaskType.Months_After_Start) ||
                                 (dueType == (int)CTask.eTaskType.Months_Before_End) ||
                                 (dueType == (int)CTask.eTaskType.Months_After_End) ||
-                                (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon) ||
-                                (dueType == (int)CTask.eTaskType.Every_Num_Years))
+                                (dueType == (int)CTask.eTaskType.Day_Of_Week_SunMon))
                             {
                                 dueValue = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskCreateDueVal").Value);
                             }
@@ -416,7 +411,10 @@ namespace CStat.Pages.Tasks
                                 }
                             }
 
-                            if ((eachType == (int)CTask.eTaskType.Due_Day) || (eachType == (int)CTask.eTaskType.Num_Start_Date))
+                            if ((eachType == (int)CTask.eTaskType.Due_Day) ||
+                                (eachType == (int)CTask.eTaskType.Months_Period_from_Date) ||
+                                (eachType == (int)CTask.eTaskType.Years_Period_from_Date)
+                                )
                             {
                                 string mdStr = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDueDate").Value).Trim();
                                 if (mdStr.Length >= 10)
@@ -430,14 +428,33 @@ namespace CStat.Pages.Tasks
                             task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
                         }
 
+                        task.Status = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "NumMOYs").Value); // kludge for template to use Status for # of Months or Years
+
                         fStr = "Role123";
                         taskData.Role1 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole1").Value);
                         taskData.Role2 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole2").Value);
                         taskData.Role3 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole3").Value);
                     }
+                    else
+                    {
+                        //*******************************************************
+                        //************** Normal Task ****************************
+                        //*******************************************************
+                        fStr = "% Comp";
+
+                        uint pctComp = uint.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "pctComp").Value);
+                        fStr = "Status";
+                        ulong status = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskState").Value);
+                        fStr = "Reason";
+                        ulong reason = ulong.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskReason").Value);
+                        task.SetTaskStatus((CTask.eTaskStatus)status, (CTask.eTaskStatus)reason, (int)pctComp);
+                        taskData.state = (int)status;
+                        taskData.reason = (int)reason;
+                        taskData.PercentComplete = (int)pctComp;
+                    }
+
                     fStr = "Task Doc";
      
-                    task.PlanLink = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoc").Value);
                     fStr = "Detail Text";
                     taskData.Detail = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDetail").Value);
                     fStr = "Comments";
@@ -547,6 +564,49 @@ namespace CStat.Pages.Tasks
                 return this.Content("Success:" + task.Id); // Send back results
             }
             return this.Content("Fail: Bad/Missing Request"); // Send back results
+        }
+
+        public ActionResult OnPostClean()
+        {
+            if ((this.Request == null) || (this.Request.Form == null))
+                return this.Content("Fail: Bad/Missing Request"); // Send back results
+
+            try
+            {
+                string title = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskTitle").Value).Trim();
+                if (title.Length != 0)
+                    return this.Content("Fail: Has Title"); // Send back results
+
+                string pidStr = this.Request.Form.FirstOrDefault(kv => kv.Key == "taskPersonId").Value;
+                if (pidStr != null)
+                {
+                    int? pid = int.Parse(pidStr);
+                    if (pid.HasValue && (task.PersonId > 0))
+                        return this.Content("Fail: Assigned"); // Send back results
+                }
+
+                int id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+
+                if (id <= 0)
+                {
+                    return this.Content("Fail: No id"); // Send back results
+                }
+
+                // Delete empty task
+                var Task = _context.Task.Find(id);
+
+                if (Task != null)
+                {
+                   _context.Task.Remove(Task);
+                   _context.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                return this.Content("Fail: e.msg=" + e.Message); // Send back results
+            }
+
+            return this.Content("Success:"); // Send back results
         }
 
         public ActionResult OnPostPingCTask()

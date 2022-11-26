@@ -390,7 +390,6 @@ namespace CStat.Models
             Months_Before_End = 0x00000013 << 26,
             Months_After_End = 0x00000014 << 26,
             Day_Of_Week_SunMon = 0x00000015 << 26,
-            Every_Num_Years = 0x00000016 << 26,
             //At_Time = 0x00000017 << 26,
             // MAX              = 0x0000001F << 26, 
 
@@ -412,8 +411,8 @@ namespace CStat.Models
             Year = 0x0000000F << 21,
             Due_Day = 0x00000010 << 21,
             Day_from_Due_till = 0x00000011 << 21,
-            Num_Start_Date = 0x00000012 << 21,
-            //Due_Date = 0x00000013 << 21,
+            Months_Period_from_Date = 0x00000012 << 21,
+            Years_Period_from_Date = 0x00000013 << 21,
             // MAX            = 0x0000001F << 21 
         }
 
@@ -632,10 +631,11 @@ namespace CStat.Models
         public bool GetDueDates(List<Event> events, out List<DateTimeEv> dueDates, DateRange lim)
         {
             GetTaskType(out CTask.eTaskType dueType, out CTask.eTaskType eachType, out int dueVal);
-            dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, events, lim), lim);
+            int eachVal = ((eachType == eTaskType.Months_Period_from_Date) || (eachType == eTaskType.Years_Period_from_Date)) ? this.Status : 0;
+            dueDates = ApplyDueType(dueType, dueVal, GetEachTypeRange(eachType, eachVal, events, lim), lim);
             return dueDates.Count > 0;
         }
-        public List<DateRange> GetEachTypeRange(CTask.eTaskType eachType, List<Event> events, DateRange lim)
+        public List<DateRange> GetEachTypeRange(CTask.eTaskType eachType, int eachVal, List<Event> events, DateRange lim)
         {
             List<DateRange> ranges = new List<DateRange>();
 
@@ -896,16 +896,28 @@ namespace CStat.Models
                     }
                     break;
 
-                case eTaskType.Num_Start_Date:
+                case eTaskType.Months_Period_from_Date:
                    {
                         if (DueDate.HasValue)
                         {
-                            DateTime s = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0);
-                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 23, 59, 59);
+                            DateTime s = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0).AddMonths(eachVal);
+                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 23, 59, 59).AddMonths(eachVal);
                             ranges.Add(new DateRange(s, e));
                         }
                     }
                     break;
+
+                case eTaskType.Years_Period_from_Date:
+                    {
+                        if (DueDate.HasValue)
+                        {
+                            DateTime s = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 0, 0, 0).AddYears(eachVal);
+                            DateTime e = new DateTime(DueDate.Value.Year, DueDate.Value.Month, DueDate.Value.Day, 23, 59, 59).AddYears(eachVal);
+                            ranges.Add(new DateRange(s, e));
+                        }
+                    }
+                    break;
+
             }
             return ranges;
         }
@@ -1026,17 +1038,7 @@ namespace CStat.Models
                                 dtList.Add(new DateTimeEv(dr.End.AddDays(dueVal - sdow), dr.EventID));
                         }
                         break;
-                    case CTask.eTaskType.Every_Num_Years:
-                        {
-                            for (int mult = 1; true; ++mult)
-                            {
-                                DateTime dt = dr.Start.AddYears(mult*dueVal);
-                                dtList.Add(new DateTimeEv(dt, dr.EventID));
-                                if (!lim.In(new DateRange(dt, dt)))
-                                    break;
-                            }
-                        }
-                        break;
+
                 }
             }
             return dtList;
@@ -1130,6 +1132,8 @@ namespace CStat.Models
         public long Role3 { get; set; } = 0;
         [DataMember]
         public string TillDay { get; set; }
+        public string NumMOYs { get; set; } = "";
+
         public TaskData(int taskId = -1)
         {
             tid = taskId;                               // These top 4 memmbers are redundant but they must match DB Record

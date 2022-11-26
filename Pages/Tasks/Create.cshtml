@@ -215,11 +215,12 @@
             saveFormData.append("taskRole2", $("#taskData_Role2").val());
             saveFormData.append("taskRole3", $("#taskData_Role3").val());
 
-            if (($("#task_Type").val() & 0x00020000) != 0) {
+            if (($("#task_Type").val() & 0x00020000) != 0) { // Is Template?
                 saveFormData.append("taskCreateDue", $("#taskData_CreateTaskDue").val());
                 saveFormData.append("taskCreateDueVal", $("#CreateTaskDueVal").val());
                 saveFormData.append("taskCreateEach", $("#taskData_CreateTaskEach").val());
                 saveFormData.append("TillDay", $("#TillDay").val());
+                saveFormData.append("NumMOYs", $("#NumMOYs").val());
             }
             if (($("#task_ActualDoneDate").val() === "") && (inMarkDone || ($("#taskData_state").val() === 0x00001000))) {
                 inMarkDone = true;
@@ -297,6 +298,41 @@
                 }
             });
         }
+
+        function cleanTask() {
+
+            let pidStr = $("#task_PersonId").val();
+            let pid = !!pidStr ? parseInt(pidStr) : -1;
+            let desc = encodeQuotes($("#task_Description").val()).trim();
+            if (!!desc || ((pid !== NaN) && (pid !== -1)))
+                return;
+
+            var cleanFormData = new FormData();
+            // Add Task fields
+
+            cleanFormData.append("taskId", $("#task_Id").val());
+            cleanFormData.append("taskTitle", encodeQuotes($("#task_Description").val()));
+
+            jQuery.ajax({
+                url: "/Tasks/Create?handler=Clean",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: cleanFormData,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                },
+                error: function (res) {
+                },
+                complete: function (res) {
+                }
+            });
+        }
+
 
         function saveBOM() {
             var bom = [];
@@ -465,7 +501,7 @@
 
                 if ($("#taskData_CreateTaskDue").is(":visible")) {
                     let ctDue = $("#taskData_CreateTaskDue").val();
-                    if ((ctDue >= (0x00000005 << 26)) && (ctDue <= (0x00000016 << 26))) {
+                    if ((ctDue >= (0x00000005 << 26)) && (ctDue <= (0x00000015 << 26))) {
                         if (!$("#CreateTaskDueVal").is(":visible")) {
                             $("#CreateTaskDueVal").val("");
                         }
@@ -478,10 +514,11 @@
 
             updateDueVal();
 
-            function updateDueEach() {
+            function updateDueEach() { // TBD
 
                 if ($("#taskData_CreateTaskEach").is(":visible")) {
                     let ctEach = $("#taskData_CreateTaskEach").val();
+
                     if (ctEach == (0x00000011 << 21)) {
                         if (!$("#TillDay").is(":visible")) {
                             $("#TillDay").val("");
@@ -489,6 +526,15 @@
                         $("#TillDay").show();
                     } else {
                         $("#TillDay").hide();
+                    }
+ 
+                    if ((ctEach == (0x00000012 << 21)) || (ctEach == (0x00000013 << 21))) {
+                        if (!$("#NumMOYs").is(":visible")) {
+                            $("#NumMOYs").val("");
+                        }
+                        $("#NumMOYs").show();
+                    } else {
+                            $("#NumMOYs").hide();
                     }
                 }
             }
@@ -989,6 +1035,10 @@
                 let focusEl = document.activeElement;
                 let textFocus = !!focusEl && (focusEl.type === "text") || (focusEl.type === "textarea");
 
+                if (!dirtyTask) {
+                    cleanTask();
+                }
+
                 if (dirtyTask || textFocus) {
                     return "Task NOT Saved";
                 } else {
@@ -1093,6 +1143,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <label asp-for="taskData.CreateTaskEach" class="control-label"> of each:</label>
+                            <input type="text" id="NumMOYs" style="max-width: 4em; max-height: 1.4em;" value="@Model.taskData.NumMOYs" />
                             <select asp-for="taskData.CreateTaskEach" asp-items="ViewBag.CreateTaskEach" style="max-width:auto; margin-right:8px"></select>
                             <input type="text" id="TillDay" style="max-width: 4em; max-height: 1.4em;" value="@Model.taskData.TillDay" />
                         </div>
@@ -1103,11 +1154,11 @@
                         @{
                             if ((!Model.task.DueDate.HasValue || Model.task.DueDate.Value.Year == 1900))
                             {
-                                <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em" /><span>= Due Day(each year) : MM/DD</Span>
+                                <input asp-for="task.DueDate" type="datetime-local" value="02252012T11:59 PM" style="max-height:1.6em" /><span>⇨Due Day(each year) : MM/DD</span>
                             }
                             else
                             {
-                                <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em" /><span>= Due Day(each year) : MM/DD</span>
+                                <input asp-for="task.DueDate" type="datetime-local" style="max-height:1.6em" /><span>⇨Due Day(each year) : MM/DD</span>
                             }
                         }
                     </div>

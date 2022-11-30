@@ -131,7 +131,7 @@ public class PtzCamera : System.IDisposable
             {COp.FocusInc ,"FocusInc" }
         };
 
-        public string _token = "";
+        public static string _token = "";
         private bool disposed = false;
 
         public PtzCamera()
@@ -214,9 +214,9 @@ public class PtzCamera : System.IDisposable
         {
             csl.Log("PtzC.Logout token=" + _token);
 
-            //if (!force && !String.IsNullOrEmpty(_token))
-            //if (!String.IsNullOrEmpty(_token))
-            //        return true;
+            //RJRTif (!force && !String.IsNullOrEmpty(_token))
+            if (!String.IsNullOrEmpty(_token))
+                    return true;
 
             if (string.IsNullOrEmpty(_token))
             {
@@ -493,7 +493,9 @@ public class PtzCamera : System.IDisposable
         public string GetSnapshot(IWebHostEnvironment hostEnv)
         {
             csl.Log("PtzC.GetSnapShot");
-            //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token;
+
+            //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token; // + "&width=640&height=480";
+            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
 
             try
             {

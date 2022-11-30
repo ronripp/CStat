@@ -454,7 +454,7 @@ namespace CStat.Pages.Tasks
                     }
 
                     fStr = "Task Doc";
-     
+                    task.PlanLink = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDoc").Value);
                     fStr = "Detail Text";
                     taskData.Detail = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskDetail").Value);
                     fStr = "Comments";

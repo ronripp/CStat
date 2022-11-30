@@ -240,8 +240,6 @@
             saveFormData.append("picTitles", picTitles_s);
             saveFormData.append("bom", bom_s);
 
-            let need
-
             jQuery.ajax({
                 url: "/Tasks/Create?handler=Save",
                 headers: {
@@ -576,13 +574,6 @@
                     },
                 });
             }
-
-            //$("#TaskDoc").click(function () {
-            //    if (dirtyTask) {
-            //        saveTask();
-            //    }
-            //    openFileShare();
-            //});
 
             $("#OpenDoc").click(function () {
                 if (dirtyTask) {

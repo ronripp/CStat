@@ -176,8 +176,15 @@ namespace CStat
                     
                     if (System.IO.File.Exists(destFile))
                         System.IO.File.Delete(destFile);
-                    var task = dbox.DownloadToFile(FolderName, FileName, destFile);
-                    task.Wait();
+                    try
+                    {
+                        var task = dbox.DownloadToFile(FolderName, FileName, destFile);
+                        task.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        return new JsonResult("ERROR~:" + ex.Message ?? "Failed to download");
+                    }
                     return new JsonResult(destFName);
                 }
                 string url = dbox.GetSharedLink(Uri.UnescapeDataString(UnencodeQuotes(FolderName) + "/" + UnencodeQuotes(FileName)));

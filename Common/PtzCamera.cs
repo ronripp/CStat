@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -131,7 +132,26 @@ public class PtzCamera : System.IDisposable
             {COp.FocusInc ,"FocusInc" }
         };
 
-        public static string _token = "";
+        public static string llToken = "";
+        private static readonly object tokenLock = new object();
+
+        public static string _token
+        {
+            get
+            {
+                lock (tokenLock)
+                {
+                    return llToken;
+                }
+            }
+            set
+            {
+                lock (tokenLock)
+                {
+                    llToken = value;
+                }
+            }
+        }
         private bool disposed = false;
 
         public PtzCamera()
@@ -172,7 +192,7 @@ public class PtzCamera : System.IDisposable
 
         public bool Login()
         {
-            csl.Log("PtzC.Login START");
+            csl.Log("PtzC.Login START token=" + _token);
 
             if (!String.IsNullOrEmpty(_token))
                 return true;
@@ -180,7 +200,6 @@ public class PtzCamera : System.IDisposable
             try
             {
                 // Get Token
-
                 HttpReq req = new HttpReq();
                 req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
 
@@ -214,9 +233,8 @@ public class PtzCamera : System.IDisposable
         {
             csl.Log("PtzC.Logout token=" + _token);
 
-            //RJRTif (!force && !String.IsNullOrEmpty(_token))
-            if (!String.IsNullOrEmpty(_token))
-                    return true;
+            if (!force && !String.IsNullOrEmpty(_token))
+                      return true;
 
             if (string.IsNullOrEmpty(_token))
             {
@@ -362,7 +380,7 @@ public class PtzCamera : System.IDisposable
                 // PtzCheckState 0:idle, 1:doing, 2:finish
                 if (PostResp3[0].value != null)
                 {
-                    //Debug.WriteLine("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
+                    csl.Log("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
                     if (PostResp3[0].value.PtzCheckState != 1)
                         return true;
                 }            
@@ -389,7 +407,7 @@ public class PtzCamera : System.IDisposable
             //RJR OLD    {
             //RJR OLD        if (++CCount >= MatchesNeeded)
             //RJR OLD        {
-            //RJR OLD            //Debug.WriteLine("*** PICTURE DONE ***");
+            //RJR OLD            //csl.Log("*** PICTURE DONE ***");
             //RJR OLD            return 500;
             //RJR OLD        }
             //RJR OLD        if ((CCount == MinMatches) && (MaxCount< 30))
@@ -437,12 +455,12 @@ public class PtzCamera : System.IDisposable
                 {
                     zoom = -1;
                     focus = -1;
-                    //Debug.WriteLine("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+                    csl.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
                 }
-                //Debug.WriteLine("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
+                csl.Log("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
                 return true;
             }
-            //Debug.WriteLine("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+            csl.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
             return false;
         }
 
@@ -494,64 +512,64 @@ public class PtzCamera : System.IDisposable
         {
             csl.Log("PtzC.GetSnapShot");
 
-            //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token; // + "&width=640&height=480";
-            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
+            return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=640&height=480";
+            //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
 
-            try
-            {
-                var tempPath = GetTempDir(hostEnv);
-
-                var now = PropMgr.ESTNow;
-                string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
-                string actFilename = baseFilename + ".jpg";
-                string fullPath = Path.Combine(tempPath, actFilename);
-                for (int i = 1; File.Exists(fullPath); ++i)
-                {
-                    actFilename = baseFilename + i.ToString("00") + ".jpg";
-                    fullPath = Path.Combine(tempPath, actFilename);
-                }
-
-                //HttpReq req = new HttpReq();
-                //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
-
-                //req.AddHeaderProp("Connection: keep-alive");
-                //req.AddHeaderProp("Accept: */*");
-                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //req.Send(out string sResult);
-
-                byte[] content;
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
-
-                using (BinaryReader br = new BinaryReader(stream))
-                {
-                    content = br.ReadBytes(50000000);
-                    br.Close();
-                }
-                response.Close();
-
-                FileStream fs = new FileStream(fullPath, FileMode.Create);
-                BinaryWriter bw = new BinaryWriter(fs);
-                try
-                {
-                    bw.Write(content);
-                }
-                finally
-                {
-                    fs.Close();
-                    bw.Close();
-                }
-                GetZoomAndFocus(out int zoom, out int focus);
-                csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
-
-                return "Camera/Images/" + actFilename;  // Send back URL
-            }
-            catch (Exception e)
-            {
-                csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
-                return "";
-            }
+            //RJRtry
+            //RJR{
+            //RJR    var tempPath = GetTempDir(hostEnv);
+            //RJR
+            //RJR    var now = PropMgr.ESTNow;
+            //RJR    string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+            //RJR    string actFilename = baseFilename + ".jpg";
+            //RJR    string fullPath = Path.Combine(tempPath, actFilename);
+            //RJR    for (int i = 1; File.Exists(fullPath); ++i)
+            //RJR    {
+            //RJR        actFilename = baseFilename + i.ToString("00") + ".jpg";
+            //RJR        fullPath = Path.Combine(tempPath, actFilename);
+            //RJR    }
+            //RJR
+            //RJR    //HttpReq req = new HttpReq();
+            //RJR    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+            //RJR
+            //RJR    //req.AddHeaderProp("Connection: keep-alive");
+            //RJR    //req.AddHeaderProp("Accept: */*");
+            //RJR    //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            //RJR    //req.Send(out string sResult);
+            //RJR
+            //RJR    byte[] content;
+            //RJR    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token);
+            //RJR    WebResponse response = request.GetResponse();
+            //RJR    Stream stream = response.GetResponseStream();
+            //RJR
+            //RJR    using (BinaryReader br = new BinaryReader(stream))
+            //RJR    {
+            //RJR        content = br.ReadBytes(50000000);
+            //RJR        br.Close();
+            //RJR    }
+            //RJR    response.Close();
+            //RJR
+            //RJR    FileStream fs = new FileStream(fullPath, FileMode.Create);
+            //RJR    BinaryWriter bw = new BinaryWriter(fs);
+            //RJR    try
+            //RJR    {
+            //RJR        bw.Write(content);
+            //RJR    }
+            //RJR    finally
+            //RJR    {
+            //RJR        fs.Close();
+            //RJR        bw.Close();
+            //RJR    }
+            //RJR    GetZoomAndFocus(out int zoom, out int focus);
+            //RJR    csl.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+            //RJR
+            //RJR    return "Camera/Images/" + actFilename;  // Send back URL
+            //RJR}
+            //RJRcatch (Exception e)
+            //RJR{
+            //RJR    csl.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+            //RJR    return "";
+            //RJR}
         }
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {

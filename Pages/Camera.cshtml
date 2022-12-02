@@ -219,7 +219,7 @@
         }
 
         function setRepaint() {
-            //RJRTgRepaintCnt = 1;
+            gRepaintCnt = 1;
             if (gRepaintTimer !== null) {
                 clearTimeout(gRepaintTimer);
             }
@@ -230,7 +230,7 @@
             if (gRepaintCnt === 0)
                 return;
 
-            if (true) { //RJRT++gRepaintCnt > 8) {
+            if (++gRepaintCnt > 8) {
                 gRepaintCnt = 0;
                 if (gRepaintTimer !== null) {
                     clearTimeout(gRepaintTimer);

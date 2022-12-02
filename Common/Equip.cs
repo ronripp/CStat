@@ -338,25 +338,32 @@ namespace CStat.Common
         }
         public ArdRecord GetArdRecord (string raw)
         {
-            string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
-            Dictionary<string, string> props = PropMgr.GetProperties(latest,
-                "freezerTemp",
-                "frigTemp",
-                "kitchTemp",
-                "waterPres",
-                "time"
-                );
+            try
+            {
+                string latest = (raw.StartsWith("[") || raw.StartsWith("{")) ? raw.Trim() : "{" + raw.Trim() + "}";
+                Dictionary<string, string> props = PropMgr.GetProperties(latest,
+                    "freezerTemp",
+                    "frigTemp",
+                    "kitchTemp",
+                    "waterPres",
+                    "time"
+                    );
 
-            DateTime arTime;
-            if (props.TryGetValue("time", out string arTimeStr))
-                arTime = PropMgr.ParseEST(arTimeStr);
-            else
-                arTime = PropMgr.ESTNow;
-            return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : PropMgr.sNotSet,
-                                 props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
-                                 props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
-                                 props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
-                                 arTime);
+                DateTime arTime;
+                if (props.TryGetValue("time", out string arTimeStr))
+                    arTime = PropMgr.ParseEST(arTimeStr);
+                else
+                    arTime = PropMgr.ESTNow;
+                return new ArdRecord(props.ContainsKey("freezerTemp") ? props["freezerTemp"] : PropMgr.sNotSet,
+                                     props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
+                                     props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
+                                     props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
+                                     arTime);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<ArdRecord> GetAll(bool justCheckSize=false)
@@ -388,7 +395,9 @@ namespace CStat.Common
                                 raw = lineList[i];
                                 if (raw.Length > 20)
                                 {
-                                    arList.Add(GetArdRecord(raw));
+                                    var ardRec = GetArdRecord(raw);
+                                    if (ardRec != null)
+                                        arList.Add(ardRec);
                                 }
                             }
                         }

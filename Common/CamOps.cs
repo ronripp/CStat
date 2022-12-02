@@ -29,9 +29,9 @@ namespace CStat.Common
                 try
                 {
                     bool _qEmpty = _queue.Count == 0;
-                    //Debug.WriteLine("CamOps.Add to Queue " + (int)cop);
+                    csl.Log("CamOps.Add to Queue " + (int)cop);
                     _queue.Enqueue(cop);
-                    //Debug.WriteLine("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
+                    csl.Log("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
                     return (_qEmpty) ? cop : COp.None; // Indicate what if anything to execute COp now
                 }
                 catch
@@ -59,10 +59,10 @@ namespace CStat.Common
                     bool _qEmpty = _queue.Count <= 1;
                     if (_queue.Count > 0)
                     {
-                        //Debug.WriteLine("CamOps.Delete from Queue " + (int)_queue.Peek());
+                        csl.Log("CamOps.Delete from Queue " + (int)_queue.Peek());
                         _queue.Dequeue();
                     }
-                    //Debug.WriteLine("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
+                    csl.Log("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
 
                     return (_qEmpty) ? COp.None : _queue.Peek(); // Indicate what if anything to execute COp now
                 }
@@ -179,14 +179,14 @@ namespace CStat.Common
         //    lock (_qLock)
         //    {
         //        _link = str;
-        //        Debug.WriteLine("CamOps.SetLink " + _link);
+        //        csl.Log("CamOps.SetLink " + _link);
         //    }
         //}
         //public string GetLink()
         //{
         //    lock (_qLock)
         //    {
-        //        Debug.WriteLine("CamOps.GetLink " + _link);
+        //        csl.Log("CamOps.GetLink " + _link);
         //        return _link;
         //    }
         //}

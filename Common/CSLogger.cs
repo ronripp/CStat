@@ -19,7 +19,7 @@ namespace CStat.Common
             Trace.WriteLine("[" + msecs + "] " + str + "\n");
         }
     }
-     public class CSLogger
+    public class CSLogger
     {
         [DllImport("Kernel32", EntryPoint = "GetCurrentThreadId", ExactSpelling = true)]
         public static extern Int32 GetCurrentWin32ThreadId();
@@ -39,6 +39,9 @@ namespace CStat.Common
 
         public int Log(string LogStr)
         {
+#if DEBUG
+            csl.Log(LogStr);
+#endif
             if (fLock.TryEnterWriteLock(250))
             {
                 int retVal = 0;

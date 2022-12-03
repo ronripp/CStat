@@ -40,12 +40,18 @@ namespace CStat.Pages
         {
             try
             {
+                PtzCamera.ResetLogin();
+
                 csl.Log("CAMERA.OnGet HandleOp " + op.ToString());
-                var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
-                //if (delay == 500)
-                //    delay = 0;
-                //Thread.Sleep(delay); // Give time for Camera to move. Delay can be adjusted
-                CameraLink = _CamOps.SnapShot(_hostEnv);
+                if (op == (int)PtzCamera.COp.HRSnapShot)
+                {
+                    CameraLink = _CamOps.SnapShot(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+                }
+                else
+                {
+                    var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
+                    CameraLink = _CamOps.SnapShot(_hostEnv, false);
+                }
                 csl.Log("OnGet CameraLink[" + CameraLink + "]");
                 var now = PropMgr.ESTNow;
                 _VideoLinks = _CamOps.GetVideoAnchors(_hostEnv, now.AddDays(-14), now);
@@ -72,8 +78,18 @@ namespace CStat.Pages
             try
             {
                 csl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
-                var link = _CamOps.SnapShot(_hostEnv);
-                var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
+                string link;
+                int delay;
+                if (op == (int)PtzCamera.COp.HRSnapShot)
+                {
+                    delay = 0;
+                    link = _CamOps.SnapShot(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+                }
+                else
+                {
+                    delay = _CamOps.HandleOp(_hostEnv, (COp)op);
+                    link = _CamOps.SnapShot(_hostEnv, false);
+                }
                 csl.Log("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
                 return new JsonResult("OK~:delay=" + delay.ToString() + ";link=" + link);
             }
@@ -121,7 +137,7 @@ namespace CStat.Pages
             try
             {
                 csl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
-                var link = _CamOps.SnapShot(_hostEnv);
+                var link = _CamOps.SnapShot(_hostEnv, op==(int)PtzCamera.COp.HRSnapShot);
                 var pending = _CamOps.PendingOps();
                 return new JsonResult("OK~:todo=" + pending + "&" + link);
             }

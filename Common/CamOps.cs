@@ -121,14 +121,14 @@ namespace CStat.Common
             }
         }
 
-        public string SnapShot(IWebHostEnvironment hostEnv)
+        public string SnapShot(IWebHostEnvironment hostEnv, bool asFile, string resStr = "&width=1024&height=768")
         {
             csl.Log("CamOps.SnapShot START");
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
-                    var link = ptzCam.GetSnapshot(hostEnv);
+                    var link = ptzCam.GetSnapshot(hostEnv, asFile, resStr);
                     csl.Log("CamOps.SnapShot LINK=" + link);
                     ptzCam.Logout();
                     return link;

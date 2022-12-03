@@ -337,20 +337,33 @@
                 data: parameters,
                 success: function (response) {
                     if (response.indexOf("OK~:delay=") === 0) {
+
                         let endIdx = response.indexOf(";link=");
                         if (endIdx == -1) {
                             return;
                         }
-                        let delay = parseInt(response.substr(10, endIdx - 10));
-                        $("#CamImg").attr("src", response.substr(endIdx + 6));
 
-                        // Refresh test
-                        //ZZZ var content = $("#CamImg").innerHTML();
-                        //ZZZ $("#CamImg").innerHTML(content);
+                        if (op === 102) {
 
-                        //if (!!delay)
-                        //    setRepaint();
-                        setRepaint();
+                            let url = response.substr(endIdx + 6);
+                            var today = new Date();
+                            var dd = String(today.getDate()).padStart(2, '0');
+                            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                            var yyyy = today.getFullYear();                      
+                            let fname = "CCA1_" + yyyy + mm + dd + ".jpg";
+
+                            var a = $("<a style='display:none' id='js-downloader'>")
+                                .attr("href", url)
+                                .attr("download", fname)
+                                .appendTo("body");
+                            a[0].click();
+                            a.remove()
+                        }
+                        else {
+                            let delay = parseInt(response.substr(10, endIdx - 10));
+                            $("#CamImg").attr("src", response.substr(endIdx + 6));
+                            setRepaint();
+                        }
                     }
                 },
                 fail: function (response) {
@@ -389,6 +402,7 @@
                 <td class="OpPM"><a href="#" onclick="onCamOp(301)"><b>Z+</b></a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(300)">z-</a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(100)">&#128161;</a></td>
+                <td class="OpPM"><a href="#" onclick="onCamOp(102)">&#128248;</a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(101)">&#128266;</a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(401)"><b>F+</b></a></td>
                 <td class="OpPM"><a href="#" onclick="onCamOp(400)">f-</a></td>

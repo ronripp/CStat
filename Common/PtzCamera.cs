@@ -132,26 +132,10 @@ public class PtzCamera : System.IDisposable
             {COp.FocusInc ,"FocusInc" }
         };
 
-        public static string llToken = "";
+        public static string _token = "";
+        public static DateTime _tokenTime = new DateTime(2000, 1, 1);
         private static readonly object tokenLock = new object();
 
-        public static string _token
-        {
-            get
-            {
-                lock (tokenLock)
-                {
-                    return llToken;
-                }
-            }
-            set
-            {
-                lock (tokenLock)
-                {
-                    llToken = value;
-                }
-            }
-        }
         private bool disposed = false;
 
         public PtzCamera()
@@ -192,86 +176,105 @@ public class PtzCamera : System.IDisposable
 
         public bool Login()
         {
-            csl.Log("PtzC.Login START token=" + _token);
-
-            if (!String.IsNullOrEmpty(_token))
-                return true;
-
-            try
+            lock (tokenLock)
             {
-                // Get Token
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
-
-                req.AddHeaderProp("Connection: keep-alive");
-                req.AddHeaderProp("Accept: */*");
-                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-
-                req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json; charset=utf-8");
-                var sRespStat = req.Send(out string sResult);
-
-                // "name" : "8da4c31df166a94"
-                if (String.IsNullOrEmpty(sResult))
+                if (!String.IsNullOrEmpty(_token))
                 {
-                    csl.Log("PtzC.Login EARLY RETURN : EMPTY sResult");
-
-                    return true;
+                    if ((PropMgr.ESTNow - _tokenTime).TotalSeconds >= 0)
+                        Logout();
+                    else
+                    {
+                        csl.Log("PtzC.Login START Returning existing token=" + _token);
+                        return true;
+                    }
                 }
-                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                _token = LoginResp[0].value.Token.name;
-                csl.Log("PtzC.Login RETURN token=" + _token);
-                return !string.IsNullOrEmpty(_token);
-            }
-            catch (Exception e)
-            {
-                csl.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
-                return false;
+
+                csl.Log("PtzC.Login START *** GETTING TOKEN ***");
+
+                try
+                {
+                    // Get Token
+                    HttpReq req = new HttpReq();
+                    req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
+
+                    req.AddHeaderProp("Connection: keep-alive");
+                    req.AddHeaderProp("Accept: */*");
+                    req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+
+                    req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json; charset=utf-8");
+                    var sRespStat = req.Send(out string sResult);
+
+                    // "name" : "8da4c31df166a94"
+                    if (String.IsNullOrEmpty(sResult))
+                    {
+                        csl.Log("PtzC.Login EARLY RETURN : EMPTY sResult");
+
+                        return true;
+                    }
+                    dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
+                    _token = LoginResp[0].value.Token.name;
+                    _tokenTime = PropMgr.ESTNow.AddSeconds((int)LoginResp[0].value.Token.leaseTime-60);
+                    csl.Log("PtzC.Login RETURN token=" + _token);
+                    return !string.IsNullOrEmpty(_token);
+                }
+                catch (Exception e)
+                {
+                    csl.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
+                    return false;
+                }
             }
         }
 
         public bool Logout(bool force=false)
         {
-            csl.Log("PtzC.Logout token=" + _token);
-
-            if (!force && !String.IsNullOrEmpty(_token))
-                      return true;
-
-            if (string.IsNullOrEmpty(_token))
+            lock (tokenLock)
             {
-                csl.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
-                return false;
-            }
+                csl.Log("PtzC.Logout token=" + _token);
 
-            var tok = _token;
-            _token = "";
-            try
-            {
-                // Get Token
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
-
-                req.AddHeaderProp("Connection: keep-alive");
-                req.AddHeaderProp("Accept: */*");
-                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-
-                req.AddBody("[{\"cmd\":\"Logout\",\"param\":{}}]", "application/json; charset=utf-8");
-                var sRespStat = req.Send(out string sResult);
-
-                // "name" : "8da4c31df166a94"
-                if (String.IsNullOrEmpty(sResult))
+                if (!force && (_tokenTime - PropMgr.ESTNow).TotalSeconds > 0)
                 {
-                    csl.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
+                    csl.Log("PtzC.Logout NOT Logging out. Keeping existing token=" + _token);
                     return true;
                 }
-                dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
-                csl.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
-                return LogoutResp[0].value.rspCode == 200;
+
+                if (string.IsNullOrEmpty(_token))
+                {
+                    csl.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
+                    return false;
+                }
+
+                var tok = _token;
+                _token = "";
+                _tokenTime = new DateTime(2000, 1, 1);
+                try
+                {
+                    // Get Token
+                    HttpReq req = new HttpReq();
+                    req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
+
+                    req.AddHeaderProp("Connection: keep-alive");
+                    req.AddHeaderProp("Accept: */*");
+                    req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+
+                    req.AddBody("[{\"cmd\":\"Logout\",\"param\":{}}]", "application/json; charset=utf-8");
+                    var sRespStat = req.Send(out string sResult);
+
+                    // "name" : "8da4c31df166a94"
+                    if (String.IsNullOrEmpty(sResult))
+                    {
+                        csl.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
+                        return true;
+                    }
+                    dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
+                    csl.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
+                    return LogoutResp[0].value.rspCode == 200;
+                }
+                catch (Exception e)
+                {
+                    csl.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
+                }
+                return false;
             }
-            catch (Exception e)
-            {
-                csl.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
-            }
-            return false;
         }
 
         public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)

@@ -524,7 +524,7 @@ namespace CStat.Common
 
         public PropaneLevel GetTUTank(bool appendToFile=false) // Tank Utility Propane meter
         {
-            var csl = new CSLogger(HostEnv);
+            var csl = new CSLogger();
 
             try
             {
@@ -1006,6 +1006,8 @@ namespace CStat.Common
     public class PowerMgr
     {
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+
 
         public static DateTime FromUnixTime(long unixTime)
         {

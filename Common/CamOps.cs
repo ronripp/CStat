@@ -29,9 +29,9 @@ namespace CStat.Common
                 try
                 {
                     bool _qEmpty = _queue.Count == 0;
-                    csl.Log("CamOps.Add to Queue " + (int)cop);
+                    gLog.Log("CamOps.Add to Queue " + (int)cop);
                     _queue.Enqueue(cop);
-                    csl.Log("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
+                    gLog.Log("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
                     return (_qEmpty) ? cop : COp.None; // Indicate what if anything to execute COp now
                 }
                 catch
@@ -59,10 +59,10 @@ namespace CStat.Common
                     bool _qEmpty = _queue.Count <= 1;
                     if (_queue.Count > 0)
                     {
-                        csl.Log("CamOps.Delete from Queue " + (int)_queue.Peek());
+                        gLog.Log("CamOps.Delete from Queue " + (int)_queue.Peek());
                         _queue.Dequeue();
                     }
-                    csl.Log("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
+                    gLog.Log("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
 
                     return (_qEmpty) ? COp.None : _queue.Peek(); // Indicate what if anything to execute COp now
                 }
@@ -74,7 +74,7 @@ namespace CStat.Common
         }
         public int HandleOp (IWebHostEnvironment hostEnv, COp rcop)
         {
-            csl.Log("CamOps.HandleOp START rcop=" + (int)rcop);
+            gLog.Log("CamOps.HandleOp START rcop=" + (int)rcop);
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
@@ -85,7 +85,7 @@ namespace CStat.Common
                         return 6000;
                     while (cop != COp.None)
                     {
-                        csl.Log("CamOps.HandleOp " + (int)cop);
+                        gLog.Log("CamOps.HandleOp " + (int)cop);
                         var delay = ptzCam.ExecuteOp(hostEnv, cop);
                         if (delay > MaxDelay)
                             MaxDelay = delay;
@@ -94,13 +94,14 @@ namespace CStat.Common
 
                     // Give time for Camera to move. Delay can be adjusted
                     ptzCam.Logout();
-                    csl.Log("CamOps.HandleOp RETURN MaxDelay=" + rcop);
+                    gLog.Log("CamOps.HandleOp RETURN MaxDelay=" + rcop);
 
                     return MaxDelay;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                gLog.Log("**EXCEPTION*** HandleOp(" + (int)rcop + ") e=" + e.Message);
                 return 0;
             }
         }
@@ -115,27 +116,29 @@ namespace CStat.Common
                     return link;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                gLog.Log("**EXCEPTION*** GetVideo e=" + e.Message);
                 return "";
             }
         }
 
         public string SnapShot(IWebHostEnvironment hostEnv, bool asFile, string resStr = "&width=1024&height=768")
         {
-            csl.Log("CamOps.SnapShot START");
+            gLog.Log("CamOps.SnapShot START");
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera())
                 {
                     var link = ptzCam.GetSnapshot(hostEnv, asFile, resStr);
-                    csl.Log("CamOps.SnapShot LINK=" + link);
+                    gLog.Log("CamOps.SnapShot LINK=" + link);
                     ptzCam.Logout();
                     return link;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                gLog.Log("**EXCEPTION*** SnapShot e=" + e.Message);
                 return "";
             }
         }
@@ -150,8 +153,9 @@ namespace CStat.Common
                     ptzCam.Logout(true);
                 }
             }
-            catch
+            catch (Exception e)
             {
+                gLog.Log("**EXCEPTION*** Cleanup e=" + e.Message);
             }
         }
 
@@ -165,8 +169,9 @@ namespace CStat.Common
                     return ptzCam.GetVideoAnchors(hostEnv, sdt, edt, ref ancCount);
                 }
             }
-            catch
+            catch (Exception e)
             {
+                gLog.Log("**EXCEPTION*** GetVideoAnchors e=" + e.Message);
                 return null;
             }
         }

@@ -71,6 +71,7 @@ namespace CStat.Models
                     if (adrList.Count() > 0)
                     {
                         Address MinAdr = new Address();
+                        MinAdr.SetEmpty();
                         foreach (Address a in adrList)
                         {
                             ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);

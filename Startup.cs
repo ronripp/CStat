@@ -35,6 +35,7 @@ namespace CStat
             Configuration = configuration;
             WebHostEnv = env;
             CSConfig = configuration;
+            CSLogger.WebRootPath = env.WebRootPath;
         }
 
         public IConfiguration Configuration { get; }

@@ -45,7 +45,7 @@ namespace CStat.Common
 
         public async Task DoWork(CancellationToken stoppingToken)
         {
-            var csl = new CSLogger(_hostEnv);
+            var csl = new CSLogger();
 
             csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 

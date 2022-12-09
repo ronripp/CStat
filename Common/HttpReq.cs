@@ -8,6 +8,14 @@ namespace CStat.Common
 {
     public class HttpReq
     {
+        public static CSLogger gLog = null;
+
+        public HttpReq ()
+        {
+            if (gLog == null)
+                gLog = new CSLogger();
+        }
+
         private HttpWebRequest _request = null;
 
         public void Open(string method, string url)
@@ -24,13 +32,13 @@ namespace CStat.Common
 
             _request = (HttpWebRequest)WebRequest.Create(url); // Create a request using a URL that can receive a post.
 
-            //_request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            _request.ServerCertificateValidationCallback += delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-                        System.Security.Cryptography.X509Certificates.X509Chain chain,
-                        System.Net.Security.SslPolicyErrors sslPolicyErrors)
-            {
-                return true; // **** Always accept
-            };
+            _request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            //_request.ServerCertificateValidationCallback += delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+            //            System.Security.Cryptography.X509Certificates.X509Chain chain,
+            //            System.Net.Security.SslPolicyErrors sslPolicyErrors)
+            //{
+            //    return true; // **** Always accept
+            //};
 
             _request.AutomaticDecompression = DecompressionMethods.All;
             _request.Method = method; // Set the Method property of the request.
@@ -55,8 +63,9 @@ namespace CStat.Common
                 dataStream.Close(); // Close the Stream object.
                 return true;
             }
-            catch
+            catch( Exception e)
             {
+                gLog.Log("HttpReq:AddBody e=" + e.Message);
                 return false;
             }
 
@@ -92,7 +101,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
-                _ = e;
+                gLog.Log("HttpReq:Send e=" + e.Message);
                 responseStr = "";
                 return new HttpWebResponse();
             }

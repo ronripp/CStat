@@ -23,12 +23,12 @@ namespace CStat.Common
     {
         [DllImport("Kernel32", EntryPoint = "GetCurrentThreadId", ExactSpelling = true)]
         public static extern Int32 GetCurrentWin32ThreadId();
-
+        public static string WebRootPath { get; set; } = "";
         private string LogFile;
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
-        public CSLogger (IWebHostEnvironment hostEnv)
+
+        public CSLogger ()
         {
-            string WebRootPath = hostEnv.WebRootPath;
             string LogPath = Path.Combine(WebRootPath, "Log");
             if (!Directory.Exists(LogPath))
             {

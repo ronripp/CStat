@@ -12,24 +12,24 @@ namespace CStat.Common
         // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
         protected internal static HttpClientHandler _httpClientHandler;
         protected internal static HttpClient _client;
-
-        private class HttpReq2Helper
+        public class HttpReq2Helper
         {
-            HttpReq2Helper()
+            public HttpReq2Helper()
             {
                 _httpClientHandler = new HttpClientHandler();
                 _httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
 
                 if (_httpClientHandler.SupportsAutomaticDecompression)
-                    _httpClientHandler.AutomaticDecompression = DecompressionMethods.All; 
+                    _httpClientHandler.AutomaticDecompression = DecompressionMethods.All;
 
                 _client = new HttpClient(_httpClientHandler);
             }
         }
-        private static HttpReq2Helper _HttpReq2Helper;
-        protected internal static CSLogger _gLog = new CSLogger();;
+        private static HttpReq2Helper _HttpReq2Helper = new HttpReq2Helper();
+        protected internal static CSLogger _gLog = new CSLogger();
 
         private HttpRequestMessage _httpReq = null;
+        private HttpStatusCode _respCode = 0;
 
         public HttpReq2()
         {
@@ -55,14 +55,15 @@ namespace CStat.Common
 
         public Stream SendForStream()
         {
-            var httpResp = _client.SendAsync(_httpReq).Result;
-
+            _respCode = 0;
             try
             {
+                var httpResp = _client.SendAsync(_httpReq).Result;
+                _respCode = httpResp.StatusCode;
+
                 // In this case we'll expect our caller to handle a HttpRequestException
                 // if this request was not successful.
                 httpResp.EnsureSuccessStatusCode();
-
                 if (httpResp.Content is object)
                 {
                     return httpResp.Content.ReadAsStreamAsync().Result;
@@ -78,10 +79,12 @@ namespace CStat.Common
 
         public String SendForString()
         {
-            var httpResp = _client.SendAsync(_httpReq).Result;
-
+            _respCode = 0;
             try
             {
+                var httpResp = _client.SendAsync(_httpReq).Result;
+                _respCode = httpResp.StatusCode;
+
                 // In this case we'll expect our caller to handle a HttpRequestException
                 // if this request was not successful.
                 httpResp.EnsureSuccessStatusCode();
@@ -98,6 +101,12 @@ namespace CStat.Common
             }
             return "";
         }
+
+        public HttpStatusCode RespCode   // property
+        {
+            get { return _respCode; }   // get method
+        }
+
     }
 }
 

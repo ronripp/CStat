@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 
 namespace CStat.Common
 {
@@ -198,20 +199,21 @@ public class PtzCamera : System.IDisposable
                 try
                 {
                     // Get Token
-                    HttpReq req = new HttpReq();
-                    req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
 
-                    req.AddHeaderProp("Connection: keep-alive");
-                    req.AddHeaderProp("Accept: */*");
-                    req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                    req.AddHeaderProp("Connection","keep-alive");
+                    req.AddHeaderProp("Accept","*/*");
+                    req.AddHeaderProp("Accept-Encoding","gzip, deflate, br");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                    req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json; charset=utf-8");
-                    var sRespStat = req.Send(out string sResult);
+                    req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json");
+                    var sResult = req.SendForString();
 
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
                     {
-                        gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + sRespStat.StatusDescription);
+                        gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + req.RespCode);
 
                         return true;
                     }
@@ -253,15 +255,15 @@ public class PtzCamera : System.IDisposable
                 try
                 {
                     // Get Token
-                    HttpReq req = new HttpReq();
-                    req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
 
-                    req.AddHeaderProp("Connection: keep-alive");
-                    req.AddHeaderProp("Accept: */*");
-                    req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                    req.AddHeaderProp("Connection", "keep-alive");
+                    req.AddHeaderProp("Accept", "*/*");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
                     req.AddBody("[{\"cmd\":\"Logout\",\"param\":{}}]", "application/json; charset=utf-8");
-                    var sRespStat = req.Send(out string sResult);
+                    var sResult = req.SendForString();
 
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
@@ -298,14 +300,14 @@ public class PtzCamera : System.IDisposable
                 {
 
                     // Get Picture by Preset #
-                    HttpReq req = new HttpReq();
-                    req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
 
-                    req.AddHeaderProp("Connection: keep-alive");
-                    req.AddHeaderProp("Accept: */*");
-                    req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                    req.AddHeaderProp("Connection", "keep-alive");
+                    req.AddHeaderProp("Accept", "*/*");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                     req.AddBody("[{\"cmd\":\"PtzCtrl\",\"param\":{\"channel\":0,\"op\":\"ToPos\",\"id\":" + preset + ",\"speed\":32}}]", "application/json; charset=utf-8");
-                    var sRespStat = req.Send(out string sResult);
+                    var sResult = req.SendForString();
 
                     // "rspCode" : 200
                     if (String.IsNullOrEmpty(sResult))
@@ -339,16 +341,16 @@ public class PtzCamera : System.IDisposable
                     return 0;
 
                 // Perform PTZ op
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
-                req.AddHeaderProp("Connection: keep-alive");
-                req.AddHeaderProp("Accept: */*");
-                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                 string speedStr;
                 speedStr = ((op == (int)PtzCamera.COp.FocusInc) || (op == (int)PtzCamera.COp.FocusDec)) ? speedStr = "1" : speedStr = "6";
                 req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":" + speedStr + "}}]", "application/json; charset=utf-8");
-                var sRespStat = req.Send(out string sResult);
+                var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
                     return CheckForSomeStability();
                 dynamic PostResp = JsonConvert.DeserializeObject(sResult);
@@ -356,14 +358,14 @@ public class PtzCamera : System.IDisposable
                     return 0;
 
                 // Perform Stop
-                HttpReq req2 = new HttpReq();
-                req2.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                HttpReq2 req2 = new HttpReq2();
+                req2.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
-                req2.AddHeaderProp("Connection: keep-alive");
-                req2.AddHeaderProp("Accept: */*");
-                req2.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                 req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json; charset=utf-8");
-                var sRespStat2 = req2.Send(out string sResult2);
+                var sResult2 = req2.SendForString();
                 dynamic PostResp2 = JsonConvert.DeserializeObject(sResult2);
                 if ((PostResp2[0].value != null) && (PostResp2[0].value.rspCode != 200)) // "rspCode" : 200
                     return 0;
@@ -382,17 +384,17 @@ public class PtzCamera : System.IDisposable
         public bool IsCameraDone(int retries = 1, int delay = 0)
         {
             // Get PTZ Check State
-            HttpReq req3 = new HttpReq();
-            req3.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
+            HttpReq2 req3 = new HttpReq2();
+            req3.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
 
-            req3.AddHeaderProp("Connection: keep-alive");
-            req3.AddHeaderProp("Accept: */*");
-            req3.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            req3.AddHeaderProp("Connection", "keep-alive");
+            req3.AddHeaderProp("Accept", "*/*");
+            req3.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
             req3.AddBody("[{\"cmd\":\"GetPtzCheckState\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
 
             for (int i = 0; i < retries; ++i)
             {
-                var sRespStat3 = req3.Send(out string sResult3);
+                var sResult3 = req3.SendForString();
                 dynamic PostResp3 = JsonConvert.DeserializeObject(sResult3);
                 // PtzCheckState 0:idle, 1:doing, 2:finish
                 if (PostResp3[0].value != null)
@@ -451,15 +453,15 @@ public class PtzCamera : System.IDisposable
             zoom = focus = -1;
 
             // Get PTZ Check State
-            HttpReq req3 = new HttpReq();
-            req3.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
+            HttpReq2 req3 = new HttpReq2();
+            req3.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
 
-            req3.AddHeaderProp("Connection: keep-alive");
-            req3.AddHeaderProp("Accept: */*");
-            req3.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+            req3.AddHeaderProp("Connection", "keep-alive");
+            req3.AddHeaderProp("Accept", "*/*");
+            req3.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
             req3.AddBody("[{\"cmd\":\"GetZoomFocus\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
 
-            var sRespStat3 = req3.Send(out string sResult3);
+            var sResult3 = req3.SendForString();
             dynamic PostResp3 = JsonConvert.DeserializeObject(sResult3);
             if ((PostResp3[0].value != null) && (PostResp3[0].value.ZoomFocus != null))
             {
@@ -556,26 +558,20 @@ public class PtzCamera : System.IDisposable
                     actFilename = baseFilename + i.ToString("00") + ".jpg";
                     fullPath = Path.Combine(tempPath, actFilename);
                 }
-            
-                //HttpReq req = new HttpReq();
-                //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
-            
-                //req.AddHeaderProp("Connection: keep-alive");
-                //req.AddHeaderProp("Accept: */*");
-                //req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
-                //req.Send(out string sResult);
-            
+
                 byte[] content;
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
-            
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+                Stream stream = req.SendForStream();
+          
                 using (BinaryReader br = new BinaryReader(stream))
                 {
                     content = br.ReadBytes(50000000);
                     br.Close();
                 }
-                response.Close();
             
                 FileStream fs = new FileStream(fullPath, FileMode.Create);
                 BinaryWriter bw = new BinaryWriter(fs);
@@ -620,7 +616,7 @@ public class PtzCamera : System.IDisposable
             //RJR OLD        fullPath = Path.Combine(tempPath, actFilename);
             //RJR OLD    }
             //RJR OLD
-            //RJR OLD    //HttpReq req = new HttpReq();
+            //RJR OLD    //HttpReq2 req = new HttpReq2();
             //RJR OLD    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
             //RJR OLD
             //RJR OLD    //req.AddHeaderProp("Connection: keep-alive");
@@ -825,16 +821,16 @@ public class PtzCamera : System.IDisposable
         {
             try
             {
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
 
-                req.AddHeaderProp("content-type: application/json");
-                req.AddHeaderProp("accept: application/json");
-                req.AddHeaderProp("accept-encoding: en-US,en;q=0.8");
-                req.AddHeaderProp("user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
+                req.AddHeaderProp("content-type", "application/json");
+                req.AddHeaderProp("accept","application/json");
+                req.AddHeaderProp("accept-encoding","en-US,en;q=0.8");
+                req.AddHeaderProp("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
 //                req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 1,\"min\": 0,\"sec\": 0},\"EndTime\": {\"year\": 2022,\"mon\": 3,\"day\": 6,\"hour\": 15,\"min\": 0,\"sec\": 0}}}}]");
                 req.AddBody("[{\"cmd\": \"Search\",\"action\": 0,\"param\": {\"Search\": {\"channel\": 0,\"onlyStatus\": 0,\"streamType\": \"main\",\"StartTime\": {\"year\": " + sdt.Year + ",\"mon\": " + sdt.Month + ",\"day\": " + sdt.Day + ",\"hour\": " + sdt.Hour + ",\"min\": " + sdt.Minute + ",\"sec\": " + sdt.Second + "},\"EndTime\": {\"year\": " + edt.Year + ",\"mon\": " + edt.Month + ",\"day\": " + edt.Day + ",\"hour\": " + edt.Hour + ",\"min\": " + edt.Minute + ",\"sec\": " + edt.Second + "}}}}]");
-                var resp = req.Send(out string sResult);
+                var sResult = req.SendForString();
                 SearchCmd [] searchCmds =  JsonConvert.DeserializeObject<SearchCmd[]>(sResult);
                 return (searchCmds.Count() >= 1) ? searchCmds[0] : null;
             }
@@ -850,15 +846,15 @@ public class PtzCamera : System.IDisposable
             try
             {
                 // Get Light State
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetWhiteLed&token=" + _token);
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetWhiteLed&token=" + _token);
 
-                req.AddHeaderProp("Connection: keep-alive");
-                req.AddHeaderProp("Accept: */*");
-                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
                 req.AddBody("[{\"cmd\": \"GetWhiteLed\",\"action\": 0,\"param\": {\"channel\": 0}}]", "application/json; charset=utf-8");
-                var sRespStat = req.Send(out string sResult);
+                var sResult = req.SendForString();
 
                 // value.PowerLed.state : 0 | 1
                 if (String.IsNullOrEmpty(sResult))
@@ -867,15 +863,15 @@ public class PtzCamera : System.IDisposable
                 var newState = (GWLResp[0].value.WhiteLed.state == 0) ? 1 : 0;
                 var SetJson = JsonConvert.SerializeObject(GWLResp);
 
-                HttpReq req2 = new HttpReq();
-                req2.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=SetWhiteLed&token=" + _token);
+                HttpReq2 req2 = new HttpReq2();
+                req2.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=SetWhiteLed&token=" + _token);
 
-                req2.AddHeaderProp("Connection: keep-alive");
-                req2.AddHeaderProp("Accept: */*");
-                req2.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req2.AddHeaderProp("Connection", "keep-alive");
+                req2.AddHeaderProp("Accept", "*/*");
+                req2.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
                 req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application /json; charset=utf-8");
-                sRespStat = req2.Send(out sResult);
+                var sResult2 = req2.SendForString();
 
                 return 500; // need time to turn off light. This may be reduced.
             }
@@ -890,15 +886,15 @@ public class PtzCamera : System.IDisposable
             try
             {
                 // Get Light State
-                HttpReq req = new HttpReq();
-                req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=AudioAlarmPlay&token=" + _token);
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=AudioAlarmPlay&token=" + _token);
 
-                req.AddHeaderProp("Connection: keep-alive");
-                req.AddHeaderProp("Accept: */*");
-                req.AddHeaderProp("Accept-Encoding: gzip, deflate, br");
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
                 req.AddBody("[{\"cmd\": \"AudioAlarmPlay\",\"action\": 0,\"param\": {\"alarm_mode\": \"times\",\"manual_switch\": 0,\"times\":" + times + ",\"channel\": 0}}]", "application/json; charset=utf-8");
-                var sRespStat = req.Send(out string sResult);
+                var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
                     return 0;
 

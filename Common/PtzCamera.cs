@@ -262,7 +262,7 @@ public class PtzCamera : System.IDisposable
                     req.AddHeaderProp("Accept", "*/*");
                     req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                    req.AddBody("[{\"cmd\":\"Logout\",\"param\":{}}]", "application/json; charset=utf-8");
+                    req.AddBody("[{\"cmd\":\"Logout\",\"param\":{}}]", "application/json");
                     var sResult = req.SendForString();
 
                     // "name" : "8da4c31df166a94"
@@ -306,7 +306,7 @@ public class PtzCamera : System.IDisposable
                     req.AddHeaderProp("Connection", "keep-alive");
                     req.AddHeaderProp("Accept", "*/*");
                     req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
-                    req.AddBody("[{\"cmd\":\"PtzCtrl\",\"param\":{\"channel\":0,\"op\":\"ToPos\",\"id\":" + preset + ",\"speed\":32}}]", "application/json; charset=utf-8");
+                    req.AddBody("[{\"cmd\":\"PtzCtrl\",\"param\":{\"channel\":0,\"op\":\"ToPos\",\"id\":" + preset + ",\"speed\":32}}]", "application/json");
                     var sResult = req.SendForString();
 
                     // "rspCode" : 200
@@ -349,7 +349,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                 string speedStr;
                 speedStr = ((op == (int)PtzCamera.COp.FocusInc) || (op == (int)PtzCamera.COp.FocusDec)) ? speedStr = "1" : speedStr = "6";
-                req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":" + speedStr + "}}]", "application/json; charset=utf-8");
+                req.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"" + COpToStr[(COp)op] + "\",\"speed\":" + speedStr + "}}]", "application/json");
                 var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
                     return CheckForSomeStability();
@@ -364,7 +364,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
-                req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json; charset=utf-8");
+                req2.AddBody("[{\"cmd\":\"PtzCtrl\",\"action\":0,\"param\":{\"channel\":0,\"op\":\"Stop\"}}]", "application/json");
                 var sResult2 = req2.SendForString();
                 dynamic PostResp2 = JsonConvert.DeserializeObject(sResult2);
                 if ((PostResp2[0].value != null) && (PostResp2[0].value.rspCode != 200)) // "rspCode" : 200
@@ -390,7 +390,7 @@ public class PtzCamera : System.IDisposable
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
             req3.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
-            req3.AddBody("[{\"cmd\":\"GetPtzCheckState\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
+            req3.AddBody("[{\"cmd\":\"GetPtzCheckState\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json");
 
             for (int i = 0; i < retries; ++i)
             {
@@ -459,7 +459,7 @@ public class PtzCamera : System.IDisposable
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
             req3.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
-            req3.AddBody("[{\"cmd\":\"GetZoomFocus\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json; charset=utf-8");
+            req3.AddBody("[{\"cmd\":\"GetZoomFocus\",\"action\":0,\"param\":{\"channel\":0}}]", "application/json");
 
             var sResult3 = req3.SendForString();
             dynamic PostResp3 = JsonConvert.DeserializeObject(sResult3);
@@ -853,7 +853,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                req.AddBody("[{\"cmd\": \"GetWhiteLed\",\"action\": 0,\"param\": {\"channel\": 0}}]", "application/json; charset=utf-8");
+                req.AddBody("[{\"cmd\": \"GetWhiteLed\",\"action\": 0,\"param\": {\"channel\": 0}}]", "application/json");
                 var sResult = req.SendForString();
 
                 // value.PowerLed.state : 0 | 1
@@ -870,7 +870,7 @@ public class PtzCamera : System.IDisposable
                 req2.AddHeaderProp("Accept", "*/*");
                 req2.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application /json; charset=utf-8");
+                req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application/json");
                 var sResult2 = req2.SendForString();
 
                 return 500; // need time to turn off light. This may be reduced.
@@ -893,7 +893,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                req.AddBody("[{\"cmd\": \"AudioAlarmPlay\",\"action\": 0,\"param\": {\"alarm_mode\": \"times\",\"manual_switch\": 0,\"times\":" + times + ",\"channel\": 0}}]", "application/json; charset=utf-8");
+                req.AddBody("[{\"cmd\": \"AudioAlarmPlay\",\"action\": 0,\"param\": {\"alarm_mode\": \"times\",\"manual_switch\": 0,\"times\":" + times + ",\"channel\": 0}}]", "application/json");
                 var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
                     return 0;

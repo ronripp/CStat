@@ -189,12 +189,12 @@ public class PtzCamera : System.IDisposable
                         Logout();
                     else
                     {
-                        gLog.Log("PtzC.Login START Returning existing token=" + _token);
+                        //gLog.Log("PtzC.Login START Returning existing token=" + _token);
                         return true;
                     }
                 }
 
-                gLog.Log("PtzC.Login START *** GETTING TOKEN ***");
+                //gLog.Log("PtzC.Login START *** GETTING TOKEN ***");
 
                 try
                 {
@@ -213,19 +213,19 @@ public class PtzCamera : System.IDisposable
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
                     {
-                        gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + req.RespCode);
+                        //gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + req.RespCode);
 
                         return true;
                     }
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     _token = LoginResp[0].value.Token.name;
                     _tokenTime = PropMgr.ESTNow.AddSeconds((int)LoginResp[0].value.Token.leaseTime-60);
-                    gLog.Log("PtzC.Login RETURN token=" + _token);
+                    //gLog.Log("PtzC.Login RETURN token=" + _token);
                     return !string.IsNullOrEmpty(_token);
                 }
                 catch (Exception e)
                 {
-                    gLog.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
+                    //gLog.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
                     return false;
                 }
             }
@@ -235,17 +235,17 @@ public class PtzCamera : System.IDisposable
         {
             lock (tokenLock)
             {
-                gLog.Log("PtzC.Logout token=" + _token);
+                //gLog.Log("PtzC.Logout token=" + _token);
 
                 if (!force && (_tokenTime - PropMgr.ESTNow).TotalSeconds > 0)
                 {
-                    gLog.Log("PtzC.Logout NOT Logging out. Keeping existing token=" + _token);
+                    //gLog.Log("PtzC.Logout NOT Logging out. Keeping existing token=" + _token);
                     return true;
                 }
 
                 if (string.IsNullOrEmpty(_token))
                 {
-                    gLog.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
+                    //gLog.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
                     return false;
                 }
 
@@ -268,16 +268,16 @@ public class PtzCamera : System.IDisposable
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
                     {
-                        gLog.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
+                        //gLog.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
                         return true;
                     }
                     dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
-                    gLog.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
+                    //gLog.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
                     return LogoutResp[0].value.rspCode == 200;
                 }
                 catch (Exception e)
                 {
-                    gLog.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
+                    //gLog.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
                 }
                 return false;
             }
@@ -293,7 +293,7 @@ public class PtzCamera : System.IDisposable
 
         public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
         {
-            gLog.Log("PtzC.GetPresetPicture START preset=" + preset);
+            //gLog.Log("PtzC.GetPresetPicture START preset=" + preset);
             try
             {
                 if ((preset >= 1) && (preset <= 99))
@@ -315,21 +315,21 @@ public class PtzCamera : System.IDisposable
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     if (LoginResp[0].value.rspCode != 200)
                     {
-                        gLog.Log("PtzC.GetPresetPicture ERR return rspCode=" + LoginResp[0].value.rspCode);
+                        //gLog.Log("PtzC.GetPresetPicture ERR return rspCode=" + LoginResp[0].value.rspCode);
                         return 0;
                     }
 
                     return CheckForSomeStability();
 
                 }
-                gLog.Log("PtzC.GetPresetPicture DONE rspCode=");
+                //gLog.Log("PtzC.GetPresetPicture DONE rspCode=");
 
                 return 0;
             }
             catch (Exception e)
             {
                 _ = e;
-                gLog.Log("PtzC.GetPresetPicture EXCEPTION e.Msg=" + e.Message);
+                //gLog.Log("PtzC.GetPresetPicture EXCEPTION e.Msg=" + e.Message);
                 return 0;
             }
         }
@@ -399,7 +399,7 @@ public class PtzCamera : System.IDisposable
                 // PtzCheckState 0:idle, 1:doing, 2:finish
                 if (PostResp3[0].value != null)
                 {
-                    gLog.Log("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
+                    //gLog.Log("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
                     if (PostResp3[0].value.PtzCheckState != 1)
                         return true;
                 }            
@@ -474,18 +474,18 @@ public class PtzCamera : System.IDisposable
                 {
                     zoom = -1;
                     focus = -1;
-                    gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+                    //gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
                 }
-                gLog.Log("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
+                //gLog.Log("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
                 return true;
             }
-            gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+            //gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
             return false;
         }
 
         public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
         {
-            gLog.Log("PtzC.ExecuteOp START cop=" + (int)cop);
+            //gLog.Log("PtzC.ExecuteOp START cop=" + (int)cop);
 
             if ((cop == COp.None) || (cop == COp.Refresh))
                 return 0;
@@ -533,7 +533,7 @@ public class PtzCamera : System.IDisposable
 
         public string GetSnapshot(IWebHostEnvironment hostEnv, bool asFile, string resStr ="&width=1024&height=768")
         {
-            gLog.Log("PtzC.GetSnapShot");
+            //gLog.Log("PtzC.GetSnapShot");
 
             //RJR AVOID CLIENT CERT ERROR if (!asFile)
             //RJR AVOID CLIENT CERT ERROR {
@@ -585,13 +585,13 @@ public class PtzCamera : System.IDisposable
                     bw.Close();
                 }
                 GetZoomAndFocus(out int zoom, out int focus);
-                gLog.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+                //gLog.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
             
                 return "Camera/Images/" + actFilename;  // Send back URL
             }
             catch (Exception e)
             {
-                gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+                //gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
                 return "";
             }
         }
@@ -715,7 +715,7 @@ public class PtzCamera : System.IDisposable
                     }
                     int hr = (f.dt.Hour % 12);
                     string hrStr = (hr != 0) ? hr.ToString() : "12";
-                    var title = (f.path.ToLower().Contains(".jpg") ? "Photo:" : "Video:") + f.dt.Month + "/" + f.dt.Day + "@" + hrStr + ":" + (f.dt.Minute).ToString().PadLeft(2,'0') + ((f.dt.Hour >= 12) ? "P" : "A");
+                    var title = (f.path.ToLower().Contains(".jpg") ? "P&#10139;" : "V&#10148;") + f.dt.Month + "/" + f.dt.Day + "@" + hrStr + ":" + (f.dt.Minute).ToString().PadLeft(2,'0') + ((f.dt.Hour >= 12) ? "P" : "A");
                     anchors += "<td><a href=\"" + f.Url() + "\">" + title + "</a></td>\n";
                 }
                 if (inTR)
@@ -726,7 +726,7 @@ public class PtzCamera : System.IDisposable
 
             catch (UnauthorizedAccessException ex)
             {
-                gLog.Log("PtzCamera Unautorized Access:" + ex.Message);
+                //gLog.Log("PtzCamera Unautorized Access:" + ex.Message);
             }
 
             return "";

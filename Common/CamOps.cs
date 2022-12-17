@@ -101,6 +101,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("**EXCEPTION*** HandleOp(" + (int)rcop + ") e=" + e.Message);
                 return 0;
             }
@@ -118,6 +119,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("**EXCEPTION*** GetVideo e=" + e.Message);
                 return "";
             }
@@ -138,6 +140,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("**EXCEPTION*** SnapShot e=" + e.Message);
                 return "";
             }
@@ -155,6 +158,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("**EXCEPTION*** Cleanup e=" + e.Message);
             }
         }
@@ -171,6 +175,7 @@ namespace CStat.Common
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("**EXCEPTION*** GetVideoAnchors e=" + e.Message);
                 return null;
             }

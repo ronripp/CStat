@@ -225,6 +225,7 @@ public class PtzCamera : System.IDisposable
                 }
                 catch (Exception e)
                 {
+                    _ = e;
                     //gLog.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
                     return false;
                 }
@@ -277,6 +278,7 @@ public class PtzCamera : System.IDisposable
                 }
                 catch (Exception e)
                 {
+                    _ = e;
                     //gLog.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
                 }
                 return false;
@@ -591,6 +593,7 @@ public class PtzCamera : System.IDisposable
             }
             catch (Exception e)
             {
+                _ = e;
                 //gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
                 return "";
             }
@@ -726,6 +729,7 @@ public class PtzCamera : System.IDisposable
 
             catch (UnauthorizedAccessException ex)
             {
+                _ = ex;
                 //gLog.Log("PtzCamera Unautorized Access:" + ex.Message);
             }
 

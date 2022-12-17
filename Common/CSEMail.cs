@@ -521,51 +521,26 @@ namespace CStat.Common
 
             if (words.Any(w => w == "meeting") || words.Any(w => w == "minutes") || words.Any(w => w == "meeting-minutes"))
             {
-                DateTime mmDate = DateTime.MinValue; 
-                foreach (var w in words)
-                {
-                    string dw;
-                    if (w.Contains("-"))
-                        dw = w.Replace("-", "/");
-                    else if (w.Contains("."))
-                        dw = w.Replace(".", "/");
-                    else if (w.Contains("_"))
-                        dw = w.Replace("_", "/");
-                    else
-                        dw = w;
-                    if (DateTime.TryParseExact(dw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
-                        break;
-                }
+                DateTime? mmDate = null;
 
-                if (mmDate == DateTime.MinValue)
+                mmDate = FindDateTime(words);
+
+                if (!mmDate.HasValue)
                 {
                     // Try to get date from attachment filename or TBD text body
                     foreach (var f in e.Attachments)
                     {
                         var fABody = Path.GetFileNameWithoutExtension(f);
-                        var fWords = fABody.Split(delimiters);
-                        foreach (var fw in fWords)
-                        {
-                            string dfw;
-                            if (fw.Contains("-"))
-                                dfw = fw.Replace("-", "/");
-                            else if (fw.Contains("."))
-                                dfw = fw.Replace(".", "/");
-                            else if (fw.Contains("_"))
-                                dfw = fw.Replace("_", "/");
-                            else
-                                dfw = fw;
-                            if (DateTime.TryParseExact(dfw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out mmDate))
-                                break;
-                        }
-                        if (mmDate != DateTime.MinValue)
+                        var fWords = fABody.Substring(4).Split(delimiters); // 4 -> Skip A###
+                        mmDate = FindDateTime(fWords);
+                        if (mmDate.HasValue)
                             break;
                     }
                 }
 
-                if (mmDate != DateTime.MinValue)
+                if (mmDate.HasValue)
                 {
-                    var year = (mmDate.Year < 2000) ? mmDate.Year + 100 : mmDate.Year; // ensure 21st century
+                    var year = mmDate.Value.Year;
                     string adjWord;
                     if (words.Any(w => w == "special"))
                         adjWord = "_Special";
@@ -575,7 +550,7 @@ namespace CStat.Common
                         adjWord = "_EC";
 
                     // Meeting Minutes with a specific date
-                    string mmFileName = year + "-" + mmDate.Month.ToString("D2") + "-" + mmDate.Day.ToString("D2") + adjWord + "_MM.pdf";
+                    string mmFileName = year + "-" + mmDate.Value.Month.ToString("D2") + "-" + mmDate.Value.Day.ToString("D2") + adjWord + "_MM.pdf";
                     if (e.Attachments.Count == 0)
                     {
                         // This email is likely meeting minutes
@@ -613,5 +588,70 @@ namespace CStat.Common
 
             return false;
         }
+
+        public static DateTime? FindDateTime(string[] words)
+        {
+            DateTime? retVal = null;
+            int MonthVal = 0;
+            int DayVal = 0;
+            int YearVal = 0;
+
+            foreach (var w in words)
+            {
+                string dw;
+                if (w.Contains("-"))
+                    dw = w.Replace("-", "/");
+                else if (w.Contains("."))
+                    dw = w.Replace(".", "/");
+                else if (w.Contains("_"))
+                    dw = w.Replace("_", "/");
+                else
+                    dw = w;
+                dw = dw.ToLower();
+
+                if (DateTime.TryParseExact(dw, CSEMail.dateFormats, new CultureInfo("en-US"), DateTimeStyles.None, out DateTime mmDate))
+                {
+                    retVal = mmDate;
+                    return retVal;
+                }
+
+                int midx = PropMgr.MONList.FindIndex(m => dw.StartsWith(m));
+                int mval = 0;
+                if (midx > -1)
+                {
+                    if ((dw.Length >= 4) && (PropMgr.MONNextList[midx].Length > 0))
+                        mval = ((dw[3] == '/') || (dw[3] == PropMgr.MONNextList[midx][0])) ? midx + 1 : 0;
+                    else
+                        mval = midx + 1;
+                }
+                if (mval > 0)
+                {
+                    if ((MonthVal != 0))
+                        DayVal = MonthVal; // Day specified before month
+                    MonthVal = mval;
+                }
+
+                if (int.TryParse(w, out int intVal))
+                {
+                    if (MonthVal > 0)
+                    {
+                        if (DayVal > 0)
+                            YearVal = (intVal < 100) ? intVal + 2000 : intVal;
+                        else
+                            DayVal = intVal;
+                    }
+                    else if (DayVal > 0)
+                        MonthVal = intVal;
+                    else
+                        DayVal = intVal;
+                }
+            }
+
+            if ((MonthVal > 0) && (YearVal > 0) && (DayVal > 0))
+                retVal = new DateTime(YearVal, MonthVal, DayVal);
+
+            return retVal;
+        }
+
     }
 }

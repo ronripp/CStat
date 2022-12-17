@@ -864,7 +864,8 @@ namespace CStat.Common
         {
             return PropaneLevel.DOWStr.Where(s => str.StartsWith(s, StringComparison.OrdinalIgnoreCase)).Any();
         }
-        static private List<string> MONList = new List<string> { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
+        static public List<string> MONList = new List<string>     { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" };
+        static public List<string> MONNextList = new List<string> {  "u",   "r",   "c",   "i",   "",   "e",   "y",    "u",   "t",   "o",   "e",   "e" };
         public static bool TryParseMonth(string str, out int month)
         {
             if (string.IsNullOrEmpty(str) || (str.Length < 3))

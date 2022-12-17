@@ -242,6 +242,9 @@ namespace CStat.Models
 
         public static string GetStateOptions(string defState="NY")
         {
+            if (defState == "")
+                defState = "NY";
+
             string ops = "";
             foreach (var kvp in StateDict)
             {

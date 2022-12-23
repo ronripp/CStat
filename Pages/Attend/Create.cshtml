@@ -1,0 +1,63 @@
+﻿@page
+@model CStat.Pages.Attend.CreateModel
+
+<h4>Attendance</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Attendance.PersonId" class="control-label"></label>
+                <select asp-for="Attendance.PersonId" class ="form-control" asp-items="ViewBag.PersonId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.RoleType" class="control-label"></label>
+                <input asp-for="Attendance.RoleType" class="form-control" />
+                <span asp-validation-for="Attendance.RoleType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.StartTime" class="control-label"></label>
+                <input asp-for="Attendance.StartTime" class="form-control" />
+                <span asp-validation-for="Attendance.StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.EndTime" class="control-label"></label>
+                <input asp-for="Attendance.EndTime" class="form-control" />
+                <span asp-validation-for="Attendance.EndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.EventId" class="control-label"></label>
+                <select asp-for="Attendance.EventId" class ="form-control" asp-items="ViewBag.EventId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.RegistrationId" class="control-label"></label>
+                <select asp-for="Attendance.RegistrationId" class ="form-control" asp-items="ViewBag.RegistrationId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.MedicalId" class="control-label"></label>
+                <select asp-for="Attendance.MedicalId" class ="form-control" asp-items="ViewBag.MedicalId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.TransactionId" class="control-label"></label>
+                <select asp-for="Attendance.TransactionId" class ="form-control" asp-items="ViewBag.TransactionId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attendance.DetailNote" class="control-label"></label>
+                <input asp-for="Attendance.DetailNote" class="form-control" />
+                <span asp-validation-for="Attendance.DetailNote" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

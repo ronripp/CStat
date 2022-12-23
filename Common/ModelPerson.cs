@@ -34,28 +34,32 @@ namespace CStat.Models
 
         public enum eSkills
         {
-            Carpentry = 0x1,
-            Plumbing = 0x2,
-            Roofing = 0x4,
-            Cook = 0x8,
-            Nurse = 0x10,
-            SWAT = 0x20,
-            Manager = 0x40,
-            Painter = 0x80,
-            Minister = 0x100,
-            Dean = 0x200,
+            Carpentry  = 0x1,
+            Plumbing   = 0x2,
+            Roofing    = 0x4,
+            Cook       = 0x8,
+            Nurse      = 0x10,
+            SWAT       = 0x20,
+            Manager    = 0x40,
+            Painter    = 0x80,
+            Minister   = 0x100,
+            Dean       = 0x200,
             Accountant = 0x400,
-            Electricn = 0x800,
-            Computer = 0x1000,
+            Electricn  = 0x800,
+            Computer   = 0x1000,
             Kitch_Help = 0x2000,
-            Counselor = 0x4000,
-            Gardening = 0x8000,
-            Tree_Cut = 0x10000,
-            Worship = 0x20000,
-            Worker = 0x40000,
-            Mason = 0x80000,
+            Counselor  = 0x4000,
+            Gardening  = 0x8000,
+            Tree_Cut   = 0x10000,
+            Worship    = 0x20000,
+            Worker     = 0x40000,
+            Mason      = 0x80000,
             Constructn = 0x100000,
-            Septic = 0x200000
+            Septic     = 0x200000,
+            Donor      = 0x400000,
+            Book_Keep  = 0x800000,
+            Staff_Mgr  = 0x1000000,
+            Legal      = 0x2000000
         };
 
         public enum eSkillsAbbr
@@ -459,6 +463,7 @@ namespace CStat.Models
             //    DateTime >= '2011-04-12T00:00:00.000' AND
             //    DateTime <= '2011-05-25T03:53:04.000'
 
+            int rowCnt = 0;
             try
             {
                 //List<Person> PList = new List<Person>();
@@ -475,11 +480,38 @@ namespace CStat.Models
                     {
                         while (row.Read())
                         {
+                            ++rowCnt;
+
+                            if (row.IsDBNull((int)Person.ePA.pid))
+                                continue; // has happened. TBD : Remove garbage records. Find how they got in.
+
+                            if (rowCnt == 237)
+                               rowCnt *= 1;
+
                             var m = new MinPerson();
-                            m.FirstName = (string)row.GetValue((int)Person.ePA.FirstName);
-                            m.LastName = (string)row.GetValue((int)Person.ePA.LastName);
+                            bool hasFName = false;
+                            bool hasLName = false;
                             m.id = (int)row.GetValue((int)Person.ePA.pid);
-                            m.Alias = (string)row.GetValue((int)Person.ePA.Alias).ToString();
+                            if (!row.IsDBNull((int)Person.ePA.FirstName))
+                            {
+                                m.FirstName = (string)row.GetValue((int)Person.ePA.FirstName);
+                                hasFName = true;
+                            }
+                            else
+                                m.FirstName = "(none)";
+                            if (!row.IsDBNull((int)Person.ePA.LastName))
+                            {
+                                m.LastName = (string)row.GetValue((int)Person.ePA.LastName);
+                                hasLName = true;
+                            }
+                            else
+                                m.LastName = "(none)";
+
+                            if (!hasFName && !hasLName)
+                                continue; // has happened. TBD : Remove garbage records. Find how they got in.
+
+                            if (!row.IsDBNull((int)Person.ePA.Alias))
+                                m.Alias = (string)row.GetValue((int)Person.ePA.Alias).ToString();
                             if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.DOB)))
                                 m.DOB = (DateTime)row.GetValue((int)Person.ePA.DOB);
                             if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Gender)))
@@ -497,7 +529,8 @@ namespace CStat.Models
                             if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Church_id)))
                                 m.Church_id = (int?)row.GetValue((int)Person.ePA.Church_id);
                             m.SkillSets = (long)row.GetValue((int)Person.ePA.SkillSets);
-                            m.Roles = (long)row.GetValue((int)Person.ePA.Roles);
+                            if (!DBNull.Value.Equals(row.GetValue((int)Person.ePA.Roles)))
+                                m.Roles = (long)row.GetValue((int)Person.ePA.Roles);
                             m.CellPhone = (string)row.GetValue((int)Person.ePA.CellPhone).ToString();
                             m.EMail = (string)row.GetValue((int)Person.ePA.EMail).ToString();
                             m.ContactPref = (string)row.GetValue((int)Person.ePA.ContactPref).ToString();
@@ -539,7 +572,7 @@ namespace CStat.Models
             }
             catch (Exception e)
             {
-                return "Error DB:" + e.Message;
+                return "Error RowCnt=" + rowCnt + " DB:" + e.Message;
             }
 
             return "ERROR~:No one found with Name";

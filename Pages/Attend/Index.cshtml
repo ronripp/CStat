@@ -1,0 +1,78 @@
+﻿@page
+@model CStat.Pages.Attend.IndexModel
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].RoleType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].EndTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].DetailNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].Event)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].Medical)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].Person)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].Registration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attendance[0].Transaction)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Attendance) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoleType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DetailNote)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Event.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Medical.FormLink)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Person.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Registration.FormLink)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Transaction.Id)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

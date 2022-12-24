@@ -88,7 +88,8 @@ namespace CStat.Controllers
            if (MatchingAttendeesIndex >= 0)
            {
                id = id.Trim();
-               String AttendeeHint = id.Substring(MatchingAttendeesIndex + MatchingAttendeesStr.Length).Trim();
+               var idLen = id.Length;
+               String AttendeeHint = id.Substring(Math.Min(idLen-1, MatchingAttendeesStr.Length)).Trim();
                AttendanceMgr amgr = new AttendanceMgr(entities);
                return amgr.FindAttendees(AttendeeHint);
            }

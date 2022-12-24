@@ -249,7 +249,7 @@ namespace CStat.Models
             foreach (var kvp in StateDict)
             {
                 //<option value="AL" id="Alabama">Alabama</option>
-                if (kvp.Key == defState)
+                if (String.Equals(kvp.Key, defState, StringComparison.OrdinalIgnoreCase) || String.Equals(kvp.Value, defState, StringComparison.OrdinalIgnoreCase))
                     ops += "<option selected=\"selected\" value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";
                 else
                     ops += "<option value=\"" + kvp.Key + "\" id=\"" + kvp.Value + "\">" + kvp.Value + "</option>\n";

@@ -41,8 +41,8 @@ namespace CStat.Controllers
             bool bAllowNoAddress;
             if ((bAllowNoAddress = (raw.type == "Person2")) && (raw.data != null))
             {
-                var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-                var data = JsonConvert.DeserializeObject<Attendance.PFullInfo>(raw.data, settings);
+//                var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+                var data = JsonConvert.DeserializeObject<CCAAttendance.PFullInfo>(raw.data);
                 raw.type = "Person";
                 raw.data = data.ToString();
             }

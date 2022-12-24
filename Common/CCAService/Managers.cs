@@ -202,8 +202,10 @@ namespace CStat
             else
             {   // TBD include EType
                 var attList = from a in ce.Attendance
+                              where ((EType == -1) || (int)a.Event.Type == EType)
                               join p in ce.Person on a.PersonId equals p.Id
                               join e in ce.Event on new { eid = a.EventId.Value, eyear = EYear } equals new { eid = e.Id, eyear = e.StartTime.Year }
+
                               //join r in ce.Registrations on new { eid2 = e.id, pid2 = p.id } equals new { eid2 = r.Event_id.Value, pid2 = r.Person_id.Value }
                               //join m in ce.Medicals on new { eid = e.id, pid = p.id } equals new { eid = m.Event_id.Value, pid = m.Person_id }
                               select new
@@ -1627,7 +1629,6 @@ namespace CStat
                 // Try to find an existing address by looping here up to 2 times.
                 do
                 {
-                    int ld, MinLD = 10000;
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
@@ -1661,20 +1662,18 @@ namespace CStat
                         Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
-                            if (ld < MinLD)
+                            int ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            if (ld < 2)
                             {
-                                MinAdr = a;
-                                MinLD = ld;
+                                int si = a.Street.IndexOf(' ');
+                                if (String.Equals(a.Street, streetValue, StringComparison.OrdinalIgnoreCase) || ((si > 1) && ((si + 4) < a.Street.Length) && streetValue.StartsWith(a.Street.Substring(0, si + 4))))
+                                {
+                                    // Found matching address. Just set address id
+                                    person.AddressId = newAdr.Id = MinAdr.Id;
+                                    bFoundAdr = true;
+                                    break;
+                                }
                             }
-                        }
-
-                        int si = MinAdr.Street.IndexOf(' ');
-                        if ((MinLD < 2) && ((si > 1) && ((si + 3) < MinAdr.Street.Length) && streetValue.StartsWith(MinAdr.Street.Substring(0, si + 3))))
-                        {
-                            // Found matching address. Just set address id
-                            person.AddressId = newAdr.Id = MinAdr.Id;
-                            bFoundAdr = true;
                         }
                     }
 

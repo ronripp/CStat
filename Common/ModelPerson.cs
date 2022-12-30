@@ -746,7 +746,7 @@ namespace CStat.Models
                     String churchName = pv.Value.Trim();
                     if (churchName != "-1")
                     {
-                        Church ch = ce.Church.FirstOrDefault(c => c.Name == churchName);
+                        Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name == churchName);
                         if (ch != null)
                         {
                             person.ChurchId = ch.Id;
@@ -821,7 +821,7 @@ namespace CStat.Models
                 // Try to find an existing address by looping here up to 2 times.
                 do
                 {
-                    int ld, MinLD = 10000;
+                    int ld;
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
@@ -852,24 +852,20 @@ namespace CStat.Models
 
                     if (adrList.Count() > 0)
                     {
-                        Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
                             ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
-                            if (ld < MinLD)
+                            if (ld < 2)
                             {
-                                MinAdr = a;
-                                MinLD = ld;
+                                int si = a.Street.IndexOf(' ');
+                                if (String.Equals(a.Street, streetValue, StringComparison.OrdinalIgnoreCase) || ((si > 1) && ((si + 4) < a.Street.Length) && streetValue.StartsWith(a.Street.Substring(0, si + 4))))
+                                {
+                                    // Found matching address. Just set address id
+                                    person.AddressId = newAdr.Id = a.Id;
+                                    bFoundAdr = true;
+                                    break;
+                                }
                             }
-                        }
-
-                        int si = MinAdr.Street.IndexOf(' ');
-                        if ((MinLD < 2) && ((si > 1) && ((si + 3) < MinAdr.Street.Length) && streetValue.StartsWith(MinAdr.Street.Substring(0, si + 3))))
-                        {
-                            // Found matching address. Just set address id
-                            person.AddressId = newAdr.Id = MinAdr.Id;
-                            foundAdr = MinAdr;
-                            bFoundAdr = true;
                         }
                     }
 
@@ -1302,7 +1298,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (adr_id != -1)
+                    if (!bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -1326,7 +1322,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (adr_id != -1)
+                    if (!bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -1350,7 +1346,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (adr_id != -1)
+                    if (!bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -1541,7 +1537,7 @@ namespace CStat.Models
         {
             String LName = person.LastName;
 
-            var psnL = from psn in ce.Person
+            var psnL = from psn in ce.Person.AsNoTracking()
                        where (psn.LastName == LName)
                        select psn;
 

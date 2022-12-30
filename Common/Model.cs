@@ -1531,6 +1531,7 @@ namespace CStat.Models
                 FLName = "";
                 FName = "";
                 LName = "";
+                Alias = "";
                 _Gender = "";
                 Church = "";
                 DOB = "";
@@ -1602,6 +1603,8 @@ namespace CStat.Models
             }
             public String FName { get; set; }
             public String LName { get; set; }
+            public String Alias { get; set; }
+
             private String _Gender;
             public String Gender
             {

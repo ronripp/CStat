@@ -127,7 +127,8 @@ namespace CStat.Controllers
                     TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full
                 };
 
-                var atd = JsonConvert.DeserializeObject<Attendance.AttData>(raw.data, settings);
+                //var atd = JsonConvert.DeserializeObject<Attendance.AttData>(raw.data, settings);
+                var atd = JsonConvert.DeserializeObject<Attendance.AttData>(raw.data);
 
                 AttendanceMgr amgr = new AttendanceMgr(entities);
                 String resultsStr = "";

@@ -1552,6 +1552,12 @@ namespace CStat
                 }
             }
 
+            pv = props.Find(prop => prop.Key == "Alias");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                person.Alias = "F:" + pv.Value.Trim();
+            }
+
             pv = props.Find(prop => prop.Key == "Church");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
@@ -1561,8 +1567,8 @@ namespace CStat
                 }
                 else
                 {
-                    String churchValue = pv.Value.Trim();
-                    Church ch = ce.Church.FirstOrDefault(c => c.Name == churchValue);
+                    String churchValue = pv.Value.Trim().Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower();
+                    Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name.Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower() == churchValue);
                     if (ch != null)
                     {
                         person.ChurchId = ch.Id;
@@ -1579,9 +1585,17 @@ namespace CStat
                             ChurchMgr cmgr = new ChurchMgr(ce);
                             if (cmgr.Validate(ref nc))
                             {
-                                ce.Church.Add(nc);
-                                ce.SaveChanges();
-                                person.ChurchId = nc.Id;
+                                try
+                                {
+                                    ce.Church.Add(nc);
+                                    ce.SaveChanges();
+                                    person.ChurchId = nc.Id;
+                                }
+                                catch (Exception e)
+                                {
+                                    person.ChurchId = null;
+                                    csl.Log("Add Church Exception : " + e.Message);
+                                }
                             }
                         }
                     }
@@ -1634,7 +1648,7 @@ namespace CStat
                     {
                         if (zip.Value != "11111")
                         {
-                            var adrL = from adr in ce.Address
+                            var adrL = from adr in ce.Address.AsNoTracking()
                                        where (adr.ZipCode == zip.Value)
                                        select adr;
                             foreach (Address a in adrL)
@@ -1647,7 +1661,7 @@ namespace CStat
                     {
                         if (!city.Value.Contains("<missing>"))
                         {
-                            var adrL = from adr in ce.Address
+                            var adrL = from adr in ce.Address.AsNoTracking()
                                        where (adr.Town == city.Value) && (adr.State == state.Value)
                                        select adr;
                             foreach (Address a in adrL)
@@ -1659,7 +1673,6 @@ namespace CStat
 
                     if (adrList.Count() > 0)
                     {
-                        Address MinAdr = new Address();
                         foreach (Address a in adrList)
                         {
                             int ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
@@ -1669,7 +1682,7 @@ namespace CStat
                                 if (String.Equals(a.Street, streetValue, StringComparison.OrdinalIgnoreCase) || ((si > 1) && ((si + 4) < a.Street.Length) && streetValue.StartsWith(a.Street.Substring(0, si + 4))))
                                 {
                                     // Found matching address. Just set address id
-                                    person.AddressId = newAdr.Id = MinAdr.Id;
+                                    person.AddressId = newAdr.Id = a.Id;
                                     bFoundAdr = true;
                                     break;
                                 }
@@ -2095,7 +2108,7 @@ namespace CStat
             //**************************************************************************
             if (bHasSSNum)
             {
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.Ssnum == person.Ssnum)
                            select psn;
                 
@@ -2120,13 +2133,13 @@ namespace CStat
                 //**************************************************************************
                 // Find Person #2 : Find person by DOB and close name match
                 //**************************************************************************
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.Dob == person.Dob) 
                            select psn;
 
                 int adr_id = -1;
                 int id = FindPersonIDByName(psnL, ref person, bAllowNoAddress, out adr_id);
-                if (id != -1)
+                if (!bFoundAdr && (id != -1))
                 {
                     bPersonFound = true;
                     person.Id = id;
@@ -2145,7 +2158,7 @@ namespace CStat
                 // Find Person #3 : Find person by Last Name and close first name match
                 //**************************************************************************
                 int adr_id;
-                var psnL = from psn in ce.Person
+                var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.LastName.ToUpper() == person.LastName.ToUpper())
                            select psn;
 
@@ -2154,7 +2167,7 @@ namespace CStat
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (adr_id != -1)
+                    if (!bFoundAdr && (id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -2189,8 +2202,6 @@ namespace CStat
                             person.AddressId = newAdr.Id;  // addedAdr.id;
                     }
                 }
-
-
 
                 if (bNeedToAddPG1)
                 {
@@ -2266,7 +2277,7 @@ namespace CStat
                     return MgrStatus.Save_Person_Failed;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 ResPerson = null;
                 ResAddress = null;
@@ -2387,7 +2398,7 @@ namespace CStat
         {
             String LName = person.LastName;
 
-            var psnL = from psn in ce.Person
+            var psnL = from psn in ce.Person.AsNoTracking()
                        where (psn.LastName == LName)
                        select psn;
 

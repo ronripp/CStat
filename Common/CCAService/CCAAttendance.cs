@@ -75,6 +75,7 @@ namespace CCAAttendance
             FLName = "";
             FName = "";
             LName = "";
+            Alias = "";
             _Gender = "";
             Church = "";
             DOB = "";
@@ -146,6 +147,7 @@ namespace CCAAttendance
         }
         public String FName { get; set; }
         public String LName { get; set; }
+        public String Alias { get; set; }
         private String _Gender;
         public String Gender
         {

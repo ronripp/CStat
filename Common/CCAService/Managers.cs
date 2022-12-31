@@ -1659,7 +1659,7 @@ namespace CStat
                     }
                     else
                     {
-                        if (!city.Value.Contains("<missing>"))
+                        if (!String.IsNullOrEmpty(city.Value) && !city.Value.Contains("<missing>"))
                         {
                             var adrL = from adr in ce.Address.AsNoTracking()
                                        where (adr.Town == city.Value) && (adr.State == state.Value)

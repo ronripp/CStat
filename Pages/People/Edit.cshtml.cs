@@ -107,6 +107,55 @@ namespace CStat
             //    Trace.WriteLine(e.Message);
             //}
         }
+        //private void RemoveMissingAdrs()
+        //{
+        //    try
+        //    {
+        //        var mpa = from p in _context.Person
+        //                  from a in _context.Address
+        //                  where ((p.AddressId != null) && (p.AddressId == a.Id) && (a.Street == "<missing>") && (a.Town == "<missing>") && (a.ZipCode == "11111"))
+        //                  select new { pid = p.Id, aid = a.Id, street = a.Street, city = a.Town, zip = a.ZipCode};
+        //
+        //        Trace.WriteLine("**** DMA Start ****");
+        //        var aidList = new List<int>();
+        //        var pidList = new List<int>();
+        //        foreach (var m in mpa)
+        //        {
+        //            aidList.Add(m.aid);
+        //            pidList.Add(m.pid);
+        //        }
+        //
+        //       pidList.ForEach(pid =>
+        //       {
+        //           var PersonM = _context.Person.FirstOrDefault(mp => mp.Id == pid);
+        //
+        //           if ((PersonM != null) && (PersonM.AddressId != null))
+        //           {
+        //               int aid = PersonM.AddressId.Value;
+        //               PersonM.AddressId = null;
+        //               _context.Attach(PersonM).State = EntityState.Modified;
+        //               _context.SaveChanges();
+        //
+        //               var AdrM = _context.Address.FirstOrDefault(ad => ad.Id == aid);
+        //
+        //               if (AdrM != null)
+        //               {
+        //                   if ((AdrM.Street == "<missing>") && (AdrM.Town == "<missing>") && (AdrM.ZipCode == "11111"))
+        //                   {
+        //                       _context.Address.Remove(AdrM);
+        //                       _context.SaveChanges();
+        //                   }
+        //               }
+        //           }
+        //       });
+        //
+        //       Trace.WriteLine("**** DMA End ****");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Trace.WriteLine(e.Message);
+        //    }
+        //}
 
         private void UpdateECExire(Person person)
         {

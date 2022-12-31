@@ -1198,14 +1198,14 @@ namespace CStat
         public class AddressMgr //                     ADDRESS MGR *************************************************
         {
 
-        private CStatContext ce;
+            private CStatContext ce;
 
-        public AddressMgr(CStatContext csc)
-        {
-            ce = csc;
-        }
+            public AddressMgr(CStatContext csc)
+            {
+                ce = csc;
+            }
 
-        public static bool Validate(ref Address a)
+            public static bool Validate(ref Address a)
             {
                 if (a.Street == null)
                     return false;
@@ -1264,6 +1264,9 @@ namespace CStat
 
                 if (a.WebSite != null)
                     a.WebSite = a.WebSite.Trim();
+
+                if ((a.Street == "<missing>") && (a.Town == "<missing>") && (a.ZipCode == "11111") && (a.Phone == null) && (a.Fax == null) && (a.WebSite == null))
+                    return false;
 
                 return true;
             }
@@ -2167,7 +2170,7 @@ namespace CStat
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bFoundAdr && (id != -1))
+                    if (!bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;

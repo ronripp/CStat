@@ -1678,7 +1678,7 @@ namespace CStat
                     {
                         foreach (Address a in adrList)
                         {
-                            int ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            int ld = (a.Street.Contains("<missing>") || a.Town.Contains("<missing>")) ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < 2)
                             {
                                 int si = a.Street.IndexOf(' ');
@@ -2122,7 +2122,7 @@ namespace CStat
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (adr_id != -1)
+                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -2142,7 +2142,7 @@ namespace CStat
 
                 int adr_id = -1;
                 int id = FindPersonIDByName(psnL, ref person, bAllowNoAddress, out adr_id);
-                if (!bFoundAdr && (id != -1))
+                if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                 {
                     bPersonFound = true;
                     person.Id = id;
@@ -2170,7 +2170,7 @@ namespace CStat
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bFoundAdr && (adr_id != -1))
+                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;

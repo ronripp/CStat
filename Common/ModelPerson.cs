@@ -854,7 +854,7 @@ namespace CStat.Models
                     {
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
+                            ld = (a.Street.Contains("<missing>") || a.Town.Contains("<missing>")) ? 10000 : LevenshteinDistance.Compute(a.Street, streetValue);
                             if (ld < 2)
                             {
                                 int si = a.Street.IndexOf(' ');
@@ -1298,7 +1298,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bFoundAdr && (adr_id != -1))
+                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -1322,7 +1322,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bFoundAdr && (adr_id != -1))
+                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;
@@ -1346,7 +1346,7 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bFoundAdr && (adr_id != -1))
+                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
                     {
                         bValidAddress = true;
                         bFoundAdr = true;

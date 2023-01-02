@@ -683,20 +683,76 @@ namespace CStat.Models
 
         public static MgrStatus UpdatePerson(CStatContext ce, List<KeyValuePair<String, String>> props, bool bJustGetPerson, bool bAllowNoAddress, out Person ResPerson, out Address ResAddress)
         {
-            Person person = new Person();
             Address newAdr = new Address();
+
+            Person person = null;
             bool bPersonFound = false;
-            bool bFoundAdr = false;
+
+            Address oldAdr = null;
+            bool bFoundOldAdr = false;
+
+            Address matchingOldAdr = null;
+            bool bMatchingOldAdr = false;
+
             bool bNeedToAddPG1 = false;
             bool bNeedToModPG1 = false;
             Person PG1Person = new Person();
             bool bNeedToAddPG2 = false;
             bool bNeedToModPG2 = false;
             Person PG2Person = new Person();
-            bool bValidAddress = false;
-            Address foundAdr = null;
+            bool bValidNewAddress = false;
+
+            //Person person = new Person();
+            //Address newAdr = new Address();
+            //bool bPersonFound = false;
+            //bool bFoundAdr = false;
+            //bool bNeedToAddPG1 = false;
+            //bool bNeedToModPG1 = false;
+            //Person PG1Person = new Person();
+            //bool bNeedToAddPG2 = false;
+            //bool bNeedToModPG2 = false;
+            //Person PG2Person = new Person();
+            //bool bValidAddress = false;
+            //Address foundAdr = null;
 
             KeyValuePair<string, string> pv;
+
+            pv = props.Find(prop => prop.Key == "id");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                Int32 pid = Int32.Parse(pv.Value);
+                if (pid > 0)
+                {
+                    person = ce.Person.AsNoTracking().FirstOrDefault(p => p.Id == pid);
+                    if (person != null)
+                    {
+                        bPersonFound = true;
+                        person.Id = pid;
+                        if (person.AddressId != null)
+                        {
+                            oldAdr = ce.Address.AsNoTracking().FirstOrDefault(a => a.Id == person.AddressId);
+                            bFoundOldAdr = (oldAdr != null);
+                        }
+                    }
+                }
+            }
+            if (person == null)
+                person = new Person();
+
+            pv = props.Find(prop => prop.Key == "Adr_id"); // overrides person.AddressId
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                if (pv.Value.All(c => Char.IsDigit(c)))
+                {
+                    int aid = Convert.ToInt32(pv.Value);
+                    oldAdr = ce.Address.AsNoTracking().FirstOrDefault(a => a.Id == aid);
+                    if (oldAdr != null)
+                    {
+                        person.AddressId = Convert.ToInt32(pv.Value);
+                        bFoundOldAdr = true;
+                    }
+                }
+            }
 
             pv = props.Find(prop => prop.Key == "FName");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
@@ -804,21 +860,12 @@ namespace CStat.Models
                 return MgrStatus.Invalid_Address;
             }
 
-            pv = props.Find(prop => prop.Key == "Adr_id");
-            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-            {
-                if (pv.Value.All(c => Char.IsDigit(c)))
-                {
-                    person.AddressId = Convert.ToInt32(pv.Value);
-                    bFoundAdr = true;
-                }
-            }
 
-            if (!bFoundAdr && bHasStreet && (bHasZip || bHasCS))
+            if (bHasStreet && (bHasZip || bHasCS))
             {
                 bool bTrySCS = false;
 
-                // Try to find an existing address by looping here up to 2 times.
+                // Try to find an existing MATCHING address by looping here up to 2 times.
                 do
                 {
                     int ld;
@@ -862,7 +909,8 @@ namespace CStat.Models
                                 {
                                     // Found matching address. Just set address id
                                     person.AddressId = newAdr.Id = a.Id;
-                                    bFoundAdr = true;
+                                    matchingOldAdr = a;
+                                    bMatchingOldAdr = true;
                                     break;
                                 }
                             }
@@ -872,7 +920,7 @@ namespace CStat.Models
                     if (bTrySCS)
                         break; // We already looped. Break here.
 
-                    if (!bFoundAdr && bHasZip)
+                    if (!bMatchingOldAdr && bHasZip)
                     {
                         // Zip may be bad or changed try to match by street, city, state
                         bTrySCS = true;
@@ -880,7 +928,7 @@ namespace CStat.Models
                     else
                         break; // Do not loop because there is nothing to retry.
                 }
-                while (!bFoundAdr);
+                while (!bMatchingOldAdr);
             }
 
             //***************************
@@ -913,7 +961,7 @@ namespace CStat.Models
                 newAdr.Phone = hphone.Value;
 
             AddressMgr amgr = new AddressMgr(ce);
-            if (!(bValidAddress = AddressMgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
+            if (!(bValidNewAddress = AddressMgr.Validate(ref newAdr)) && !bJustGetPerson && !bAllowNoAddress)
             {
                 ResPerson = null;
                 ResAddress = null;
@@ -1101,17 +1149,6 @@ namespace CStat.Models
                 }
             }
 
-            pv = props.Find(prop => prop.Key == "id");
-            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-            {
-                Int32 pid = Int32.Parse(pv.Value);
-                if (pid > 0)
-                {
-                    bPersonFound = true;
-                    person.Id = pid;
-                }
-            }
-
             pv = props.Find(prop => prop.Key == "PG1_pid");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
@@ -1285,7 +1322,7 @@ namespace CStat.Models
             //**************************************************************************
             // Find Person #1 : Find person by SS# First
             //**************************************************************************
-            if (bHasSSNum)
+            if (!bPersonFound && bHasSSNum)
             {
                 var psnL = from psn in ce.Person.AsNoTracking()
                            where (psn.Ssnum == person.Ssnum)
@@ -1298,11 +1335,10 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
+                    if (!bFoundOldAdr && !bMatchingOldAdr && (adr_id != -1))
                     {
-                        bValidAddress = true;
-                        bFoundAdr = true;
-                        person.AddressId = adr_id;
+                        oldAdr = ce.Address.AsNoTracking().FirstOrDefault(a => a.Id == adr_id);
+                        bFoundOldAdr = (oldAdr != null);
                     }
                 }
             }
@@ -1322,11 +1358,10 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
+                    if (!bFoundOldAdr && !bMatchingOldAdr && (adr_id != -1))
                     {
-                        bValidAddress = true;
-                        bFoundAdr = true;
-                        person.AddressId = adr_id;
+                        oldAdr = ce.Address.AsNoTracking().FirstOrDefault(a => a.Id == adr_id);
+                        bFoundOldAdr = (oldAdr != null);
                     }
                 }
             }
@@ -1346,11 +1381,10 @@ namespace CStat.Models
                 {
                     bPersonFound = true;
                     person.Id = id;
-                    if (!bValidAddress && !bFoundAdr && (adr_id != -1))
+                    if (!bFoundOldAdr && !bMatchingOldAdr && (adr_id != -1))
                     {
-                        bValidAddress = true;
-                        bFoundAdr = true;
-                        person.AddressId = adr_id;
+                        oldAdr = ce.Address.AsNoTracking().FirstOrDefault(a => a.Id == adr_id);
+                        bFoundOldAdr = (oldAdr != null);
                     }
                 }
             }
@@ -1365,22 +1399,17 @@ namespace CStat.Models
             int tryState = 1;
             try
             {
-                if (bValidAddress)
+                if (bValidNewAddress)
                 {
-                    if (!bFoundAdr)
+                    if (bMatchingOldAdr)
                     {
-                        // Add new, valid address and set Person.Address_id
+                        // Make sure all address fields are updated.
+                        newAdr = Address.Merge(matchingOldAdr, newAdr);
                         try
-                        { 
-                            ce.Address.Add(newAdr);
-                            if (ce.SaveChanges() < 1)
-                            {
-                                ResPerson = person;
-                                ResAddress = null;
-                                return MgrStatus.Save_Address_Failed;
-                            }
-                            if (newAdr.Id != 0)
-                                person.AddressId = newAdr.Id;  // addedAdr.id;
+                        {
+                            ce.Address.Attach(newAdr);
+                            ce.Entry(newAdr).State = EntityState.Modified;
+                            ce.SaveChanges();
                         }
                         catch
                         {
@@ -1388,26 +1417,42 @@ namespace CStat.Models
                             ResAddress = null;
                             return MgrStatus.Save_Address_Failed;
                         }
+                        if (newAdr.Id != 0)
+                            person.AddressId = newAdr.Id;
+
                     }
                     else
                     {
-                        // Make sure address fields are updated.
-                        if (foundAdr != null)
+                        // Add new, valid address and set Person.Address_id
+                        ce.Address.Add(newAdr);
+                        if (ce.SaveChanges() < 1)
                         {
-                            newAdr = Address.Merge(foundAdr, newAdr);
-                            try
-                            {
-                                ce.Address.Attach(newAdr);
-                                ce.Entry(newAdr).State = EntityState.Modified;
-                                ce.SaveChanges();
-                            }
-                            catch
-                            {
-                                ResPerson = person;
-                                ResAddress = null;
-                                return MgrStatus.Save_Address_Failed;
-                            }
+                            ResPerson = null;
+                            ResAddress = null;
+                            return MgrStatus.Save_Address_Failed;
                         }
+                        if (newAdr.Id != 0)
+                            person.AddressId = newAdr.Id;  // addedAdr.id;
+                    }
+                }
+                else
+                {
+                    // Not Valid Address, use matching or old address
+                    if (bMatchingOldAdr)
+                    {
+                        newAdr = matchingOldAdr;
+                        person.AddressId = newAdr.Id;
+                    }
+                    else if (bFoundOldAdr)
+                    {
+                        newAdr = oldAdr;
+                        person.AddressId = oldAdr.Id;
+                    }
+                    else
+                    {
+                        // No address
+                        newAdr.Id = 0;
+                        person.AddressId = null;
                     }
                 }
 

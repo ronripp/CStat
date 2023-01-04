@@ -1582,11 +1582,12 @@ namespace CStat.Models
                         if (value.Contains(' '))
                         {
                             String[] nms = value.Split(' ');
-                            if (nms.Count() > 0)
+                            int count = nms.Count();
+                            if (count > 0)
                             {
                                 FName = nms[0].Trim();
-                                if (nms.Count() > 1)
-                                    LName = nms[1].Trim();
+                                if (count > 1)
+                                    LName = nms[FindLNIndex(nms)].Trim();
                             }
                         }
                         //FName = value ZZZ;
@@ -1858,11 +1859,12 @@ namespace CStat.Models
                         if (value.Contains(' '))
                         {
                             String[] nms = value.Split(' ');
-                            if (nms.Count() > 0)
+                            int count = nms.Count();
+                            if (count > 0)
                             {
                                 PG1_id = nms[0].Trim();
-                                if (nms.Count() > 1)
-                                    PG1_id = PG1_id + nms[1].Trim();
+                                if (count > 1)
+                                    PG1_id = PG1_id + " " + nms[FindLNIndex(nms)].Trim();
                             }
                         }
                         //FName = value ZZZ;
@@ -1920,6 +1922,19 @@ namespace CStat.Models
                 {
                     PG2_id = value;
                 }
+            }
+            public static int FindLNIndex(String[] names)
+            {
+                int count = names.Length;
+                if (count == 2)
+                    return 1;
+                if (count >= 3)
+                {
+                    string lstr = names[count - 1].ToLower().Replace(".", "");
+                    return ((lstr.StartsWith("jr") || lstr.StartsWith("sr") || lstr.StartsWith("ii") || lstr.StartsWith("iv") || (lstr == "v") || lstr.StartsWith("vi") || lstr.StartsWith("es") || Char.IsDigit(lstr[0]))
+                          && (lstr.Length < 4)) ? count - 2 : count - 1;
+                }
+                return 0;
             }
         }
         public class AttData

@@ -37,7 +37,7 @@ namespace CStat.Models
         [Column("id")]
         public int Id { get; set; }
         [Required]
-        [StringLength(30)]
+        [StringLength(50)]
         public string Street { get; set; }
         [Required]
         [StringLength(30)]

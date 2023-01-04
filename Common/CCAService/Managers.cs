@@ -288,7 +288,7 @@ namespace CStat
                 }
                 catch (Exception e)
                 {
-
+                    _ = e;
                 }
             }
             else
@@ -2347,6 +2347,7 @@ namespace CStat
             }
             catch (Exception e)
             {
+                _ = e;
                 ResPerson = null;
                 ResAddress = null;
                 if (tryState > 1)

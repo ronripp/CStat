@@ -667,6 +667,7 @@ namespace CStat.Models
                     {
                     try
                     {
+                        Address.UpdateAddress(ce, ResAddress);
                         ce.Person.Add(ResPerson);
                         int sres = await ce.SaveChangesAsync();
                         return (sres > 0);
@@ -879,7 +880,8 @@ namespace CStat.Models
                                        select adr;
                             foreach (Address a in adrL)
                             {
-                                adrList.Add(a);
+                                if (!bHasCS || (a.State == state.Value))
+                                    adrList.Add(a);
                             }
                         }
                     }

@@ -311,23 +311,13 @@ namespace CStat
                 UpdateECExire(_Person);
                 _Person.Dob = Person.UpdateDOB(_Person.Dob);
 
-                if ((_Person.AddressId == null) && isValidAdr)
-                {
-                    if (_Address.Country == null)
-                        _Address.Country = "USA"; // Assume USA if not specified.
-
-                    _context.Address.Add(_Address);
-                    _context.SaveChanges();
+                if (_Address.Country == null)
+                    _Address.Country = "USA"; // Assume USA if not specified.
+                _Address.Id = Address.UpdateAddress(_context, _Address);
+                if (_Address.Id > 0)
                     _Person.AddressId = _Address.Id;
-                }
                 else
-                {
-                    if (isValidAdr)
-                    {
-                        _context.Attach(_Address).State = EntityState.Modified;
-                        _context.SaveChanges();
-                    }
-                }
+                    _Person.AddressId = null;
 
                 _context.Attach(_Person).State = EntityState.Modified;
                 _context.SaveChanges();

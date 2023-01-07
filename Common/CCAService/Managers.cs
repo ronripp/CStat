@@ -1695,7 +1695,8 @@ namespace CStat
                                        select adr;
                             foreach (Address a in adrL)
                             {
-                                adrList.Add(a);
+                                if (!bHasCS || (a.State == state.Value))
+                                    adrList.Add(a);
                             }
                         }
                     }

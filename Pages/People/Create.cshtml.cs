@@ -113,6 +113,8 @@ namespace CStat
         private void UpdateECExire(Person person)
         {
             bool needECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+            if (!needECExpire)
+                return;
             string ECExpireYear = _ECExpire.Trim();
             var expYearLen = ECExpireYear.Length;
             if (expYearLen > 4)

@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-
 namespace CStat.Models
 {
     public partial class Address
     {
         public static int UpdateAddress(Models.CStatContext ce, Address inAdr)
         {
+            if (inAdr == null)
+                return 0;
+
             Address newAdr = new Address();
             Address foundAdr = null;
             bool bValidAddress = false;
@@ -36,10 +38,10 @@ namespace CStat.Models
             {
                 bool bTrySCS = false;
 
-                // Try to find an existing address by looping here up to 2 times.
+                // Try to find an existing MATCHING address by looping here up to 2 times.
                 do
                 {
-                    int ld, MinLD = 10000;
+                    int ld;
                     List<Address> adrList = new List<Address>();
                     if (bHasZip && !bTrySCS)
                     {
@@ -50,13 +52,14 @@ namespace CStat.Models
                                        select adr;
                             foreach (Address a in adrL)
                             {
-                                adrList.Add(a);
+                                if (!bHasCS || (a.State == inAdr.State))
+                                    adrList.Add(a);
                             }
                         }
                     }
                     else
                     {
-                        if (!inAdr.Town.Contains("<missing>"))
+                        if (!String.IsNullOrEmpty(inAdr.Town) && !inAdr.Town.Contains("<missing>"))
                         {
                             var adrL = from adr in ce.Address.AsNoTracking()
                                        where (adr.Town == inAdr.Town) && (adr.State == inAdr.State)
@@ -70,25 +73,20 @@ namespace CStat.Models
 
                     if (adrList.Count() > 0)
                     {
-                        Address MinAdr = new Address();
-                        MinAdr.SetEmpty();
                         foreach (Address a in adrList)
                         {
-                            ld = a.Street.Contains("<missing>") ? 10000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);
-                            if (ld < MinLD)
+                            ld = (a.Street.Contains("<missing>") || a.Town.Contains("<missing>")) ? 10000 : LevenshteinDistance.Compute(a.Street, inAdr.Street);
+                            if (ld < 2)
                             {
-                                MinAdr = a;
-                                MinLD = ld;
+                                int si = a.Street.IndexOf(' ');
+                                if (String.Equals(a.Street, inAdr.Street, StringComparison.OrdinalIgnoreCase) || ((si > 1) && ((si + 4) < a.Street.Length) && inAdr.Street.StartsWith(a.Street.Substring(0, si + 4))))
+                                {
+                                    // Found matching address. Just set address id
+                                    FoundAdrId = newAdr.Id = a.Id;
+                                    foundAdr = a;
+                                    bFoundAdrId = true;
+                                }
                             }
-                        }
-
-                        int si = MinAdr.Street.IndexOf(' ');
-                        if ((MinLD < 2) && ((si > 1) && ((si + 3) < MinAdr.Street.Length) && inAdr.Street.StartsWith(MinAdr.Street.Substring(0, si + 3))))
-                        {
-                            // Found matching address. Just set address id
-                            FoundAdrId = newAdr.Id = MinAdr.Id;
-                            foundAdr = MinAdr;
-                            bFoundAdrId = true;
                         }
                     }
 

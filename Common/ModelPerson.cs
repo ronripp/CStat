@@ -1580,7 +1580,7 @@ namespace CStat.Models
 
         }
 
-        public static int FindPersonIDByName(CStatContext ce, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true)
+        public static int FindPersonIDByName(CStatContext ce, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true, Person child = null)
         {
             String LName = person.LastName;
 
@@ -1588,10 +1588,10 @@ namespace CStat.Models
                        where (psn.LastName == LName)
                        select psn;
 
-            return FindPersonIDByName(psnL, ref person, bMerge, out address_id, bCheckLastName);
+            return FindPersonIDByName(psnL, ref person, bMerge, out address_id, bCheckLastName, child);
         }
 
-        public static int FindPersonIDByName(IQueryable<Person> psnL, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true)
+        public static int FindPersonIDByName(IQueryable<Person> psnL, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true, Person child = null)
         {
             address_id = -1;
             if (psnL.Count() > 0)
@@ -1689,6 +1689,26 @@ namespace CStat.Models
 
                         if (p.FirstName.ToUpper().StartsWith(FStart4))
                         {
+                            if (child != null)
+                            {
+                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
+                                if (p.Dob.HasValue && child.Dob.HasValue)
+                                {
+                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
+                                        continue;
+                                }
+
+                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
+                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (p.Dob.HasValue && child.Dob.HasValue)
+                                    {
+                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
+                                            continue;
+                                    }
+                                }
+                            }
+
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 
@@ -1718,6 +1738,26 @@ namespace CStat.Models
 
                         if (p.FirstName.ToUpper().StartsWith(FStart3))
                         {
+                            if (child != null)
+                            {
+                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
+                                if (p.Dob.HasValue && child.Dob.HasValue)
+                                {
+                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
+                                        continue;
+                                }
+
+                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
+                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (p.Dob.HasValue && child.Dob.HasValue)
+                                    {
+                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
+                                            continue;
+                                    }
+                                }
+                            }
+
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 

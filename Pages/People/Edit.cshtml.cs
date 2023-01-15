@@ -71,6 +71,36 @@ namespace CStat
             }
         }
 
+        //private void RemoveSpecificAttend() // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+        //{
+        //    try
+        //    {
+        //        var pba = from a1 in _context.Attendance
+        //                  where (a1.EventId != null) && (a1.EventId == 1023)
+        //                  select new { id = a1.Id, pid = a1.PersonId, eventId = a1.EventId};
+        //
+        //        Trace.WriteLine("**** BA Start ****");
+        //        var idList = new List<int>();
+        //        foreach (var a in pba)
+        //        {
+        //            idList.Add(a.id);
+        //        }
+        //
+        //        idList.ForEach(aid =>
+        //        {
+        //            var attB = _context.Attendance.FirstOrDefault(a => a.Id == aid);
+        //            _context.Attendance.Remove(attB);
+        //            _context.SaveChanges();
+        //        });
+        //
+        //       Trace.WriteLine("**** BA End ****");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Trace.WriteLine(e.Message);
+        //    }
+        //}
+
         //private void RemoveDupAttend() // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
         //{
         //    try

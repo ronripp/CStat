@@ -2001,7 +2001,7 @@ namespace CStat
                                         if (SplitName(pga[0], ref PG1Person))
                                         {
                                             int adr_id;
-                                            int id = FindPersonIDByName(ce, ref PG1Person, bAllowNoAddress, out adr_id);
+                                            int id = FindPersonIDByName(ce, ref PG1Person, bAllowNoAddress, out adr_id, true, person);
                                             if (id != -1)
                                             {
                                                 person.Pg1PersonId = PG1Person.Id = id;
@@ -2084,7 +2084,7 @@ namespace CStat
                                         if (SplitName(pga[0], ref PG2Person))
                                         {
                                             int adr_id;
-                                            int id = FindPersonIDByName(ce, ref PG2Person, bAllowNoAddress, out adr_id);
+                                            int id = FindPersonIDByName(ce, ref PG2Person, bAllowNoAddress, out adr_id, true, person);
                                             if (id != -1)
                                             {
                                                 person.Pg2PersonId = PG2Person.Id = id;
@@ -2293,6 +2293,8 @@ namespace CStat
                         ce.Person.Attach(PG1Person);
                         ce.Entry(PG1Person).State = EntityState.Modified;
                         ce.SaveChanges();
+
+                        ce.Entry(PG1Person).State = EntityState.Detached;
                     }
                 }
 
@@ -2318,6 +2320,8 @@ namespace CStat
                         ce.Person.Attach(PG2Person);
                         ce.Entry(PG2Person).State = EntityState.Modified;
                         ce.SaveChanges();
+
+                        ce.Entry(PG2Person).State = EntityState.Detached;
                     }
                 }
 
@@ -2464,7 +2468,7 @@ namespace CStat
             return true; // TBD
         }
 
-        public int FindPersonIDByName(CStatContext ce, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true)
+        public int FindPersonIDByName(CStatContext ce, ref Person person, bool bMerge, out int address_id, bool bCheckLastName = true, Person child=null)
         {
             String LName = person.LastName;
 
@@ -2472,10 +2476,10 @@ namespace CStat
                        where (psn.LastName == LName)
                        select psn;
 
-            return FindPersonIDByName(psnL, ref person, bMerge, out address_id, bCheckLastName);
+            return FindPersonIDByName(psnL, ref person, bMerge, out address_id, bCheckLastName, child);
         }
 
-        public int FindPersonIDByName(IQueryable<Person> psnL, ref Person person, bool bMerge, out int address_id, bool bCheckLastName=true)
+        public int FindPersonIDByName(IQueryable<Person> psnL, ref Person person, bool bMerge, out int address_id, bool bCheckLastName= true, Person child=null)
         {
             address_id = -1;
             if (psnL.Count() > 0)
@@ -2573,6 +2577,26 @@ namespace CStat
 
                         if (p.FirstName.ToUpper().StartsWith(FStart4))
                         {
+                            if (child != null)
+                            {
+                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
+                                if (p.Dob.HasValue && child.Dob.HasValue)
+                                {
+                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
+                                        continue;
+                                }
+
+                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
+                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (p.Dob.HasValue && child.Dob.HasValue)
+                                    {
+                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
+                                            continue;
+                                    }
+                                }
+                            }
+
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 
@@ -2602,6 +2626,26 @@ namespace CStat
 
                         if (p.FirstName.ToUpper().StartsWith(FStart3))
                         {
+                            if (child != null)
+                            {
+                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
+                                if (p.Dob.HasValue && child.Dob.HasValue)
+                                {
+                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
+                                        continue;
+                                }
+
+                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
+                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    if (p.Dob.HasValue && child.Dob.HasValue)
+                                    {
+                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
+                                            continue;
+                                    }
+                                }
+                            }
+
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 

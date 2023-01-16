@@ -1615,7 +1615,7 @@ namespace CStat.Models
                 {
                     if (person.Gender.HasValue && (person.Gender != 0))
                     {
-                        if ((p.Gender.HasValue) && (person.Gender != p.Gender))
+                        if ((p.Gender.HasValue) && (person.Gender.HasValue) && (person.Gender != p.Gender))
                             continue;
                     }
                     if (bCheckLastName && (person.LastName != null) && (person.LastName.Length > 0))
@@ -1624,7 +1624,7 @@ namespace CStat.Models
                             continue;
                     }
 
-                    if ((p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0))
+                    if ((p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child)))
                     {
                         if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                             address_id = MinP.AddressId.Value;
@@ -1660,7 +1660,7 @@ namespace CStat.Models
                     }
                 }
 
-                if (MinLD < 3)
+                if ((MinP != null) && (MinLD < 3) && ((child == null) || isAValidPG(MinP, child)))
                 {
                     if (MinP.AddressId.HasValue && (MinP.AddressId.Value > 0))
                         address_id = MinP.AddressId.Value;
@@ -1676,7 +1676,7 @@ namespace CStat.Models
                 {
                     foreach (Person p in psnL)
                     {
-                        if (person.Gender.HasValue && (person.Gender != 0))
+                        if (person.Gender.HasValue && (person.Gender.HasValue) && (person.Gender != 0))
                         {
                             if ((p.Gender.HasValue) && (person.Gender != p.Gender))
                                 continue;
@@ -1687,28 +1687,8 @@ namespace CStat.Models
                                 continue;
                         }
 
-                        if (p.FirstName.ToUpper().StartsWith(FStart4))
+                        if (p.FirstName.ToUpper().StartsWith(FStart4) && ((child == null) || isAValidPG(MinP, child)))
                         {
-                            if (child != null)
-                            {
-                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
-                                if (p.Dob.HasValue && child.Dob.HasValue)
-                                {
-                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
-                                        continue;
-                                }
-
-                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
-                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    if (p.Dob.HasValue && child.Dob.HasValue)
-                                    {
-                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
-                                            continue;
-                                    }
-                                }
-                            }
-
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 
@@ -1736,28 +1716,8 @@ namespace CStat.Models
                                 continue;
                         }
 
-                        if (p.FirstName.ToUpper().StartsWith(FStart3))
+                        if (p.FirstName.ToUpper().StartsWith(FStart3) && ((child == null) || isAValidPG(MinP, child)))
                         {
-                            if (child != null)
-                            {
-                                // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
-                                if (p.Dob.HasValue && child.Dob.HasValue)
-                                {
-                                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
-                                        continue;
-                                }
-
-                                if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
-                                    String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    if (p.Dob.HasValue && child.Dob.HasValue)
-                                    {
-                                        if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
-                                            continue;
-                                    }
-                                }
-                            }
-
                             if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                                 address_id = p.AddressId.Value;
 
@@ -1773,6 +1733,26 @@ namespace CStat.Models
             return -1;
         }
 
+        private static bool isAValidPG(Person p, Person child)
+        {
+            // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
+            if (p.Dob.HasValue && child.Dob.HasValue)
+            {
+                if ((p.Dob.Value - child.Dob.Value).TotalDays < 10 * 365)
+                    return false;
+            }
+
+            if (String.Equals(child.FirstName, p.FirstName, StringComparison.InvariantCultureIgnoreCase) &&
+                String.Equals(child.LastName, p.LastName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (p.Dob.HasValue && child.Dob.HasValue)
+                {
+                    if ((p.Dob.Value - child.Dob.Value).TotalDays < 14 * 365)
+                        return false;
+                }
+            }
+            return true;
+        }
         public static void MergePersonAttrs(Person src, ref Person dst)
         {
             if (src.Gender.HasValue && !dst.Gender.HasValue)

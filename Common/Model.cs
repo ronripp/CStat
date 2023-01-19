@@ -260,6 +260,13 @@ namespace CStat.Models
             return ops;
         }
 
+        public static string GetStateAbbr(string state)
+        {
+            string st = state.Trim();
+            var abbr = StateDict.FirstOrDefault(s => String.Equals(s.Value, st, StringComparison.InvariantCultureIgnoreCase)).Key;
+            return (abbr != null) ? abbr : st;
+        }
+
         public Address ShallowCopy()
         {
             return (Address)this.MemberwiseClone();

@@ -76,7 +76,15 @@ namespace CStat
         //    try
         //    {
         //        var pba = from a1 in _context.Attendance
-        //                  where (a1.EventId != null) && (a1.EventId == 1023)
+        //                  where (a1.EventId != null) && 
+        //                         ((a1.EventId == 1012) ||
+        //                          (a1.EventId == 1016) ||
+        //                          (a1.EventId == 1014) ||
+        //                          (a1.EventId == 1015) ||
+        //                          (a1.EventId == 1023) ||
+        //                          (a1.EventId == 1024) ||
+        //                          (a1.EventId == 2124) ||
+        //                          (a1.EventId == 2022))
         //                  select new { id = a1.Id, pid = a1.PersonId, eventId = a1.EventId};
         //
         //        Trace.WriteLine("**** BA Start ****");

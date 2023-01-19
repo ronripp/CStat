@@ -1654,10 +1654,10 @@ namespace CStat
                 }
             }
 
-            KeyValuePair<string, string> street, zip, city, state;
+            KeyValuePair<string, string> street, zip, city, rawState, state;
             zip = props.Find(prop => prop.Key == "Zip");
             city = props.Find(prop => prop.Key == "City");
-            state = props.Find(prop => prop.Key == "State");
+            rawState = props.Find(prop => prop.Key == "State");
             street = props.Find(prop => prop.Key == "Street");
             bool bHasSSNum = false;
             bool bHasDOB = false;
@@ -1665,7 +1665,9 @@ namespace CStat
             if (bHasZip)
                zip = new KeyValuePair<string, string>("Zip", zip.Value.Replace("-", string.Empty));
             bool bHasStreet = !street.Equals(default(KeyValuePair<String, String>)) && (street.Value.Length > 0);
-            bool bHasCS = (!city.Equals(default(KeyValuePair<String, String>)) && (city.Value.Length > 0)) && (!state.Equals(default(KeyValuePair<String, String>)) && (state.Value.Length > 0));
+            bool bHasState = (!rawState.Equals(default(KeyValuePair<String, String>)) && (rawState.Value.Length > 0));
+            state = (bHasState) ? new KeyValuePair<string, string>("State", Address.GetStateAbbr(rawState.Value)) : rawState;
+            bool bHasCS = (!city.Equals(default(KeyValuePair<String, String>)) && (city.Value.Length > 0)) && bHasState;
             String streetValue;
             if (bHasStreet)
                 streetValue = CleanStreet(street.Value);
@@ -1705,7 +1707,7 @@ namespace CStat
                         if (!String.IsNullOrEmpty(city.Value) && !city.Value.Contains("<missing>"))
                         {
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where (adr.Town == city.Value) && (adr.State == state.Value)
+                                       where (adr.Town == city.Value) && (adr.State == state.Value) // TBD : Handle city & state Case and {State Abbr vs full State}
                                        select adr;
                             foreach (Address a in adrL)
                             {

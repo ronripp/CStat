@@ -1414,6 +1414,7 @@ namespace CStat.Models
                             ce.Address.Attach(newAdr);
                             ce.Entry(newAdr).State = EntityState.Modified;
                             ce.SaveChanges();
+                            ce.Entry(newAdr).State = EntityState.Detached;
                         }
                         catch
                         {
@@ -1492,6 +1493,7 @@ namespace CStat.Models
                             ce.Person.Attach(PG1Person);
                             ce.Entry(PG1Person).State = EntityState.Modified;
                             ce.SaveChanges();
+                            ce.Entry(PG1Person).State = EntityState.Detached;
                         }
                         catch
                         {
@@ -1532,6 +1534,7 @@ namespace CStat.Models
                             ce.Person.Attach(PG2Person);
                             ce.Entry(PG2Person).State = EntityState.Modified;
                             ce.SaveChanges();
+                            ce.Entry(PG2Person).State = EntityState.Detached;
                         }
                     }
                     catch

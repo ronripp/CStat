@@ -156,21 +156,22 @@ namespace CStat.Models
                     {
                         // Make sure address fields are updated.
                         if (foundAdr != null)
-                        {
                             newAdr = Address.Merge(foundAdr, newAdr);
-                            try
-                            {
-                                ce.Address.Attach(newAdr);
-                                ce.Entry(newAdr).State = EntityState.Modified;
-                                ce.SaveChanges();
-                                return newAdr.Id;
-                            }
-                            catch
-                            {
-                                return 0;
-                            }
+                        else
+                            newAdr.Id = FoundAdrId;
+                        try
+                        {
+                            ce.Address.Attach(newAdr);
+                            ce.Entry(newAdr).State = EntityState.Modified;
+                            ce.SaveChanges();
+                            ce.Entry(newAdr).State = EntityState.Detached;
+                            return newAdr.Id;
                         }
-                        return FoundAdrId;
+                        catch (Exception e)
+                        {
+                            _ = e;
+                            return 0;
+                        }
                     }
                 }
             }

@@ -2295,7 +2295,6 @@ namespace CStat
                         ce.Person.Attach(PG1Person);
                         ce.Entry(PG1Person).State = EntityState.Modified;
                         ce.SaveChanges();
-
                         ce.Entry(PG1Person).State = EntityState.Detached;
                     }
                 }
@@ -2322,7 +2321,6 @@ namespace CStat
                         ce.Person.Attach(PG2Person);
                         ce.Entry(PG2Person).State = EntityState.Modified;
                         ce.SaveChanges();
-
                         ce.Entry(PG2Person).State = EntityState.Detached;
                     }
                 }
@@ -2343,6 +2341,7 @@ namespace CStat
                     // Update an existing Person
                     ce.Person.Attach(person);
                     ce.Entry(person).State = EntityState.Modified;
+                    ce.Entry(person).State = EntityState.Detached;
                 }
 
                 if (ce.SaveChanges() < 1)

@@ -12,6 +12,14 @@ using CStat.Common;
 
 namespace CStat
 {
+    public static class cm
+    {
+        public static bool EQ (string s1, string s2)
+        {
+            return string.Equals(s1, s2, StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
     public enum MgrStatus
     {
         Add_Update_Succeeded = 1,
@@ -1321,7 +1329,7 @@ namespace CStat
                             if (!city.Contains("<missing>"))
                             {
                                 var adrL = from adr in ce.Address
-                                           where (adr.Town == city) && (adr.State == state)
+                                           where cm.EQ(adr.Town,city) && cm.EQ(adr.State,state)
                                            select adr;
 
                                 foreach (Address a in adrL)
@@ -1697,7 +1705,7 @@ namespace CStat
                                        select adr;
                             foreach (Address a in adrL)
                             {
-                                if (!bHasCS || (a.State == state.Value))
+                                if (!bHasCS || cm.EQ(a.State,state.Value))
                                     adrList.Add(a);
                             }
                         }
@@ -1707,7 +1715,7 @@ namespace CStat
                         if (!String.IsNullOrEmpty(city.Value) && !city.Value.Contains("<missing>"))
                         {
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where (adr.Town == city.Value) && (adr.State == state.Value) // TBD : Handle city & state Case and {State Abbr vs full State}
+                                       where cm.EQ(adr.Town,city.Value) && cm.EQ(adr.State, state.Value)
                                        select adr;
                             foreach (Address a in adrL)
                             {

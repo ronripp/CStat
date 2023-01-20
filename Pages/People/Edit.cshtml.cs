@@ -71,6 +71,38 @@ namespace CStat
             }
         }
 
+        //private void MakeStateAbbr() // TEMP ZZZZZZZZZZZZZZZZZZ
+        //{
+        //    List<Address> nList = new List<Address>();
+        //    try
+        //    {
+        //        var pList = _context.Address.AsNoTracking().Where(a => a.State.Length > 2);
+        //
+        //        foreach (var a in pList)
+        //        {
+        //            nList.Add(a);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _ = e;
+        //    }
+        //
+        //    try
+        //    {
+        //        foreach (var a in nList)
+        //        {
+        //            a.State = Address.GetStateAbbr(a.State).Trim();
+        //            _context.Attach(a).State = EntityState.Modified;
+        //            _context.SaveChanges();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _ = e;
+        //    }
+        //}
+
         //private void RemoveSpecificAttend() // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
         //{
         //    try

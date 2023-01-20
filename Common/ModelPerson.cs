@@ -882,7 +882,7 @@ namespace CStat.Models
                                        select adr;
                             foreach (Address a in adrL)
                             {
-                                if (!bHasCS || (a.State == state.Value))
+                                if (!bHasCS || cm.EQ(a.State, state.Value))
                                     adrList.Add(a);
                             }
                         }
@@ -892,7 +892,7 @@ namespace CStat.Models
                         if (!String.IsNullOrEmpty(city.Value) && !city.Value.Contains("<missing>"))
                         {
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where (adr.Town == city.Value) && (adr.State == state.Value) // TBD : city state case and State Abbr
+                                       where cm.EQ(adr.Town, city.Value) && cm.EQ(adr.State, state.Value)
                                        select adr;
                             foreach (Address a in adrL)
                             {

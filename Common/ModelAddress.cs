@@ -61,8 +61,10 @@ namespace CStat.Models
                     {
                         if (!String.IsNullOrEmpty(inAdr.Town) && !inAdr.Town.Contains("<missing>"))
                         {
+                            var ltown = inAdr.Town.ToLower();
+                            var lstate = inAdr.State.ToLower();
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where cm.EQ(adr.Town, inAdr.Town) && cm.EQ(adr.State, inAdr.State)
+                                       where (adr.Town.ToLower() == ltown) && (adr.State.ToLower() == lstate)
                                        select adr;
                             foreach (Address a in adrL)
                             {

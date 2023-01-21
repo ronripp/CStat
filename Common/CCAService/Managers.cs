@@ -1328,8 +1328,10 @@ namespace CStat
                         {
                             if (!city.Contains("<missing>"))
                             {
+                                var lcity = city.ToLower();
+                                var lstate = state.ToLower();
                                 var adrL = from adr in ce.Address
-                                           where cm.EQ(adr.Town,city) && cm.EQ(adr.State,state)
+                                           where (adr.Town.ToLower() == lcity) && (adr.State.ToLower() == lstate)
                                            select adr;
 
                                 foreach (Address a in adrL)
@@ -1714,9 +1716,12 @@ namespace CStat
                     {
                         if (!String.IsNullOrEmpty(city.Value) && !city.Value.Contains("<missing>"))
                         {
+                            var lcity = city.Value.ToLower();
+                            var lstate = state.Value.ToLower();
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where cm.EQ(adr.Town,city.Value) && cm.EQ(adr.State, state.Value)
+                                       where (adr.Town.ToLower() == lcity) && (adr.State.ToLower() == lstate)
                                        select adr;
+
                             foreach (Address a in adrL)
                             {
                                 adrList.Add(a);
@@ -2349,7 +2354,6 @@ namespace CStat
                     // Update an existing Person
                     ce.Person.Attach(person);
                     ce.Entry(person).State = EntityState.Modified;
-                    ce.Entry(person).State = EntityState.Detached;
                 }
 
                 if (ce.SaveChanges() < 1)

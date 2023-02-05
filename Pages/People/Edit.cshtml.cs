@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,30 @@ namespace CStat
                 }
             }
         }
+
+        //private void TestFindChurch() // TEMP ZZZZZZZZZZZZZZZZZZ
+        //{
+        //    try
+        //    {
+        //        var cmgr = new ChurchMgr(_context);
+        //
+        //        string[] lines = System.IO.File.ReadAllLines(@"c:\cca\Attendance\ChurchNames.txt");
+        //
+        //        int i = 0;
+        //        foreach (var line in lines)
+        //        {
+        //            var ch = cmgr.FindChurch(line);
+        //            if (ch == null)
+        //                Trace.WriteLine(++i + "[" + line + "] -> **** NOT FOUND ****");
+        //            else
+        //                Trace.WriteLine(++i + "[" + line + "] -> c.id=" + ch.Id + "  Name=[" + ch.Name);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _ = e;
+        //    }
+        //}
 
         //private void MakeStateAbbr() // TEMP ZZZZZZZZZZZZZZZZZZ
         //{
@@ -171,43 +196,44 @@ namespace CStat
         //    }
         //}
 
-        private void RemoveBadAdrs () // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
-        {
-            //try
-            //{
-            //    var pba = from p1 in _context.Person
-            //              from p2 in _context.Person
-            //              where (p1.AddressId != null) && (p1.AddressId == p2.AddressId) && (p1.LastName.ToLower() != p2.LastName.ToLower())
-            //              select new { id = p1.Id, Last1 = p1.LastName, Last2 = p2.LastName, First1 = p1.FirstName, First2 = p2.FirstName, Adr1 = p1.AddressId, Adr2 = p2.AddressId };
+        //private void RemoveBadAdrs () // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+        //{
+        //    try
+        //    {
+        //        var pba = from p1 in _context.Person
+        //                  from p2 in _context.Person
+        //                  where (p1.AddressId != null) && (p1.AddressId == p2.AddressId) && (p1.LastName.ToLower() != p2.LastName.ToLower())
+        //                  select new { id = p1.Id, Last1 = p1.LastName, Last2 = p2.LastName, First1 = p1.FirstName, First2 = p2.FirstName, Adr1 = p1.AddressId, Adr2 = p2.AddressId };
+        //
+        //        Trace.WriteLine("**** BA Start ****");
+        //        var idList = new List<int>();
+        //        foreach (var p in pba)
+        //        {
+        //            Trace.WriteLine("{" + p.First1 + " " + p.Last1 + "},{" + p.First2 + " " + p.Last2 + "}= " + p.Adr1 + ", " + p.Adr2);
+        //            idList.Add(p.id);
+        //        }
+        //
+        //       idList.ForEach(pid =>
+        //       {
+        //           var PersonB = _context.Person.FirstOrDefault(f => f.Id == pid);
+        //
+        //           if ((PersonB != null) && (PersonB.AddressId != null))
+        //           {
+        //               PersonB.AddressId = null;
+        //               _context.Attach(PersonB).State = EntityState.Modified;
+        //               _context.SaveChanges();
+        //           }
+        //       });
+        //
+        //       Trace.WriteLine("**** BA End ****");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Trace.WriteLine(e.Message);
+        //    }
+        //}
 
-            //    Trace.WriteLine("**** BA Start ****");
-            //    var idList = new List<int>();
-            //    foreach (var p in pba)
-            //    {
-            //        Trace.WriteLine("{" + p.First1 + " " + p.Last1 + "},{" + p.First2 + " " + p.Last2 + "}= " + p.Adr1 + ", " + p.Adr2);
-            //        idList.Add(p.id);
-            //    }
-
-            //   idList.ForEach(pid =>
-            //   {
-            //       var PersonB = _context.Person.FirstOrDefault(f => f.Id == pid);
-
-            //       if ((PersonB != null) && (PersonB.AddressId != null))
-            //       {
-            //           PersonB.AddressId = null;
-            //           _context.Attach(PersonB).State = EntityState.Modified;
-            //           _context.SaveChanges();
-            //       }
-            //   });
-
-            //   Trace.WriteLine("**** BA End ****");
-            //}
-            //catch (Exception e)
-            //{
-            //    Trace.WriteLine(e.Message);
-            //}
-        }
-        //private void RemoveMissingAdrs()
+        //private void RemoveMissingAdrs() // ZZZZZZZZZZZZZZZZZZZZZZZZZZZ
         //{
         //    try
         //    {

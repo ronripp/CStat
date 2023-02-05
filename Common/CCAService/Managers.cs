@@ -12,6 +12,162 @@ using CStat.Common;
 
 namespace CStat
 {
+    public class ChurchDesc
+    {
+        public string rawName = "";
+        public string rawLower = "";
+        public string[] lowerWords;
+        public string CatLowerWords = "";
+        public bool IsCOC = false;
+        public bool IsNCC = false;
+        public bool IsWCOC = false;
+        public bool IsTCC = false;
+        public bool IsRCC = false;
+        public bool IsCC = false;
+        public bool IsCongregational = false;
+        public bool IsCath = false;
+        public bool HasChristian = false;
+        public bool HasChurch = false;
+        public bool HasSaint = false;
+        public List<string> KeyWords;
+
+        public ChurchDesc(string raw)
+        {
+            string rawName = raw.ToLower().Trim();
+
+            // Separate out words
+            Char[] delim = { ' ', ',', ';', '-', '(', ')', '.'};
+            rawLower = rawName.Replace("united methodist", "um").Replace("umc", "um").Replace("saint", "st");
+            lowerWords = rawLower.Split(delim).Select(c => c.Trim()).ToArray();
+
+            CatLowerWords = "";
+            foreach (var c in lowerWords)
+            {
+                CatLowerWords += c;
+            }
+            IsCOC = CatLowerWords.Contains("churchofchrist");
+            IsCC = CatLowerWords.Contains("christianchurch");
+            KeyWords = new List<string>();
+
+            if (IsNCC = CatLowerWords == "ncc")
+            {
+                IsCC = HasChristian = HasChurch = true;
+                KeyWords.Add("nesconset");
+                return;
+            }
+            if (IsWCOC = CatLowerWords == "wcoc")
+            {
+                IsCC = IsCOC = HasChristian = HasChurch = true;
+                KeyWords.Add("woodland");
+                return;
+            }
+            if (IsTCC = CatLowerWords == "tcc")
+            {
+                IsCC = HasChristian = HasChurch = true;
+                KeyWords.Add("taconic");
+                return;
+            }
+            if (IsRCC = CatLowerWords == "rcc")
+            {
+                IsCC = HasChristian = HasChurch = true;
+                KeyWords.Add("reclaim");
+                return;
+            }
+
+            //TBD: FB == First Baptist
+
+            int CCCnt = 0;
+            foreach (var cw in lowerWords)
+            {
+                if (cw.Length == 0)
+                    continue;
+
+                if (cw == "c")
+                {
+                    if (CCCnt == 1)
+                    {
+                        IsCC = HasChristian = true;
+                        CCCnt = 0;
+                    }
+                    else
+                    {
+                        ++CCCnt;
+                    }
+                    continue;
+                }
+                else
+                    CCCnt = 0;
+
+                if ((cw == "christian") || (cw == "cc"))
+                {
+                    HasChristian = true;
+                    continue;
+                }
+
+                if ((cw == "cong") || cw.StartsWith("congreg"))
+                {
+                    IsCongregational = true;
+                    continue;
+                }
+
+                if (cw == "coc")
+                {
+                    IsCOC = true;
+                    continue;
+                }
+
+                if (cw == "church")
+                {
+                    HasChurch = true;
+                    continue;
+                }
+                if ((cw == "st.") || (cw == "st") || (cw == "saint"))
+                { 
+                    HasSaint = true;
+                    continue;
+                }
+                if ((cw == "at") || (cw == "of") || (cw == "our") || (cw == "in"))
+                    continue;
+                if ((cw == "catholic") || (cw == "Lady"))
+                {
+                    IsCath = true;
+                    continue;
+                }
+
+                KeyWords.Add(cw);
+            }
+        }
+        public bool IsMatch(ChurchDesc tCD)
+        {
+            if (tCD.IsCath != IsCath)
+                return false;
+
+            if (tCD.IsCongregational != IsCongregational)
+                return false;
+
+            if (tCD.IsCOC != IsCOC)
+            {
+                if (!( ((KeyWords.Count == 1) && (rawLower == KeyWords[0])) || ((tCD.KeyWords.Count == 1) && (tCD.rawLower == tCD.KeyWords[0])) ) ) // Let single word go through for COC
+                    return false;
+            }
+            if (tCD.HasSaint != HasSaint)
+                return false;
+
+            foreach (var kw in KeyWords)
+            {
+                if (!tCD.KeyWords.Any(tkw => tkw == kw))
+                    return false;
+            }
+            return true;
+        }
+
+        public bool IsMatch(string name)
+        {
+            ChurchDesc targetCD = new ChurchDesc(name);
+            return IsMatch(targetCD);
+        }
+    }
+
     public static class cm
     {
         public static bool EQ (string s1, string s2)
@@ -928,9 +1084,8 @@ namespace CStat
             {
                 if (hint.StartsWith("id="))
                 {
-                    int id;
                     Church c;
-                    if (Int32.TryParse(hint.Substring(3), out id))
+                    if (Int32.TryParse(hint.Substring(3), out int id))
                     {
                         c = ce.Church.FirstOrDefault(ci => ci.Id == id);
                         if (c != null)
@@ -990,7 +1145,73 @@ namespace CStat
                 var jsonPG = JsonConvert.SerializeObject(CInfoListN, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                 return jsonPG.ToString();
             }
-            
+        }
+
+        public Church FindChurch(string rawName)
+        {
+            var TargetCD = new ChurchDesc(rawName);
+            var KWCount = TargetCD.KeyWords.Count;
+
+            if (KWCount > 0)
+            {
+                string AltWord = null;
+                if (TargetCD.HasSaint && TargetCD.KeyWords[0].EndsWith("s"))
+                {
+                    AltWord = TargetCD.KeyWords[0].EndsWith("'s") ? TargetCD.KeyWords[0].Replace("'", "") : TargetCD.KeyWords[0].Substring(0, TargetCD.KeyWords[0].Length - 1) + "'s";
+                }
+
+                //Church church = ce.Church.FirstOrDefault(c => TargetCD.KeyWords.All(a => c.Name.ToLower() == a));
+                List<Church> churches = null;
+                switch (KWCount)
+                {
+                    case 1:
+                        churches = ce.Church.AsNoTracking().Where(c => c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord)) ).ToList();
+                        break;
+                    case 2:
+                        churches = ce.Church.AsNoTracking().Where(c => (c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord))) &&
+                                                                        c.Name.Contains(TargetCD.KeyWords[1])).ToList();
+                        break;
+                    case 3:
+                        churches = ce.Church.AsNoTracking().Where(c => (c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord))) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[1]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[2])).ToList();
+                        break;
+                    case 4:
+                        churches = ce.Church.AsNoTracking().Where(c => (c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord))) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[1]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[2]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[3])).ToList();
+                        break;
+                    case 5:
+                        churches = ce.Church.AsNoTracking().Where(c => (c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord))) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[1]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[2]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[3]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[4])).ToList();
+                        break;
+                    case 6:
+                    default:
+                        churches = ce.Church.AsNoTracking().Where(c => (c.Name.Contains(TargetCD.KeyWords[0]) || ((AltWord != null) && c.Name.Contains(AltWord))) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[1]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[2]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[3]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[4]) &&
+                                                                       c.Name.Contains(TargetCD.KeyWords[5])).ToList();
+                        break;
+                }
+
+                if (churches != null)
+                {
+                     foreach (var c in churches)
+                     {
+                         if (TargetCD.IsMatch(c.Name))
+                             return c;
+                     }
+                }
+
+                // Else
+            }
+            return null;
         }
 
         public MgrStatus Update(Church.ChurchData cdata) //            UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU

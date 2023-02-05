@@ -121,7 +121,7 @@ namespace CStat.Common
                         csl.Log("CSProc: DoWork() Check Propane");
                         var plList = pmgr.GetAll(3);
                         var plCnt = plList.Count;
-                        if (plCnt > 1)
+                        if ((pl != null) && (plCnt > 1))
                         {
                             if (pl.ReadingTime > plList[plCnt-1].ReadingTime)
                             {
@@ -155,6 +155,8 @@ namespace CStat.Common
                                 }
                             }
                         }
+                        else
+                            csl.Log("CSProc: DoWork() Check Propane FAILED: pl=null?" + (pl == null) + " plCnt=" + plCnt);
 
                         // Check for new EMails to process / store
                         csl.Log("CSProc: DoWork() Check for new EMails");

@@ -1,0 +1,123 @@
+﻿@page
+@model CStat.Pages.MergeModel
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+
+    <style>
+
+        #MergeTabs a.nav-link.active {
+            border-bottom-color: transparent;
+            color: black;
+            background-color: #FFFF80;
+            font-weight: bold;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('.p1').click(function () {
+                let OldHRef = window.location.href.toLowerCase();
+                let idx = OldHRef.indexOf("merge");
+                if (idx != -1) {
+                    let NewHRef = OldHRef.substr(0, idx + 5);
+                    window.location.href = NewHRef + "?id=1";
+                }
+            });
+
+            $('.a1').click(function () {
+                let OldHRef = window.location.href.toLowerCase();
+                let idx = OldHRef.indexOf("merge");
+                if (idx != -1) {
+                    let NewHRef = OldHRef.substr(0, idx + 5);
+                    window.location.href = NewHRef + "?id=2";
+                }
+            });
+
+            $('.c1').click(function () {
+                let OldHRef = window.location.href.toLowerCase();
+                let idx = OldHRef.indexOf("merge");
+                if (idx != -1) {
+                    let NewHRef = OldHRef.substr(0, idx + 5);
+                    window.location.href = NewHRef + "?id=3";
+                }
+            });
+
+        });
+
+    </script>
+
+</head>
+
+<body>
+
+    @{ 
+        string PStr = "";
+        string AStr = "";
+        string CStr = "";
+        switch (Model.Id)
+        {
+            case 0:
+            case 1:
+                PStr = "active";
+                break;
+            case 2:
+                AStr = "active";
+                break;
+            case 3:
+                CStr = "active";
+                break;
+        }
+    }
+
+    <div>
+        <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
+            <li class="nav-item">
+                <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
+            </li>
+            <li class="nav-item">
+                <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab" ><b>Address</b></a>
+            </li>
+            <li class="nav-item">
+                <a href="#ChurchTab" class="nav-link @CStr c1" data-toggle="tab" role="tab"><b>Church</b></a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane @PStr" active id="PersonTab">
+                aaaaaaaaaaaaaaa
+                aaaaaaaaaaaaaaaa
+                aaaaaaaaaaaaaaaa
+            </div>
+            <div class="tab-pane @AStr" id="AddressTab">
+                bbbbbbbbbbbbbbb
+                bbbbbbbbbbbbbbb
+                bbbbbbbbbbbbbb
+            </div>
+            <div class="tab-pane @CStr" id="ChurchTab">
+                cccccccccccccc
+                cccccccccccccc
+                cccccccccccccc
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        }

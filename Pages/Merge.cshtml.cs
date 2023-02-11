@@ -27,13 +27,26 @@ namespace CStat.Pages
 
         public IList<Person> People { get; set; }
 
-        public IList<Church> Church { get; set; }
-
         public IList<Address> Address { get; set; }
+
+        public IList<Church> Church { get; set; }
 
         public IActionResult OnGet(int id)
         {
             Id = id;
+            switch (Id)
+            {
+                default:
+                case 1:
+                    People = _context.Person.OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
+                    break;
+                case 2:
+                    Address = _context.Address.ToList();
+                    break;
+                case 3:
+                    Church = _context.Church.ToList();
+                    break;
+            }
 
             //id = 3025;
             //Person = await _context.Person

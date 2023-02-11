@@ -580,6 +580,8 @@ namespace CStat.Models
 
         public static string FixPhone(string raw, bool bAnchor=false)
         {
+            if (String.IsNullOrEmpty(raw))
+                return "---";
             var numStr = raw.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace(" ", "");
             if ((numStr.Length > 10) && numStr.StartsWith("1"))
                 numStr = numStr[1..];

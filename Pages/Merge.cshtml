@@ -1,123 +1,267 @@
 ﻿@page
 @model CStat.Pages.MergeModel
+@using CStat.Models;
 
-<head>
-    <title>Bootstrap Example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/bgaze/bootstrap4-dialogs@1/dist/bootstrap4-dialogs.min.js"></script>
 
-    <style>
+        <style>
 
-        #MergeTabs a.nav-link.active {
-            border-bottom-color: transparent;
-            color: black;
-            background-color: #FFFF80;
-            font-weight: bold;
+            #MergeTabs a.nav-link.active {
+                border-bottom-color: transparent;
+                color: black;
+                background-color: #FFFF80;
+                font-weight: bold;
+            }
+
+            .OffRow {
+                background-color: white;
+            }
+
+            .ToRow {
+                background-color: palegreen;
+            }
+
+            .FromRow {
+                background-color: mistyrose;
+            }
+
+        </style>
+
+        <script type="text/javascript">
+
+            var fromIdxList = [];
+            var toIdx = "0";
+
+            $(document).ready(function () {
+
+                $('.p1').click(function () {
+                    let OldHRef = window.location.href.toLowerCase();
+                    let idx = OldHRef.indexOf("merge");
+                    if (idx != -1) {
+                        let NewHRef = OldHRef.substr(0, idx + 5);
+                        window.location.href = NewHRef + "?id=1";
+                    }
+                });
+
+                $('.a1').click(function () {
+                    let OldHRef = window.location.href.toLowerCase();
+                    let idx = OldHRef.indexOf("merge");
+                    if (idx != -1) {
+                        let NewHRef = OldHRef.substr(0, idx + 5);
+                        window.location.href = NewHRef + "?id=2";
+                    }
+                });
+
+                $('.c1').click(function () {
+                    let OldHRef = window.location.href.toLowerCase();
+                    let idx = OldHRef.indexOf("merge");
+                    if (idx != -1) {
+                        let NewHRef = OldHRef.substr(0, idx + 5);
+                        window.location.href = NewHRef + "?id=3";
+                    }
+                });
+
+                $(document).on('click', "[id^=mto_]", function () {
+
+                    //alert("TO " + event.target.id);
+
+                    let newToIdx = event.target.id.substr(4).trim();
+                    let newRowId = "#row_" + newToIdx;
+
+                    if (fromIdxList.some(i => i == newToIdx)) {
+                        // Remove Red_From
+                        $(RowId).removeClass("FromRow").addClass("OffRow");
+                        fromIdxList = fromIdxList.filter(i => i != fromIdx);
+                    }
+
+                    if (toIdx != "0") {
+                        // Toggle Green_To
+                        let oldRowId = "#row_" + toIdx;
+                        $(oldRowId).removeClass("ToRow").addClass("OffRow");
+                    }
+                    if (newToIdx != toIdx) {
+                        // Add Green_To
+                        $(newRowId).removeClass("OffRow").addClass("ToRow");
+                        toIdx = newToIdx;
+                    } else {
+                        toIdx = "0";
+                    }
+
+                    UpdateMerge();
+                });
+
+                $(document).on('click', "[id^=mfrom_]", function () {
+
+                    let fromIdx = event.target.id.substr(6).trim();
+
+                    if (fromIdx == toIdx) {
+                        // Remove Green_To
+                        let oldRowId = "#row_" + toIdx;
+                        $(oldRowId).removeClass("ToRow").addClass("OffRow");
+                        toIdx = "0";
+                    }
+
+                    let RowId = "#row_" + fromIdx;
+
+                    if (fromIdxList.some(i => i == fromIdx)) {
+                        // Toggle Red_From
+                        $(RowId).removeClass("FromRow").addClass("OffRow");
+                        fromIdxList = fromIdxList.filter(i => i != fromIdx);
+                    } else {
+                        // Add Red_From
+                        $(RowId).removeClass("OffRow").addClass("FromRow");
+                        fromIdxList.push(fromIdx);
+                    }
+
+                    UpdateMerge();
+                });
+
+                $('#DoMerge').click(function () {
+                    let cmd = "Merge ";
+                    fromIdxList.forEach(f => {
+                        cmd += (f + ", ")
+                    });
+                    cmd = cmd.substr(0, cmd.length - 2) + " TO " + toIdx;
+                    alert(cmd);
+                });
+
+                function UpdateMerge() {
+                    if ((toIdx != "0") && (fromIdxList.length > 0)) {
+                        $("#DoMerge").prop('disabled', false);
+                    } else {
+                        $("#DoMerge").prop('disabled', true);
+                    }
+                }
+
+            });
+
+        </script>
+
+    </head>
+
+    <body>
+
+        @{
+            string PStr = "";
+            string AStr = "";
+            string CStr = "";
+            switch (Model.Id)
+            {
+                case 0:
+                case 1:
+                    PStr = "active";
+                    break;
+                case 2:
+                    AStr = "active";
+                    break;
+                case 3:
+                    CStr = "active";
+                    break;
+            }
         }
-    </style>
 
-    <script type="text/javascript">
+        <div>
+            <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
+                <li class="nav-item">
+                    <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
+                </li>
+                <li class="nav-item">
+                    <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab"><b>Address</b></a>
+                </li>
+                <li class="nav-item">
+                    <a href="#ChurchTab" class="nav-link @CStr c1" data-toggle="tab" role="tab"><b>Church</b></a>
+                </li>
+                <li class="nav-item">
+                    <button id="DoMerge" disabled>Merge</button>
+                </li>
+            </ul>
 
-        $(document).ready(function () {
+            <div class="tab-content">
+                <div class="tab-pane @PStr" active id="PersonTab">
+                   @if (Model.People != null)
+                     {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>First</th>
+                                    <th>Last</th>
+                                    <th>*</th>
+                                    <th>G</th>
+                                    <th>x</th>
+                                    <th>DOB</th>
+                                    <th>Cell</th>
+                                    <th>EMail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-            $('.p1').click(function () {
-                let OldHRef = window.location.href.toLowerCase();
-                let idx = OldHRef.indexOf("merge");
-                if (idx != -1) {
-                    let NewHRef = OldHRef.substr(0, idx + 5);
-                    window.location.href = NewHRef + "?id=1";
-                }
-            });
+                           @foreach (var item in Model.People)
+                            {
+                               var rowId = "row_" + item.Id;
+                               <tr id="@rowId" class="OffRow">
+                                   <td>
+                                       @{string nstr = String.IsNullOrEmpty(item.Alias) ? item.FirstName : item.FirstName + "(" + item.Alias + ")";}
+                                       @nstr
+                                   </td>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.LastName)
+                                   </td>
+                                   <td>
+                                       @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
+                                   </td>
+                                   <td>
+                                       @{String gstr = (item.Gender == 0) ? "-" : (item.Gender == 77) ? "M" : "F";}
+                                       @gstr
+                                   </td>
+                                   <td>
+                                       @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
 
-            $('.a1').click(function () {
-                let OldHRef = window.location.href.toLowerCase();
-                let idx = OldHRef.indexOf("merge");
-                if (idx != -1) {
-                    let NewHRef = OldHRef.substr(0, idx + 5);
-                    window.location.href = NewHRef + "?id=2";
-                }
-            });
-
-            $('.c1').click(function () {
-                let OldHRef = window.location.href.toLowerCase();
-                let idx = OldHRef.indexOf("merge");
-                if (idx != -1) {
-                    let NewHRef = OldHRef.substr(0, idx + 5);
-                    window.location.href = NewHRef + "?id=3";
-                }
-            });
-
-        });
-
-    </script>
-
-</head>
-
-<body>
-
-    @{ 
-        string PStr = "";
-        string AStr = "";
-        string CStr = "";
-        switch (Model.Id)
-        {
-            case 0:
-            case 1:
-                PStr = "active";
-                break;
-            case 2:
-                AStr = "active";
-                break;
-            case 3:
-                CStr = "active";
-                break;
-        }
-    }
-
-    <div>
-        <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
-            <li class="nav-item">
-                <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
-            </li>
-            <li class="nav-item">
-                <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab" ><b>Address</b></a>
-            </li>
-            <li class="nav-item">
-                <a href="#ChurchTab" class="nav-link @CStr c1" data-toggle="tab" role="tab"><b>Church</b></a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <div class="tab-pane @PStr" active id="PersonTab">
-                aaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaa
-            </div>
-            <div class="tab-pane @AStr" id="AddressTab">
-                bbbbbbbbbbbbbbb
-                bbbbbbbbbbbbbbb
-                bbbbbbbbbbbbbb
-            </div>
-            <div class="tab-pane @CStr" id="ChurchTab">
-                cccccccccccccc
-                cccccccccccccc
-                cccccccccccccc
+                                   </td>
+                                   <td>
+                                       @{String dstr = (item.Dob.HasValue && (item.Dob.Value.Year != 1900)) ? item.Dob.Value.Date.ToString("MM/dd/yy") : "---";}
+                                       @dstr
+                                   </td>
+                                   <td>
+                                       @{string cstr = Models.Person.FixPhone(item.CellPhone);}
+                                       @cstr
+                                   </td>
+                                   <td>
+                                       @Html.DisplayFor(modelItem => item.Email)
+                                   </td>
+                               </tr>
+                            }
+                            </tbody>
+                        </table>
+                     }
+                    </div>
+                <div class="tab-pane @AStr" id="AddressTab">
+                    bbbbbbbbbbbbbbb
+                    bbbbbbbbbbbbbbb
+                    bbbbbbbbbbbbbb
+                </div>
+                <div class="tab-pane @CStr" id="ChurchTab">
+                    cccccccccccccc
+                    cccccccccccccc
+                    cccccccccccccc
+                </div>
             </div>
         </div>
+
+    </body>
+
+    <div>
+        <a asp-page="./Index">Back to List</a>
     </div>
 
-</body>
-
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-        }
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

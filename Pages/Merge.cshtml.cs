@@ -41,10 +41,10 @@ namespace CStat.Pages
                     People = _context.Person.OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
                     break;
                 case 2:
-                    Address = _context.Address.ToList();
+                    Address = _context.Address.OrderBy(p => p.Town).ThenBy(p => p.Street).ToList();
                     break;
                 case 3:
-                    Church = _context.Church.ToList();
+                    Church = _context.Church.OrderBy(p => p.Name).ToList();
                     break;
             }
 

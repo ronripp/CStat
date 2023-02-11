@@ -40,6 +40,7 @@
 
             var fromIdxList = [];
             var toIdx = "0";
+            var cmdId = @Model.Id
 
             $(document).ready(function () {
 
@@ -126,7 +127,7 @@
                 });
 
                 $('#DoMerge').click(function () {
-                    let cmd = "Merge ";
+                    let cmd = "Merge " + cmdId + " : ";
                     fromIdxList.forEach(f => {
                         cmd += (f + ", ")
                     });
@@ -224,7 +225,6 @@
                                    </td>
                                    <td>
                                        @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
-
                                    </td>
                                    <td>
                                        @{String dstr = (item.Dob.HasValue && (item.Dob.Value.Year != 1900)) ? item.Dob.Value.Date.ToString("MM/dd/yy") : "---";}
@@ -244,14 +244,91 @@
                      }
                     </div>
                 <div class="tab-pane @AStr" id="AddressTab">
-                    bbbbbbbbbbbbbbb
-                    bbbbbbbbbbbbbbb
-                    bbbbbbbbbbbbbb
+                    @if (Model.Address != null)
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Street</th>
+                                    <th>Town</th>
+                                    <th>*</th>
+                                    <th>State</th>
+                                    <th>x</th>
+                                    <th>Zip</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.Address)
+                                {
+                                    var rowId = "row_" + item.Id;
+                                <tr id="@rowId" class="OffRow">
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Street)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Town)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.State)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ZipCode)
+                                    </td>
+                                    <td>
+                                        @{string cstr = Models.Person.FixPhone(item.Phone);}
+                                        @cstr
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
                 </div>
                 <div class="tab-pane @CStr" id="ChurchTab">
-                    cccccccccccccc
-                    cccccccccccccc
-                    cccccccccccccc
+                    @if (Model.Church != null)
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>*</th>
+                                    <th>Aff.</th>
+                                    <th>x</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.Church)
+                                {
+                                    var rowId = "row_" + item.Id;
+                                <tr id="@rowId" class="OffRow">
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Affiliation)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
                 </div>
             </div>
         </div>

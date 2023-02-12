@@ -71,6 +71,23 @@
                     }
                 });
 
+                function camCleanup() {
+                    resetCleanup();
+                    var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
+                    $.ajax({
+                        url: "/Merge?handler=CamCleanup",
+                        contentType: "application/json",
+                        async: false, // Synchronous because it is called within onunload
+                        dataType: "json",
+                        data: parameters,
+                        success: function (response) {
+                        },
+                        fail: function (response) {
+                        }
+                    });
+                }
+
+
                 $(document).on('click', "[id^=mto_]", function () {
 
                     //alert("TO " + event.target.id);
@@ -127,12 +144,26 @@
                 });
 
                 $('#DoMerge').click(function () {
-                    let cmd = "Merge " + cmdId + " : ";
+                    let cmd = "C," + cmdId + ",F,";
                     fromIdxList.forEach(f => {
-                        cmd += (f + ", ")
+                        cmd += (f + ",")
                     });
-                    cmd = cmd.substr(0, cmd.length - 2) + " TO " + toIdx;
+                    cmd = cmd + "T," + toIdx;
                     alert(cmd);
+                    var parameters = "{'cmd':'" + cmd + "'}";
+                    $.ajax({
+                        url: "/Merge?handler=DoMerge",
+                        contentType: "application/json",
+                        async: false, // Synchronous because reload of page follows merge
+                        dataType: "json",
+                        data: parameters,
+                        success: function (response) {
+                        },
+                        fail: function (response) {
+                        }
+                    });
+
+
                 });
 
                 function UpdateMerge() {

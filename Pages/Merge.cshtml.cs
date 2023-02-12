@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CStat.Models;
+using Newtonsoft.Json.Linq;
 
 namespace CStat.Pages
 {
@@ -96,5 +97,29 @@ namespace CStat.Pages
         {
             return _context.Person.Any(e => e.Id == id);
         }
+        public JsonResult OnGetDoMerge()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            if (String.IsNullOrEmpty(rawQS))
+                return new JsonResult("ERROR~:No Parameters");
+
+            int stIdx = rawQS.IndexOf("{'cmd");
+            if (stIdx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(stIdx);
+            try
+            {
+                JObject jObj = JObject.Parse(jsonQS);
+                string cmdStr = (string)jObj["cmd"] ?? "";
+                return new JsonResult("OK~:Cleanup");
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: OnGetCamCleanup Exception");
+            }
+        }
+
+
     }
 }

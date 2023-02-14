@@ -111,6 +111,39 @@ namespace CStat.Pages
             {
                 JObject jObj = JObject.Parse(jsonQS);
                 string cmdStr = (string)jObj["cmd"] ?? "";
+
+                var allStrs = cmdStr.Split(",");
+                int toIdx = 0;
+                int cmd = 0;
+                int valType = 0;
+                var fromIdxList = new List<int>();
+                foreach (var str in allStrs)
+                {
+                    if (str == "C")
+                        valType = 1;
+                    else if (str == "F")
+                        valType = 2;
+                    else if (str == "T")
+                        valType = 3;
+                    else
+                    {
+                        switch (valType)
+                        {
+                            case 1:
+                                cmd = int.Parse(str);
+                                break;
+                            case 2:
+                                fromIdxList.Add(int.Parse(str));
+                                break;
+                            case 3:
+                                toIdx = int.Parse(str);
+                                break;
+                            default:
+                            case 0:
+                                break;
+                        }
+                    }
+                }
                 return new JsonResult("OK~:Cleanup");
             }
             catch (Exception e)

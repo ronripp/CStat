@@ -40,7 +40,7 @@
 
             var fromIdxList = [];
             var toIdx = "0";
-            var cmdId = @Model.Id
+            var cmdId = (@Model.Id == 0) ? 1 : @Model.Id;
 
             $(document).ready(function () {
 
@@ -86,7 +86,6 @@
                         }
                     });
                 }
-
 
                 $(document).on('click', "[id^=mto_]", function () {
 

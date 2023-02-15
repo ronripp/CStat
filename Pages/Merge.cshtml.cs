@@ -144,6 +144,9 @@ namespace CStat.Pages
                         }
                     }
                 }
+
+                var res = MergeRecords(cmd, fromIdxList, toIdx);
+
                 return new JsonResult("OK~:Cleanup");
             }
             catch (Exception e)
@@ -153,6 +156,10 @@ namespace CStat.Pages
             }
         }
 
+        public int MergeRecords(int cmd, List<int> fromIdxList, int toIdx)
+        {
+            return 0;
+        }
 
     }
 }

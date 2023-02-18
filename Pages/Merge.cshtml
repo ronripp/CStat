@@ -148,7 +148,6 @@
                         cmd += (f + ",")
                     });
                     cmd = cmd + "T," + toIdx;
-                    alert(cmd);
                     var parameters = "{'cmd':'" + cmd + "'}";
                     $.ajax({
                         url: "/Merge?handler=DoMerge",
@@ -157,8 +156,11 @@
                         dataType: "json",
                         data: parameters,
                         success: function (response) {
+                            alert(response);
+                            window.location.reload(true);
                         },
                         fail: function (response) {
+                            alert(response);
                         }
                     });
 

@@ -21,9 +21,6 @@ namespace CStat.Pages
         }
 
         [BindProperty]
-        public Person Person { get; set; }
-
-        [BindProperty]
         public int Id { get; set; } = 1;
 
         public IList<Person> People { get; set; }
@@ -67,28 +64,28 @@ namespace CStat.Pages
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Page();
+            //}
 
-            _ctx.Attach(Person).State = EntityState.Modified;
+            //_ctx.Attach(Person).State = EntityState.Modified;
 
-            try
-            {
-                await _ctx.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PersonExists(Person.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //try
+            //{
+            //    await _ctx.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!PersonExists(Person.Id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
 
             return RedirectToPage("./Index");
         }
@@ -147,7 +144,7 @@ namespace CStat.Pages
 
                 var res = MergeRecords(cmd, fromIdxList, toIdx);
 
-                return new JsonResult("OK~:Cleanup");
+                return new JsonResult(res);
             }
             catch (Exception e)
             {
@@ -156,39 +153,36 @@ namespace CStat.Pages
             }
         }
 
-        public int MergeRecords(int cmd, List<int> fromIdxList, int toIdx)
+        public string MergeRecords(int cmd, List<int> fromIdxList, int toIdx)
         {
+            string res = "FAILED: Merge Not Handled";
             try
             {
                 switch (cmd)
                 {
                 case 1:
-                    MergeToPerson(fromIdxList, toIdx);
-                    break;
+                    return MergeToPerson(fromIdxList, toIdx);
                 case 2:
-                    MergeToAddress(fromIdxList, toIdx);
-                    break;
+                    return MergeToAddress(fromIdxList, toIdx);
                 case 3:
-                    MergeToChurch(fromIdxList, toIdx);
-                    break;
+                    return MergeToChurch(fromIdxList, toIdx);
                 }
             }
             catch (Exception e)
             {
-                _ = e;
+                return "FAILED: Merge Failed : " + e.Message;
             }
-
-            return 0;
+            return res;
         }
 
-        public int MergeToPerson(List<int> fromIdxList, int toIdx) //*************************
+        public string MergeToPerson(List<int> fromIdxList, int toIdx) //*************************
         {
             //[ForeignKey(nameof(PersonId))]
             //[InverseProperty("Attendance")]
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var alist = _ctx.Attendance.AsNoTracking().Where(a => a.PersonId == fidx);
+                var alist = _ctx.Attendance.AsNoTracking().Where(a => a.PersonId == fidx).ToList();
                 foreach (var a in alist)
                 {
                     a.PersonId = toIdx;
@@ -202,7 +196,7 @@ namespace CStat.Pages
             //public virtual Person Poc { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var blist = _ctx.Business.AsNoTracking().Where(b => b.PocId == fidx);
+                var blist = _ctx.Business.AsNoTracking().Where(b => b.PocId == fidx).ToList();
                 foreach (var b in blist)
                 {
                     b.PocId = toIdx;
@@ -216,7 +210,7 @@ namespace CStat.Pages
             //public virtual Person Alternate1 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate1Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate1Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Alternate1Id = toIdx;
@@ -230,7 +224,7 @@ namespace CStat.Pages
             //public virtual Person Alternate2 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate2Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate2Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Alternate2Id = toIdx;
@@ -245,7 +239,7 @@ namespace CStat.Pages
             //public virtual Person Alternate3 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate3Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate3Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Alternate3Id = toIdx;
@@ -259,7 +253,7 @@ namespace CStat.Pages
             //public virtual Person Elder1 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder1Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder1Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Elder1Id = toIdx;
@@ -273,7 +267,7 @@ namespace CStat.Pages
             //public virtual Person Elder2 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder2Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder2Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Elder2Id = toIdx;
@@ -287,7 +281,7 @@ namespace CStat.Pages
             //public virtual Person Elder3 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder3Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder3Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Elder3Id = toIdx;
@@ -302,7 +296,7 @@ namespace CStat.Pages
             //public virtual Person Elder4 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder4Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder4Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Elder4Id = toIdx;
@@ -316,7 +310,7 @@ namespace CStat.Pages
             //public virtual Person Elder5 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder5Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder5Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Elder5Id = toIdx;
@@ -330,7 +324,7 @@ namespace CStat.Pages
             //public virtual Person SeniorMinister { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.SeniorMinisterId == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.SeniorMinisterId == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.SeniorMinisterId = toIdx;
@@ -344,7 +338,7 @@ namespace CStat.Pages
             //public virtual Person Trustee1 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee1Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee1Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Trustee1Id = toIdx;
@@ -358,7 +352,7 @@ namespace CStat.Pages
             //public virtual Person Trustee2 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee2Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee2Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Trustee2Id = toIdx;
@@ -372,7 +366,7 @@ namespace CStat.Pages
             //public virtual Person Trustee3 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee3Id == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee3Id == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.Trustee3Id = toIdx;
@@ -386,7 +380,7 @@ namespace CStat.Pages
             //public virtual Person YouthMinister { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.YouthMinisterId == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.YouthMinisterId == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.YouthMinisterId = toIdx;
@@ -400,7 +394,7 @@ namespace CStat.Pages
             //public virtual Person Persion3 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Persion3Id == fidx);
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Persion3Id == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.Persion3Id = toIdx;
@@ -414,7 +408,7 @@ namespace CStat.Pages
             //public virtual Person Person1 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person1Id == fidx);
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person1Id == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.Person1Id = toIdx;
@@ -428,7 +422,7 @@ namespace CStat.Pages
             //public virtual Person Person2 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person2Id == fidx);
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person2Id == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.Person2Id = toIdx;
@@ -442,7 +436,7 @@ namespace CStat.Pages
             //public virtual Person Person4 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person4Id == fidx);
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person4Id == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.Person4Id = toIdx;
@@ -456,7 +450,7 @@ namespace CStat.Pages
             //public virtual Person Person5 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person5Id == fidx);
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person5Id == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.Person5Id = toIdx;
@@ -471,7 +465,7 @@ namespace CStat.Pages
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var ilist = _ctx.InventoryItem.AsNoTracking().Where(i => i.PersonId == fidx);
+                var ilist = _ctx.InventoryItem.AsNoTracking().Where(i => i.PersonId == fidx).ToList();
                 foreach (var i in ilist)
                 {
                     i.PersonId = toIdx;
@@ -486,7 +480,7 @@ namespace CStat.Pages
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var mlist = _ctx.Medical.AsNoTracking().Where(m => m.PersonId == fidx);
+                var mlist = _ctx.Medical.AsNoTracking().Where(m => m.PersonId == fidx).ToList();
                 foreach (var m in mlist)
                 {
                     m.PersonId = toIdx;
@@ -500,7 +494,7 @@ namespace CStat.Pages
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.PersonId == fidx);
+                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.PersonId == fidx).ToList();
                 foreach (var op in oplist)
                 {
                     op.PersonId = toIdx;
@@ -515,7 +509,7 @@ namespace CStat.Pages
             //public virtual Person Pg1Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg1PersonId == fidx);
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg1PersonId == fidx).ToList();
                 foreach (var p in plist)
                 {
                     p.Pg1PersonId = toIdx;
@@ -529,7 +523,7 @@ namespace CStat.Pages
             //public virtual Person Pg2Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg2PersonId == fidx);
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg2PersonId == fidx).ToList();
                 foreach (var p in plist)
                 {
                     p.Pg2PersonId = toIdx;
@@ -543,7 +537,7 @@ namespace CStat.Pages
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var rlist = _ctx.Registration.AsNoTracking().Where(r => r.PersonId == fidx);
+                var rlist = _ctx.Registration.AsNoTracking().Where(r => r.PersonId == fidx).ToList();
                 foreach (var r in rlist)
                 {
                     r.PersonId = toIdx;
@@ -558,7 +552,7 @@ namespace CStat.Pages
             //public virtual Person Person { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Task.AsNoTracking().Where(t => t.PersonId == fidx);
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.PersonId == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.PersonId = toIdx;
@@ -572,7 +566,7 @@ namespace CStat.Pages
             //public virtual Person Worker1 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker1Id == fidx);
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker1Id == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.Worker1Id = toIdx;
@@ -586,7 +580,7 @@ namespace CStat.Pages
             //public virtual Person Worker2 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker2Id == fidx);
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker2Id == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.Worker2Id = toIdx;
@@ -600,7 +594,7 @@ namespace CStat.Pages
             //public virtual Person Worker3 { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker3Id == fidx);
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker3Id == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.Worker3Id = toIdx;
@@ -614,7 +608,7 @@ namespace CStat.Pages
             //public virtual Person CcaPerson { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.CcaPersonId == fidx);
+                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.CcaPersonId == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.CcaPersonId = toIdx;
@@ -635,17 +629,17 @@ namespace CStat.Pages
                 }
             }
 
-            return 0;
+            return "SUCCESS: Merged Person";
         }
 
-        public int MergeToAddress(List<int> fromIdxList, int toIdx) //**********************************
+        public string MergeToAddress(List<int> fromIdxList, int toIdx) //**********************************
         {
             //[ForeignKey(nameof(AddressId))]
             //[InverseProperty("Business")]
             //public virtual Address Address { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var blist = _ctx.Business.AsNoTracking().Where(b => b.AddressId == fidx);
+                var blist = _ctx.Business.AsNoTracking().Where(b => b.AddressId == fidx).ToList();
                 foreach (var b in blist)
                 {
                     b.AddressId = toIdx;
@@ -659,7 +653,7 @@ namespace CStat.Pages
             //public virtual Address Address { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var clist = _ctx.Church.AsNoTracking().Where(c => c.AddressId == fidx);
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.AddressId == fidx).ToList();
                 foreach (var c in clist)
                 {
                     c.AddressId = toIdx;
@@ -673,7 +667,7 @@ namespace CStat.Pages
             //public virtual Address Address { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var plist = _ctx.Person.AsNoTracking().Where(p => p.AddressId == fidx);
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.AddressId == fidx).ToList();
                 foreach (var p in plist)
                 {
                     p.AddressId = toIdx;
@@ -694,17 +688,17 @@ namespace CStat.Pages
                 }
             }
 
-            return 0;
+            return "SUCCESS: Merged Address";
         }
 
-        public int MergeToChurch(List<int> fromIdxList, int toIdx)  //**********************************
+        public string MergeToChurch(List<int> fromIdxList, int toIdx)  //**********************************
         {
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Event")]
             //public virtual Church Church { get; set; }            
             foreach (var fidx in fromIdxList)
             {
-                var elist = _ctx.Event.AsNoTracking().Where(p => p.ChurchId == fidx);
+                var elist = _ctx.Event.AsNoTracking().Where(p => p.ChurchId == fidx).ToList();
                 foreach (var e in elist)
                 {
                     e.ChurchId = toIdx;
@@ -718,7 +712,7 @@ namespace CStat.Pages
             //public virtual Church Church { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.ChurchId == fidx);
+                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.ChurchId == fidx).ToList();
                 foreach (var op in oplist)
                 {
                     op.ChurchId = toIdx;
@@ -732,12 +726,11 @@ namespace CStat.Pages
             //public virtual Church Church { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var plist = _ctx.Person.AsNoTracking().Where(p => p.ChurchId == fidx);
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.ChurchId == fidx).ToList().ToList();
                 foreach (var p in plist)
                 {
                     p.ChurchId = toIdx;
-                    _ctx.Person.Attach(p);
-                    _ctx.Entry(p).State = EntityState.Modified;
+                    _ctx.Attach(p).State = EntityState.Modified;
                     _ctx.SaveChanges();
                 }
             }
@@ -746,7 +739,7 @@ namespace CStat.Pages
             //public virtual Church Church { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Task.AsNoTracking().Where(t => t.ChurchId == fidx);
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.ChurchId == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.ChurchId = toIdx;
@@ -761,7 +754,7 @@ namespace CStat.Pages
             //public virtual Church Church { get; set; }
             foreach (var fidx in fromIdxList)
             {
-                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.ChurchId == fidx);
+                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.ChurchId == fidx).ToList();
                 foreach (var t in tlist)
                 {
                     t.ChurchId = toIdx;
@@ -781,10 +774,8 @@ namespace CStat.Pages
                     _ctx.SaveChanges();
                 }
             }
-
-            return 0;
+            return "SUCCESS: Merged Church";
         }
-
 
     }
 }

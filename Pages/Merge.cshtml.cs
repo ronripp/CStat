@@ -624,10 +624,10 @@ namespace CStat.Pages
                 }
             }
 
-            // Delete merged persons now no records reference them
+            // Delete merged Persons now no records reference them
             foreach (var fidx in fromIdxList)
             {
-                Person p = _ctx.Person.AsNoTracking().FirstOrDefault(p => (p.Id == fidx));
+                Person p = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == fidx);
                 if (p != null)
                 {
                     _ctx.Person.Remove(p);
@@ -638,45 +638,149 @@ namespace CStat.Pages
             return 0;
         }
 
-        public int MergeToAddress(List<int> fromIdxList, int toIdx)
+        public int MergeToAddress(List<int> fromIdxList, int toIdx) //**********************************
         {
             //[ForeignKey(nameof(AddressId))]
             //[InverseProperty("Business")]
             //public virtual Address Address { get; set; }
-
+            foreach (var fidx in fromIdxList)
+            {
+                var blist = _ctx.Business.AsNoTracking().Where(b => b.AddressId == fidx);
+                foreach (var b in blist)
+                {
+                    b.AddressId = toIdx;
+                    _ctx.Business.Attach(b);
+                    _ctx.Entry(b).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
             //[ForeignKey(nameof(AddressId))]
             //[InverseProperty("Church")]
             //public virtual Address Address { get; set; }
-
+            foreach (var fidx in fromIdxList)
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.AddressId == fidx);
+                foreach (var c in clist)
+                {
+                    c.AddressId = toIdx;
+                    _ctx.Church.Attach(c);
+                    _ctx.Entry(c).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
             //[ForeignKey(nameof(AddressId))]
             //[InverseProperty("Person")]
             //public virtual Address Address { get; set; }
+            foreach (var fidx in fromIdxList)
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.AddressId == fidx);
+                foreach (var p in plist)
+                {
+                    p.AddressId = toIdx;
+                    _ctx.Person.Attach(p);
+                    _ctx.Entry(p).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
+
+            // Delete merged Addresses now no records reference them
+            foreach (var fidx in fromIdxList)
+            {
+                Address a = _ctx.Address.AsNoTracking().FirstOrDefault(a => a.Id == fidx);
+                if (a != null)
+                {
+                    _ctx.Address.Remove(a);
+                    _ctx.SaveChanges();
+                }
+            }
 
             return 0;
         }
 
-
-        public int MergeToChurch(List<int> fromIdxList, int toIdx)
+        public int MergeToChurch(List<int> fromIdxList, int toIdx)  //**********************************
         {
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Event")]
             //public virtual Church Church { get; set; }            
-                
+            foreach (var fidx in fromIdxList)
+            {
+                var elist = _ctx.Event.AsNoTracking().Where(p => p.ChurchId == fidx);
+                foreach (var e in elist)
+                {
+                    e.ChurchId = toIdx;
+                    _ctx.Event.Attach(e);
+                    _ctx.Entry(e).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Operations")]
             //public virtual Church Church { get; set; }
-            
+            foreach (var fidx in fromIdxList)
+            {
+                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.ChurchId == fidx);
+                foreach (var op in oplist)
+                {
+                    op.ChurchId = toIdx;
+                    _ctx.Operations.Attach(op);
+                    _ctx.Entry(op).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Person")]
             //public virtual Church Church { get; set; }
-            
+            foreach (var fidx in fromIdxList)
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.ChurchId == fidx);
+                foreach (var p in plist)
+                {
+                    p.ChurchId = toIdx;
+                    _ctx.Person.Attach(p);
+                    _ctx.Entry(p).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Task")]
             //public virtual Church Church { get; set; }
-            
+            foreach (var fidx in fromIdxList)
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.ChurchId == fidx);
+                foreach (var t in tlist)
+                {
+                    t.ChurchId = toIdx;
+                    _ctx.Task.Attach(t);
+                    _ctx.Entry(t).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
+
             //[ForeignKey(nameof(ChurchId))]
             //[InverseProperty("Transaction")]
             //public virtual Church Church { get; set; }
+            foreach (var fidx in fromIdxList)
+            {
+                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.ChurchId == fidx);
+                foreach (var t in tlist)
+                {
+                    t.ChurchId = toIdx;
+                    _ctx.Transaction.Attach(t);
+                    _ctx.Entry(t).State = EntityState.Modified;
+                    _ctx.SaveChanges();
+                }
+            }
+
+            // Delete merged Churches now no records reference them
+            foreach (var fidx in fromIdxList)
+            {
+                Church c = _ctx.Church.AsNoTracking().FirstOrDefault(c => c.Id == fidx);
+                if (c != null)
+                {
+                    _ctx.Church.Remove(c);
+                    _ctx.SaveChanges();
+                }
+            }
 
             return 0;
         }

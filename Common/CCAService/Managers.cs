@@ -1850,8 +1850,10 @@ namespace CStat
                 }
                 else
                 {
-                    String churchValue = pv.Value.Trim().Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower();
-                    Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name.Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower() == churchValue);
+                    //OLD String churchValue = pv.Value.Trim().Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower();
+                    //OLD Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name.Replace(",", " ").Replace(".", " ").Replace("  ", " ").ToLower() == churchValue);
+                    ChurchMgr chMgr = new ChurchMgr(ce);
+                    Church ch = chMgr.FindChurch(pv.Value);
                     if (ch != null)
                     {
                         person.ChurchId = ch.Id;

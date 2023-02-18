@@ -805,7 +805,9 @@ namespace CStat.Models
                     String churchName = pv.Value.Trim();
                     if (churchName != "-1")
                     {
-                        Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name == churchName);
+                        //OLD Church ch = ce.Church.AsNoTracking().FirstOrDefault(c => c.Name == churchName);
+                        ChurchMgr chMgr = new ChurchMgr(ce);
+                        Church ch = chMgr.FindChurch(pv.Value);
                         if (ch != null)
                         {
                             person.ChurchId = ch.Id;

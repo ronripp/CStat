@@ -618,6 +618,25 @@ namespace CStat.Pages
                 }
             }
 
+            // Try to gather missing info from toIdx
+            Person toP = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == toIdx);
+            bool wasMerged = false;
+            if (toP != null)
+            {
+                foreach (var fidx in fromIdxList)
+                {
+                    Person fromP = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == fidx);
+                    if (fromP != null)
+                        wasMerged |= MergeMissingFields(toP, fromP);
+                }
+            }
+            if (wasMerged)
+            {
+                _ctx.Person.Attach(toP);
+                _ctx.Entry(toP).State = EntityState.Modified;
+                _ctx.SaveChanges();
+            }
+
             // Delete merged Persons now no records reference them
             foreach (var fidx in fromIdxList)
             {
@@ -675,6 +694,25 @@ namespace CStat.Pages
                     _ctx.Entry(p).State = EntityState.Modified;
                     _ctx.SaveChanges();
                 }
+            }
+
+            // Try to gather missing info from toIdx
+            Address toA = _ctx.Address.AsNoTracking().FirstOrDefault(a => a.Id == toIdx);
+            bool wasMerged = false;
+            if (toA != null)
+            {
+                foreach (var fidx in fromIdxList)
+                {
+                    Address fromA = _ctx.Address.AsNoTracking().FirstOrDefault(a => a.Id == fidx);
+                    if (fromA != null)
+                        wasMerged |= MergeMissingFields(toA, fromA);
+                }
+            }
+            if (wasMerged)
+            {
+                _ctx.Address.Attach(toA);
+                _ctx.Entry(toA).State = EntityState.Modified;
+                _ctx.SaveChanges();
             }
 
             // Delete merged Addresses now no records reference them
@@ -765,8 +803,23 @@ namespace CStat.Pages
             }
 
             // Try to gather missing info from toIdx
-            Church toc = _ctx.Church.AsNoTracking().FirstOrDefault(c => c.Id == toIdx);
-
+            Church toC = _ctx.Church.AsNoTracking().FirstOrDefault(c => c.Id == toIdx);
+            bool wasMerged = false;
+            if (toC != null)
+            {
+                foreach (var fidx in fromIdxList)
+                {
+                    Church fromC = _ctx.Church.AsNoTracking().FirstOrDefault(c => c.Id == fidx);
+                    if (fromC != null)
+                        wasMerged |= MergeMissingFields(toC, fromC);
+                }
+            }
+            if (wasMerged)
+            {
+                _ctx.Church.Attach(toC);
+                _ctx.Entry(toC).State = EntityState.Modified;
+                _ctx.SaveChanges();
+            }
 
             // Delete merged Churches now no records reference them
             foreach (var fidx in fromIdxList)
@@ -785,11 +838,9 @@ namespace CStat.Pages
         {
             bool wasMerged = false;
 
-            if (toP == null)
+            if ((fromP == null) || (toP == null))
             {
-            }
-            if (fromP == null)
-            {
+                return false;
             }
 
             if (!toP.Gender.HasValue && fromP.Gender.HasValue)
@@ -800,7 +851,7 @@ namespace CStat.Pages
 
             if (!(toP.Dob.HasValue && (toP.Dob.Value.Year > 1900)) && (fromP.Dob.HasValue && (fromP.Dob.Value.Year > 1900)))
             {
-                toP.Dob = from.Dob;
+                toP.Dob = fromP.Dob;
                 wasMerged = true;
             }
             if (!((toP.Email != null) && (toP.Email.Length > 0)) && ((fromP.Email != null) && (fromP.Email.Length > 0)))
@@ -830,7 +881,211 @@ namespace CStat.Pages
                 toP.ChurchId = fromP.ChurchId;
                 wasMerged = true;
             }
+
             return wasMerged;  
         }
+
+        public bool MergeMissingFields(Address toP, Address fromP)
+        {
+            bool wasMerged = false;
+
+            if ((fromP == null) || (toP == null))
+            {
+                return false;
+            }
+
+            //public string Street { get; set; }
+            if (!((toP.Street != null) && (toP.Street.Length > 0)) && ((fromP.Street != null) && (fromP.Street.Length > 0)))
+            {
+                toP.Street = fromP.Street;
+                wasMerged = true;
+            }
+
+            //public string Town { get; set; }
+            if (!((toP.Town != null) && (toP.Town.Length > 0)) && ((fromP.Town != null) && (fromP.Town.Length > 0)))
+            {
+                toP.Town = fromP.Town;
+                wasMerged = true;
+            }
+
+            //public string State { get; set; }
+            if (!((toP.State != null) && (toP.State.Length > 0)) && ((fromP.State != null) && (fromP.State.Length > 0)))
+            {
+                toP.State = fromP.State;
+                wasMerged = true;
+            }
+
+            //public string ZipCode { get; set; }
+            if (!((toP.ZipCode != null) && (toP.ZipCode.Length > 0)) && ((fromP.ZipCode != null) && (fromP.ZipCode.Length > 0)))
+            {
+                toP.ZipCode = fromP.ZipCode;
+                wasMerged = true;
+            }
+
+            //public string Phone { get; set; }
+            if (!((toP.Phone != null) && (toP.Phone.Length > 0)) && ((fromP.Phone != null) && (fromP.Phone.Length > 0)))
+            {
+                toP.Phone = fromP.Phone;
+                wasMerged = true;
+            }
+
+            //public string Fax { get; set; }
+            if (!((toP.Fax != null) && (toP.Fax.Length > 0)) && ((fromP.Fax != null) && (fromP.Fax.Length > 0)))
+            {
+                toP.Fax = fromP.Fax;
+                wasMerged = true;
+            }
+
+            //public string Country { get; set; }
+            if (!((toP.Country != null) && (toP.Country.Length > 0)) && ((fromP.Country != null) && (fromP.Country.Length > 0)))
+            {
+                toP.Country = fromP.Country;
+                wasMerged = true;
+            }
+
+            //public string WebSite { get; set; }
+            if (!((toP.WebSite != null) && (toP.WebSite.Length > 0)) && ((fromP.WebSite != null) && (fromP.WebSite.Length > 0)))
+            {
+                toP.WebSite = fromP.WebSite;
+                wasMerged = true;
+            }
+
+            return wasMerged;
+        }
+
+        public bool MergeMissingFields(Church toP, Church fromP)
+        {
+            bool wasMerged = false;
+
+            if ((fromP == null) || (toP == null))
+            {
+                return false;
+            }
+
+            //public string Name { get; set; }
+            if (!((toP.Name != null) && (toP.Name.Length > 0)) && ((fromP.Name != null) && (fromP.Name.Length > 0)))
+            {
+                toP.Name = fromP.Name;
+                wasMerged = true;
+            }
+
+            //public int? AddressId { get; set; }
+
+
+            //public string Affiliation { get; set; }
+            if (!((toP.Affiliation != null) && (toP.Affiliation.Length > 0)) && ((fromP.Affiliation != null) && (fromP.Affiliation.Length > 0)))
+            {
+                toP.Affiliation = fromP.Affiliation;
+                wasMerged = true;
+            }
+
+            //public int MembershipStatus { get; set; }
+            if ((toP.MembershipStatus == (int)Models.Church.MemberStatType.UNK_M) && (fromP.MembershipStatus != (int)Models.Church.MemberStatType.UNK_M))
+            {
+                toP.MembershipStatus = fromP.MembershipStatus;
+                wasMerged = true;
+            }
+
+            //public string StatusDetails { get; set; }
+            if (!((toP.StatusDetails != null) && (toP.StatusDetails.Length > 0)) && ((fromP.StatusDetails != null) && (fromP.StatusDetails.Length > 0)))
+            {
+                toP.StatusDetails = fromP.StatusDetails;
+                wasMerged = true;
+            }
+
+            //public int? SeniorMinisterId { get; set; }
+            if (!((toP.SeniorMinisterId.HasValue) && (toP.SeniorMinisterId.Value > 0)) && ((fromP.SeniorMinisterId.HasValue) && (fromP.SeniorMinisterId.Value > 0)))
+            {
+                toP.SeniorMinisterId = fromP.SeniorMinisterId;
+                wasMerged = true;
+            }
+
+            //public int? YouthMinisterId { get; set; }
+            if (!((toP.YouthMinisterId.HasValue) && (toP.YouthMinisterId.Value > 0)) && ((fromP.YouthMinisterId.HasValue) && (fromP.YouthMinisterId.Value > 0)))
+            {
+                toP.YouthMinisterId = fromP.YouthMinisterId;
+                wasMerged = true;
+            }
+
+            //public int? Trustee1Id { get; set; }
+            if (!((toP.Trustee1Id.HasValue) && (toP.Trustee1Id.Value > 0)) && ((fromP.Trustee1Id.HasValue) && (fromP.Trustee1Id.Value > 0)))
+            {
+                toP.Trustee1Id = fromP.Trustee1Id;
+                wasMerged = true;
+            }
+
+            //public int? Trustee2Id { get; set; }
+            if (!((toP.Trustee2Id.HasValue) && (toP.Trustee2Id.Value > 0)) && ((fromP.Trustee2Id.HasValue) && (fromP.Trustee2Id.Value > 0)))
+            {
+                toP.Trustee2Id = fromP.Trustee2Id;
+                wasMerged = true;
+            }
+
+            //public int? Trustee3Id { get; set; }
+            if (!((toP.Trustee3Id.HasValue) && (toP.Trustee3Id.Value > 0)) && ((fromP.Trustee3Id.HasValue) && (fromP.Trustee3Id.Value > 0)))
+            {
+                toP.Trustee3Id = fromP.Trustee3Id;
+                wasMerged = true;
+            }
+
+            //public int? Alternate1Id { get; set; }
+            if (!((toP.Alternate1Id.HasValue) && (toP.Alternate1Id.Value > 0)) && ((fromP.Alternate1Id.HasValue) && (fromP.Alternate1Id.Value > 0)))
+            {
+                toP.Alternate1Id = fromP.Alternate1Id;
+                wasMerged = true;
+            }
+
+            //public int? Alternate2Id { get; set; }
+            if (!((toP.Alternate2Id.HasValue) && (toP.Alternate2Id.Value > 0)) && ((fromP.Alternate2Id.HasValue) && (fromP.Alternate2Id.Value > 0)))
+            {
+                toP.Alternate2Id = fromP.Alternate2Id;
+                wasMerged = true;
+            }
+
+            //public int? Alternate3Id { get; set; }
+            if (!((toP.Alternate2Id.HasValue) && (toP.Alternate2Id.Value > 0)) && ((fromP.Alternate2Id.HasValue) && (fromP.Alternate2Id.Value > 0)))
+            {
+                toP.Alternate2Id = fromP.Alternate2Id;
+                wasMerged = true;
+            }
+
+            //public int? Elder1Id { get; set; }
+            if (!((toP.Elder1Id.HasValue) && (toP.Elder1Id.Value > 0)) && ((fromP.Elder1Id.HasValue) && (fromP.Elder1Id.Value > 0)))
+            {
+                toP.Elder1Id = fromP.Elder1Id;
+                wasMerged = true;
+            }
+
+            //public int? Elder2Id { get; set; }
+            if (!((toP.Elder2Id.HasValue) && (toP.Elder2Id.Value > 0)) && ((fromP.Elder2Id.HasValue) && (fromP.Elder2Id.Value > 0)))
+            {
+                toP.Elder2Id = fromP.Elder2Id;
+                wasMerged = true;
+            }
+
+            //public int? Elder3Id { get; set; }
+            if (!((toP.Elder3Id.HasValue) && (toP.Elder3Id.Value > 0)) && ((fromP.Elder3Id.HasValue) && (fromP.Elder3Id.Value > 0)))
+            {
+                toP.Elder3Id = fromP.Elder3Id;
+                wasMerged = true;
+            }
+
+            //public int? Elder4Id { get; set; }
+            if (!((toP.Elder4Id.HasValue) && (toP.Elder4Id.Value > 0)) && ((fromP.Elder4Id.HasValue) && (fromP.Elder4Id.Value > 0)))
+            {
+                toP.Elder4Id = fromP.Elder4Id;
+                wasMerged = true;
+            }
+
+            //public int? Elder5Id { get; set; }
+            if (!((toP.Elder5Id.HasValue) && (toP.Elder5Id.Value > 0)) && ((fromP.Elder5Id.HasValue) && (fromP.Elder5Id.Value > 0)))
+            {
+                toP.Elder5Id = fromP.Elder5Id;
+                wasMerged = true;
+            }
+
+            return wasMerged;
+        }
+
     }
 }

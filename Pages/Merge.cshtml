@@ -41,6 +41,7 @@
             var fromIdxList = [];
             var toIdx = "0";
             var cmdId = (@Model.Id == 0) ? 1 : @Model.Id;
+            var cmdStr = ["Person", "Address", "Church"];
 
             $(document).ready(function () {
 
@@ -71,21 +72,31 @@
                     }
                 });
 
-                function camCleanup() {
-                    resetCleanup();
-                    var parameters = "{'except':'" + ($("#CamImg").attr("src") ?? "") + "'}";
-                    $.ajax({
-                        url: "/Merge?handler=CamCleanup",
-                        contentType: "application/json",
-                        async: false, // Synchronous because it is called within onunload
-                        dataType: "json",
-                        data: parameters,
-                        success: function (response) {
-                        },
-                        fail: function (response) {
-                        }
-                    });
-                }
+                $(document).on('click', "[id^=del_]", function () {
+
+                    let delIdx = event.target.id.substr(4).trim();
+                    let delrow = document.getElementById("row_" + delIdx);
+                    delStr = ("Delete " + cmdStr[cmdId] + ": " + delrow.cell[0].innerHTML + " " + delrow.cell[1].innerHTML).trim() + "?";
+                    if (confirm(delStr) == true) {
+                        var parameters = "{'cmd':'" + cmd + ", 'id':'" + delIdx + "'}";
+                        $.ajax({
+                            url: "/Merge?handler=DoDelete",
+                            contentType: "application/json",
+                            async: false, // Synchronous because reload of page follows merge
+                            dataType: "json",
+                            data: parameters,
+                            success: function (response) {
+                                alert(response);
+                                window.location.reload(true);
+                            },
+                            fail: function (response) {
+                                alert(response);
+                            }
+                        });
+
+                    }
+
+                });
 
                 $(document).on('click', "[id^=mto_]", function () {
 
@@ -229,10 +240,11 @@
                                     <th>Last</th>
                                     <th>*</th>
                                     <th>G</th>
-                                    <th>x</th>
+                                    <th>&#9668</th>
                                     <th>DOB</th>
                                     <th>Cell</th>
                                     <th>EMail</th>
+                                    <th>X</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -240,36 +252,39 @@
                            @foreach (var item in Model.People)
                             {
                                var rowId = "row_" + item.Id;
-                               <tr id="@rowId" class="OffRow">
-                                   <td>
-                                       @{string nstr = String.IsNullOrEmpty(item.Alias) ? item.FirstName : item.FirstName + "(" + item.Alias + ")";}
-                                       @nstr
-                                   </td>
-                                   <td>
-                                       @Html.DisplayFor(modelItem => item.LastName)
-                                   </td>
-                                   <td>
-                                       @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
-                                   </td>
-                                   <td>
-                                       @{String gstr = (item.Gender == 0) ? "-" : (item.Gender == 77) ? "M" : "F";}
-                                       @gstr
-                                   </td>
-                                   <td>
-                                       @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
-                                   </td>
-                                   <td>
-                                       @{String dstr = (item.Dob.HasValue && (item.Dob.Value.Year != 1900)) ? item.Dob.Value.Date.ToString("MM/dd/yy") : "---";}
-                                       @dstr
-                                   </td>
-                                   <td>
-                                       @{string cstr = Models.Person.FixPhone(item.CellPhone);}
-                                       @cstr
-                                   </td>
-                                   <td>
-                                       @Html.DisplayFor(modelItem => item.Email)
-                                   </td>
-                               </tr>
+                                <tr id="@rowId" class="OffRow">
+                                    <td>
+                                        @{string nstr = String.IsNullOrEmpty(item.Alias) ? item.FirstName : item.FirstName + "(" + item.Alias + ")";}
+                                        @nstr
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LastName)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
+                                    </td>
+                                    <td>
+                                        @{String gstr = (item.Gender == 0) ? "-" : (item.Gender == 77) ? "M" : "F";}
+                                        @gstr
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
+                                    </td>
+                                    <td>
+                                        @{String dstr = (item.Dob.HasValue && (item.Dob.Value.Year != 1900)) ? item.Dob.Value.Date.ToString("MM/dd/yy") : "---";}
+                                        @dstr
+                                    </td>
+                                    <td>
+                                        @{string cstr = Models.Person.FixPhone(item.CellPhone);}
+                                        @cstr
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">X</span>")
+                                    </td>
+                                </tr>
                             }
                             </tbody>
                         </table>
@@ -285,9 +300,10 @@
                                     <th>Town</th>
                                     <th>*</th>
                                     <th>State</th>
-                                    <th>x</th>
+                                    <th>&#9668</th>
                                     <th>Zip</th>
                                     <th>Phone</th>
+                                    <th>X</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,6 +334,9 @@
                                         @{string cstr = Models.Person.FixPhone(item.Phone);}
                                         @cstr
                                     </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">X</span>")
+                                    </td>
                                 </tr>
                                 }
                             </tbody>
@@ -334,7 +353,8 @@
                                     <th>Name</th>
                                     <th>*</th>
                                     <th>Aff.</th>
-                                    <th>x</th>
+                                    <th>&#9668</th>
+                                    <th>&nbsp;&nbsp;&nbsp;&nbsp;X</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -354,6 +374,9 @@
                                     </td>
                                     <td>
                                         @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
+                                    </td>
+                                    <td>
+                                        @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">&nbsp;&nbsp;&nbsp;&nbsp;X</span>")
                                     </td>
                                 </tr>
                                 }

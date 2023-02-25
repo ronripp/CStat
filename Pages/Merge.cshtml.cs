@@ -1,13 +1,12 @@
-﻿using System;
+﻿using CStat.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CStat.Models;
-using Newtonsoft.Json.Linq;
 
 namespace CStat.Pages
 {
@@ -1086,6 +1085,697 @@ namespace CStat.Pages
 
             return wasMerged;
         }
+
+        // DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+        public JsonResult OnGetDoDelete()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            if (String.IsNullOrEmpty(rawQS))
+                return new JsonResult("ERROR~:No Parameters");
+
+            int stIdx = rawQS.IndexOf("{'cmd");
+            if (stIdx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(stIdx);
+            try
+            {
+                JObject jObj = JObject.Parse(jsonQS);
+                int cmd = int.Parse((string)jObj["cmd"] ?? "0");
+                var res = DeleteRecord(cmd, int.Parse((string)jObj["id"] ?? "0"));
+                return new JsonResult(res);
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: Exception : " + e.Message);
+            }
+        }
+
+        private string DeleteRecord (int cmd, int delId)
+        {
+            if ((cmd == 0) || (delId == 0))
+                return "ERROR~:Invalid Id";
+
+            string res = "FAILED: Delete Not Handled";
+            try
+            {
+                switch (cmd)
+                {
+                    case 1:
+                        return DelPerson(delId);
+                    case 2:
+                        return DelAddress(delId);
+                    case 3:
+                        return DelChurch(delId);
+                }
+            }
+            catch (Exception e)
+            {
+                return "FAILED: Merge Failed : " + e.Message;
+            }
+            return res;
+        }
+
+        public string DelPerson(int delId) //*************************
+        {
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("Attendance")]
+            //public virtual Person Person { get; set; }
+            { 
+                var alist = _ctx.Attendance.AsNoTracking().Where(a => a.PersonId == delId).ToList();
+                if (alist.Count > 0)
+                {
+                    var res = "FAILED: Attendance ids:";
+                    foreach (var a in alist)
+                    {
+                        res += a.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length-2);
+                }
+
+            }
+            //[ForeignKey(nameof(PocId))]
+            //[InverseProperty(nameof(Person.Business))]
+            //public virtual Person Poc { get; set; }
+            {
+                var blist = _ctx.Business.AsNoTracking().Where(b => b.PocId == delId).ToList();
+                if (blist.Count > 0)
+                {
+                    var res = "FAILED: Business ids:";
+                    foreach (var b in blist)
+                    {
+                        res += b.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Alternate1Id))]
+            //[InverseProperty("ChurchAlternate1")]
+            //public virtual Person Alternate1 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate1Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church A1 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Alternate2Id))]
+            //[InverseProperty("ChurchAlternate2")]
+            //public virtual Person Alternate2 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate2Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church A2 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(Alternate3Id))]
+            //[InverseProperty("ChurchAlternate3")]
+            //public virtual Person Alternate3 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Alternate3Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church A3 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Elder1Id))]
+            //[InverseProperty("ChurchElder1")]
+            //public virtual Person Elder1 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder1Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church E1 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Elder2Id))]
+            //[InverseProperty("ChurchElder2")]
+            //public virtual Person Elder2 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder2Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church E2 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Elder3Id))]
+            //[InverseProperty("ChurchElder3")]
+            //public virtual Person Elder3 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder3Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church E3 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(Elder4Id))]
+            //[InverseProperty("ChurchElder4")]
+            //public virtual Person Elder4 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder4Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church E4 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Elder5Id))]
+            //[InverseProperty("ChurchElder5")]
+            //public virtual Person Elder5 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Elder5Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church E5 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(SeniorMinisterId))]
+            //[InverseProperty("ChurchSeniorMinister")]
+            //public virtual Person SeniorMinister { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.SeniorMinisterId == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church Senior Min. ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Trustee1Id))]
+            //[InverseProperty("ChurchTrustee1")]
+            //public virtual Person Trustee1 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee1Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church T1 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Trustee2Id))]
+            //[InverseProperty("ChurchTrustee2")]
+            //public virtual Person Trustee2 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee2Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church T2 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Trustee3Id))]
+            //[InverseProperty("ChurchTrustee3")]
+            //public virtual Person Trustee3 { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.Trustee3Id == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church T3 ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(YouthMinisterId))]
+            //[InverseProperty("ChurchYouthMinister")]
+            //public virtual Person YouthMinister { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.YouthMinisterId == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church Youth Min. ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Persion3Id))]
+            //[InverseProperty(nameof(Person.IncidentPersion3))]
+            //public virtual Person Persion3 { get; set; }
+            {
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Persion3Id == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Incident P3 ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Person1Id))]
+            //[InverseProperty(nameof(Person.IncidentPerson1))]
+            //public virtual Person Person1 { get; set; }
+            {
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person1Id == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Incident P1 ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Person2Id))]
+            //[InverseProperty(nameof(Person.IncidentPerson2))]
+            //public virtual Person Person2 { get; set; }
+            {
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person2Id == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Incident P2 ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Person4Id))]
+            //[InverseProperty(nameof(Person.IncidentPerson4))]
+            //public virtual Person Person4 { get; set; }
+            {
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person4Id == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Incident P4 ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Person5Id))]
+            //[InverseProperty(nameof(Person.IncidentPerson5))]
+            //public virtual Person Person5 { get; set; }
+            {
+                var ilist = _ctx.Incident.AsNoTracking().Where(i => i.Person5Id == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Incident P5 ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("InventoryItem")]
+            //public virtual Person Person { get; set; }
+            {
+                var ilist = _ctx.InventoryItem.AsNoTracking().Where(i => i.PersonId == delId).ToList();
+                if (ilist.Count > 0)
+                {
+                    var res = "FAILED: Inventory Item ids:";
+                    foreach (var i in ilist)
+                    {
+                        res += i.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("Medical")]
+            //public virtual Person Person { get; set; }
+            {
+                var mlist = _ctx.Medical.AsNoTracking().Where(m => m.PersonId == delId).ToList();
+                if (mlist.Count > 0)
+                {
+                    var res = "FAILED: Medical ids:";
+                    foreach (var m in mlist)
+                    {
+                        res += m.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("Operations")]
+            //public virtual Person Person { get; set; }
+            {
+                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.PersonId == delId).ToList();
+                if (oplist.Count > 0)
+                {
+                    var res = "FAILED: Operations ids:";
+                    foreach (var op in oplist)
+                    {
+                        res += op.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(Pg1PersonId))]
+            //[InverseProperty(nameof(Person.InversePg1Person))]
+            //public virtual Person Pg1Person { get; set; }
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg1PersonId == delId).ToList();
+                if (plist.Count > 0)
+                {
+                    var res = "FAILED: Person PG1 ids:";
+                    foreach (var p in plist)
+                    {
+                        res += p.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Pg2PersonId))]
+            //[InverseProperty(nameof(Person.InversePg2Person))]
+            //public virtual Person Pg2Person { get; set; }
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.Pg2PersonId == delId).ToList();
+                if (plist.Count > 0)
+                {
+                    var res = "FAILED: Person PG2 ids:";
+                    foreach (var p in plist)
+                    {
+                        res += p.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("Registration")]
+            //public virtual Person Person { get; set; }
+            {
+                var rlist = _ctx.Registration.AsNoTracking().Where(r => r.PersonId == delId).ToList();
+                if (rlist.Count > 0)
+                {
+                    var res = "FAILED: Registration ids:";
+                    foreach (var r in rlist)
+                    {
+                        res += r.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(PersonId))]
+            //[InverseProperty("TaskPerson")]
+            //public virtual Person Person { get; set; }
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.PersonId == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Task person ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Worker1Id))]
+            //[InverseProperty("TaskWorker1")]
+            //public virtual Person Worker1 { get; set; }
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker1Id == delId).ToList();
+                if ( tlist.Count > 0)
+                {
+                    var res = "FAILED: Task W1 ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Worker2Id))]
+            //[InverseProperty("TaskWorker2")]
+            //public virtual Person Worker2 { get; set; }
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker2Id == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Task W2 ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(Worker3Id))]
+            //[InverseProperty("TaskWorker3")]
+            //public virtual Person Worker3 { get; set; }
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.Worker3Id == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Task W3 ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(CcaPersonId))]
+            //[InverseProperty(nameof(Person.Transaction))]
+            //public virtual Person CcaPerson { get; set; }
+            {
+                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.CcaPersonId == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Transaction ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+
+            // Delete Person since there are no records referencing it
+            Person prs = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == delId);
+            if (prs != null)
+            {
+                _ctx.Person.Remove(prs);
+                _ctx.SaveChanges();
+            }
+
+
+            return "SUCCESS: Deleted Person";
+        }
+
+        public string DelAddress(int delId) //**********************************
+        {
+            //[ForeignKey(nameof(AddressId))]
+            //[InverseProperty("Business")]
+            //public virtual Address Address { get; set; }
+            {
+                var blist = _ctx.Business.AsNoTracking().Where(b => b.AddressId == delId).ToList();
+                if (blist.Count > 0)
+                {
+                    var res = "FAILED: Business ids:";
+                    foreach (var b in blist)
+                    {
+                        res += b.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length-2);
+                }
+            }
+            //[ForeignKey(nameof(AddressId))]
+            //[InverseProperty("Church")]
+            //public virtual Address Address { get; set; }
+            {
+                var clist = _ctx.Church.AsNoTracking().Where(c => c.AddressId == delId).ToList();
+                if (clist.Count > 0)
+                {
+                    var res = "FAILED: Church ids:";
+                    foreach (var c in clist)
+                    {
+                        res += c.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(AddressId))]
+            //[InverseProperty("Person")]
+            //public virtual Address Address { get; set; }
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.AddressId == delId).ToList();
+                if (plist.Count > 0)
+                {
+                    var res = "FAILED: Person ids:";
+                    foreach (var p in plist)
+                    {
+                        res += p.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            // Delete Address since it has records referencing it
+            Address adrs = _ctx.Address.AsNoTracking().FirstOrDefault(a => a.Id == delId);
+            if (adrs != null)
+            {
+                _ctx.Address.Remove(adrs);
+                _ctx.SaveChanges();
+            }
+
+            return "SUCCESS: Merged Address";
+        }
+
+        public string DelChurch(int delId)  //**********************************
+        {
+            //[ForeignKey(nameof(ChurchId))]
+            //[InverseProperty("Event")]
+            //public virtual Church Church { get; set; }            
+            {
+                var elist = _ctx.Event.AsNoTracking().Where(p => p.ChurchId == delId).ToList();
+                {
+                    var alist = _ctx.Attendance.AsNoTracking().Where(a => a.PersonId == delId).ToList();
+                    if (alist.Count > 0)
+                    {
+                        var res = "FAILED: Attendance ids:";
+                        foreach (var a in alist)
+                        {
+                            res += a.Id.ToString() + ", ";
+                        }
+                        return res.Substring(0, res.Length - 2);
+                    }
+                }
+            }
+            //[ForeignKey(nameof(ChurchId))]
+            //[InverseProperty("Operations")]
+            //public virtual Church Church { get; set; }
+            {
+                var oplist = _ctx.Operations.AsNoTracking().Where(op => op.ChurchId == delId).ToList();
+                if (oplist.Count > 0)
+                {
+                    var res = "FAILED: Operations ids:";
+                    foreach (var op in oplist)
+                    {
+                        res += op.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(ChurchId))]
+            //[InverseProperty("Person")]
+            //public virtual Church Church { get; set; }
+            {
+                var plist = _ctx.Person.AsNoTracking().Where(p => p.ChurchId == delId).ToList().ToList();
+                if (plist.Count > 0)
+                {
+                    var res = "FAILED: Person ids:";
+                    foreach (var p in plist)
+                    {
+                        res += p.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+            //[ForeignKey(nameof(ChurchId))]
+            //[InverseProperty("Task")]
+            //public virtual Church Church { get; set; }
+            {
+                var tlist = _ctx.Task.AsNoTracking().Where(t => t.ChurchId == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Task ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            //[ForeignKey(nameof(ChurchId))]
+            //[InverseProperty("Transaction")]
+            //public virtual Church Church { get; set; }
+            {
+                var tlist = _ctx.Transaction.AsNoTracking().Where(t => t.ChurchId == delId).ToList();
+                if (tlist.Count > 0)
+                {
+                    var res = "FAILED: Transaction ids:";
+                    foreach (var t in tlist)
+                    {
+                        res += t.Id.ToString() + ", ";
+                    }
+                    return res.Substring(0, res.Length - 2);
+                }
+            }
+
+            // Delete Church since it has records referencing it
+            Church ch = _ctx.Church.AsNoTracking().FirstOrDefault(c => c.Id == delId);
+            if (ch != null)
+            {
+                _ctx.Church.Remove(ch);
+                _ctx.SaveChanges();
+            }
+
+            return "SUCCESS: Merged Church";
+        }
+
 
     }
 }

@@ -1536,11 +1536,15 @@ namespace CStat
                         {
                             if (zip != "11111")
                             {
+                                bool IsTrim = zip.Length > 5;
+                                var TrimZip = IsTrim ? zip.Substring(0, 5) : zip;
                                 var adrL = from adr in ce.Address
-                                           where (adr.ZipCode == zip)
+                                           where (adr.ZipCode.StartsWith(TrimZip))
                                            select adr;
                                 foreach (Address a in adrL)
                                 {
+                                    if (IsTrim && (a.ZipCode.Length > 5) && (a.ZipCode != zip))
+                                        continue;
                                     adrList.Add(a);
                                 }
                             }
@@ -1925,11 +1929,15 @@ namespace CStat
                     {
                         if (zip.Value != "11111")
                         {
+                            bool IsTrim = zip.Value.Length > 5;
+                            var TrimZip = IsTrim ? zip.Value.Substring(0, 5) : zip.Value;
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where (adr.ZipCode == zip.Value)
+                                       where (adr.ZipCode.StartsWith(TrimZip))
                                        select adr;
                             foreach (Address a in adrL)
                             {
+                                if (IsTrim && (a.ZipCode.Length > 5) && (a.ZipCode != zip.Value))
+                                    continue;
                                 if (!bHasCS || cm.EQ(a.State,state.Value))
                                     adrList.Add(a);
                             }

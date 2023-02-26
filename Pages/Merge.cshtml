@@ -245,6 +245,7 @@
                                     <th>Cell</th>
                                     <th>EMail</th>
                                     <th>X</th>
+                                    <th>Address/HPhone</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -283,6 +284,9 @@
                                     </td>
                                     <td>
                                         @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">X</span>")
+                                    </td>
+                                    <td>
+                                        @((item.Address != null) ? Address.FormatAddress(item.Address, true) : "---")
                                     </td>
                                 </tr>
                             }

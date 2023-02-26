@@ -35,7 +35,7 @@ namespace CStat.Pages
             {
                 default:
                 case 1:
-                    People = _ctx.Person.AsNoTracking().OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
+                    People = _ctx.Person.Include(p => p.Address).AsNoTracking().OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
                     break;
                 case 2:
                     Address = _ctx.Address.AsNoTracking().OrderBy(p => p.Town).ThenBy(p => p.Street).ToList();

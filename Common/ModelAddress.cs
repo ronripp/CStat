@@ -47,13 +47,17 @@ namespace CStat.Models
                     {
                         if (inAdr.ZipCode != "11111")
                         {
+                            bool IsTrim = inAdr.ZipCode.Length > 5;
+                            var TrimZip = IsTrim ? inAdr.ZipCode.Substring(0, 5) : inAdr.ZipCode;
                             var adrL = from adr in ce.Address.AsNoTracking()
-                                       where (adr.ZipCode == inAdr.ZipCode)
+                                       where (adr.ZipCode.StartsWith(TrimZip))
                                        select adr;
                             foreach (Address a in adrL)
                             {
+                                if (IsTrim && (a.ZipCode.Length > 5) && (a.ZipCode != inAdr.ZipCode))
+                                    continue;
                                 if (!bHasCS || cm.EQ(a.State, inAdr.State))
-                                    adrList.Add(a);
+                                   adrList.Add(a);
                             }
                         }
                     }

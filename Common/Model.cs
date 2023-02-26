@@ -303,13 +303,13 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(a.Town))
                 astr += " " + a.Town;
             if (!string.IsNullOrEmpty(a.State))
-                astr += " " + a.Street;
+                astr += " " + GetStateAbbr(a.State);
             if (!string.IsNullOrEmpty(a.ZipCode))
                 astr += " " + a.ZipCode;
             if (addPhone)
             {
                 if (!string.IsNullOrEmpty(a.Phone))
-                    astr += " " + Models.Person.FixPhone(a.Phone);
+                    astr += " H#: " + Models.Person.FixPhone(a.Phone);
             }
             return astr;
         }

@@ -842,7 +842,7 @@ namespace CStat.Pages
                 return false;
             }
 
-            if (!toP.Gender.HasValue && fromP.Gender.HasValue)
+            if (!(toP.Gender.HasValue && (toP.Gender.Value > 0)) && (fromP.Gender.HasValue && (fromP.Gender.Value > 0)))
             {
                 toP.Gender = fromP.Gender;
                 wasMerged = true;
@@ -1621,7 +1621,7 @@ namespace CStat.Pages
             }
 
 
-            return "SUCCESS: Deleted Person";
+            return "SUCCESS: Person Deleted";
         }
 
         public string DelAddress(int delId) //**********************************
@@ -1680,7 +1680,7 @@ namespace CStat.Pages
                 _ctx.SaveChanges();
             }
 
-            return "SUCCESS: Merged Address";
+            return "SUCCESS: Address Deleted";
         }
 
         public string DelChurch(int delId)  //**********************************
@@ -1773,7 +1773,7 @@ namespace CStat.Pages
                 _ctx.SaveChanges();
             }
 
-            return "SUCCESS: Merged Church";
+            return "SUCCESS: Church Deleted";
         }
 
 

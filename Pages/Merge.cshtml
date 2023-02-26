@@ -41,7 +41,7 @@
             var fromIdxList = [];
             var toIdx = "0";
             var cmdId = (@Model.Id == 0) ? 1 : @Model.Id;
-            var cmdStr = ["Person", "Address", "Church"];
+            var cmdStr = ["???", "Person", "Address", "Church"];
 
             $(document).ready(function () {
 
@@ -76,9 +76,9 @@
 
                     let delIdx = event.target.id.substr(4).trim();
                     let delrow = document.getElementById("row_" + delIdx);
-                    delStr = ("Delete " + cmdStr[cmdId] + ": " + delrow.cell[0].innerHTML + " " + delrow.cell[1].innerHTML).trim() + "?";
+                    delStr = ("Delete " + cmdStr[cmdId] + ": " + delrow.cells[0].innerHTML.trim() + " " + delrow.cells[1].innerHTML.trim()).trim() + "?";
                     if (confirm(delStr) == true) {
-                        var parameters = "{'cmd':'" + cmd + ", 'id':'" + delIdx + "'}";
+                        var parameters = "{'cmd':'" + cmdId + "', 'id':'" + delIdx + "'}";
                         $.ajax({
                             url: "/Merge?handler=DoDelete",
                             contentType: "application/json",
@@ -264,7 +264,7 @@
                                         @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
                                     </td>
                                     <td>
-                                        @{String gstr = (item.Gender == 0) ? "-" : (item.Gender == 77) ? "M" : "F";}
+                                        @{String gstr = ((item.Gender == 0) || (item.Gender == null)) ? "-" : (item.Gender == 77) ? "M" : "F";}
                                         @gstr
                                     </td>
                                     <td>

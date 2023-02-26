@@ -2876,7 +2876,7 @@ namespace CStat
 
         public void MergePersonAttrs(Person src, ref Person dst)
         {
-            if (src.Gender.HasValue && !dst.Gender.HasValue)
+            if ((src.Gender.HasValue && (src.Gender.Value > 0)) && !(dst.Gender.HasValue && (dst.Gender.Value > 0)))
                 dst.Gender = src.Gender;
 
             if ((src.Dob.HasValue && (src.Dob.Value.Year > 1900)) && (!dst.Dob.HasValue || (dst.Dob.Value.Year == 1900)))

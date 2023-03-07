@@ -1776,6 +1776,30 @@ namespace CStat.Pages
             return "SUCCESS: Church Deleted";
         }
 
+        public JsonResult OnGetDoExport()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            if (String.IsNullOrEmpty(rawQS))
+                return new JsonResult("ERROR~:No Parameters");
+
+            int stIdx = rawQS.IndexOf("{'type");
+            if (stIdx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(stIdx);
+            try
+            {
+                JObject jObj = JObject.Parse(jsonQS);
+                int type = int.Parse((string)jObj["type"]);
+                return new JsonResult("Export Done");
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: OnGetCamCleanup Exception");
+            }
+        }
+
+
 
     }
 }

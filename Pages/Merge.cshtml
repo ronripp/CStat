@@ -34,6 +34,9 @@
                 background-color: mistyrose;
             }
 
+            #DoExport {
+                margin-left: 16px;
+            }
         </style>
 
         <script type="text/javascript">
@@ -174,8 +177,24 @@
                             alert(response);
                         }
                     });
+                });
 
-
+                $('#DoExport').click(function () {
+                    var parameters = "{'type':'" + cmdId + "'}";
+                    $.ajax({
+                        url: "/Merge?handler=DoExport",
+                        contentType: "application/json",
+                        async: false, // Synchronous because reload of page follows merge
+                        dataType: "json",
+                        data: parameters,
+                        success: function (response) {
+                            alert(response);
+                            window.location.reload(true);
+                        },
+                        fail: function (response) {
+                            alert(response);
+                        }
+                    });
                 });
 
                 function UpdateMerge() {
@@ -226,6 +245,9 @@
                 </li>
                 <li class="nav-item">
                     <button id="DoMerge" disabled>Merge</button>
+                </li>
+                <li class="nav-item">
+                    <button id="DoExport">Export</button>
                 </li>
             </ul>
 

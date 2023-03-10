@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CStat.Common;
@@ -1939,5 +1940,21 @@ namespace CStat.Models
 
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
+
+        public string ExportPeople ()
+        {
+            // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website
+
+            string LogPath = Path.Combine(CSLogger.WebRootPath, "Log");
+            if (!Directory.Exists(LogPath))
+            {
+                Directory.CreateDirectory(LogPath);
+            }
+            DateTime now = PropMgr.ESTNow; 
+            var ExpFile = Path.Combine(LogPath, "CStatPeople" + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".log");
+            return "";
+        }
+
+
     }
 }

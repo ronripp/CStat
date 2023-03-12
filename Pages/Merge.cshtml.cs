@@ -1790,7 +1790,8 @@ namespace CStat.Pages
             {
                 JObject jObj = JObject.Parse(jsonQS);
                 int type = int.Parse((string)jObj["type"]);
-                return new JsonResult("Export Done");
+
+                return new JsonResult(Person.ExportPeople(_ctx));
             }
             catch (Exception e)
             {
@@ -1798,8 +1799,5 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~: OnGetCamCleanup Exception");
             }
         }
-
-
-
     }
 }

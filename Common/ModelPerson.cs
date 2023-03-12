@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CStat.Common;
 using CStat.Models;
@@ -13,6 +14,8 @@ namespace CStat.Models
 {
     public partial class Person
     {
+        private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
+
         enum PersonStatus
         {
             NotBaptized = 0x0000000000000010, Baptized =0x0000000000000020
@@ -1941,9 +1944,14 @@ namespace CStat.Models
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
 
-        public string ExportPeople ()
+        public static string ExportPeople (CStatContext ctx)
         {
-            // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website
+            if (ctx == null)
+                return "FAILED: No CStat DB Context";
+
+            var pList = ctx.Person.Include(p => p.Address).AsNoTracking().OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
+            if (pList.Count == 0)
+                return "FAILED: No People found. Valid CStat DB Context?";
 
             string LogPath = Path.Combine(CSLogger.WebRootPath, "Log");
             if (!Directory.Exists(LogPath))
@@ -1951,8 +1959,73 @@ namespace CStat.Models
                 Directory.CreateDirectory(LogPath);
             }
             DateTime now = PropMgr.ESTNow; 
-            var ExpFile = Path.Combine(LogPath, "CStatPeople" + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".log");
-            return "";
+            var ExpFile = Path.Combine(LogPath, "CSPeopleExport" + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".csv");
+
+            // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website
+            if (Person.fLock.TryEnterWriteLock(250))
+            {
+                string resStr = "FAILED: Unknown"; 
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(ExpFile, false))
+                    {
+                        // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid,
+                        // churchId, Church Name,
+                        // aid, Street, Town, State, Zip, HPhone, Fax, Country, Website");
+                        sw.WriteLine("pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website");
+
+                        // use 166 a6 ¦ for separator and replace it lastly with ,
+                        foreach (var p in pList)
+                        {
+                            sw.WriteLine(
+                                p.Id + "¦" +
+                                p.FirstName + "¦" +
+                                p.LastName + "¦" +
+                                p.Alias + "¦" +
+                                p.Dob + "¦" +
+                                p.Gender + "¦" +
+                                p.Status + "¦" +
+                                p.CellPhone + "¦" +
+                                p.Email + "¦" +
+                                p.SkillSets + "¦" +
+                                p.Notes + "¦" +
+                                p.Roles + "¦" +
+                                p.ContactPref + "¦" +
+                                p.Ssnum + "¦" +
+                                p.Pg1PersonId + "¦" +
+                                p.Pg2PersonId + "¦" +
+                                p.ChurchId + "¦" +
+                                p.Church.Name + "¦" +
+                                p.AddressId + "¦" +
+                                p.Address.Street + "¦" +
+                                p.Address.Town + "¦" +
+                                p.Address.State + "¦" +
+                                p.Address.ZipCode + "¦" +
+                                p.Address.Phone + "¦" +
+                                p.Address.Fax + "¦" +
+                                p.Address.Country + "¦" +
+                                p.Address.WebSite + "\n"
+                            );
+                        }
+                        sw.Close();
+                    }
+                    resStr = "SUCCESS: Created " + ExpFile;
+                }
+                catch (Exception e)
+                {
+                    resStr = "FAILED: " + e.Message;
+                }
+                finally
+                {
+                    Person.fLock.ExitWriteLock();
+                }
+                return resStr;
+            }
+            else
+            {
+                return "FAILED: Currently Busy";
+            }
+
         }
 
 

@@ -1943,13 +1943,12 @@ namespace CStat.Models
 
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
-
         public static string ExportPeople (CStatContext ctx)
         {
             if (ctx == null)
                 return "FAILED: No CStat DB Context";
 
-            var pList = ctx.Person.Include(p => p.Address).AsNoTracking().OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
+            var pList = ctx.Person.Include(p => p.Address).Include(p => p.Church).AsNoTracking().OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ToList();
             if (pList.Count == 0)
                 return "FAILED: No People found. Valid CStat DB Context?";
 
@@ -1972,40 +1971,32 @@ namespace CStat.Models
                         // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid,
                         // churchId, Church Name,
                         // aid, Street, Town, State, Zip, HPhone, Fax, Country, Website");
-                        sw.WriteLine("pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website");
+                        sw.WriteLine("pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, Church Id, Adr Id, Church Name, Street, Town, State, Zip, HPhone, Fax, Country, Website");
 
                         // use 166 a6 ¦ for separator and replace it lastly with ,
                         foreach (var p in pList)
                         {
-                            sw.WriteLine(
-                                p.Id + "¦" +
-                                p.FirstName + "¦" +
-                                p.LastName + "¦" +
-                                p.Alias + "¦" +
-                                p.Dob + "¦" +
-                                p.Gender + "¦" +
-                                p.Status + "¦" +
-                                p.CellPhone + "¦" +
-                                p.Email + "¦" +
-                                p.SkillSets + "¦" +
-                                p.Notes + "¦" +
-                                p.Roles + "¦" +
-                                p.ContactPref + "¦" +
-                                p.Ssnum + "¦" +
-                                p.Pg1PersonId + "¦" +
-                                p.Pg2PersonId + "¦" +
-                                p.ChurchId + "¦" +
-                                p.Church.Name + "¦" +
-                                p.AddressId + "¦" +
-                                p.Address.Street + "¦" +
-                                p.Address.Town + "¦" +
-                                p.Address.State + "¦" +
-                                p.Address.ZipCode + "¦" +
-                                p.Address.Phone + "¦" +
-                                p.Address.Fax + "¦" +
-                                p.Address.Country + "¦" +
-                                p.Address.WebSite + "\n"
-                            );
+                            string line = GetStr(p.Id) + "¦" + GetStr(p.FirstName) + "¦" + GetStr(p.LastName) + "¦" + GetStr(p.Alias) + "¦" + GetStr(p.Dob) + "¦" + GetStr(p.Gender) + "¦" +
+                                GetStr(p.Status) + "¦" + GetStr(p.CellPhone) + "¦" + GetStr(p.Email) + "¦" + GetStr(p.SkillSets) + "¦" + GetStr(p.Notes) + "¦" + GetStr(p.Roles) + "¦" +
+                                GetStr(p.ContactPref) + "¦" + GetStr(p.Ssnum) + "¦" + GetStr(p.Pg1PersonId) + "¦" + GetStr(p.Pg2PersonId) + "¦" + GetStr(p.ChurchId) + "¦" + GetStr(p.AddressId) + "¦";
+                            line += (p.Church != null) ? GetStr(p.Church.Name) + "¦" : "¦";
+                            if (p.Address != null)
+                            {
+                                line += GetStr(p.Address.Street) + "¦" +
+                                GetStr(p.Address.Town) + "¦" +
+                                GetStr(p.Address.State) + "¦" +
+                                GetStr(p.Address.ZipCode) + "¦" +
+                                GetStr(p.Address.Phone) + "¦" +
+                                GetStr(p.Address.Fax) + "¦" +
+                                GetStr(p.Address.Country) + "¦" +
+                                GetStr(p.Address.WebSite);
+                            }
+                            else
+                            {
+                                line += "¦¦¦¦¦¦¦";
+                            }
+                            line = line.Replace(",", ";").Replace("¦", ",");
+                            sw.WriteLine(line);
                         }
                         sw.Close();
                     }
@@ -2027,7 +2018,46 @@ namespace CStat.Models
             }
 
         }
-
-
+        static string GetStr (string str)
+        {
+            return !string.IsNullOrEmpty(str) ? str : "";
+        }
+        static string GetStr(int val)
+        {
+            return val.ToString();
+        }
+        static string GetStr(int? val)
+        {
+            if (val.HasValue)
+                return val.Value.ToString();
+            return val.ToString();
+        }
+        static string GetStr(byte? bval)
+        {
+            if (bval.HasValue)
+            {
+                if (bval.Value == 70)
+                    return "F";
+                if (bval.Value == 77)
+                    return "M";
+            }
+            return "";
+        }
+        static string GetStr(long lval)
+        {
+            return lval.ToString();
+        }
+        static string GetStr(long? lval)
+        {
+            if (lval.HasValue)
+                return lval.Value.ToString();
+            return "";
+        }
+        static string GetStr(DateTime? dt)
+        {
+            if (dt.HasValue)
+                return dt.Value.ToString();
+            return "";
+        }
     }
 }

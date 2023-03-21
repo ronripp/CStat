@@ -131,6 +131,8 @@
         <button class="usBtn" onclick="showMenu(12)">Forms/Docs/Manu...</button>
         <button class="usBtn" onclick="window.location.href='Churches/Index'" )">Churches ...</button>
         @if (Model.IsFull)
+        {<button class="usBtn" onclick="window.location.href='Merge'">Records Management</button>}
+        @if (Model.IsFull)
         {<button class="usBtn" onclick="window.location.href='Docs';">Drop Box</button>}
     </div>
 
@@ -146,7 +148,6 @@
         <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals/Reference', 'Retreat Operation Check List.docx')">do <b>Retreats</b></button>
         <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals', 'SOP-12 Camper Registration.pdf')">do <b>Camp Registration</b></button>
         <button class="usSubBtn" onclick="openFileShare('/Manuals & Procedures/Operation Manuals/Reference', 'Fire Safety.htm')">do <b>Fire Safety Plan</b></button>
-        <button class="usSubBtn" onclick="window.location.href='Merge'">do <b>Merge Records</b></button>
     </div>
 
     onclick="window.location.href='Merge'"

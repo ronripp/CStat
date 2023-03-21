@@ -421,6 +421,7 @@ namespace CStat.Pages.Tasks
                                 {
                                     string dateOnly = mdStr.Substring(0, 10);
                                     task.DueDate = DateTime.ParseExact(dateOnly, "yyyy-MM-dd", System.Globalization.CultureInfo.CurrentCulture);
+                                    task.DueDate = new DateTime(task.DueDate.Value.Year, task.DueDate.Value.Month, task.DueDate.Value.Day, 23, 59, 0); // Give to end of day for these cases.
                                 }
                                 else
                                     return this.Content("Fail: A valid Due Date must be set with Every : Month n Day"); // Send back results
@@ -428,7 +429,9 @@ namespace CStat.Pages.Tasks
                             task.SetTaskType((CTask.eTaskType)dueType, (CTask.eTaskType)eachType, dueValue);
                         }
 
-                        task.Status = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "NumMOYs").Value); // kludge for template to use Status for # of Months or Years
+                        var moys = this.Request.Form.FirstOrDefault(kv => kv.Key == "NumMOYs").Value;
+                        if (!string.IsNullOrEmpty(moys))
+                            task.Status = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "NumMOYs").Value); // kludge for template to use Status for # of Months or Years
 
                         fStr = "Role123";
                         taskData.Role1 = long.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskRole1").Value);

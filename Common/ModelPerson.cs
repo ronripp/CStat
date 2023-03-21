@@ -1960,7 +1960,6 @@ namespace CStat.Models
             DateTime now = PropMgr.ESTNow; 
             var ExpFile = Path.Combine(LogPath, "CSPeopleExport" + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".csv");
 
-            // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, churchId, Church Name, aid, Street, Town, State, Zip, HPhone, Fax, Country, Website
             if (Person.fLock.TryEnterWriteLock(250))
             {
                 string resStr = "FAILED: Unknown"; 
@@ -1968,35 +1967,78 @@ namespace CStat.Models
                 {
                     using (StreamWriter sw = new StreamWriter(ExpFile, false))
                     {
-                        // pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid,
-                        // churchId, Church Name,
-                        // aid, Street, Town, State, Zip, HPhone, Fax, Country, Website");
-                        sw.WriteLine("pid, First Name, Last Name, Alias, DOB, Gender, Status, Cell, EMail, Skillsets, Notes, Roles, ContactPref, Ssnum, pg1pid, pg2pid, Church Id, Adr Id, Church Name, Street, Town, State, Zip, HPhone, Fax, Country, Website");
+                        //"Id,First Name,Last Name,Alias,DOB,Gender,Status,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,SkillSets,Notes,Roles,ContactPref,SS,Pg1PersonId,Pg2PersonId,ChurchId,AddressId,Fax,Country,WebSite"
+                        sw.WriteLine("Id,First Name,Last Name,Alias,DOB,Gender,Status,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,SkillSets,Notes,Roles,ContactPref,SS,Pg1PersonId,Pg2PersonId,ChurchId,AddressId,Fax,Country,WebSite");
 
                         // use 166 a6 ¦ for separator and replace it lastly with ,
                         foreach (var p in pList)
                         {
-                            string line = GetStr(p.Id) + "¦" + GetStr(p.FirstName) + "¦" + GetStr(p.LastName) + "¦" + GetStr(p.Alias) + "¦" + GetStr(p.Dob) + "¦" + GetStr(p.Gender) + "¦" +
-                                GetStr(p.Status) + "¦" + GetStr(p.CellPhone) + "¦" + GetStr(p.Email) + "¦" + GetStr(p.SkillSets) + "¦" + GetStr(p.Notes) + "¦" + GetStr(p.Roles) + "¦" +
-                                GetStr(p.ContactPref) + "¦" + GetStr(p.Ssnum) + "¦" + GetStr(p.Pg1PersonId) + "¦" + GetStr(p.Pg2PersonId) + "¦" + GetStr(p.ChurchId) + "¦" + GetStr(p.AddressId) + "¦";
-                            line += (p.Church != null) ? GetStr(p.Church.Name) + "¦" : "¦";
-                            if (p.Address != null)
-                            {
-                                line += GetStr(p.Address.Street) + "¦" +
-                                GetStr(p.Address.Town) + "¦" +
-                                GetStr(p.Address.State) + "¦" +
-                                GetStr(p.Address.ZipCode) + "¦" +
-                                GetStr(p.Address.Phone) + "¦" +
-                                GetStr(p.Address.Fax) + "¦" +
-                                GetStr(p.Address.Country) + "¦" +
-                                GetStr(p.Address.WebSite);
-                            }
-                            else
-                            {
-                                line += "¦¦¦¦¦¦¦";
-                            }
-                            line = line.Replace(",", ";").Replace("¦", ",");
-                            sw.WriteLine(line);
+                            //string line = GetStr(p.Id) + "¦" + GetStr(p.FirstName) + "¦" + GetStr(p.LastName) + "¦" + GetStr(p.Alias) + "¦" + GetStr(p.Dob) + "¦" + GetStr(p.Gender) + "¦" +
+                            //    GetStr(p.Status) + "¦" + GetStr(p.CellPhone) + "¦" + GetStr(p.Email) + "¦" + GetStr(p.SkillSets) + "¦" + GetStr(p.Notes) + "¦" + GetStr(p.Roles) + "¦" +
+                            //    GetStr(p.ContactPref) + "¦" + GetStr(p.Ssnum) + "¦" + GetStr(p.Pg1PersonId) + "¦" + GetStr(p.Pg2PersonId) + "¦" + GetStr(p.ChurchId) + "¦" + GetStr(p.AddressId) + "¦";
+                            //line += (p.Church != null) ? GetStr(p.Church.Name) + "¦" : "¦";
+                            //if (p.Address != null)
+                            //{
+                            //    line += GetStr(p.Address.Street) + "¦" +
+                            //    GetStr(p.Address.Town) + "¦" +
+                            //    GetStr(p.Address.State) + "¦" +
+                            //    GetStr(p.Address.ZipCode) + "¦" +
+                            //    GetStr(p.Address.Phone) + "¦" +
+                            //    GetStr(p.Address.Fax) + "¦" +
+                            //    GetStr(p.Address.Country) + "¦" +
+                            //    GetStr(p.Address.WebSite);
+                            //}
+                            //else
+                            //{
+                            //    line += "¦¦¦¦¦¦¦";
+                            //}
+
+                            string line = GetStr(p.Id) + "¦" +
+                                GetStr(p.FirstName) + "¦" +
+                                GetStr(p.LastName) + "¦" +
+                                GetStr(p.Alias) + "¦" +
+                                GetStr(p.Dob) + "¦" +
+                                GetStr(p.Gender) + "¦" +
+                                GetStr(p.Status) + "¦" +
+                                GetStr(p.CellPhone) + "¦" +
+                                GetStr(p.Email) + "¦";
+
+                                if (p.Address != null)
+                                {
+                                    line += GetStr(p.Address.Street) + "¦" +
+                                    GetStr(p.Address.Town) + "¦" +
+                                    GetStr(p.Address.State) + "¦" +
+                                    GetStr(p.Address.ZipCode) + "¦" +
+                                    GetStr(p.Address.Phone) + "¦";
+                                }
+                                else
+                                {
+                                    line += "¦¦¦¦¦";
+                                }
+                                line += (p.Church != null) ? GetStr(p.Church.Name) + "¦" : "¦";
+
+                                line += GetStr(p.SkillSets) + "¦" +
+                                GetStr(p.Notes) + "¦" +
+                                GetStr(p.Roles) + "¦" +
+                                GetStr(p.ContactPref) + "¦" +
+                                GetStr(p.Ssnum) + "¦" +
+                                GetStr(p.Pg1PersonId) + "¦" +
+                                GetStr(p.Pg2PersonId) + "¦" +
+                                GetStr(p.ChurchId) + "¦" +
+                                GetStr(p.AddressId) + "¦";
+                                if (p.Address != null)
+                                {
+                                    line += GetStr(p.Address.Fax) + "¦" +
+                                    GetStr(p.Address.Country) + "¦" +
+                                    GetStr(p.Address.WebSite);
+                                }
+                                else
+                                {
+                                    line += "¦¦";
+                                }
+    
+                                line = line.Replace(",", ";").Replace("¦", ",");
+                                sw.WriteLine(line);
                         }
                         sw.Close();
                     }
@@ -2053,10 +2095,10 @@ namespace CStat.Models
                 return lval.Value.ToString();
             return "";
         }
-        static string GetStr(DateTime? dt)
+        static string GetStr(DateTime? dt, bool full=false)
         {
-            if (dt.HasValue)
-                return dt.Value.ToString();
+            if (dt.HasValue && (dt.Value.Year != 1900))
+                return full ? dt.Value.ToShortDateString() : dt.Value.ToShortDateString();
             return "";
         }
     }

@@ -2903,13 +2903,13 @@ namespace CStat
                 dst.ChurchId = src.ChurchId;
         }
     
-        static public bool SplitName (String name, ref Person p, string defLast) // Currently assumes no possible last name alias
+        static public bool SplitName (String name, ref Person p, string defLast="") // Currently assumes no possible last name alias
         {
             String raw = name.Trim();
             if (string.IsNullOrEmpty(raw))
                 return false;
             int isp = raw.LastIndexOf(" ");
-            if (isp <= 0)
+            if ((isp <= 0) && !string.IsNullOrEmpty(defLast))
             {
                 p.FirstName = raw;
                 p.LastName = defLast;

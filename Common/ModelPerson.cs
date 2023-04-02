@@ -1148,22 +1148,19 @@ namespace CStat.Models
             pv = props.Find(prop => prop.Key == "Baptized");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
-                if (pv.Value.ToLower().StartsWith("y"))
+                // Do not reset Baptism because that is the default (unknown) and some subsequent records may be incomplete and if set prior, then keep that setting and don't reset it to unknown
+                var BapVal = pv.Value.Trim().ToLower();
+                if (BapVal.StartsWith("y") || BapVal.StartsWith("t"))
                 {
                     person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.NotBaptized;
                     person.Status = person.Status.GetValueOrDefault(0) | (long)PersonStatus.Baptized;
                 }
                 else
                 {
-                    if (pv.Value.ToLower().StartsWith("n"))
+                    if (BapVal.StartsWith("n") || BapVal.StartsWith("f"))
                     {
                         person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.Baptized;
                         person.Status = person.Status.GetValueOrDefault(0) | (long)PersonStatus.NotBaptized;
-                    }
-                    else
-                    {
-                        person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.Baptized;
-                        person.Status = person.Status.GetValueOrDefault(0) & ~(long)PersonStatus.NotBaptized;
                     }
                 }
             }
@@ -1201,7 +1198,7 @@ namespace CStat.Models
                             {
                                 case 0: // "First Last" name
                                     {
-                                        if (SplitName(pga[0], ref PG1Person))
+                                        if (SplitName(pga[0], ref PG1Person, person.LastName))
                                         {
                                             int adr_id;
                                             int id = FindPersonIDByName(ce, ref PG1Person, bAllowNoAddress, out adr_id);
@@ -1217,6 +1214,7 @@ namespace CStat.Models
                                                     bNeedToAddPG1 = true;
                                             }
                                         }
+                                        
                                         else
                                             bAbort = true;
                                     }
@@ -1284,7 +1282,7 @@ namespace CStat.Models
                             {
                                 case 0: // "First Last" name
                                     {
-                                        if (SplitName(pga[0], ref PG2Person))
+                                        if (SplitName(pga[0], ref PG2Person, person.LastName))
                                         {
                                             int adr_id;
                                             int id = FindPersonIDByName(ce, ref PG2Person, bAllowNoAddress, out adr_id);
@@ -1797,12 +1795,18 @@ namespace CStat.Models
                 dst.ChurchId = src.ChurchId;
         }
 
-        public static bool SplitName(String name, ref Person p) // Currently assumes no possible last name alias
+        public static bool SplitName(String name, ref Person p, string defLast) // Currently assumes no possible last name alias
         {
             String raw = name.Trim();
+            if (string.IsNullOrEmpty(raw))
+                return false;
             int isp = raw.LastIndexOf(" ");
             if (isp <= 0)
-                return false;
+            {
+                p.FirstName = raw;
+                p.LastName = defLast;
+                return true;
+            }
             int iop = raw.IndexOf('(');
             if (iop > isp)
                 return false;

@@ -2754,7 +2754,7 @@ namespace CStat
                     if ( (p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child)) )
                     {
                         if (p.AddressId.HasValue && (p.AddressId.Value > 0))
-                            address_id = MinP.AddressId.Value;
+                            address_id = p.AddressId.Value;
 
                         // Merge existing info onto referenced person
                         if (bMerge)

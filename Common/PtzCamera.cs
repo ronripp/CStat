@@ -885,6 +885,35 @@ public class PtzCamera : System.IDisposable
             }
             return 0;
         }
+        public int EnableEMailAlerts(bool enable)
+        {
+            try
+            {
+                // Get Light State
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=SetEmailV20&token=" + _token);
+
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+
+                req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 0, \"smtpPort\": 587, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp3@gmail.com\", \"addr2\": \"handiguy2@optonline.net\"}}}]");
+
+                var sResult = req.SendForString();
+                if (String.IsNullOrEmpty(sResult))
+                    return 0;
+
+                // "rspCode" : 200
+                dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
+                //return (LoginResp[0].value.rspCode == 200);
+            }
+            catch (Exception e)
+            {
+                _ = e;
+            }
+            return 0;
+        }
+
         public int TurnOnAlarm(int times)
         {
             try

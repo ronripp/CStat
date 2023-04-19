@@ -1502,6 +1502,29 @@ namespace CStat.Models
 
             return needsStr;
         }
+
+        public static bool IsEventDay(CStatContext context, int beforeHours=0, int aheadHours=0)
+        {
+
+            if ((beforeHours == 0) && (aheadHours == 0))
+            {
+                var today = PropMgr.ESTNow.Date;
+                var events = context.Event.Where(e => (e.StartTime.Date <= today) && (e.EndTime.Date >= today));
+                return events.Count() > 0;
+            }
+            else
+            {
+                var now = PropMgr.ESTNow;
+                var sday = now.AddHours(beforeHours).Date;
+                var eday = now.AddHours(aheadHours).Date;
+                var sEvents = context.Event.Where(e => (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
+                var eEvents = context.Event.Where(e => (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+
+                return (sEvents.Count() > 0) && (eEvents.Count() > 0);
+
+            }
+
+        }
     }
 
     public partial class Attendance

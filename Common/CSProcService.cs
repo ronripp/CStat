@@ -173,7 +173,7 @@ namespace CStat.Common
                         using (var ptz = new PtzCamera())
                         {
                             ptz.Cleanup(_hostEnv);
-                            ptz.EnableEMailAlerts(!Event.IsEventDay(_context, -8, 6)); // disable camera email alerts during 
+                            ptz.EnableEMailAlerts(!Event.IsEventDay(_context, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the event up to 6 pm on the last day
                         }
 
                         csl.Log($"CSProc: DoWork() Done!");

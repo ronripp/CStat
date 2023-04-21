@@ -1503,13 +1503,18 @@ namespace CStat.Models
             return needsStr;
         }
 
-        public static bool IsEventDay(CStatContext context, int beforeHours=0, int aheadHours=0)
+        public static bool IsEventDay(CStatContext context, bool IncludeBanquet=true, int beforeHours=0, int aheadHours=0)
         {
-
             if ((beforeHours == 0) && (aheadHours == 0))
             {
                 var today = PropMgr.ESTNow.Date;
-                var events = context.Event.Where(e => (e.StartTime.Date <= today) && (e.EndTime.Date >= today));
+
+                IQueryable<Event> events;
+                if (IncludeBanquet)
+                    events = context.Event.Where(e => (e.StartTime.Date <= today) && (e.EndTime.Date >= today));
+                else
+                    events = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime.Date <= today) && (e.EndTime.Date >= today));
+
                 return events.Count() > 0;
             }
             else
@@ -1517,13 +1522,21 @@ namespace CStat.Models
                 var now = PropMgr.ESTNow;
                 var sday = now.AddHours(beforeHours).Date;
                 var eday = now.AddHours(aheadHours).Date;
-                var sEvents = context.Event.Where(e => (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
-                var eEvents = context.Event.Where(e => (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+                IQueryable<Event> sEvents;
+                IQueryable<Event> eEvents;
+                if (IncludeBanquet)
+                {
+                    sEvents = context.Event.Where(e => (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
+                    eEvents = context.Event.Where(e => (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+                }
+                else
+                {
+                    sEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
+                    eEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+                }
 
                 return (sEvents.Count() > 0) && (eEvents.Count() > 0);
-
             }
-
         }
     }
 

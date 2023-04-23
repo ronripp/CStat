@@ -66,5 +66,48 @@ namespace CStat.Pages
             PropaneLevel pl = pmgr.GetTUTank();
             return CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false);
         }
+
+        public string GetDocsBorder()
+        {
+            return "6px solid #008000";
+        }
+        public string GetInvBorder()
+        {
+            InventoryItem person = _context.InventoryItem.FirstOrDefault(i => i.State == 1);
+            if (person != null)
+                return "6px solid #800000";
+            person = _context.InventoryItem.FirstOrDefault(i => i.State == 2);
+            if (person != null)
+                return "6px solid #808000";
+            return "6px solid #008000";
+        }
+        public string GetTasksBorder()
+        {
+            CSUser curUser = CStat.Models.CCommon.GetCurUser(_context, _config, _httpCA, _userManager);
+            int? pid = ((curUser != null) && curUser.pid.HasValue && (curUser.pid.Value != -1) && !curUser.ShowAllTasks) ? curUser.pid : null;
+            var dueTasks = Task.GetDueTasks(_context, pid, 24);
+            if (dueTasks.Count > 0)
+                return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? "6px solid #800000" : "6px solid #808000";
+            return "6px solid #008000";
+        }
+        public string GetEquipBorder()
+        {
+            ArdMgr ardMgr = new ArdMgr(_hostEnv, _config, _userManager);
+            ArdRecord ar = ardMgr.GetLast();
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
+            PropaneLevel pl = pmgr.GetTUTank();
+            switch (CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false))
+            {
+                default:
+                case CSSettings.green:
+                    return "6px solid #008000";
+                case CSSettings.yellow:
+                    return "6px solid #808000";
+                case CSSettings.red:
+                    return "6px solid #800000";
+            }
+        }
+
+
     }
 }

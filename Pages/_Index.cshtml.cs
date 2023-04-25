@@ -67,19 +67,58 @@ namespace CStat.Pages
             return CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false);
         }
 
-        public string GetDocsBorder()
+        public string GetInvGradient()
         {
-            return "6px solid #008000";
+            InventoryItem person = _context.InventoryItem.FirstOrDefault(i => i.State == 1);
+            if (person != null)
+                return "radial-gradient(#FF8080, red, red)";
+            person = _context.InventoryItem.FirstOrDefault(i => i.State == 2);
+            if (person != null)
+                return "radial-gradient(#FFFFE0, yellow, yellow)";
+            return "radial-gradient(#80FF80, green, green)";
         }
+
+        public string GetTasksGradient()
+        {
+            CSUser curUser = CStat.Models.CCommon.GetCurUser(_context, _config, _httpCA, _userManager);
+            int? pid = ((curUser != null) && curUser.pid.HasValue && (curUser.pid.Value != -1) && !curUser.ShowAllTasks) ? curUser.pid : null;
+            var dueTasks = Task.GetDueTasks(_context, pid, 24);
+            if (dueTasks.Count > 0)
+                return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? "radial-gradient(#FF8080, red, red)" : "radial-gradient(#FFFFE0, yellow, yellow)";
+            return "radial-gradient(#80FF80, green, green)";
+        }
+        public string GetEquipGradient()
+        {
+            ArdMgr ardMgr = new ArdMgr(_hostEnv, _config, _userManager);
+            ArdRecord ar = ardMgr.GetLast();
+            PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
+            PropaneLevel pl = pmgr.GetTUTank();
+            switch (CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false))
+            {
+                default:
+                case CSSettings.green:
+                    return "radial-gradient(#80FF80, green, green)";
+                case CSSettings.yellow:
+                    return "radial-gradient(#FFFFE0, yellow, yellow)";
+                case CSSettings.red:
+                    return "radial-gradient(#FF8080, red, red)";
+            }
+        }
+
+        public string GetDocsGradient()
+        {
+            return "radial-gradient(#80FF80, green, green)";
+        }
+
         public string GetInvBorder()
         {
             InventoryItem person = _context.InventoryItem.FirstOrDefault(i => i.State == 1);
             if (person != null)
-                return "6px solid #800000";
+                return "8px solid #800000";
             person = _context.InventoryItem.FirstOrDefault(i => i.State == 2);
             if (person != null)
-                return "6px solid #808000";
-            return "6px solid #008000";
+                return "8px solid #C08000";
+            return "8px solid #006000";
         }
         public string GetTasksBorder()
         {
@@ -87,8 +126,8 @@ namespace CStat.Pages
             int? pid = ((curUser != null) && curUser.pid.HasValue && (curUser.pid.Value != -1) && !curUser.ShowAllTasks) ? curUser.pid : null;
             var dueTasks = Task.GetDueTasks(_context, pid, 24);
             if (dueTasks.Count > 0)
-                return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? "6px solid #800000" : "6px solid #808000";
-            return "6px solid #008000";
+                return dueTasks.Any(t => t.DueDate.HasValue && (t.DueDate.Value < PropMgr.ESTNow)) ? "8px solid #800000" : "8px solid #C08000";
+            return "6px solid #006000";
         }
         public string GetEquipBorder()
         {
@@ -100,14 +139,16 @@ namespace CStat.Pages
             {
                 default:
                 case CSSettings.green:
-                    return "6px solid #008000";
+                    return "8px solid #006000";
                 case CSSettings.yellow:
-                    return "6px solid #808000";
+                    return "8px solid #C08000";
                 case CSSettings.red:
-                    return "6px solid #800000";
+                    return "8px solid #800000";
             }
         }
-
-
+        public string GetDocsBorder()
+        {
+            return "8px solid #006000"; ;
+        }
     }
 }

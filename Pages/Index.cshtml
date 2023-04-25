@@ -57,27 +57,27 @@
         }
 
         .divTasks {
-            background-color: @Model.GetTasksColor();
+            background-image: @Model.GetTasksGradient();
             border: @Model.GetTasksBorder();
-            border-radius: 20px;
+            border-radius: 25px;
         }
 
         .divEquip {
-            background-color: @Model.GetEquipColor();
+            background-image: @Model.GetEquipGradient();
             border: @Model.GetEquipBorder();
-            border-radius: 20px;
+            border-radius: 25px;
         }
 
         .divStock {
-            background-color: @Model.GetInvColor();
+            background-image: @Model.GetInvGradient();
             border: @Model.GetInvBorder();
-            border-radius: 20px;
+            border-radius: 25px;
         }
 
         .divInfo {
-            background-color: @Model.GetDocsColor();
+            background-image: @Model.GetDocsGradient();
             border: @Model.GetDocsBorder();
-            border-radius: 20px;
+            border-radius: 25px;
         }
 
         .tableC {
@@ -93,7 +93,7 @@
             height: 100%;
             text-align: center;
             font-weight: bold;
-            font-size: 1.2em;
+            font-size: 1.4em;
         }
 
         #btnSVG {
@@ -143,9 +143,6 @@
 
         $(document).ready(function () {
 
-            //const elem = document.documentElement;
-            //if (elem.requestFullscreen) { elem.requestFullscreen() }
-
         });
     </script>
 
@@ -183,8 +180,6 @@
             <div id="Inv" class="cell divStock"><table class="tableC"><tr><td><a href="Inventory">Stock</a></td></tr></table></div>
             <div id="Docs" class="cell divInfo"><table class="tableC"><tr><td><a href="Info">Info</a></td></tr></table></div>
         </div>
-        <div class="row footer">
-            <p>footer (fixed height)</p>
-        </div>
+
     </div>
 </body>

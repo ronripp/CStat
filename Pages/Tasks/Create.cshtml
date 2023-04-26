@@ -190,7 +190,11 @@
 
             var saveFormData = new FormData();
             // Add Task fields
-            saveFormData.append("pctComp", $("#pctComp").val());
+
+            let ptcComp = $("#pctComp").val();
+            if (!ptcComp)
+                ptcComp = "0";
+            saveFormData.append("pctComp", ptcComp);
             saveFormData.append("taskState", $("#taskData_state").val());
             saveFormData.append("taskReason", $("#taskData_reason").val());
             saveFormData.append("taskPriority", $("#task_Priority").val());

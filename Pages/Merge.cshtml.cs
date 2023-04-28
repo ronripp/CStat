@@ -618,15 +618,22 @@ namespace CStat.Pages
             }
 
             // Try to gather missing info from toIdx
-            Person toP = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == toIdx);
+            Person toP = _ctx.Person.Include(p => p.Address).AsNoTracking().FirstOrDefault(p => p.Id == toIdx);
             bool wasMerged = false;
             if (toP != null)
             {
                 foreach (var fidx in fromIdxList)
                 {
-                    Person fromP = _ctx.Person.AsNoTracking().FirstOrDefault(p => p.Id == fidx);
+                    Person fromP = _ctx.Person.Include(p => p.Address).AsNoTracking().FirstOrDefault(p => p.Id == fidx);
                     if (fromP != null)
+                    {
                         wasMerged |= MergeMissingFields(toP, fromP);
+                        if ( ((toP.Address == null) || (toP.Address.Street.Length < 3)) && ((fromP.Address != null) && (fromP.Address.Street.Length >= 3)) )
+                        {
+                            toP.AddressId = fromP.AddressId;
+                            wasMerged = true;
+                        }
+                    }
                 }
             }
             if (wasMerged)

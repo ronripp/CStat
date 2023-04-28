@@ -231,24 +231,26 @@
             }
         }
 
-        <div>
-            <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
-                <li class="nav-item">
-                    <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab"><b>Address</b></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#ChurchTab" class="nav-link @CStr c1" data-toggle="tab" role="tab"><b>Church</b></a>
-                </li>
-                <li class="nav-item">
-                    <button id="DoMerge" disabled>Merge</button>
-                </li>
-                <li class="nav-item">
-                    <button id="DoExport">Export</button>
-                </li>
-            </ul>
+        <div style="position:relative">
+            <div>
+                <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
+                    <li class="nav-item">
+                        <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab"><b>Address</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#ChurchTab" class="nav-link @CStr c1" data-toggle="tab" role="tab"><b>Church</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <button id="DoMerge" style="position: fixed; right: 0px" disabled>Merge</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="DoExport">Export</button>
+                    </li>
+                </ul>
+            </div>
 
             <div class="tab-content">
                 <div class="tab-pane @PStr" active id="PersonTab">

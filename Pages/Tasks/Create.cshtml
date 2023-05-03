@@ -186,7 +186,7 @@
             }
         }
 
-        function saveTask() {
+        function saveTask(exportAfter=false) {
 
             var saveFormData = new FormData();
             // Add Task fields
@@ -267,6 +267,10 @@
                         if (inMarkDone) {
                             $("#markDone").prop("disabled", true).css('opacity', 0.5).css("color", "lightgray");
                         }
+
+                        if (exportAfter) {
+                            exportTask();
+                        }
                     }
                     else {
                         alert("Image Save Failed : " + res);
@@ -335,6 +339,31 @@
             });
         }
 
+        function exportTask(tas) {
+
+            var exportFormData = new FormData();
+            exportFormData.append("taskId", $("#task_Id").val());
+
+            jQuery.ajax({
+                url: "/Tasks/Create?handler=Export",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: exportFormData,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                },
+                error: function (res) {
+                },
+                complete: function (res) {
+                }
+            });
+
+        }
 
         function saveBOM() {
             var bom = [];
@@ -440,6 +469,8 @@
             $("#gtId").html("Grand Total: $" + grandTot.toFixed(2));
             $("#TCostStat").html(grandTot.toFixed(2));
         }
+
+
 
         $(document).ready(function () {
 

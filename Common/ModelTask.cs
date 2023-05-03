@@ -57,19 +57,19 @@ namespace CStat.Models
 
             var taskData = TaskData.ReadTaskData(hostEnv, tid, task.ParentTaskId.HasValue ? task.ParentTaskId.Value : -1);
             if (task.DueDate == null)
-               task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
+                task.DueDate = task.EstimatedDoneDate; // temporary for editing purpose
             else
-               taskData.FixedDueDate = true;
+                taskData.FixedDueDate = true;
 
-             task.GetTaskStatus(out eTaskStatus state, out eTaskStatus reason, out int PercentComplete);
-             taskData.state = (int)state;
-             taskData.reason = (int)reason;
-             taskData.PercentComplete = PercentComplete;
+            task.GetTaskStatus(out eTaskStatus state, out eTaskStatus reason, out int PercentComplete);
+            taskData.state = (int)state;
+            taskData.reason = (int)reason;
+            taskData.PercentComplete = PercentComplete;
 
-            return new FullTask (task, taskData);
+            return new FullTask(task, taskData);
         }
 
-        public static int CreateTaskReport(FullTask ft, string pdfFile)
+        public static int CreateTaskReport(FullTask ft, string pdfFile = "")
         {
             // Create HTML Report HERE
             string HtmlStr = "Hello";
@@ -92,5 +92,5 @@ namespace CStat.Models
 
             return 0;
         }
-
+    }
 }

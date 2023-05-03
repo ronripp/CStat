@@ -612,6 +612,33 @@ namespace CStat.Pages.Tasks
             return this.Content("Success:"); // Send back results
         }
 
+        public ActionResult OnPostExport()
+        {
+            if ((this.Request == null) || (this.Request.Form == null))
+                return this.Content("Fail: Bad/Missing Request"); // Send back results
+
+            try
+            {
+                int id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+
+                if (id <= 0)
+                {
+                    return this.Content("Fail: No id"); // Send back results
+                }
+
+                var ft = CTask.GetFullTask(_context, hostEnv, id);
+                CTask.CreateTaskReport(ft, "test.pdf");
+
+            }
+            catch (Exception e)
+            {
+                return this.Content("Fail: e.msg=" + e.Message); // Send back results
+            }
+
+            return this.Content("Success:"); // Send back results
+        }
+
+
         public ActionResult OnPostPingCTask()
         {
             return this.Content("Success:");  // Response 

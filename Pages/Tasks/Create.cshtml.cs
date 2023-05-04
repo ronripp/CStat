@@ -627,7 +627,7 @@ namespace CStat.Pages.Tasks
                 }
 
                 var ft = CTask.GetFullTask(_context, hostEnv, id);
-                CTask.CreateTaskReport(ft, "test.pdf");
+                CTask.CreateTaskReport(ft, "c:\\rr\\Task1.pdf");
 
             }
             catch (Exception e)

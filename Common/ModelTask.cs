@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SelectPdf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CTask = CStat.Models.Task;
@@ -11,14 +12,16 @@ namespace CStat.Models
 {
     public class FullTask
     {
-        public FullTask(Task tsk, TaskData tskData)
+        public FullTask(Task tsk, TaskData tskData, string basePth)
         {
             task = tsk;
             taskData = tskData;
+            basePath = basePth;
         }
         public Task task;
         public TaskData taskData;
-        public bool IsTemplate;
+        public string basePath;
+
     }
 
     public partial class Task
@@ -66,13 +69,37 @@ namespace CStat.Models
             taskData.reason = (int)reason;
             taskData.PercentComplete = PercentComplete;
 
-            return new FullTask(task, taskData);
+            string folderName = "Tasks";
+            string webRootPath = hostEnv.WebRootPath;
+            string basePath = Path.Combine(webRootPath, folderName);
+
+            return new FullTask(task, taskData, basePath);
         }
 
-        public static int CreateTaskReport(FullTask ft, string pdfFile = "")
+        public static int CreateTaskReport(FullTask ft, string pdfFile)
         {
             // Create HTML Report HERE
-            string HtmlStr = "Hello";
+            var t = ft.task;
+            var td = ft.taskData;
+
+            var hstr = "<!DOCTYPE html>\n<html>\n<head>\n<title><b>" + t.Description + "</b></title>\n</head>\n<body>";
+
+            hstr += "<p><b><u>Detail:</u></b><br>\n";
+            hstr += td.Detail + "</p>\n";
+
+            hstr += "<p><b><u>Comments:</u></b><br>\n";
+            hstr += td.comments + "\n";
+            hstr += "</p>\n";
+
+            hstr += "<p><b><u>Photos:</u></b><br>\n";
+            foreach (var p in td.pics)
+            {
+                hstr += "<p><b>" + p.title + "</b>/n";
+                hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\" )) + "\" width=\"800\"></p>\n";
+            }
+            hstr += "</p>\n";
+
+            hstr += "</body>\n</html>\n";
 
             // instantiate a html to pdf converter object
             HtmlToPdf converter = new HtmlToPdf();
@@ -81,11 +108,10 @@ namespace CStat.Models
             converter.Options.PdfPageSize = PdfPageSize.A4;
             converter.Options.PdfPageOrientation = PdfPageOrientation.Portrait;
             converter.Options.WebPageWidth = 1024;
-            converter.Options.WebPageWidth = 1024;
             converter.Options.WebPageHeight = 0;
 
             // create a new pdf document converting an url
-            PdfDocument doc = converter.ConvertHtmlString(HtmlStr);
+            PdfDocument doc = converter.ConvertHtmlString(hstr);
 
             // save pdf document
             doc.Save(pdfFile);

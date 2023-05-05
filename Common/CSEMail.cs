@@ -237,7 +237,7 @@ namespace CStat.Common
                         re.Subject = msg.Subject;
                         re.HtmlBody = msg.HtmlBody;
                         re.TextBody = msg.TextBody;
-                        var tbFlds = msg.TextBody.Split("\r\n");
+                        var tbFlds = msg?.TextBody?.Split("\r\n") ?? new String[0];
                         foreach (var t in tbFlds)
                         {
                             var tfld = t.Trim();
@@ -248,7 +248,10 @@ namespace CStat.Common
                         }
                         re.From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
                         if (re.Date == default)
+                        {
+
                             re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
+                        }
                         re.Attachments = new List<string>();
                         var attRawFileList = new List<string>();
                         foreach (var attachment in msg.Attachments)
@@ -519,7 +522,7 @@ namespace CStat.Common
             Char[] delimiters = {' ', ','};
             var words = subject.Split(delimiters);
 
-            if (words.Any(w => w == "meeting") || words.Any(w => w == "minutes") || words.Any(w => w == "meeting-minutes"))
+            if (words.Any(w => w == "meeting") || words.Any(w => w == "minutes") || words.Any(w => w == "meeting-minutes") || words.Any(w => w == "zoom"))
             {
                 DateTime? mmDate = null;
 
@@ -563,11 +566,11 @@ namespace CStat.Common
                     {
                         try
                         {
-                            var FileName = mmFileName;
-                            if (dbox.FileExists(destPath + "/" + mmFileName))
+                            string FileName = e.GetFinalFileName(Path.GetFileName(a));
+                            var fBody = Path.GetFileNameWithoutExtension(FileName);
+                            var fExt = Path.GetExtension(FileName);
+                            if (dbox.FileExists(destPath + "/" + FileName))
                             {
-                                var fBody = Path.GetFileNameWithoutExtension(mmFileName);
-                                var fExt = Path.GetExtension(mmFileName);
                                 for (char j = 'B'; j < 'Z'; ++j)
                                 {
                                     FileName = fBody + "_Rev_" + j.ToString() + fExt;

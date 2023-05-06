@@ -84,8 +84,12 @@ namespace CStat.Models
 
             var hstr = "<!DOCTYPE html>\n<html>\n<head>\n<title><b>" + t.Description + "</b></title>\n</head>\n<body>";
 
+            hstr += "<h3><b><u>Title :</u>&nbsp;&nbsp;" + t.Description + "</b></h3>\n";
+
             hstr += "<p><b><u>Detail:</u></b><br>\n";
             hstr += td.Detail + "</p>\n";
+
+            hstr += "<p><b><u>Status :</u></b>&nbsp;&nbsp;" + ((eTaskStatus)td.state).ToString().Replace("_", " ") + "&nbsp;&nbsp;" + (t.ActualDoneDate.HasValue ? t.ActualDoneDate.Value.Date.ToString("M-d-yyyy") : "") + "</b></p>\n";
 
             hstr += "<p><b><u>Comments:</u></b><br>\n";
             hstr += td.comments + "\n";
@@ -94,8 +98,8 @@ namespace CStat.Models
             hstr += "<p><b><u>Photos:</u></b><br>\n";
             foreach (var p in td.pics)
             {
-                hstr += "<p><b>" + p.title + "</b>/n";
-                hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\" )) + "\" width=\"800\"></p>\n";
+                hstr += "<p><div style=\"width:800px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
+                hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\" )) + "\" width=\"800\"></div></p>\n";
             }
             hstr += "</p>\n";
 

@@ -146,13 +146,26 @@ namespace CStat.Common
             _settings = CSSettings.GetCSSettings(config, userManager);
         }
 
-        public bool Send(string toName, string toAdr, string subject, string body)
+        public bool Send(string toName, string toAdr, string subject, string body, string[] attArray = null)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(this.fromName, fromSendAdr));
             message.To.Add(new MailboxAddress(toName, toAdr));
             message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
+
+            if (attArray == null)
+                message.Body = new TextPart("plain") { Text = body };
+            else
+            {
+                var builder = new BodyBuilder();
+                builder.TextBody = body;
+                foreach (var a in attArray)
+                {
+                    builder.Attachments.Add(a);
+                }
+                message.Body = builder.ToMessageBody();
+            }
+
             using (var client = new SmtpClient())
             {
                 try

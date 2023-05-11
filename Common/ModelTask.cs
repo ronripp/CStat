@@ -76,13 +76,13 @@ namespace CStat.Models
             return new FullTask(task, taskData, basePath);
         }
 
-        public static int CreateTaskReport(FullTask ft, string pdfFile)
+        public static long CreateTaskReport(FullTask ft, string pdfFile)
         {
             // Create HTML Report HERE
             var t = ft.task;
             var td = ft.taskData;
 
-            var hstr = "<!DOCTYPE html>\n<html>\n<head>\n<title><b>" + t.Description + "</b></title>\n</head>\n<body>";
+            var hstr = "<!DOCTYPE html>\n<html>\n<head>\n<title><b>" + "[" + t.Id + "] " + t.Description + "</b></title>\n</head>\n<body>";
 
             hstr += "<h3><b><u>Title :</u>&nbsp;&nbsp;" + t.Description + "</b></h3>\n";
 
@@ -96,10 +96,26 @@ namespace CStat.Models
             hstr += "</p>\n";
 
             hstr += "<p><b><u>Photos:</u></b><br>\n";
-            foreach (var p in td.pics)
+            if (td.pics.Count() > 4)
             {
-                hstr += "<p><div style=\"width:800px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
-                hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\" )) + "\" width=\"800\"></div></p>\n";
+                // Draw 2 pictures across to keep from exceeding the 5 page limit of free SelectPDF
+                int NumPics = td.pics.Count();
+                for (int i=0; i < td.pics.Count();)
+                {
+                    hstr += "<p><span style=\"width:960px; border-style: solid; page-break-inside: avoid\">";
+                    hstr += "<div style=\"width:425px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
+                    if (++i < NumPics)
+                        hstr += "<div style=\"width:425px; margin-left: 10px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
+                    hstr += "</span></p>\n";
+                }
+            }
+            else
+            {
+                foreach (var p in td.pics)
+                {
+                    hstr += "<p><div style=\"width:800px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
+                    hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\")) + "\" width=\"800\"></div></p>\n";
+                }
             }
             hstr += "</p>\n";
 
@@ -120,7 +136,11 @@ namespace CStat.Models
             // save pdf document
             doc.Save(pdfFile);
 
-            return 0;
+            if (!File.Exists(pdfFile))
+                return 0;
+
+            FileInfo fi = new FileInfo(pdfFile);
+            return (fi != null) ? fi.Length : 0;
         }
     }
 }

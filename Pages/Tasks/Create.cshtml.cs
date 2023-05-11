@@ -1,4 +1,5 @@
 ﻿using CStat.Areas.Identity.Data;
+using CStat.Common;
 using CStat.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -627,7 +628,14 @@ namespace CStat.Pages.Tasks
                 }
 
                 var ft = CTask.GetFullTask(_context, hostEnv, id);
-                CTask.CreateTaskReport(ft, "c:\\rr\\Task1.pdf");
+
+                string pdfFile = Path.Combine(Path.GetTempPath(), "Task" + ft.task.Id.ToString() + ".pdf");
+                if (CTask.CreateTaskReport(ft, ) > 0)
+                {
+                    CSEMail cse = new CSEMail(this._config, this._userManager);
+                    // ZZZ TBD cse.Send ()
+
+                }    
 
             }
             catch (Exception e)

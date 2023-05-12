@@ -645,10 +645,10 @@ namespace CStat.Pages.Tasks
             }
             catch (Exception e)
             {
-                return this.Content("Fail: e.msg=" + e.Message); // Send back results
+                return this.Content("Failure: e.msg=" + e.Message); // Send back results
             }
 
-            return this.Content("Success:"); // Send back results
+            return this.Content("Success: EMail Sent."); // Send back results
         }
 
 

@@ -48,12 +48,15 @@ namespace CStat.Pages.Tasks
 
         public bool IsTemplate = false;
 
-        public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public CSUser _curUser = null;
+
+        public CreateModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
             _context = context;
             hostEnv = hstEnv;
             _config = config;
             _userManager = userManager;
+            _curUser = CCommon.GetCurUser(context, config, httpCA, userManager);
             taskData = new TaskData();
             task = new CTask();
         }
@@ -630,13 +633,15 @@ namespace CStat.Pages.Tasks
                 var ft = CTask.GetFullTask(_context, hostEnv, id);
 
                 string pdfFile = Path.Combine(Path.GetTempPath(), "Task" + ft.task.Id.ToString() + ".pdf");
-                if (CTask.CreateTaskReport(ft, ) > 0)
+                if ((CTask.CreateTaskReport(ft, pdfFile) > 0) && (_curUser != null))
                 {
-                    CSEMail cse = new CSEMail(this._config, this._userManager);
-                    // ZZZ TBD cse.Send ()
-
-                }    
-
+                    var name = !string.IsNullOrEmpty(_curUser.Alias) ? _curUser.Alias : CSSettings.GetDefAlias(_curUser.EMail);
+                    var taskStr = "Task " + ft.task.Id.ToString() + " " + ft.task.Description;
+                    CSEMail cse = new CSEMail(_config, _userManager);
+                    cse.Send(name, _curUser.EMail, taskStr, "Hi " + name + "\nPlease see attached PDF file for details on " + taskStr + ".\n\n-Cee Stat", new string[] { pdfFile });
+                }
+                else
+                    throw new InvalidOperationException("PDF File Failed or Current User not found.");
             }
             catch (Exception e)
             {

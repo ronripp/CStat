@@ -84,28 +84,41 @@ namespace CStat.Models
 
             var hstr = "<!DOCTYPE html>\n<html>\n<head>\n<title><b>" + "[" + t.Id + "] " + t.Description + "</b></title>\n</head>\n<body>";
 
-            hstr += "<h3><b><u>Title :</u>&nbsp;&nbsp;" + t.Description + "</b></h3>\n";
+            hstr += "<h3><b><u>Task" + t.Id + " :</u>&nbsp;&nbsp;" + t.Description + "</b></h3>\n";
 
-            hstr += "<p><b><u>Detail:</u></b><br>\n";
+            hstr += "<p><b><u><font size=\" + 1\">Detail :</font></u></b><br>\n";
             hstr += td.Detail + "</p>\n";
 
-            hstr += "<p><b><u>Status :</u></b>&nbsp;&nbsp;" + ((eTaskStatus)td.state).ToString().Replace("_", " ") + "&nbsp;&nbsp;" + (t.ActualDoneDate.HasValue ? t.ActualDoneDate.Value.Date.ToString("M-d-yyyy") : "") + "</b></p>\n";
+            hstr += "<p><b><u><font size=\" + 1\">Status :</font></u></b>&nbsp;&nbsp;" + ((eTaskStatus)td.state).ToString().Replace("_", " ") + "&nbsp;&nbsp;" + (t.ActualDoneDate.HasValue ? t.ActualDoneDate.Value.Date.ToString("M-d-yyyy") : "") + "</b></p>\n";
 
-            hstr += "<p><b><u>Comments:</u></b><br>\n";
-            hstr += td.comments + "\n";
+            //===[ ronripp Thu 5/11/23 @ 9:56 PM ]===
+
+            hstr += "<p><b><u><font size=\" + 1\">Comments:</font></u></b><br>\n";
+            var clines = td.comments.Split("===");
+            foreach (var rawCl in clines)
+            {
+                var cl = rawCl.Trim();
+                if (!String.IsNullOrEmpty(cl))
+                {
+                    if (cl.StartsWith("[") && cl.EndsWith("]"))
+                        hstr += "<b>" + cl + "</b><br>\n";
+                    else
+                        hstr += cl + "<br>\n";
+                }
+            }
             hstr += "</p>\n";
 
-            hstr += "<p><b><u>Photos:</u></b><br>\n";
+            hstr += "<p><b><u><font size=\" + 1\">Photos:</font></u></b><br>\n";
             if (td.pics.Count() > 4)
             {
                 // Draw 2 pictures across to keep from exceeding the 5 page limit of free SelectPDF
                 int NumPics = td.pics.Count();
                 for (int i=0; i < td.pics.Count();)
                 {
-                    hstr += "<p><span style=\"width:960px; border-style: solid; page-break-inside: avoid\">";
+                    hstr += "<p><span style=\"width:960px; margin-top: 10px; border-style: solid; page-break-inside: avoid\">";
                     hstr += "<div style=\"width:425px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
                     if (++i < NumPics)
-                        hstr += "<div style=\"width:425px; margin-left: 10px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
+                        hstr += "<div style=\"width:425px; margin-top: 10px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
                     hstr += "</span></p>\n";
                 }
             }
@@ -113,7 +126,7 @@ namespace CStat.Models
             {
                 foreach (var p in td.pics)
                 {
-                    hstr += "<p><div style=\"width:800px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
+                    hstr += "<p><div style=\"width:800px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
                     hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\")) + "\" width=\"800\"></div></p>\n";
                 }
             }

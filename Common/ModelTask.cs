@@ -101,7 +101,7 @@ namespace CStat.Models
                 if (!String.IsNullOrEmpty(cl))
                 {
                     if (cl.StartsWith("[") && cl.EndsWith("]"))
-                        hstr += "<b>" + cl + "</b><br>\n";
+                        hstr += "<span style=\"color: blue; font-weight:bold; font-size:0.5em\">" + cl.Substring(1, cl.Length-2).Trim() + "</span><br>\n";
                     else
                         hstr += cl + "<br>\n";
                 }
@@ -109,28 +109,58 @@ namespace CStat.Models
             hstr += "</p>\n";
 
             hstr += "<p><b><u><font size=\" + 1\">Photos:</font></u></b><br>\n";
-            if (td.pics.Count() > 4)
+            string filePath = "";
+
+            int NumPics = td.pics.Count();
+
+            // TEMP !!!REMOVE!!!
+            td.pics.Add(new Pic(t.Id, NumPics, "Test EXIF Image UP-Mirrored",  "C:\\EXIF\\up-mirrored.jpg"));
+            ++NumPics;
+
+            if (NumPics > 4)
             {
                 // Draw 2 pictures across to keep from exceeding the 5 page limit of free SelectPDF
-                int NumPics = td.pics.Count();
-                for (int i=0; i < td.pics.Count();)
+
+                for (int i=0; i < NumPics; ++i)
                 {
-                    hstr += "<p><span style=\"width:960px; margin-top: 10px; border-style: solid; page-break-inside: avoid\">";
-                    hstr += "<div style=\"width:425px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
-                    if (++i < NumPics)
-                        hstr += "<div style=\"width:425px; margin-top: 10px; border-style: solid;\"><b>" + td.pics[i].title + "</b><br>\n<img src=\"" + Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\")) + "\" width=\"800\"></div>";
-                    hstr += "</span></p>\n";
+                    filePath = Path.Combine(ft.basePath, td.pics[i].url.Replace("/", "\\"));
+                    CCommon.ExifOrientJPEGFile(filePath); // Orient JPEG Image based on how user took it if information is available
+
+                    int j = i + 1;
+                    if (j < NumPics)
+                    {
+                        // Add 2 pics
+                        hstr += "<p><table width=960px style=\"margin-top: 10px; border-style: solid; page-break-inside: avoid\">";
+                        hstr += "<tr>";
+                        hstr += "<td style=\"border-right: solid;\">" + td.pics[i].title + "</td>";
+                        hstr += "<td>" + td.pics[j].title + "</td>";
+                        hstr += "<tr>";
+                        hstr += "<td style=\"border-right: solid; vertical-align:top\"><img src=\"" + filePath + "\" width=\"480\"></td>";
+                        filePath = Path.Combine(ft.basePath, td.pics[j].url.Replace("/", "\\"));
+                        CCommon.ExifOrientJPEGFile(filePath); // Orient JPEG Image based on how user took it if information is available
+                        hstr += "<td style=\"vertical-align:top\"><img src=\"" + filePath + "\" width=\"480\">></td>";
+                        hstr += "</tr>";
+                        hstr += "</table></p>\n";
+                        ++i;
+                    }
+                    else
+                    {
+                        hstr += "<p><div style=\"width:960px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + td.pics[i].title + "</b><br>\n";
+                        hstr += "<img src=\"" + filePath + "\" width=\"960\"></div></p>\n";
+                    }
                 }
             }
             else
             {
                 foreach (var p in td.pics)
                 {
+                    filePath = Path.Combine(ft.basePath, p.url.Replace("/", "\\"));
+                    CCommon.ExifOrientJPEGFile(filePath); // Orient JPEG Image based on how user took it if information is available
+
                     hstr += "<p><div style=\"width:800px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
-                    hstr += "<img src=\"" + Path.Combine(ft.basePath, p.url.Replace("/", "\\")) + "\" width=\"800\"></div></p>\n";
+                    hstr += "<img src=\"" + filePath + "\" width=\"800\"></div></p>\n";
                 }
             }
-            hstr += "</p>\n";
 
             hstr += "</body>\n</html>\n";
 
@@ -154,6 +184,11 @@ namespace CStat.Models
 
             FileInfo fi = new FileInfo(pdfFile);
             return (fi != null) ? fi.Length : 0;
+        }
+
+        private static void ExifOrientJPEGFile()
+        {
+            throw new NotImplementedException();
         }
     }
 }

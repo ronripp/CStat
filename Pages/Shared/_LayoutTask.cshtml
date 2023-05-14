@@ -15,7 +15,7 @@
             <div class="container" style="background-color:#fff090;">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">@ViewData["Title"]</a>
                 <span><img style="width: 2em;" src="~/images/se.svg" alt="[<]" onclick="doExit()"></span>
-                <span><button onclick="doExport()">Email PDF</button></span>
+                <span><button id="emailPDFBtn" onclick="doExport()"></button></span>
                 <span><a class="nav-link" asp-area="" asp-page="/Index"><b>Home</b></a></span>
             </div>
         </nav>

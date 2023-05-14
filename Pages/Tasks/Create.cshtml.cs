@@ -638,7 +638,7 @@ namespace CStat.Pages.Tasks
                     var name = !string.IsNullOrEmpty(_curUser.Alias) ? _curUser.Alias : CSSettings.GetDefAlias(_curUser.EMail);
                     var taskStr = "Task " + ft.task.Id.ToString() + " " + ft.task.Description;
                     CSEMail cse = new CSEMail(_config, _userManager);
-                    cse.Send(name, _curUser.EMail, taskStr, "Hi " + name + "\nPlease see attached PDF file for details on " + taskStr + ".\n\n-Cee Stat", new string[] { pdfFile });
+                    cse.Send(name, _curUser.EMail, taskStr, "Hi " + name + ".\nPlease see attached PDF file for details on " + taskStr + ".\n\n-Cee Stat", new string[] { pdfFile });
                 }
                 else
                     throw new InvalidOperationException("PDF File Failed or Current User not found.");
@@ -650,7 +650,6 @@ namespace CStat.Pages.Tasks
 
             return this.Content("Success: EMail Sent."); // Send back results
         }
-
 
         public ActionResult OnPostPingCTask()
         {

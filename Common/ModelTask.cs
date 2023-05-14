@@ -92,8 +92,9 @@ namespace CStat.Models
             hstr += "<p><b><u><font size=\" + 1\">Status :</font></u></b>&nbsp;&nbsp;" + ((eTaskStatus)td.state).ToString().Replace("_", " ") + "&nbsp;&nbsp;" + (t.ActualDoneDate.HasValue ? t.ActualDoneDate.Value.Date.ToString("M-d-yyyy") : "") + "</b></p>\n";
 
             //===[ ronripp Thu 5/11/23 @ 9:56 PM ]===
-
             hstr += "<p><b><u><font size=\" + 1\">Comments:</font></u></b><br>\n";
+            if (td.comments == null)
+                td.comments = "";
             var clines = td.comments.Split("===");
             foreach (var rawCl in clines)
             {
@@ -113,9 +114,9 @@ namespace CStat.Models
 
             int NumPics = td.pics.Count();
 
-            // TEMP !!!REMOVE!!!
-            td.pics.Add(new Pic(t.Id, NumPics, "Test EXIF Image UP-Mirrored",  "C:\\EXIF\\up-mirrored.jpg"));
-            ++NumPics;
+            // TEMP TEST !!!REMOVE!!!
+            //td.pics.Add(new Pic(t.Id, NumPics, "Test EXIF Image UP-Mirrored",  "C:\\EXIF\\up-mirrored.jpg"));
+            //++NumPics;
 
             if (NumPics > 4)
             {
@@ -145,8 +146,8 @@ namespace CStat.Models
                     }
                     else
                     {
-                        hstr += "<p><div style=\"width:960px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + td.pics[i].title + "</b><br>\n";
-                        hstr += "<img src=\"" + filePath + "\" width=\"960\"></div></p>\n";
+                        hstr += "<p><div style=\"width:740px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + td.pics[i].title + "</b><br>\n";
+                        hstr += "<img src=\"" + filePath + "\" width=\"740\"></div></p>\n";
                     }
                 }
             }
@@ -157,8 +158,8 @@ namespace CStat.Models
                     filePath = Path.Combine(ft.basePath, p.url.Replace("/", "\\"));
                     CCommon.ExifOrientJPEGFile(filePath); // Orient JPEG Image based on how user took it if information is available
 
-                    hstr += "<p><div style=\"width:800px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
-                    hstr += "<img src=\"" + filePath + "\" width=\"800\"></div></p>\n";
+                    hstr += "<p><div style=\"width:740px; margin-top: 10px; border-style: solid; page-break-inside: avoid\"><b>" + p.title + "</b><br>\n";
+                    hstr += "<img src=\"" + filePath + "\" width=\"740\"></div></p>\n";
                 }
             }
 

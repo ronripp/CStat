@@ -349,6 +349,7 @@
 
         function exportTask(tas) {
 
+            $("#emailPDFBtn").prop('disabled', true);
             var exportFormData = new FormData();
             exportFormData.append("taskId", $("#task_Id").val());
 
@@ -370,6 +371,7 @@
                     alert("FAILED : " + res);
                 },
                 complete: function (res) {
+                    $("#emailPDFBtn").prop('disabled', false);
                 }
             });
 

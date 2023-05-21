@@ -534,6 +534,7 @@
                 }
                 $("#imgNextBtn").prop("disabled", curPic >= (pics.length - 1));
                 $("#imgPriorBtn").prop("disabled", curPic <= 0);
+                dp();
             }
 
             setPicture();
@@ -637,7 +638,8 @@
 
             $("#imgTitle").on('blur', "#editImgTitle", function () {
                 picTitles[curPic] = encodeQuotes($("#editImgTitle").val().trim());
-                ("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
+                $("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
+                dp();
             });
 
             $("#imgTitle").click(function () {
@@ -868,9 +870,13 @@
                     formdata = new FormData();
                 }
 
-                fileInput.addEventListener("change", function (evt) {
-                    $("#savePicBtn").show();
-                });
+                //fileInput.addEventListener("change", function (evt) {
+                //    $("#savePicBtn").show();
+                //});
+            });
+
+            $("#newImg").change(function () { // ZZZ
+                savePic();
             });
 
             $("#cancelPicBtn").click(function () {
@@ -940,7 +946,11 @@
             initCosts();
             initialView();
 
-            $("#savePicBtn").click(function () {
+            //$("#savePicBtn").click(function () {
+            //    savePic()
+            //});
+
+            function savePic() {
                 var i = 0, len = fileInput.files.length, img, reader, file;
 
                 for (; i < len; i++) {
@@ -958,10 +968,10 @@
                         if (formdata) {
                             let picDesc = $("#newImgDesc").val();
                             if (!picDesc) {
-                                if (!confirm("Empty picture description. Add?")) {
-                                    return;
-                                }
-                                picDesc = "";
+                                //if (!confirm("Empty picture description. Add?")) {
+                                //    return;
+                                //}
+                                picDesc = "{no title} Edit here!";
                             }
                             picDesc = encodeQuotes(picDesc);
 
@@ -990,7 +1000,9 @@
                                         pics.push(res.substr(8));
                                         picTitles.push(picDesc);
                                         setDirtyTask();
+                                        curPic = pics.length - 1;
                                         setPicture();
+                                        saveTask();
                                     } else {
                                         alert("Image Save Failed : " + res);
                                     }
@@ -1001,6 +1013,7 @@
                                 complete: function (res) {
                                     $("#newPicId").hide();
                                     $("#picHdrId").show();
+                                    dp();
                                 }
                             });
                         }
@@ -1009,7 +1022,7 @@
                         alert('Not a valid image!');
                     }
                 }
-            });
+            }
 
             $("#delPicBtn").click(function () {
                 if ((pics.length > 0) && confirm("Delete " + picTitles[curPic] + " ?")) {
@@ -1020,8 +1033,18 @@
                     }
                     setDirtyTask();
                     setPicture();
+                    dp();
                 }
             });
+
+            function dp()
+            {
+                console.log("*** NumPics=" + pics.length + " NumPicTitles=" + picTitles.length + " curPic=" + curPic);
+                var len = Math.min(pics.length, picTitles.length);
+                for (var i = 0; i < len; ++i) {
+                    console.log("picTitle[" + i + "]=" + picTitles[i] + " pic[" + i + "]=" + pics[i]);
+                }
+            }
 
             $("#FixedDueDate").click(function () {
                 if ($("#FixedDueDate").is(":checked")) {
@@ -1332,30 +1355,29 @@
                     </div>
                     <div class="tab-pane" id="picTab">
                         <div id="picHdrId" class="col-md-12" width="100%">
-                            <table width="100%" style="margin-top:4px">
+                            <table width="100%" style="margin-top: 4px; margin-bottom: 4px;">
                                 <tr>
-                                    <td><button id="newPicBtn" style="margin-right:6px"><b>+</b></button></td>
+                                    <td><button id="newPicBtn" style="margin-right: 6px; background-color:lawngreen;"><b>&#x271A;</b></button></td>
                                     <td><button id="imgPriorBtn">&#60;&#60;</button></td>
                                     <td id="imgTitle" style="text-align:center; margin-left:4px; margin-right:4px;"></td>
                                     <td><button id="imgNextBtn">&#62;&#62;</button></td>
-                                    <td><button id="delPicBtn" style="margin-left:6px"><b>X</b></button></td>
+                                    <td><button id="delPicBtn" style="margin-left:6px; background-color:red;"><b>X</b></button></td>
                                 </tr>
                             </table>
                         </div>
 
                         <div id="newPicId" style="display:none; margin-top:4px; border: 3px ridge teal">
                             <div class="col-md-12">
-                                <h4>Add New Picture with Title ...</h4>
+                                <h4>Add Optional Title Then Photo:&nbsp;&nbsp;<button id="cancelPicBtn" style="margin-left:4px">&#x274C;</button></h4>
                             </div>
-                            <div class="col-md-3" style="margin-top:4px">
-                                <input id="newImg" type="file" name="file">
+                            <div class="col-md-6" style="margin-top:10px">
+                                <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>1) Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
                             </div>
-                            <div class="col-md-6" style="margin-top:4px">
-                                <span style="text-align:center; margin-left:4px; margin-right:4px;"><b><label for="newImgDesc"></label>Title: </b><input id="newImgDesc" tid="@Model.task.Id" style="min-width:20em" /></span>
+                            <div class="col-md-3" style="margin-left: 4px; margin-top: 10px">
+                                <b>2)&nbsp;</b><input id="newImg" type="file" name="file">
                             </div>
-                            <div class="col-md-3" style="margin-top:4px; margin-bottom:4px">
+                            <div class="col-md-3" style="margin-top:10px; margin-bottom:4px">
                                 <button id="savePicBtn" style="margin-left:4px; display:none; background-color:greenyellow"><b>Save</b></button>
-                                <button id="cancelPicBtn" style="margin-left:4px"><b>Cancel</b></button>
                             </div>
                         </div>
                         <div id="imgDiv">

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -226,6 +227,8 @@ namespace CStat.Pages.Tasks
                 string PicTitle = CCommon.UnencodeQuotes(this.Request.Form.FirstOrDefault(kv => kv.Key == "picTitle").Value);
                 int imgTID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
                 int imgPID = Int32.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "picId").Value);
+                int msecsFromStart = (int)Math.Round((DateTime.Now - new DateTime(2023, 05, 01)).TotalSeconds);
+                imgPID += msecsFromStart; // attempt a unique index in time and space
 
                 if (files != null && (files.Count == 1) && (imgTID >= 0))
                 {

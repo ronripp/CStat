@@ -50,12 +50,7 @@
 </style>
 <script>
     function Task(task) {
-        let filt = $("#ListFilter").val();
-        if (!!filt)
-            filt = filt.trim();
-        else
-            filt = "";
-        window.location.href = ".\Task\Create?id=" + task;
+        window.location.href = "../Tasks/Create?id=" + task;
     }
 </script>
 
@@ -100,7 +95,7 @@
                     covered. Acceptable documentation that this has been corrected must be submitted to this
                     Department by end of day November 4th. It is noted that facility is not currently occupied by any
                     overnight patrons.
-                </p>~T1072
+                </p><button class="TC" onclick="Task(1072)">Task 1072</button>
             </td>
         </tr>
         <tr>
@@ -139,7 +134,7 @@
                 this report approved by this Department or subsequent required changes made, and two
                 consecutive days of satisfactory bacteriological water samples submitted to this Department before
                 the Boil Water Order may be terminated. The Boil Water Order may not be terminated until written
-                authorization is obtained from a representative of this Department.~TFIXED
+                authorization is obtained from a representative of this Department.<button class="TC"">FIXED</button>
             </td>
         </tr>
         <tr>
@@ -397,7 +392,7 @@
                 2. Deadbolt hardware found on exit doors from the boys cabins.<br />
                 3. Deadbolt hardware found on exit doors from girls cabin multi-use bathroom.<br />
                 4. The stairs to the lower girls cabin are very slanted inwards and present a potential tripping
-                hazard.<br />~T1050
+                hazard.<br /><button class="TC" onclick="Task(1050)">Task 1050</button>
                 5. Deadbolt hardware found on exit doors from the higher girls cabin.<br />
             </td>
         </tr>
@@ -466,7 +461,7 @@
             <td class="DESC">
                 1. No evacuation routes posted in rooms discharging to interior corridor.<br />
                 2. No fire safety plan can be produced.<br />
-                ~T1052
+                <button class="TC" onclick="Task(1052)">Task 1052</button>
             </td>
         </tr>
         <tr>
@@ -555,14 +550,14 @@
                 <p>4. Kitchen staff bathroom window (used for ventilation) maintains a ripped screen.</p>
                 <p>5. The kitchen staff bathroom shower exhibits a buildup of debris.</p>
                 <p>6. The kitchen staff building has a gap above a window to the exterior.</p>
-                <p>7. The kitchen staff building mens restroom has an open, unscreened penetration to the exterior.~T1061</p>
+                <p>7. The kitchen staff building mens restroom has an open, unscreened penetration to the exterior.<button class="TC" onclick="Task(1061)">Task 1061</button></p>
                 <p>
                     8. A fan is found poorly taped into a window in the boys cabin, leaving an unscreened opening to
                     the exterior.
                 </p>
                 <p>
                     9. The floor in one of the girls cabins appears to be unfinished boards. Staff states they had been
-                    sealed but inspector notes they feel rough and chips easily flake from the flooring.~T1060
+                    sealed but inspector notes they feel rough and chips easily flake from the flooring.<button class="TC" onclick="Task(1060)">Task 1060</button>
                 </p>
             </td>
         </tr>

@@ -162,6 +162,15 @@
 
         }
 
+        function getFilteredList() {
+            let filt = $("#ListFilter").val();
+            if (!!filt)
+                filt = filt.trim();
+            else
+                filt = "";
+            window.location.href = "Index?showTemplates=false&filter=" + filt;
+        }
+
     </script>
 
 </head>
@@ -180,7 +189,7 @@
             }
             else
             {
-    <b><a asp-page="Create">@createLabel</a></b>
+    <b><a asp-page="Create">@createLabel</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ListFilter" value="@Model.GetFilter()" type="text" /><button onclick="getFilteredList()">&#x1F50D;</button></b>
             }
         }
         <span>

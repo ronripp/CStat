@@ -1,0 +1,680 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+<style>
+
+    .PHH_HDR {
+        padding: 4px 0px 4px 4px;
+        background-color: #F5A9A6;
+        font-weight: bold;
+        vertical-align: top;
+    }
+
+    .PHH_ITEM {
+        color: #DE3933;
+        font-weight: bold;
+        vertical-align: top;
+    }
+
+    .GEN_HDR {
+        background-color: #C6C8F4;
+        font-weight: bold;
+        vertical-align: top;
+    }
+
+    .GEN_ITEM {
+        color: #4654CF;
+        font-weight: bold;
+        vertical-align: top;
+    }
+
+    .TTL {
+        padding-top: 12px;
+        font-weight: bold;
+        padding-right: 8px;
+        vertical-align: top;
+    }
+
+    .DESC {
+        padding-top: 12px;
+        vertical-align: top;
+    }
+
+    .TC {
+        background-color: lawngreen;
+    }
+
+</style>
+<script>
+    function Task(task) {
+        let filt = $("#ListFilter").val();
+        if (!!filt)
+            filt = filt.trim();
+        else
+            filt = "";
+        window.location.href = ".\Task\Create?id=" + task;
+    }
+</script>
+
+</head>
+<body>
+    <table width="95%">
+
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="PHH_HDR" colspan="2">PUBLIC HEALTH HAZARDS</td>
+        </tr>
+        <tr>
+            <td class="PHH_ITEM" colspan="2">ITEM # 1 WAS FOUND IN VIOLATION 2 TIME(S). PUBLIC HEALTH HAZARD</td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                Part or parts of the item were observed to be in violation which were corrected at the time of inspection.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Electrical service, wiring, components free from imminent fire or shock hazard {7-1.4b(1)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                <p>
+                    1. At the time of the inspection, an uncovered electrical box with interior wiring exposed is found
+                    present next the the three breaker boxes in the basement. This box must be properly covered.
+                    Acceptable documentation that this has been corrected must be submitted to this Department by
+                    end of day November 4th. It is noted that facility is not currently occupied by any overnight patrons.
+                </p><button class="TC" onclick="Task(1071)">Task 1071</button>
+                <p>
+                    2. At the time of the inspection, a breaker box is found in one of the girls cabins with an opening to
+                    the interior electrical components not filled by a breaker or cover. This opening must be properly
+                    covered. Acceptable documentation that this has been corrected must be submitted to this
+                    Department by end of day November 4th. It is noted that facility is not currently occupied by any
+                    overnight patrons.
+                </p>~T1072
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="PHH_HDR" colspan="2">PUBLIC HEALTH HAZARDS</td>
+        </tr>
+        <tr>
+            <td class="PHH_ITEM" colspan="2">ITEM # 6 WAS FOUND IN VIOLATION 1 TIME(S). PUBLIC HEALTH HAZARD</td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                Part or parts of the item were observed to be in violation which were corrected at the time of inspection.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Adequate disinfection - chlorine residual maintained {7-1.4b(6)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. At the time of the inspection, staff stated that the chlorinator had stopped working last night and
+                he had been working on it this morning. The chlorinator was observed to be operating but it did not
+                appear that any chlorine was being pulled through the tubing from the crock. Additionally, changes
+                to the water system were not made in accordance with conditionally approved plans. A Boil Water
+                Order is issued. The chlorinator must be repaired, changes to the water system noted elsewhere in
+                this report approved by this Department or subsequent required changes made, and two
+                consecutive days of satisfactory bacteriological water samples submitted to this Department before
+                the Boil Water Order may be terminated. The Boil Water Order may not be terminated until written
+                authorization is obtained from a representative of this Department.~TFIXED
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="PHH_HDR" colspan="2">PUBLIC HEALTH HAZARDS</td>
+        </tr>
+        <tr>
+            <td class="PHH_ITEM" colspan="2">ITEM #10 WAS FOUND IN VIOLATION 1 TIME(S). PUBLIC HEALTH HAZARD</td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                Part or parts of the item were observed to be in violation which were corrected at the time of inspection.
+            </td>
+        </tr>
+        <tr class="DET">
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Required exits provided/maintained {7-1.4b(10)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. At the time of the inspection, the rear exit door from one of the girls cabins is found blocked by
+                two fans. Upon investigation, it is found that the exterior staircase leading from this exit door is
+                missing a complete step near the top of the staircase. This path of egress must be cleared and
+                stairway repaired. Acceptable documentation that this has been corrected must be submitted to
+                this Department. Until such time as written authorization is provided, this cabin must be brought out
+                of service and remain unoccupied. 
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">GENERAL</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">ITEM #14 WAS FOUND IN VIOLATION 1 TIME(S).</td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Valid permit to operate, conspicuously posted {7-1.3(a),(g)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. Current permit is not posted conspicuously. An old permit expiring in March of 2022 is found
+                posted.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #18 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Notice of construction, modification, conversion submitted; Plans submitted within 60 days for
+                temporary residence
+                and on-site food service, pools, beaches and spraygrounds {7-1.7(a)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. A camper and small deck have been added outside of the main building as employee housing.
+                Staff states this was added approximately a year or so ago. This Department has no record of a
+                Notice of Intent being submitted outlining this modification, nor was approval granted.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #24 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Fire alarm system: operated/maintained - maintenance documentation available on-site {7-1.8(a)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td>
+                1. No fire alarm system inspection report is available. The most recent fire alarm system inspection
+                report must be submitted to this Department by end of day November 4th. Inspector notes system
+                appears very antiquated, but shows it is "normal."
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #26 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Fire extinguishers: conspicuous location/accessible, maintenance documentation available on-site
+                {7-1.8(c)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td>
+                1. An untagged fire extinguisher is present in the Nurses office/infirmary.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #27 WAS FOUND IN VIOLATION 4 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Exit signs/emergency lighting readily visible, operational, safe path of travel identified {7-1.8(d)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                <p>
+                    1. No emergency lighting is present in the stairway to the second floor of the main building. It is
+                    noted this corridor is very dark when lights are off.
+                </p>
+                <p>
+                    2. Exit sign found not lit as designed near the secondary means of egress from the second floor of
+                    the main building.
+                </p>
+                <p>
+                    3. Exit signs in one of the boys cabin have arrows pointing in both directions away
+                    from the door directly below the sign.
+                </p>
+                <p>4. The exit sign in the less used boys cabin is not lit as designed.</p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #28 WAS FOUND IN VIOLATION 5 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Exit maintenance/discharge - unobstructed, direct exterior discharge, doors non-locking against
+                egress, locking devices acceptable {7-1.8(e)}
+
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. Deadbolt hardware found on exit doors from kitchen staff multi-use bathrooms.<br />
+                2. Deadbolt hardware found on exit doors from the boys cabins.<br />
+                3. Deadbolt hardware found on exit doors from girls cabin multi-use bathroom.<br />
+                4. The stairs to the lower girls cabin are very slanted inwards and present a potential tripping
+                hazard.<br />~T1050
+                5. Deadbolt hardware found on exit doors from the higher girls cabin.<br />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #29 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Vertical/horizontal confinement - existing building features maintained as designed {7-1.8(f)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td>
+                1. Multiple penetrations exist in walls and ceilings of the basement of the main building.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FIRE SAFETY</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #30 WAS FOUND IN VIOLATION 2 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Fire safety/evacuation plan - available on-site, updated, submitted when required {7-1.8(g)}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. No evacuation routes posted in rooms discharging to interior corridor.<br />
+                2. No fire safety plan can be produced.<br />
+                ~T1052
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #37 WAS FOUND IN VIOLATION 3 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Electrical services, wiring/fixtures - maintained {7-1.14}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                <p>
+                    1. Multiple instances of extension cords and multi-outlet adapters in-use as permanent
+                    wiring throughout the facility.
+                </p>
+                <p>
+                    2. Multiple instances of faceplates missing on outlets or switches, including in the basement of the
+                    main building, the boys cabins and nurses room.
+                </p>
+                <p>3. A baseboard in the kitchen staff building is missing an endcap and has exposed electrical wiring.</p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #38 WAS FOUND IN VIOLATION 9 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Housing maintenance: structurally sound, adequate illumination/ventilation, size, health/safety
+                hazards absent,
+                weather tight roof/sides {7-1.15}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                <p>1. Areas of the exterior of the main building missing siding, fascia and/or soffit.</p>
+                <p>
+                    2. The restroom near the entrance to the main building lacks a functioning vent fan or openable
+                    window.
+                </p>
+                <p>
+                    3. The drain cover in the shower of the restroom near the entrance of the main building is
+                    unattached and slides across the bottom of the shower. Additionally, the shower head fixture is
+                    unattached to the wall.
+                </p>
+                <p>4. Kitchen staff bathroom window (used for ventilation) maintains a ripped screen.</p>
+                <p>5. The kitchen staff bathroom shower exhibits a buildup of debris.</p>
+                <p>6. The kitchen staff building has a gap above a window to the exterior.</p>
+                <p>7. The kitchen staff building mens restroom has an open, unscreened penetration to the exterior.~T1061</p>
+                <p>
+                    8. A fan is found poorly taped into a window in the boys cabin, leaving an unscreened opening to
+                    the exterior.
+                </p>
+                <p>
+                    9. The floor in one of the girls cabins appears to be unfinished boards. Staff states they had been
+                    sealed but inspector notes they feel rough and chips easily flake from the flooring.~T1060
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #39 WAS FOUND IN VIOLATION 4 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Adequate toilet/handwashing facilities {7-1.15}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td>
+                <p>
+                    1. The boys cabins do not have acceptable toilet facilities. The nearest toilets are over 250 feet
+                    away at the main building. Staff stated during operations they set up a port-a-let and have an
+                    exterior sink provided with water.
+                </p>
+                <p>2. A floor drain is found broken in the kitchen staff bottom floor bathroom.</p>
+                <p>3. Floors of the kitchen staff bathrooms found dirty and cracked.</p>
+                <p>4. The girls cabin bathroom maintains a broken mirror.</p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #40 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td class="DESC">
+                Pesticides, flammable/volatile liquids/toxic chemicals stored, labeled {7-1.16}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. Cans of Raid insecticide noted in basement.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+        <!-------------------------------------------------------------------------->
+        <tr>
+            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+        </tr>
+        <tr>
+            <td class="GEN_ITEM" colspan="2">
+                ITEM #41 WAS FOUND IN VIOLATION 1 TIME(S).
+            </td>
+        </tr>
+        <tr>
+            <td style="font-style:italic" colspan="2">
+                All or parts of the item are violations.
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Code Requirements:
+            </td>
+            <td>
+                Premises free of insect/rodent infestations {7-1.17}
+            </td>
+        </tr>
+        <tr>
+            <td class="TTL">
+                Inspector Findings:
+            </td>
+            <td class="DESC">
+                1. Droppings are noted in the interior bottom cabinet below the sink in the kitchen staff building.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">- - - - -</td>
+        </tr>
+    </table>
+</body>
+</html>

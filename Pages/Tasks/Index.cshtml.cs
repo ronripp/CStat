@@ -26,6 +26,7 @@ namespace CStat.Pages.Tasks
         private readonly CSUser _userSettings;
         private readonly int _personId;
         private readonly long _personRoles;
+        private string _curFilter = "";
 
         public bool IsTemplate = false;
         public IndexModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
@@ -46,9 +47,18 @@ namespace CStat.Pages.Tasks
 
         public IList<CTask> Task { get;set; }
 
-        public async Task OnGetAsync(bool showTemplates = false)
+        public async Task OnGetAsync(bool showTemplates = false, string filter="")
         {
             IsTemplate = showTemplates;
+
+            if (filter == null)
+                filter = "";
+            _curFilter = filter;
+            int? idFilter = null;
+            if (int.TryParse(filter, out int intVal))
+                idFilter = intVal;
+            else
+                filter = filter.ToLower();
 
             if (!IsTemplate)
             {
@@ -60,13 +70,23 @@ namespace CStat.Pages.Tasks
                         .Include(t => t.Blocking1)
                         .Include(t => t.Blocking2)
                         .Include(t => t.Church)
-                        .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
+                        .Include(t => t.Person).Where(t => 
+                           ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) &&
+                           ((t.Type & (int)CTask.eTaskType.Template) == 0) &&
+                           (!idFilter.HasValue || t.Id == idFilter) &&
+                           (idFilter.HasValue || (filter.Length == 0) || t.Description.ToLower().Contains(filter))
+                        ).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
 
                     CompTasks = await _context.Task
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
-                    .Include(t => t.Person).Where(t => ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
+                    .Include(t => t.Person).Where(t =>
+                        ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) &&
+                        ((t.Type & (int)CTask.eTaskType.Template) == 0) &&
+                        (!idFilter.HasValue  || t.Id == idFilter) &&
+                        (idFilter.HasValue || (filter.Length == 0) || t.Description.ToLower().Contains(filter))
+                    ).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
                 }
                 else
                 {
@@ -76,23 +96,32 @@ namespace CStat.Pages.Tasks
                                         .Include(t => t.Blocking2)
                                         .Include(t => t.Church)
                                         //.Include(t => t.Person).Where(t => ((t.PersonId == -1) || (t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0)) ) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
-                                        .Include(t => t.Person).Where(t => ( (!t.PersonId.HasValue || (t.PersonId.Value == _personId)) && ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0))).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
+                                        .Include(t => t.Person).Where(t => 
+                                            ((!t.PersonId.HasValue || (t.PersonId.Value == _personId)) &&
+                                            ((t.Status & (int)CTask.eTaskStatus.Completed) == 0) &&
+                                            ((t.Type & (int)CTask.eTaskType.Template) == 0)) &&
+                                            (!idFilter.HasValue || t.Id == idFilter) &&
+                                            (idFilter.HasValue || (filter.Length == 0) || t.Description.ToLower().Contains(filter))
+                                        ).OrderBy(t => (t.DueDate.HasValue ? t.DueDate.Value : new DateTime(2020, 1, 1))).ThenBy(t => t.Priority).ToListAsync();
 
                     CompTasks = await _context.Task
                     .Include(t => t.Blocking1)
                     .Include(t => t.Blocking2)
                     .Include(t => t.Church)
                     //.Include(t => t.Person).Where(t => ((t.PersonId == _personId) || (t.Person.Roles.HasValue && ((t.Person.Roles.Value & _personRoles) != 0))) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0)).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
-                    .Include(t => t.Person).Where(t => ( (!t.PersonId.HasValue || (t.PersonId.Value == _personId)) && ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) && ((t.Type & (int)CTask.eTaskType.Template) == 0))).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
-
+                    .Include(t => t.Person).Where(t => 
+                        ((!t.PersonId.HasValue || (t.PersonId.Value == _personId)) &&
+                        ((t.Status & (int)CTask.eTaskStatus.Completed) != 0) &&
+                        ((t.Type & (int)CTask.eTaskType.Template) == 0)) &&
+                        (!idFilter.HasValue || t.Id == idFilter) &&
+                        (idFilter.HasValue || (filter.Length == 0) || t.Description.ToLower().Contains(filter))
+                    ).OrderByDescending(t => t.ActualDoneDate).ToListAsync();
                 }
 
                 foreach (var ct in CompTasks) // Task = Task.Concat(CompTasks);
                 {
                     Task.Add(ct);
                 }
-
-                
 
                 // TBD : Add AutoGen
 
@@ -113,6 +142,11 @@ namespace CStat.Pages.Tasks
             AutoGen ag = new AutoGen(_context);
             ag.GenTasks(hostEnv);
             return this.Content("Success");
+        }
+
+        public string GetFilter()
+        {
+            return _curFilter;
         }
 
         public ActionResult OnPostMarkComplete()

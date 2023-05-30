@@ -1,58 +1,70 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1">
 
-<style>
+    <title>NYSDOH CCAV</title>
 
-    .PHH_HDR {
-        padding: 4px 0px 4px 4px;
-        background-color: #F5A9A6;
-        font-weight: bold;
-        vertical-align: top;
-    }
+    <style>
 
-    .PHH_ITEM {
-        color: #DE3933;
-        font-weight: bold;
-        vertical-align: top;
-    }
+        .PHH_HDR {
+            padding: 4px 0px 4px 4px;
+            background-color: #F5A9A6;
+            font-weight: bold;
+            vertical-align: top;
+            font-size: 1.2em;
+        }
 
-    .GEN_HDR {
-        background-color: #C6C8F4;
-        font-weight: bold;
-        vertical-align: top;
-    }
+        .PHH_ITEM {
+            color: #DE3933;
+            font-weight: bold;
+            vertical-align: top;
+            font-size: 1.2em;
+        }
 
-    .GEN_ITEM {
-        color: #4654CF;
-        font-weight: bold;
-        vertical-align: top;
-    }
+        .GEN_HDR {
+            background-color: #C6C8F4;
+            font-weight: bold;
+            vertical-align: top;
+            font-size: 1.2em;
+        }
 
-    .TTL {
-        padding-top: 12px;
-        font-weight: bold;
-        padding-right: 8px;
-        vertical-align: top;
-    }
+        .GEN_ITEM {
+            color: #4654CF;
+            font-weight: bold;
+            vertical-align: top;
+            font-size: 1.2em;
+        }
 
-    .DESC {
-        padding-top: 12px;
-        vertical-align: top;
-    }
+        .TTL {
+            padding-top: 12px;
+            font-weight: bold;
+            padding-right: 8px;
+            vertical-align: top;
+            font-size: 1em;
+        }
 
-    .TC {
-        background-color: lawngreen;
-    }
+        .DESC {
+            padding-top: 12px;
+            vertical-align: top;
+            font-size: 1em;
+        }
 
-</style>
-<script>
-    function Task(task) {
-        window.location.href = "../Tasks/Create?id=" + task;
-    }
-</script>
+        .TC {
+            background-color: lawngreen;
+            font-size: 1em;
+        }
+
+        p {
+            font-size: 1em;
+        }
+    </style>
+    <script>
+        function Task(task) {
+            window.location.href = "../Tasks/Create?id=" + task;
+        }
+    </script>
 
 </head>
 <body>
@@ -134,7 +146,8 @@
                 this report approved by this Department or subsequent required changes made, and two
                 consecutive days of satisfactory bacteriological water samples submitted to this Department before
                 the Boil Water Order may be terminated. The Boil Water Order may not be terminated until written
-                authorization is obtained from a representative of this Department.<button class="TC"">FIXED</button>
+                authorization is obtained from a representative of this Department.
+                <button class="TC">FIXED</button>
             </td>
         </tr>
         <tr>
@@ -152,7 +165,7 @@
                 Part or parts of the item were observed to be in violation which were corrected at the time of inspection.
             </td>
         </tr>
-        <tr class="DET">
+        <tr>
             <td class="TTL">
                 Code Requirements:
             </td>
@@ -210,7 +223,7 @@
         </tr>
         <!-------------------------------------------------------------------------->
         <tr>
-            <td class="GEN_HDR" colspan="2">FACILITY MISCELLANEOUS</td>
+            <td class="GEN_HDR" colspan="2"><div>FACILITY MISCELLANEOUS</div></td>
         </tr>
         <tr>
             <td class="GEN_ITEM" colspan="2">
@@ -392,7 +405,7 @@
                 2. Deadbolt hardware found on exit doors from the boys cabins.<br />
                 3. Deadbolt hardware found on exit doors from girls cabin multi-use bathroom.<br />
                 4. The stairs to the lower girls cabin are very slanted inwards and present a potential tripping
-                hazard.<br /><button class="TC" onclick="Task(1050)">Task 1050</button>
+                hazard.<br /><button class="TC" onclick="Task(1050)">Task 1050</button><br />
                 5. Deadbolt hardware found on exit doors from the higher girls cabin.<br />
             </td>
         </tr>

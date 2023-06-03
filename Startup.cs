@@ -80,6 +80,8 @@ namespace CStat
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");
                     options.Conventions.AllowAnonymousToFolder("/api/CStat");
+                    options.Conventions.AllowAnonymousToFolder("/NYSDOH");
+                    options.Conventions.AllowAnonymousToPage("/NYSDOH/Work");
                 });
 
             //services.AddDefaultIdentity<IdentityUser>()/*.AddDefaultUI(UIFramework.Bootstrap4)*/.AddEntityFrameworkStores<ApplicationDbContext>();

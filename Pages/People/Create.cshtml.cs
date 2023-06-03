@@ -110,7 +110,7 @@ namespace CStat
         [BindProperty]
         public bool _NeedECExpire { get; set; } = false;
 
-        private void UpdateECExire(Person person)
+        private void UpdateECExpire(Person person)
         {
             bool needECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
             if (!needECExpire)
@@ -137,6 +137,8 @@ namespace CStat
                     }
                 }
             }
+            else
+                person.Notes = "";
             if (needECExpire && (ECExpireYear.Length > 0))
             {
                 person.Notes = person.Notes.Trim() + "{ExpiresNov:" + ECExpireYear + "}";
@@ -167,7 +169,7 @@ namespace CStat
             _Person.Address.Town = _Town;
             _Person.Address.State = _State;
             _Person.Address.ZipCode = _ZipCode;
-            UpdateECExire(_Person);
+            UpdateECExpire(_Person);
             var res = await _Person.AddPerson(_context, bapStr, _Church, _PG1.Trim(), _PG2.Trim());
 
             if (res == false)

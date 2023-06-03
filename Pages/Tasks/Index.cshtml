@@ -189,21 +189,21 @@
             }
             else
             {
-    <b><a asp-page="Create">@createLabel</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ListFilter" value="@Model.GetFilter()" type="text" /><button onclick="getFilteredList()">&#x1F50D;</button></b>
+    <b><a asp-page="Create">@createLabel</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ListFilter" value="@Model.GetFilter()" type="text" /><button onclick="getFilteredList()">&#x1F50D;</button><button style="margin-left:8px; font-weight:bold;" onclick="window.location.href='/nysdoh/v1022.html';">NYSDOH</button></b>
+    }
+    }
+    <span>
+        @{ if (Model.IsTemplate)
+            {
+                <a asp-page="Index"><b>Back to Tasks</b></a>
+            }
+            else
+            {
+                <a asp-page="Index" asp-route-showTemplates="true">Templates</a>
             }
         }
-        <span>
-            @{ if (Model.IsTemplate)
-                {
-                    <a asp-page="Index"><b>Back to Tasks</b></a>
-                }
-                else
-                {
-                    <a asp-page="Index" asp-route-showTemplates="true">Templates</a>
-                }
-            }
-        </span>
-    </p>
+    </span>
+</p>
     <table class="table" style="background-color:@bkColor">
         <thead>
             <tr style="background-color: lightgray;">

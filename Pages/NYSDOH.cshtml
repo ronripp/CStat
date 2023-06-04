@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@page
+@model CStat.Pages.NYSDOHModel
 
 <head>
     <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1">
 
-    <title>NYSDOH CCAV</title>
+    <title>NYSDOH CCA Violations</title>
 
     <style>
 
@@ -54,6 +54,7 @@
         .TC {
             background-color: lawngreen;
             font-size: 1em;
+            font-weight: bold;
         }
 
         p {
@@ -61,9 +62,7 @@
         }
     </style>
     <script>
-        function Task(task) {
-            window.location.href = "../Tasks/Create?id=" + task;
-        }
+
     </script>
 
 </head>
@@ -100,14 +99,14 @@
                     present next the the three breaker boxes in the basement. This box must be properly covered.
                     Acceptable documentation that this has been corrected must be submitted to this Department by
                     end of day November 4th. It is noted that facility is not currently occupied by any overnight patrons.
-                </p><button class="TC" onclick="Task(1071)">Task 1071</button>
+                </p>@Html.Raw(@Model.TaskPDF(1071))
                 <p>
                     2. At the time of the inspection, a breaker box is found in one of the girls cabins with an opening to
                     the interior electrical components not filled by a breaker or cover. This opening must be properly
                     covered. Acceptable documentation that this has been corrected must be submitted to this
                     Department by end of day November 4th. It is noted that facility is not currently occupied by any
                     overnight patrons.
-                </p><button class="TC" onclick="Task(1072)">Task 1072</button>
+                </p>@Html.Raw(@Model.TaskPDF(1072))
             </td>
         </tr>
         <tr>
@@ -184,7 +183,7 @@
                 stairway repaired. Acceptable documentation that this has been corrected must be submitted to
                 this Department. Until such time as written authorization is provided, this cabin must be brought out
                 of service and remain unoccupied.
-                <button class="TC" onclick="Task(1075)">Task 1075</button>
+                @Html.Raw(@Model.TaskPDF(1075))
             </td>
         </tr>
         <tr>
@@ -217,7 +216,7 @@
             <td class="DESC">
                 1. Current permit is not posted conspicuously. An old permit expiring in March of 2022 is found
                 posted.
-                <button class="TC" onclick="Task(1044)">Task 1044</button>
+                @Html.Raw(@Model.TaskPDF(1044))
             </td>
         </tr>
         <tr>
@@ -280,7 +279,7 @@
             </td>
             <td class="DESC">
                 Fire alarm system: operated/maintained - maintenance documentation available on-site {7-1.8(a)}
-                <button class="TC" onclick="Task(1046)">Task 1046</button>
+                @Html.Raw(@Model.TaskPDF(1046))
             </td>
         </tr>
         <tr>
@@ -325,7 +324,7 @@
             </td>
             <td>
                 1. An untagged fire extinguisher is present in the Nurses office/infirmary.
-                <button class="TC" onclick="Task(1047)">Task 1047</button>
+                @Html.Raw(@Model.TaskPDF(1047))
             </td>
         </tr>
         <tr>
@@ -371,7 +370,7 @@
                     from the door directly below the sign.
                 </p>
                 <p>4. The exit sign in the less used boys cabin is not lit as designed.</p>
-                <button class="TC" onclick="Task(1048)">Task 1048</button>
+                @Html.Raw(@Model.TaskPDF(1048))
             </td>
         </tr>
         <tr>
@@ -410,9 +409,9 @@
                 2. Deadbolt hardware found on exit doors from the boys cabins.<br />
                 3. Deadbolt hardware found on exit doors from girls cabin multi-use bathroom.<br />
                 4. The stairs to the lower girls cabin are very slanted inwards and present a potential tripping
-                hazard.<br /><button class="TC" onclick="Task(1050)">Task 1050</button><br />
+                hazard.<br />@Html.Raw(@Model.TaskPDF(1050))<br />
                 5. Deadbolt hardware found on exit doors from the higher girls cabin.<br />
-                <button class="TC" onclick="Task(1049)">Task 1049</button>
+                @Html.Raw(@Model.TaskPDF(1049))
             </td>
         </tr>
         <tr>
@@ -480,7 +479,7 @@
             <td class="DESC">
                 1. No evacuation routes posted in rooms discharging to interior corridor.<br />
                 2. No fire safety plan can be produced.<br />
-                <button class="TC" onclick="Task(1052)">Task 1052</button>
+                @Html.Raw(@Model.TaskPDF(1052))
             </td>
         </tr>
         <tr>
@@ -521,9 +520,9 @@
                     2. Multiple instances of faceplates missing on outlets or switches, including in the basement of the
                     main building, the boys cabins and nurses room.
                 </p>
-                <button class="TC" onclick="Task(1054)">Task 1054</button>
+                @Html.Raw(@Model.TaskPDF(1054))
                 <p>3. A baseboard in the kitchen staff building is missing an endcap and has exposed electrical wiring.</p>
-                <button class="TC" onclick="Task(1076)">Task 1076</button>
+                @Html.Raw(@Model.TaskPDF(1076))
             </td>
         </tr>
         <tr>
@@ -559,35 +558,35 @@
             </td>
             <td class="DESC">
                 <p>1. Areas of the exterior of the main building missing siding, fascia and/or soffit.</p>
-                <button class="TC" onclick="Task(1055)">Task 1055</button>
+                @Html.Raw(@Model.TaskPDF(1055))
                 <p>
                     2. The restroom near the entrance to the main building lacks a functioning vent fan or openable
                     window.
                 </p>
-                <button class="TC" onclick="Task(1056)">Task 1056</button>
+                @Html.Raw(@Model.TaskPDF(1056))
                 <p>
                     3. The drain cover in the shower of the restroom near the entrance of the main building is
                     unattached and slides across the bottom of the shower. Additionally, the shower head fixture is
                     unattached to the wall.
                 </p>
-                <button class="TC" onclick="Task(1057)">Task 1057</button>
+                @Html.Raw(@Model.TaskPDF(1057))
                 <p>4. Kitchen staff bathroom window (used for ventilation) maintains a ripped screen.</p>
                 <p>5. The kitchen staff bathroom shower exhibits a buildup of debris.</p>
-                <button class="TC" onclick="Task(1058)">Task 1058</button>
+                @Html.Raw(@Model.TaskPDF(1058))
                 <p>6. The kitchen staff building has a gap above a window to the exterior.</p>
-                <button class="TC" onclick="Task(1077)">Task 1078</button>
+                @Html.Raw(@Model.TaskPDF(1077))
                 <p>7. The kitchen staff building mens restroom has an open, unscreened penetration to the exterior.</p>
-                <button class="TC" onclick="Task(1077)">Task 1077</button>
+                @Html.Raw(@Model.TaskPDF(1077))
                 <p>
                     8. A fan is found poorly taped into a window in the boys cabin, leaving an unscreened opening to
                     the exterior.
                 </p>
-                <button class="TC" onclick="Task(1059)">Task 1059</button>
+                @Html.Raw(@Model.TaskPDF(1059))
                 <p>
                     9. The floor in one of the girls cabins appears to be unfinished boards. Staff states they had been
                     sealed but inspector notes they feel rough and chips easily flake from the flooring.
                 </p>
-                <button class="TC" onclick="Task(1060)">Task 1060</button>
+                @Html.Raw(@Model.TaskPDF(1060))
             </td>
         </tr>
         <tr>
@@ -627,9 +626,9 @@
                 </p>
                 <p>2. A floor drain is found broken in the kitchen staff bottom floor bathroom.</p>
                 <p>3. Floors of the kitchen staff bathrooms found dirty and cracked.</p>
-                <button class="TC" onclick="Task(1061)">Task 1061</button>
+                @Html.Raw(@Model.TaskPDF(1061))
                 <p>4. The girls cabin bathroom maintains a broken mirror.</p>
-                <button class="TC" onclick="Task(1062)">Task 1062</button>
+                @Html.Raw(@Model.TaskPDF(1062))
             </td>
         </tr>
         <tr>
@@ -662,8 +661,8 @@
                 Inspector Findings:
             </td>
             <td class="DESC">
-                1. Cans of Raid insecticide noted in basement.<button class="TC">Task Fixed</button>
-                <button class="TC" onclick="Task(1063)">Task 1063</button>
+                1. Cans of Raid insecticide noted in basement.
+                @Html.Raw(@Model.TaskPDF(1063))
             </td>
         </tr>
         <tr>
@@ -697,6 +696,7 @@
             </td>
             <td class="DESC">
                 1. <mark>Droppings are noted in the interior bottom cabinet below the sink in the kitchen staff building.</mark>
+                @Html.Raw(@Model.TaskPDF(1064))
             </td>
         </tr>
         <tr>

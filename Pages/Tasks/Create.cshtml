@@ -194,7 +194,7 @@
             }
         }
 
-        function saveTask(exportAfter=false) {
+        function saveTask(exportAfter=0) {
 
             var saveFormData = new FormData();
             // Add Task fields
@@ -276,9 +276,12 @@
                             $("#markDone").prop("disabled", true).css('opacity', 0.5).css("color", "lightgray");
                         }
 
-                        if (exportAfter) {
+                        if (exportAfter == 1) {
                             exportTask();
+                        } else if (exportAfter == 2) {
+                            publishTask();
                         }
+
                     }
                     else {
                         alert("Image Save Failed : " + res);
@@ -372,6 +375,36 @@
                 },
                 complete: function (res) {
                     $("#emailPDFBtn").prop('disabled', false);
+                }
+            });
+
+        }
+
+        function publishTask(tas) {
+
+            $("#publishPDFBtn").prop('disabled', true);
+            var publishFormData = new FormData();
+            publishFormData.append("taskId", $("#task_Id").val());
+
+            jQuery.ajax({
+                url: "/Tasks/Create?handler=Publish",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                type: "POST",
+                data: publishFormData,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    alert(res);
+                },
+                error: function (res) {
+                    alert("FAILED : " + res);
+                },
+                complete: function (res) {
+                    $("#publishPDFBtn").prop('disabled', false);
                 }
             });
 

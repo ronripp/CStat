@@ -16,6 +16,7 @@
                 <a class="navbar-brand" asp-area="" asp-page="/Index">@ViewData["Title"]</a>
                 <span><img style="width: 2em;" src="~/images/se.svg" alt="[<]" onclick="doExit()"></span>
                 <span><button id="emailPDFBtn" onclick="doExport()"></button></span>
+                <span><button id="publishPDFBtn" onclick="doPublish()">Publish</button></span>
                 <span><a class="nav-link" asp-area="" asp-page="/Index"><b>Home</b></a></span>
             </div>
         </nav>
@@ -38,8 +39,13 @@
         }
 
         function doExport() {
-            saveTask(true);
+            saveTask(1);
         }
+
+        function doPublish() {
+            saveTask(2);
+        }
+
 
     </script>
 

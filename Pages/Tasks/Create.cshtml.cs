@@ -654,6 +654,38 @@ namespace CStat.Pages.Tasks
             return this.Content("Success: EMail Sent."); // Send back results
         }
 
+        public ActionResult OnPostPublish()
+        {
+            if ((this.Request == null) || (this.Request.Form == null))
+                return this.Content("Fail: Bad/Missing Request"); // Send back results
+
+            try
+            {
+                int id = int.Parse(this.Request.Form.FirstOrDefault(kv => kv.Key == "taskId").Value);
+
+                if (id <= 0)
+                {
+                    return this.Content("Fail: No id"); // Send back results
+                }
+
+                string webRootPath = hostEnv.WebRootPath;
+                string newPath = Path.Combine(webRootPath, "_NYSDOH");
+                var ft = CTask.GetFullTask(_context, hostEnv, id);
+                string pdfFile = Path.Combine(newPath, "Task" + ft.task.Id.ToString() + ".pdf");
+                if (CTask.CreateTaskReport(ft, pdfFile) == 0)
+                {
+                    throw new InvalidOperationException("PDF File Failed or Current User not found.");
+                }
+            }
+            catch (Exception e)
+            {
+                return this.Content("Failure: e.msg=" + e.Message); // Send back results
+            }
+
+            return this.Content("Success: Task Published."); // Send back results
+        }
+
+
         public ActionResult OnPostPingCTask()
         {
             return this.Content("Success:");  // Response 

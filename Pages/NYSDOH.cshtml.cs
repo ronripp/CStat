@@ -10,6 +10,7 @@ using CTask = CStat.Models.Task;
 using Task = System.Threading.Tasks.Task;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using static CStat.Models.Task;
 
 namespace CStat.Pages
 {
@@ -17,6 +18,7 @@ namespace CStat.Pages
     {
         private readonly CStat.Models.CStatContext _context;
         private readonly IWebHostEnvironment _hostEnv;
+        private string _usage = "default";
 
         public NYSDOHModel(CStat.Models.CStatContext context, IWebHostEnvironment hstEnv)
         {
@@ -26,9 +28,12 @@ namespace CStat.Pages
 
         public IList<CTask> Task { get;set; }
 
-        public async Task OnGetAsync()
+        public IActionResult OnGet(string usage)
         {
+            if (!string.IsNullOrEmpty(usage))
+                _usage = usage;
 
+            return Page();
         }
 
         public string TaskPDF(int tid)
@@ -38,10 +43,23 @@ namespace CStat.Pages
             var ft = CTask.GetFullTask(_context, _hostEnv, tid);
             string basePDF = "Task" + ft.task.Id.ToString() + ".pdf";
             string pdfFile = Path.Combine(newPath, basePDF);
-            if (System.IO.File.Exists(pdfFile))
-                return "<a href=\"_NYSDOH/" + basePDF + "\" download><button class=\"TC\">" + "Task " + tid + "</button></a>";
+            if (_usage == "staffOct22zs")
+            {
+                var task = _context.Task.Where(t => t.Id == tid).FirstOrDefault();
+                task.GetTaskStatus(out eTaskStatus state, out eTaskStatus reason, out int PercentComplete);
+                string tc = "TI";
+                if ((state & eTaskStatus.Completed) != 0)
+                    tc = "TC";
+
+                return "<button onclick=\"window.location.href='/Tasks/Create?id=" + tid + "';\" class=\"" + tc + "\">" + "Task " + tid + "</button></a>";
+            }
             else
-                return "<div style=\"color:darkred; font-weight:bold;\">[Pending]</div>";
+            {
+                if (System.IO.File.Exists(pdfFile))
+                    return "<a href=\"_NYSDOH/" + basePDF + "\" download><button class=\"TC\">" + "Task " + tid + "</button></a>";
+                else
+                    return "<div style=\"color:darkred; font-weight:bold;\">[Pending]</div>";
+            }
         }
 
     }

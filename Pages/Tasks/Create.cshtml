@@ -567,7 +567,6 @@
                 }
                 $("#imgNextBtn").prop("disabled", curPic >= (pics.length - 1));
                 $("#imgPriorBtn").prop("disabled", curPic <= 0);
-                dp();
             }
 
             setPicture();
@@ -672,7 +671,6 @@
             $("#imgTitle").on('blur', "#editImgTitle", function () {
                 picTitles[curPic] = encodeQuotes($("#editImgTitle").val().trim());
                 $("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
-                dp();
             });
 
             $("#imgTitle").click(function () {
@@ -1046,7 +1044,6 @@
                                 complete: function (res) {
                                     $("#newPicId").hide();
                                     $("#picHdrId").show();
-                                    dp();
                                 }
                             });
                         }
@@ -1066,7 +1063,6 @@
                     }
                     setDirtyTask();
                     setPicture();
-                    dp();
                 }
             });
 

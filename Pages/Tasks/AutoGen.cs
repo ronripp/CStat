@@ -146,10 +146,12 @@ namespace CStat.Pages.Tasks
             return _context.Event.Where(e => (e.StartTime >= range.Start) && (e.EndTime <= range.End)).ToList();
         }
 
-        public List<Event> GetImpactingEvents(DateRange range) // Usually a day before an event there is event prep activity and therefore propane usage.
+        public List<Event> GetImpactingEvents(DateRange range) // Using date, usually a day before an event ( e.StartTime.Date.AddDays(-1) ) there is event prep activity and therefore propane usage.
         {
-            return _context.Event.Where(e => ( ((e.StartTime >= range.Start) && (e.EndTime <= range.End)) ||
-                                               ((e.StartTime.AddDays(-1) < range.End) && (range.Start < e.StartTime)) ) ).ToList();
+            // Dealing with Days and dropping time.
+            var Rs = range.Start.Date;
+            var Re = range.End.Date;
+            return _context.Event.Where(e => (Rs <= e.EndTime.Date) && (Re >= e.StartTime.Date.AddDays(-1))).ToList();
         }
 
         public List<CTask> GetTemplateTasks(IWebHostEnvironment hstEnv, CStat.Models.CStatContext context, CTask tmpl, List<Event> events, DateRange lim)

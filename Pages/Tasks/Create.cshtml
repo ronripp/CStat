@@ -559,7 +559,11 @@
             function setPicture() {
                 if (pics.length > 0) {
                     $("#imgDiv").html('<image src="' + pics[curPic] + '" style="width:100%">');
-                    $("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
+                    let ptitle = unEncodeQuotes(picTitles[curPic]);
+                    if (!ptitle) {
+                        ptitle = "{no title} Edit here!";
+                    }
+                    $("#imgTitle").html("<b>" + ptitle + "</b>");
                     lastPic = curPic;
                 } else {
                     $("#imgDiv").html('[No Pictures]');
@@ -670,13 +674,21 @@
 
             $("#imgTitle").on('blur', "#editImgTitle", function () {
                 picTitles[curPic] = encodeQuotes($("#editImgTitle").val().trim());
-                $("#imgTitle").html("<b>" + unEncodeQuotes(picTitles[curPic]) + "</b>");
+                let ptitle = unEncodeQuotes(picTitles[curPic]);
+                if (!pitle) {
+                    ptitle = "- - -";
+                }
+                $("#imgTitle").html("<b>" + ptitle + "</b>");
             });
 
             $("#imgTitle").click(function () {
                 if ($("#imgTitle").html().indexOf("<b>") === 0) {
                     $("#imgTitle").html("<input type='text' id='editImgTitle' onchange='setDirtyTask()'>");
-                    $("#editImgTitle").val(unEncodeQuotes(picTitles[curPic]));
+                    let ptitle = unEncodeQuotes(picTitles[curPic]);
+                    if (!ptitle || (ptitle === "{no title} Edit here!")) {
+                        ptitle = "";
+                    }
+                    $("#editImgTitle").val(ptitle);
                     $("#editImgTitle").focus();
                 }
             });

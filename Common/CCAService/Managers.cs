@@ -240,7 +240,7 @@ namespace CStat
                         if (aobj.DOB.HasValue)
                         {
                             ad.AgeAtEvent = aobj.eSDate.Year - aobj.DOB.Value.Year;
-                            if ((aobj.eSDate.Month > aobj.DOB.Value.Month) || ((aobj.eSDate.Month == aobj.DOB.Value.Month) && (aobj.eSDate.Day > aobj.DOB.Value.Day)))
+                            if ((aobj.eSDate.Month < aobj.DOB.Value.Month) || ((aobj.eSDate.Month == aobj.DOB.Value.Month) && (aobj.eSDate.Day < aobj.DOB.Value.Day)))
                                 --ad.AgeAtEvent;
                         }
                         else
@@ -303,6 +303,7 @@ namespace CStat
             {
                 var attList = from a in ce.Attendance
                               join p in ce.Person on a.PersonId equals p.Id
+                              join adr in ce.Address on p.AddressId equals adr.Id
                               join e in ce.Event on a.EventId equals e.Id
                               join r in ce.Registration on new { eid = e.Id, pid = p.Id } equals new { eid = r.EventId.Value, pid = r.PersonId.Value }
                               join m in ce.Medical on new { eid = e.Id, pid = p.Id } equals new { eid = m.EventId.Value, pid = m.PersonId }
@@ -322,7 +323,12 @@ namespace CStat
                                   TSize = r.TShirtSize,
                                   aRole = a.RoleType,
                                   gender = p.Gender.HasValue ? p.Gender.Value : 63,
-                                  EventName = e.Description
+                                  EventName = e.Description,
+                                  Street = adr.Street,
+                                  Town = adr.Town,
+                                  State = adr.State,
+                                  Zip = adr.ZipCode,
+                                  EMail = p.Email
                               };
 
                 Attendance.AttData adList = new Attendance.AttData();
@@ -347,6 +353,10 @@ namespace CStat
                     }
                     ad.role = a.aRole;
                     ad.gender = (char)a.gender;
+                    ad.Address = a.Street + " " + a.Town + " " + a.State + " " + a.Zip;
+                    ad.EMail = a.EMail;
+                    ad.DOB = a.DOB.Value;
+
                     if (a.DOB.HasValue)
                     {
                         if (a.DOB.HasValue && (a.DOB.Value.Year > 1900))
@@ -368,6 +378,7 @@ namespace CStat
                 var attList = from a in ce.Attendance
                               where ((EType == -1) || (int)a.Event.Type == EType)
                               join p in ce.Person on a.PersonId equals p.Id
+                              join adr in ce.Address on p.AddressId equals adr.Id
                               join e in ce.Event on new { eid = a.EventId.Value, eyear = EYear } equals new { eid = e.Id, eyear = e.StartTime.Year }
 
                               //join r in ce.Registrations on new { eid2 = e.id, pid2 = p.id } equals new { eid2 = r.Event_id.Value, pid2 = r.Person_id.Value }
@@ -388,7 +399,12 @@ namespace CStat
                                   //MedForm = m.Form_Link,
                                   //CurGrade = r.Current_Grade,
                                   //TSize = r.T_Shirt_Size,
-                                  EventName = e.Description
+                                  EventName = e.Description,
+                                  Street = adr.Street,
+                                  Town = adr.Town,
+                                  State = adr.State,
+                                  Zip = adr.ZipCode,
+                                  EMail = p.Email 
                               };
                 List<Attendance.AttData> AttList = new List<Attendance.AttData>();
                 foreach (var a in attList)
@@ -413,6 +429,10 @@ namespace CStat
                     ad.role = a.aRole;
                     ad.EventName = a.EventName;
                     ad.gender = (a.gender == 0) ? '?' : (char)a.gender;
+                    ad.Address = a.Street + " " + a.Town + " " + a.State + " " + a.Zip;
+                    ad.EMail = a.EMail;
+                    ad.DOB = a.DOB.Value;
+
                     if (a.DOB.HasValue)
                     {
                         if (a.DOB.HasValue && (a.DOB.Value.Year > 1900))

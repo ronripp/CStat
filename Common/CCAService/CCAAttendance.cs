@@ -502,6 +502,8 @@ namespace CCAAttendance
             role = 0;
             CurGrade = -1;
             gender = '?';
+            Address = "";
+            EMail = "";
         }
         public int id { get; set; }
         public String PersonName { get; set; }
@@ -521,6 +523,9 @@ namespace CCAAttendance
         public int tid { get; set; }
         public String note { get; set; }
         public char gender { get; set; }
+        public String Address { get; set; }
+        public String EMail { get; set; }
+        public DateTime DOB { get; set; }
 
         public override string ToString()
         {

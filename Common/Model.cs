@@ -1568,22 +1568,22 @@ namespace CStat.Models
             else
             {
                 var now = PropMgr.ESTNow;
-                var sday = now.AddHours(beforeHours).Date;
-                var eday = now.AddHours(aheadHours).Date;
+                var stime = now.AddHours(-beforeHours);
+                var etime = now.AddHours(-aheadHours);
                 IQueryable<Event> sEvents;
                 IQueryable<Event> eEvents;
                 if (IncludeBanquet)
                 {
-                    sEvents = context.Event.Where(e => (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
-                    eEvents = context.Event.Where(e => (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+                    sEvents = context.Event.Where(e => (e.StartTime <= stime) && (e.EndTime >= stime));
+                    eEvents = context.Event.Where(e => (e.StartTime <= etime) && (e.EndTime >= etime));
                 }
                 else
                 {
-                    sEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime.Date <= sday) && (e.EndTime.Date >= sday));
-                    eEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime.Date <= eday) && (e.EndTime.Date >= eday));
+                    sEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime <= stime) && (e.EndTime >= stime));
+                    eEvents = context.Event.Where(e => (e.Type != (int)EventType.Banquet) && (e.StartTime <= etime) && (e.EndTime >= etime));
                 }
 
-                return (sEvents.Count() > 0) && (eEvents.Count() > 0);
+                return (sEvents.Count() > 0) || (eEvents.Count() > 0);
             }
         }
     }

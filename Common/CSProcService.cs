@@ -50,7 +50,7 @@ namespace CStat.Common
             csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 
             // SET THE MINIMUM TIME BETWEEN PROCESSING RUNS IN MINUTES
-            int MinWaitMins = 180; // 3 hrs
+            int MinWaitMins = 120; // 2 hrs
 
             while (!stoppingToken.IsCancellationRequested)
             {

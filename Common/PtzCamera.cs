@@ -900,19 +900,27 @@ public class PtzCamera : System.IDisposable
                 if (enable)
                     req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 587, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp3@gmail.com\", \"addr2\": \"handiguy2@optonline.net\"}}}]");
                 else
-                    req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 587, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"\", \"addr2\": \"\"}}}]");
-
+                    req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 588, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp@charter.net\", \"addr2\": \"ellenripp@gmail.com\"}}}]");
+                    
                 var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
+                {
+                    csl.Log("Enable EMail Camera Alert : sResult Null / Empty");
                     return 0;
+                }
 
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                //return (LoginResp[0].value.rspCode == 200);
+                
+                {
+                    var csl = new CSLogger();
+                    csl.Log("Enable EMail Camera Alert enable=" + enable + " Response Code =" + LoginResp[0].value.rspCode);
+                }
             }
             catch (Exception e)
             {
                 _ = e;
+                csl.Log("Enable EMail Camera Alert Exception : " + e.Message);
             }
             return 0;
         }

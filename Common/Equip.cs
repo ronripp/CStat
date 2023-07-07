@@ -163,7 +163,7 @@ namespace CStat.Common
             WaterPress = waterPress;
             TimeStamp = timeStamp;
         }
-        public ArdRecord(string freezerTempF, string fridgeTempF, string kitchTempF, string waterPress, DateTime timeStamp)
+        public ArdRecord(string freezerTempF, string fridgeTempF, string kitchTempF, string waterPress, string powerOn, string analog5, DateTime timeStamp)
         {
             double _FreezerTempF = FreezerTempF;
             if (double.TryParse(freezerTempF, out _FreezerTempF))
@@ -177,6 +177,10 @@ namespace CStat.Common
             double _WaterPress = WaterPress;
             if (double.TryParse(waterPress, out _WaterPress))
                 WaterPress = _WaterPress;
+            if (double.TryParse(powerOn, out double _PowerOn))
+                PowerOn = _PowerOn;
+            if (double.TryParse(analog5, out double _Analog5))
+                Analog5 = _Analog5;
             TimeStamp = timeStamp;
         }
 
@@ -189,6 +193,8 @@ namespace CStat.Common
         public double FridgeTempF { get; set; } = PropMgr.NotSet;
         public double KitchTempF { get; set; } = PropMgr.NotSet;
         public double WaterPress { get; set; } = 0;
+        public double PowerOn { get; set; } = PropMgr.NotSet;
+        public double Analog5 { get; set; } = PropMgr.NotSet;
         public DateTime TimeStamp { get; set; }
     }
 
@@ -307,6 +313,8 @@ namespace CStat.Common
                                 "frigTemp",
                                 "kitchTemp",
                                 "waterPres",
+                                "powerOn",
+                                "analog5",
                                 "time"
                                 );
 
@@ -316,6 +324,8 @@ namespace CStat.Common
                                                  props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
                                                  props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
                                                  props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
+                                                 props.ContainsKey("powerOn") ? props["powerOn"] : PropMgr.sNotSet,         
+                                                 props.ContainsKey("analog5") ? props["analog5"] : PropMgr.sNotSet,
                                                  arTime);
                         }
                     }
@@ -346,6 +356,8 @@ namespace CStat.Common
                     "frigTemp",
                     "kitchTemp",
                     "waterPres",
+                    "powerOn",
+                    "analog5",
                     "time"
                     );
 
@@ -358,6 +370,8 @@ namespace CStat.Common
                                      props.ContainsKey("frigTemp") ? props["frigTemp"] : PropMgr.sNotSet,
                                      props.ContainsKey("kitchTemp") ? props["kitchTemp"] : PropMgr.sNotSet,
                                      props.ContainsKey("waterPres") ? props["waterPres"] : PropMgr.sNotSet,
+                                     props.ContainsKey("powerOn") ? props["powerOn"] : PropMgr.sNotSet,
+                                     props.ContainsKey("analog5") ? props["analog5"] : PropMgr.sNotSet,
                                      arTime);
             }
             catch

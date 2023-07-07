@@ -92,6 +92,8 @@ namespace CStat.Pages
                         "kitchTemp" => ardHist.Select(a => a.KitchTempF).Reverse().ToList(),
                         "propaneTank" => propaneHist.Select(p => p.LevelPct).Reverse().ToList(),
                         "waterPres" => ardHist.Select(a => a.WaterPress).Reverse().ToList(),
+                        "powerOn" => ardHist.Select(a => a.PowerOn).Reverse().ToList(),
+                        "analog5" => ardHist.Select(a => a.Analog5).Reverse().ToList(),
                         _ => new List<double>()
                     };
                     ActiveEqHistory.Add(dlist);
@@ -129,6 +131,8 @@ namespace CStat.Pages
                 "kitchTemp" => _ar.KitchTempF.ToString("0.#"),
                 "propaneTank" => _pl.LevelPct.ToString("0.#"),
                 "waterPres" => _ar.WaterPress.ToString("0.#"),
+                "powerOn" => _ar.PowerOn.ToString("0.#"),
+                "analog5" => _ar.Analog5.ToString("0.#"),
                 _ => "---",
             };
         }
@@ -160,6 +164,8 @@ namespace CStat.Pages
                 "kitchTemp" => _ar.TimeStampStr(),
                 "propaneTank" => _pl.ReadingTimeStr(),
                 "waterPres" => _ar.TimeStampStr(),
+                "powerOn" => _ar.TimeStampStr(),
+                "analog5" => _ar.TimeStampStr(),
                 _ => "---",
             };
         }

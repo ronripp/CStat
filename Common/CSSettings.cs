@@ -440,6 +440,7 @@ namespace CStat.Common
                 "kitchTemp" => (ar != null) ? ar.KitchTempF : PropMgr.NotSet,
                 "propaneTank" => (pl != null) ? pl.LevelPct : PropMgr.NotSet,
                 "waterPres" => (ar != null) ? ar.WaterPress : PropMgr.NotSet,
+                "powerOn" => (ar != null) ? ar.PowerOn : PropMgr.NotSet,
                 _ => PropMgr.NotSet,
             };
         }
@@ -469,6 +470,7 @@ namespace CStat.Common
                     "kitchTemp" => (ar != null) ? ep.GetColor(ar.KitchTempF, returnClass) : CSSettings.red,
                     "propaneTank" => (pl != null) ? ep.GetColor(pl.LevelPct, returnClass) : CSSettings.red,
                     "waterPres" => (ar != null) ? ep.GetColor(ar.WaterPress, returnClass) : CSSettings.red,
+                    "powerOn" => (ar != null) ? ep.GetColor(ar.PowerOn, returnClass) : CSSettings.red,
                     _ => "",
                 };
             }

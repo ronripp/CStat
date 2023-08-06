@@ -65,6 +65,9 @@ namespace CStat.Common
             if ((LogPath == "C:\\cstat\\wwwroot\\Tasks") && !hashStr.StartsWith("203-770-3393["))
                 return false; //only send to me when running local
 
+            if (hashStr.Contains("CCA Power is OFF") || hashStr.Contains("CCA Power is back ON"))
+                return true; // Always send power on / off messages whenever they occur.
+
             if (!File.Exists(SMSSentFile))
                 return true;
             List<string> lines = new List<string>();

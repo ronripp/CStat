@@ -86,6 +86,10 @@ namespace CStat.Common
         {
             return (this.PropName == "propaneTank");
         }
+        public bool IsTypePowerOn()
+        {
+            return (this.PropName == "powerOn");
+        }
 
         public List<KeyValuePair<string, double>> GetProps()
         {
@@ -176,9 +180,9 @@ namespace CStat.Common
                 KitchTempF = _KitchTempF;
             double _WaterPress = WaterPress;
             if (double.TryParse(waterPress, out _WaterPress))
-                WaterPress = _WaterPress;
+                WaterPress = _WaterPress*0.547619 + 3.5;
             if (double.TryParse(powerOn, out double _PowerOn))
-                PowerOn = _PowerOn;
+                PowerOn = (_PowerOn >= 370) ? 100 : 0;
             if (double.TryParse(analog5, out double _Analog5))
                 Analog5 = _Analog5;
             TimeStamp = timeStamp;
@@ -209,6 +213,7 @@ namespace CStat.Common
         private string ArdFullAll = "";
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
+        public ArdRecord LastAR;
 
         public ArdMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -221,6 +226,7 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             FullLatest = Path.Combine(newPath, "ardlatest.txt");
             ArdFullAll = Path.Combine(newPath, "ardall.txt");
+            LastAR = GetLast();
         }
 
         public bool CheckValues(string jsonStr) // Ard only : No propane
@@ -232,11 +238,27 @@ namespace CStat.Common
             {
                 if (ep.IsPropane() || !ep.Active)
                     continue;
-                if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+                if (ep.IsTypePowerOn() && ep.Active)
+                {
+                    string curPOColor = ep.GetColor(ar.PowerOn, false);
+                    string lastPOColor = ep.GetColor(ar.PowerOn, false);
+                    if ((curPOColor != CSSettings.green) && (lastPOColor == CSSettings.green))
+                    {
+                        CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                        sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> CCA Power is OFF", true, false); // Allow resend
+                    }
+                    else if ((curPOColor == CSSettings.green) && (lastPOColor != CSSettings.green))
+                    {
+                        CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                        sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> CCA Power is back ON", true, false); // Allow resend
+                    }
+                }
+                else if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
                 {
                     CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
                     sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), true, false); // Allow resend
                 }
+
             }
             return true;
         }
@@ -249,7 +271,8 @@ namespace CStat.Common
             {
                 if (ep.IsPropane() || !ep.Active)
                     continue;
-                if (!alertsOnly || CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+
+                else if (!alertsOnly || CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
                 {
                     report += "* " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false) + "\n";
                 }

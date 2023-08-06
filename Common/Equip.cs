@@ -241,7 +241,7 @@ namespace CStat.Common
                 if (ep.IsTypePowerOn() && ep.Active)
                 {
                     string curPOColor = ep.GetColor(ar.PowerOn, false);
-                    string lastPOColor = ep.GetColor(ar.PowerOn, false);
+                    string lastPOColor = ep.GetColor(LastAR.PowerOn, false);
                     if ((curPOColor != CSSettings.green) && (lastPOColor == CSSettings.green))
                     {
                         CSSMS sms = new CSSMS(HostEnv, Config, UserManager);

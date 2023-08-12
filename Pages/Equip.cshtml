@@ -74,6 +74,11 @@
                 background-color: red;
                 color: black;
             }
+
+            .svgtext {
+                fill: cyan;
+            }
+
         </style>
 
         <script>
@@ -191,61 +196,17 @@
                 GetRectStr(0, RY2, vW, RH2, "fill:rgb(64,0,0);", sBox) +
                 GetRectStr(0, GY, vW, GH, "fill:rgb(0,64,0);", sBox) +
                 GetPolylineStr(idx, "fill:none;stroke:white;stroke-width:2", sBox) +
+                GetTextStr(sOrgX, sOrgY, sH, sW) +
                 GetLineStr(0, eqCurValArr[idx], vW, eqCurValArr[idx], "fill:none;stroke:" + eqColorArr[idx] + ";stroke-width:2", sBox));
         }
 
-        //function updateHdr(idx, svg) {
-
-        //    //<svg width="vWidth" height="vHeight" viewBox="sOrgX sOrgY sWidth sHeight">
-
-        //    let cBot = eqPropsArr[idx].chartBottom;
-        //    let cTop = eqPropsArr[idx].chartTop;
-        //    let cH = cTop - cBot;
-        //    let vW = svg.width();
-        //    let vH = svg.height();
-
-        //    // Determine sub rect
-        //    let sOrgX = 0;
-        //    let sOrgY = (eqValsArr[idx].length > 0) ? eqMinArr[idx] - 0.5 : cBot;
-        //    let sW = vW;
-        //    let sH = (eqValsArr[idx].length > 0) ? (eqMaxArr[idx] - eqMinArr[idx]) + 1 : cH;
-        //    //svg.attr("viewBox", sOrgX + " " + sOrgY + " " + sW + " " + sH);
-        //    var sBox = { xo: sOrgX, yo: sOrgY, w: sW, h: sH };
-
-        //    let RTop = eqPropsArr[idx].redTop;
-        //    let RBot = eqPropsArr[idx].redBottom;
-        //    let GTop = eqPropsArr[idx].greenTop;
-        //    let GBot = eqPropsArr[idx].greenBottom;
-
-        //    let GH = GTop - GBot;
-        //    let GY = GTop;
-
-        //    let AY1 = 0, AH1 = 0;
-        //    let AY2 = 0, AH2 = 0;
-        //    let RY1 = 0, RH1 = 0;
-        //    let RY2 = 0, RH2 = 0;
-
-        //    if (RTop > GTop) {
-        //        AH1 = RTop - GTop;
-        //        AY1 = RTop;
-        //        RH1 = cTop - RTop;
-        //        RY1 = cTop;
-        //    }
-
-        //    if (RBot < GBot) {
-        //        AH2 = GBot - RBot;
-        //        AY2 = GBot;
-        //        RH2 = RBot - cBot;
-        //        RY2 = RBot;
-        //    }
-
-        //    svg.html(
-        //        "<text style=\"fill:rgb(0,255,255);font-size:9\" x=\"0\" y=\"8\">" + (sOrgY+sH).toFixed(1) + "</text>" +
-        //        "<text style=\"fill:rgb(0,255,255);font-size:9\" x=\"0\" y=\"" + vH + "\">" + sOrgY.toFixed(1) + "</text>");
-        //}
-
         function C2S(cx, cy, sBox) {
             return { x: cx, y: sBox.h - (cy-sBox.yo) + sBox.yo };
+        }
+
+        function GetTextStr(sOrgX, sOrgY, sH, sW) {
+            let fs = (sH * .05);
+            return "<text x=\"" + (sOrgX+2) + "\"  y=\"" + (sOrgY + 1.1*fs) + "\" font-size=\"" + (sH * .05) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .1) + "\" class=\"svgtext\">I love SVG!</text>";
         }
 
         function GetRectStr(cx, cy, w, h, styleStr, sBox) {

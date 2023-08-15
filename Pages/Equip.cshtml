@@ -77,6 +77,7 @@
 
             .svgtext {
                 fill: cyan;
+                font-weight: bold;
             }
 
         </style>
@@ -196,7 +197,7 @@
                 GetRectStr(0, RY2, vW, RH2, "fill:rgb(64,0,0);", sBox) +
                 GetRectStr(0, GY, vW, GH, "fill:rgb(0,64,0);", sBox) +
                 GetPolylineStr(idx, "fill:none;stroke:white;stroke-width:2", sBox) +
-                GetTextStr(sOrgX, sOrgY, sH, sW) +
+                GetTextStr(sOrgX, sOrgY, sH, sW, eqMinArr[idx], eqMaxArr[idx]) +
                 GetLineStr(0, eqCurValArr[idx], vW, eqCurValArr[idx], "fill:none;stroke:" + eqColorArr[idx] + ";stroke-width:2", sBox));
         }
 
@@ -204,9 +205,11 @@
             return { x: cx, y: sBox.h - (cy-sBox.yo) + sBox.yo };
         }
 
-        function GetTextStr(sOrgX, sOrgY, sH, sW) {
-            let fs = (sH * .05);
-            return "<text x=\"" + (sOrgX+2) + "\"  y=\"" + (sOrgY + 1.1*fs) + "\" font-size=\"" + (sH * .05) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .1) + "\" class=\"svgtext\">I love SVG!</text>";
+        function GetTextStr(sOrgX, sOrgY, sH, sW, minVal, maxVal) {
+            let fs = sH * .05;
+            let yoff = 1.1 * fs;
+            return "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + yoff) + "\" font-size=\"" + (sH * .07) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .15) + "\" class=\"svgtext\">" + maxVal.toFixed(1) + "</text>" +
+                   "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + sH) + "\" font-size=\"" + (sH * .07) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .15) + "\" class=\"svgtext\">" + minVal.toFixed(1) + "</text>";
         }
 
         function GetRectStr(cx, cy, w, h, styleStr, sBox) {
@@ -264,7 +267,7 @@
                     </td>
                     <td>
                             @if (Model.ActEq[i].IsPropane())@Html.Raw("<a href=\"EquipRpt\">")
-                            <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" overflow="visible" preserveAspectRatio="none">
+                            <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" xmlns="http://www.w3.org/2000/svg" overflow="visible" preserveAspectRatio="none">
                             </svg>
                             @if (Model.ActEq[i].IsPropane())@Html.Raw("</a>")
                     </td>

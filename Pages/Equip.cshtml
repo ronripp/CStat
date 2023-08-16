@@ -197,7 +197,7 @@
                 GetRectStr(0, RY2, vW, RH2, "fill:rgb(64,0,0);", sBox) +
                 GetRectStr(0, GY, vW, GH, "fill:rgb(0,64,0);", sBox) +
                 GetPolylineStr(idx, "fill:none;stroke:white;stroke-width:2", sBox) +
-                GetTextStr(sOrgX, sOrgY, sH, sW, eqMinArr[idx], eqMaxArr[idx]) +
+                GetTextStr(vH, sOrgX, sOrgY, sH, sW, sOrgY, sOrgY + sH) +
                 GetLineStr(0, eqCurValArr[idx], vW, eqCurValArr[idx], "fill:none;stroke:" + eqColorArr[idx] + ";stroke-width:2", sBox));
         }
 
@@ -205,11 +205,25 @@
             return { x: cx, y: sBox.h - (cy-sBox.yo) + sBox.yo };
         }
 
-        function GetTextStr(sOrgX, sOrgY, sH, sW, minVal, maxVal) {
-            let fs = sH * .05;
-            let yoff = 1.1 * fs;
-            return "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + yoff) + "\" font-size=\"" + (sH * .07) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .15) + "\" class=\"svgtext\">" + maxVal.toFixed(1) + "</text>" +
-                   "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + sH) + "\" font-size=\"" + (sH * .07) + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (sW * .15) + "\" class=\"svgtext\">" + minVal.toFixed(1) + "</text>";
+        function GetTextStr(vH, sOrgX, sOrgY, sH, sW, minVal, maxVal) {
+            let fs = sH * .07;
+            let yoff = 1.0 * fs;
+            let topText = maxVal.toFixed(1);
+            let botText = minVal.toFixed(1);
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            ctx.font = "12px Arial";
+
+            topMeas = ctx.measureText(topText);
+            botMeas = ctx.measureText(botText);
+
+            cTextH = (vH * .07);
+            topTextW = cTextH * topMeas.width / 12;
+            botTextW = cTextH * botMeas.width / 12;
+
+            return "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + yoff) + "\" font-size=\"" + fs + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (topTextW * 1.1) + "\" class=\"svgtext\">" + topText + "</text>" +
+                   "<text x=\"" + (sOrgX + 2) + "\"  y=\"" + (sOrgY + sH) + "\" font-size=\"" + fs + "\" lengthAdjust=\"spacingAndGlyphs\" textlength=\"" + (botTextW * 1.1) + "\" class=\"svgtext\">" + botText + "</text>";
         }
 
         function GetRectStr(cx, cy, w, h, styleStr, sBox) {
@@ -254,28 +268,29 @@
 
     </head>
     <body onload="setRowHeight()" onresize="setRowHeight()">
+        <canvas id="EquipCanvas" width="300" height="150" display="none"></canvas>
         <table class="table" id="container">
             <tbody id="tbodyId">
-            @for (int i = 0; i < Model.ActEq.Count; ++i)
-            {
-                <tr class="erow">
-                    <td class="eqTitle">
-                        @Model.ActEq[i].Title
-                    </td>
-                    <td>
-                        <span class="@Model.GetColorClass(Model.ActEq[i].PropName)"><b>@Model.ActEqVal(i)</b></span> @Model.ActEqUnits(i)
-                    </td>
-                    <td>
+                @for (int i = 0; i < Model.ActEq.Count; ++i)
+                {
+                    <tr class="erow">
+                        <td class="eqTitle">
+                            @Model.ActEq[i].Title
+                        </td>
+                        <td>
+                            <span class="@Model.GetColorClass(Model.ActEq[i].PropName)"><b>@Model.ActEqVal(i)</b></span> @Model.ActEqUnits(i)
+                        </td>
+                        <td>
                             @if (Model.ActEq[i].IsPropane())@Html.Raw("<a href=\"EquipRpt\">")
                             <svg class="ChartSVG" style="padding-top:10px; padding-bottom:10px;" xmlns="http://www.w3.org/2000/svg" overflow="visible" preserveAspectRatio="none">
                             </svg>
                             @if (Model.ActEq[i].IsPropane())@Html.Raw("</a>")
-                    </td>
-                    <td class="eqDateTime">
-                        @Model.ActEqDT(i)
-                    </td>
-                </tr>
-            }
+                        </td>
+                        <td class="eqDateTime">
+                            @Model.ActEqDT(i)
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </body>

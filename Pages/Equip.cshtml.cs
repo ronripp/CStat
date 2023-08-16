@@ -28,7 +28,7 @@ namespace CStat.Pages
         public CSSettings Settings { get; set; }
         private List<List<double>> ActiveEqHistory { get; set; }
 
-    public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             _context = context;
             _hostEnv = hostEnv;

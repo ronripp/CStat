@@ -214,6 +214,8 @@ namespace CStat.Common
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
         public ArdRecord LastAR;
+        public static int NumCheckARs = 3;
+        public List<ArdRecord> LastARs = null;
 
         public ArdMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -226,7 +228,8 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             FullLatest = Path.Combine(newPath, "ardlatest.txt");
             ArdFullAll = Path.Combine(newPath, "ardall.txt");
-            LastAR = GetLast();
+            LastARs = GetLastRecords(NumCheckARs);
+            LastAR = LastARs.Last() ?? null;
         }
 
         public bool CheckValues(string jsonStr) // Ard only : No propane
@@ -253,12 +256,27 @@ namespace CStat.Common
                         sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> CCA Power is back ON", true, false); // Allow resend
                     }
                 }
-                else if (CSSettings.GetColor(cset.EquipProps, ep.PropName, ar, null, false) != CSSettings.green)
+                else 
                 {
-                    CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-                    sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), true, false); // Allow resend
+                    // All other Equipment : Not "Propane" and Not "Power On"
+                    var ARCount = LastARs.Count;
+                    if (ARCount >= NumCheckARs)
+                    {
+                        // Equipment must fail for last NumCheckARs values
+                        bool eqOK = false;
+                        for (int i = 0; i < NumCheckARs; ++i)
+                        {
+                            eqOK = CSSettings.GetColor(cset.EquipProps, ep.PropName, LastARs[i], null, false) == CSSettings.green;
+                            if (eqOK)
+                                break;
+                        }
+                        if (!eqOK)
+                        {
+                            CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                            sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), true, false); // Allow resend
+                        }
+                    }
                 }
-
             }
             return true;
         }
@@ -452,6 +470,57 @@ namespace CStat.Common
                         }
                     }
 
+                    return arList;
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    ArdMgr.fLock.ExitWriteLock();
+                }
+                return null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public List<ArdRecord> GetLastRecords(int numRecs)
+        {
+            List<ArdRecord> arList = new List<ArdRecord>();
+            List<string> lineList = new List<string>();
+            int lineCount = 0;
+            int startIndex = 0;
+            if (ArdMgr.fLock.TryEnterWriteLock(250))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(ArdFullAll, System.Text.Encoding.UTF8))
+                    {
+                        string raw;
+                        while ((raw = sr.ReadLine()) != null)
+                        {
+                            lineList.Add(raw);
+                        }
+                        sr.Close();
+
+                        lineCount = lineList.Count;
+                        startIndex = lineList.Count >= numRecs ? lineCount - numRecs : 0;
+
+                        for (int i = startIndex; i < lineCount; ++i)
+                        {
+                            raw = lineList[i];
+                            if (raw.Length > 20)
+                            {
+                                var ardRec = GetArdRecord(raw);
+                                if (ardRec != null)
+                                     arList.Add(ardRec);
+                            }
+                        }
+                    }
                     return arList;
                 }
                 catch

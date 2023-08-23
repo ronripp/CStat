@@ -214,7 +214,8 @@ namespace CStat.Common
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
         public ArdRecord LastAR;
-        public static int NumCheckARs = 3;
+        public static int NumCheckARs = 5;
+        public static int MinPassARs = 3;
         public List<ArdRecord> LastARs = null;
 
         public ArdMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
@@ -260,6 +261,7 @@ namespace CStat.Common
                 {
                     // All other Equipment : Not "Propane" and Not "Power On"
                     var ARCount = LastARs.Count;
+                    var NumPassed = 0;
                     if (ARCount >= NumCheckARs)
                     {
                         // Equipment must fail for last NumCheckARs values
@@ -268,9 +270,12 @@ namespace CStat.Common
                         {
                             eqOK = CSSettings.GetColor(cset.EquipProps, ep.PropName, LastARs[i], null, false) == CSSettings.green;
                             if (eqOK)
-                                break;
+                            {
+                                if (++NumPassed >= MinPassARs)
+                                    break;
+                            }
                         }
-                        if (!eqOK)
+                        if (NumPassed < MinPassARs)
                         {
                             CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
                             sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), true, false); // Allow resend

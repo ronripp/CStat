@@ -4,16 +4,29 @@
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
 
     <title>CCA Public Docs</title>
-        <style>
-        </style>
-    </head>
-<body>
+    <style>
+    </style>
+
+    <script>
+        function setVideoWidth(cmd) {
+            let vWidth = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) * ((cmd === 0) ? 0.2 : 0.96);
+            document.getElementById("vid").style.width = vWidth + "px";
+        }
+    </script>
+</head>
+<body onload="setVideoWidth(0)" onresize="setVideoWidth(1)">
 
     <h1>CCA Public Docs</h1>
 
     <p><a href="CCAByLaws2021.html"><h3>CCA By-Laws 2021</h3></a></p>
     <p><a href="CCAQuilts.html"><h3>CCA Quilts</h3></a></p>
     <p><a href="trails/trails.html"><h3>CCA Trails</h3></a></p>
+    <p>
+        <video onplaying="setVideoWidth(1)" id="vid" width=800 controls>
+            <source src="https://localhost:44377/api/Video" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+    </p>
 
 </body>
 </html>

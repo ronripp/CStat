@@ -238,6 +238,9 @@ namespace CStat.Common
             ArdRecord ar = GetArdRecord(jsonStr);
             CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
 
+            // The MQ-5 Methane Propane and Butane Gas Sensor Module detect Propane and Butane gas in the surrounding air. The concentration of the gases is output as an analogue voltage reading.
+            // This sensor can detect concentrations between 200-10000ppm and is suitable for portable gas detectors and home safety automation systems.
+
             foreach (var ep in cset.EquipProps)
             {
                 if (ep.IsPropane() || !ep.Active)

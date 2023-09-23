@@ -8,18 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using CStat.Models;
 using Newtonsoft.Json;
 using System.Data.Common;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CStat.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class CStatController : ControllerBase
     {
         private readonly CStatContext entities;
+        private readonly IWebHostEnvironment _hostEnv;
 
-        public CStatController(CStatContext context)
+        public CStatController(CStatContext context, IWebHostEnvironment hostEnv)
         {
             entities = context;
+            _hostEnv = hostEnv;
         }
 
         // GET: api/CStat
@@ -29,13 +35,26 @@ namespace CStat.Controllers
             return await entities.Person.ToListAsync();
         }
 
+        //*************************************
+        // GET: api/CStat/video
+        //*************************************
+        [HttpGet]
+        [Route("api/CStatAAA")]
+        public FileResult getVideoById ()
+        {
+            string fileName = "video\\southford.mp4";
+            string physPath = Path.Combine(_hostEnv.WebRootPath, fileName);
+            var content = new FileStream(physPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var response = File(content, "application/octet-stream");
+            return response;
+        }
+
         // GET: api/CStat/5
         [HttpGet("{id}")]
         [Obsolete]
         //        public async Task<ActionResult<Person>> GetPerson(int id)
         public string Get(string id) //********************************************************
         {
-        
            if (id == null)
                return "Bad Get id";
 
@@ -166,7 +185,7 @@ namespace CStat.Controllers
            }
 
            return Person.FindPeople(entities, id);
-        } 
+        }
 
         // PUT: api/CStat/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for

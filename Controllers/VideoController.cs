@@ -25,7 +25,8 @@ namespace CStat.Controllers
 
         public FileResult Index()
         {
-            string fileName = "Videos\\southford.mp4";
+            //string fileName = "Videos\\southford.mp4";
+            string fileName = "Videos\\CCA_Dave_Miller_21.mp4";
             string physPath = Path.Combine(_hostEnv.WebRootPath, fileName);
             var content = new FileStream(physPath, FileMode.Open, FileAccess.Read, FileShare.Read);
             var response = File(content, "application/octet-stream");

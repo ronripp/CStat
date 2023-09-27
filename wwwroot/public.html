@@ -12,9 +12,13 @@
             let vWidth = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) * ((cmd === 0) ? 0.2 : 0.96);
             document.getElementById("vid").style.width = vWidth + "px";
         }
+        function showVideo(cmd) {
+            document.getElementById("vid").style.display = "block";
+            setVideoWidth(0);
+        }
     </script>
 </head>
-<body onload="setVideoWidth(0)" onresize="setVideoWidth(1)">
+<body onresize="setVideoWidth(1)">
 
     <h1>CCA Public Docs</h1>
 
@@ -22,8 +26,9 @@
     <p><a href="CCAQuilts.html"><h3>CCA Quilts</h3></a></p>
     <p><a href="trails/trails.html"><h3>CCA Trails</h3></a></p>
     <p>
-        <video onplaying="setVideoWidth(1)" id="vid" width=800 controls>
-            <source src="https://localhost:44377/api/Video" type="video/mp4" />
+        <div><a href="#" onclick="showVideo();event.preventDefault();"><h3>Dave Miller's 9/21 Presentation:</h3></a></div>
+        <video id="vid" style="display:none" onplaying="setVideoWidth(1)" width=800 controls>
+            <source src="https://ccaserve.org/api/Video" type="video/mp4" />
             Your browser does not support the video tag.
         </video>
     </p>

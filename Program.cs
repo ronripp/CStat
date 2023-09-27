@@ -17,7 +17,7 @@ namespace CStat
     {
         public static void Main(string[] args)
         {
-            // TBD : Make sure wwwroot\tmpDBox and wwwroot\Images are created after install.
+            // TBD : Make sure wwwroot\tmpDBox wwwroot\Videos and wwwroot\Images are created after install.
             //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
             CreateHostBuilder(args).Build().Run();

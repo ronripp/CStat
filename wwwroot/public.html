@@ -44,8 +44,9 @@
 
     <script>
         function setVideoWidth(cmd) {
-            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth) * ((cmd === 0) ? 0.35 : 0.99);
-            document.getElementById("vid").style.width = vWidth + "px";
+            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
+            let vidWidth =  vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
+            document.getElementById("vid").style.width = vidWidth + "px";
         }
         function showVideo(cmd) {
             document.getElementById("vid").style.display = (document.getElementById("vid").style.display === "block") ? "none" : "block";

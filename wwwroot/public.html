@@ -44,7 +44,7 @@
 
     <script>
         function setVideoWidth(cmd) {
-            let vWidth = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) * ((cmd === 0) ? 0.2 : 0.96);
+            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth) * ((cmd === 0) ? 0.35 : 0.99);
             document.getElementById("vid").style.width = vWidth + "px";
         }
         function showVideo(cmd) {
@@ -65,7 +65,7 @@
         <p><a class="LC" href="trails/trails.html"><h3>&nbsp;&nbsp;CCA Trails</h3></a></p>
         <p>
             <div><a class="LC" href="#" onclick="showVideo();event.preventDefault();"><h3>&nbsp;&nbsp;Dave Miller's 9/21 Presentation:</h3></a></div>
-            <video id="vid" style="display:none" onplaying="setVideoWidth(1)" width=800 controls>
+            <video id="vid" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
                 <source src="https://ccaserve.org/api/Video" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>

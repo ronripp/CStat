@@ -27,9 +27,9 @@
 
         function onFilter(isFiltered) {
             if (isFiltered) {
-                window.location.href = "Index?all=false";
+                window.location.href = window.location.origin + "/Churches/Index?all=false";
             } else {
-                window.location.href = "Index?all=true";
+                window.location.href = window.location.origin + "/Churches/Index?all=true";
             }
         }
 

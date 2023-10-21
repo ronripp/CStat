@@ -140,7 +140,7 @@ namespace CCAChurch
         new ChurchAtt("Prior Member",       MemberStatType.PRIOR_M),
         new ChurchAtt("Expelled Member",    MemberStatType.EXP_M),
         new ChurchAtt("Suspended Member",   MemberStatType.SUSP_M),
-        new ChurchAtt("n/a",                MemberStatType.NOT_M)
+        new ChurchAtt("Not a Member",       MemberStatType.NOT_M)
         };
     };
     public class PInfo

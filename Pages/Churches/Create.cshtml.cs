@@ -54,6 +54,8 @@ namespace CStat.Pages.Churches
         [BindProperty]
         public string _State { get; set; } = "";
         [BindProperty]
+        public string _EMail { get; set; } = "";
+        [BindProperty]
         public string _ZipCode { get; set; } = "";
         [BindProperty]
         public string _Phone { get; set; } = "";
@@ -100,6 +102,7 @@ namespace CStat.Pages.Churches
                 Church.AddressId = null;
                 Church.Address = null;
             }
+            Church.Email = _EMail;
 
             Church.SeniorMinisterId = Person.PersonIdFromExactName(_context, _SeniorMinister);
             Church.YouthMinisterId = Person.PersonIdFromExactName(_context, _YouthMinister);

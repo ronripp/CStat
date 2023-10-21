@@ -49,6 +49,7 @@ namespace CStat.Pages.Churches
             _Alternate1 = (_Church.Alternate1 != null) ? _Church.Alternate1.FirstName + " " + _Church.Alternate1.LastName : "";
             _Alternate2 = (_Church.Alternate2 != null) ? _Church.Alternate2.FirstName + " " + _Church.Alternate2.LastName : "";
             _Alternate3 = (_Church.Alternate3 != null) ? _Church.Alternate3.FirstName + " " + _Church.Alternate3.LastName : "";
+            _EMail = (_Church.Email != null) ? _Church.Email : "";
 
             _Street = (_Church.Address != null) ? _Church.Address.Street : "";
             _Town = (_Church.Address != null) ? _Church.Address.Town : "";
@@ -89,6 +90,8 @@ namespace CStat.Pages.Churches
         public string _State { get; set; } = "";
         [BindProperty]
         public string _ZipCode { get; set; } = "";
+        [BindProperty]
+        public string _EMail { get; set; } = "";
         [BindProperty]
         public string _Phone { get; set; } = "";
         [BindProperty]
@@ -136,6 +139,7 @@ namespace CStat.Pages.Churches
                 _Church.AddressId = null;
                 _Church.Address = null;
             }
+            _Church.Email = _EMail;
 
             if (!_Church.SeniorMinisterId.HasValue)
                 _Church.SeniorMinisterId = Person.PersonIdFromExactName(_context, _SeniorMinister);
@@ -217,7 +221,7 @@ namespace CStat.Pages.Churches
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        return new JsonResult("ERROR~: Exception : Delete Church Failed.");
+                        return new JsonResult("ERROR~: Exception : Delete Church Failed. Home Church for one or more people?");
                     }
                     return new JsonResult("SUCCESS~:Delete Church Succeeded.");
                 }

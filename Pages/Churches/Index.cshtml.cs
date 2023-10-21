@@ -41,7 +41,7 @@ namespace CStat.Pages.Churches
                 .Include(c => c.Trustee3)
                 .Include(c => c.YouthMinister).ToListAsync() :
 
-                await _context.Church.Where(c => c.MembershipStatus == 1)
+                await _context.Church.Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2))
                 .Include(c => c.Address)
                 .Include(c => c.Alternate1)
                 .Include(c => c.Alternate2)

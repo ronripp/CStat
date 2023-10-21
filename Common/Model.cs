@@ -1390,12 +1390,12 @@ namespace CStat.Models
 
             public static ChurchAtt[] MemberStatList = new ChurchAtt[]
             {
-                new ChurchAtt("Membership Unknown", MemberStatType.UNK_M),
+                new ChurchAtt("n/a", MemberStatType.UNK_M),
                 new ChurchAtt("Mem. Good Standing", MemberStatType.MIGS),
                 new ChurchAtt("Prior Member",       MemberStatType.PRIOR_M),
                 new ChurchAtt("Expelled Member",    MemberStatType.EXP_M),
                 new ChurchAtt("Suspended Member",   MemberStatType.SUSP_M),
-                new ChurchAtt("Not a Member",       MemberStatType.NOT_M)
+                new ChurchAtt("n/a",       MemberStatType.NOT_M)
             };
         };
 

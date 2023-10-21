@@ -78,7 +78,7 @@ namespace CStat.Pages.Churches
             adr.Fax = _Fax;
             adr.Country = "USA";
 
-            if (!string.IsNullOrEmpty(adr.Phone) || !string.IsNullOrEmpty(adr.Fax))
+            if (!string.IsNullOrEmpty(adr.Street) || !string.IsNullOrEmpty(adr.Phone) || !string.IsNullOrEmpty(adr.Fax))
             {
                 if (!AddressMgr.Validate(ref adr))
                 {

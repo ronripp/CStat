@@ -657,8 +657,9 @@ namespace CStat.Common
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
+                    var ecRole = p.GetECRole();
                     result += ("*" + p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
-                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) + " " + (!string.IsNullOrEmpty(p.Email) ? p.Email : "")).Trim();
+                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) +  (!string.IsNullOrEmpty(p.Email) ? " " + p.Email : "") + (!string.IsNullOrEmpty(ecRole) ? " " + ecRole : "")).Trim();
 
                     var exp = p.GetTermExpire();
                     if (exp != 0)
@@ -806,7 +807,7 @@ namespace CStat.Common
             return res;
         }
 
-        //***************************************************ZZZ
+        //****************************************************
         private string HandleTasks(List<string> words)
         //****************************************************
         {
@@ -993,45 +994,77 @@ namespace CStat.Common
         }
 
         //***************************************************************
-        private string HandleChurch(List<string> words)
+        private string HandleChurch(List<string> words) // ZAA
         //***************************************************************
         {
-            var churches = new List<Church>();
-            var people = new List<Person>();
-            if (_isPlural)
-            {
-                if (_cmdSrc == CmdSource.CHURCH)
-                {
-                    people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Church).ToList();
-                }
-            }
-            else
-            {
-                if (_cmdDescList.Count == 1)
-                {
-                    people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Church).ToList();
-                }
-                else if (_cmdDescList.Count == 2)
-                {
-                    people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Church).ToList();
-                }
-                else
-                    return "Unable to determine a specific church";
-            }
+            // TEST CODE 
+            //ArdMgr ardMgr = new ArdMgr(_hostEnv, _config, _userManager);
+            //var raw1 = "freezerTemp:40,frigTemp:38,kitchTemp:57,waterPres:81,powerOn:368,analog5:333,time:\"10/23/23 8:04:41 PM\"";
+            //var raw2 = "freezerTemp:41,frigTemp:39,kitchTemp:57,waterPres:81,powerOn:370,analog5:333,time:\"10 /23/23 8:06:42 PM\"";
+            //var raw3 = "freezerTemp:41,frigTemp:38,kitchTemp:57,waterPres:82,powerOn:365,analog5:329,time:\"10 /23/23 8:08:43 PM\"";
+            //var raw4 = "freezerTemp:41,frigTemp:39,kitchTemp:57,waterPres:82,powerOn:365,analog5:327,time:\"10/23/23 8:10:45 PM\"";
+            //var raw5 = "freezerTemp:41,frigTemp:39,kitchTemp:57,waterPres:82,powerOn:365,analog5:327,time:\"10/23/23 8:10:45 PM\"";
+            //var raw6 = "freezerTemp:41,frigTemp:39,kitchTemp:57,waterPres:82,powerOn:365,analog5:327,time:\"10/23/23 8:10:45 PM\"";
+            //ardMgr.CheckValues(raw1);
+            //ardMgr.CheckValues(raw2);
+            //ardMgr.CheckValues(raw3);
+            //ardMgr.CheckValues(raw4);
+            //ardMgr.CheckValues(raw5);
+            //ardMgr.CheckValues(raw6);
 
-            foreach (var p in people)
-            {
-                if (p.Church != null)
-                    churches.Add(p.Church);
-            }
-            var DistChurches = churches.Distinct<Church>().OrderBy(c => c.Name).ToList();
+            var churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.Name).ToList();
 
             string report = "";
-            foreach (var c in DistChurches)
+            foreach (var c in churches)
             {
-                report += "CHURCH: " + c.Name + Address.FormatAddress(c.Address, true) + ".\n";
+                var poc = Person.GetPOCMinister(c);
+                var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
+
+                report += "CHURCH: " + c.Name + " " +
+                    (Address.FormatAddress(c.Address, true) + " " +
+                    (!string.IsNullOrEmpty(status) ? " " + status : "") +
+                    (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
+                    (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
+                    (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
             }
             return report;
+
+            //*** OLDER CODE RELATED TO PEOPLE
+            //var people = new List<Person>();
+            //if (_isPlural)
+            //{
+            //    if (_cmdSrc == CmdSource.CHURCH)
+            //    {
+            //        people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Church).ToList();
+            //    }
+            //}
+            //else
+            //{
+            //    if (_cmdDescList.Count == 1)
+            //    {
+            //        people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Church).ToList();
+            //    }
+            //    else if (_cmdDescList.Count == 2)
+            //    {
+            //        people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Church).ToList();
+            //    }
+            //    else
+            //        return "Unable to determine a specific church";
+            //}
+
+            //foreach (var p in people)
+            //{
+            //    if (p.Church != null)
+            //        churches.Add(p.Church);
+            //}
+            //var DistChurches = churches.Distinct<Church>().OrderBy(c => c.Name).ToList();
+
+            //string report = "";
+            //foreach (var c in DistChurches)
+            //{
+            //    report += "CHURCH: " + c.Name + Address.FormatAddress(c.Address, true) + ".\n";
+            //}
+            //return report;
         }
 
         private string HandleCamera(List<string> words)

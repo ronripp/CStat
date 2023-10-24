@@ -191,7 +191,26 @@ namespace CStat.Common
             var Settings = CSSettings.GetCSSettings(_config, _userManager);
 
             var u = Settings.GetUser(username);
-            if ((u == null) || (u.PhoneNum == null) || (u.PhoneNum.Length < 7) || !u.SendTaskText)
+            bool AllowTexting = false;
+            if (u != null)
+            {
+                switch (nt)
+                {
+                    case NotifyType.EquipNT:
+                        AllowTexting = u.SendEquipText;
+                        break;
+                    case NotifyType.StockNT:
+                        AllowTexting = u.SendStockText;
+                        break;
+                    case NotifyType.TaskNT:
+                        AllowTexting = u.SendTaskText;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if ((u == null) || (u.PhoneNum == null) || (u.PhoneNum.Length < 7) || !AllowTexting)
             {
                 var csRes = new CSResult();
                 csRes.Set(false, (((u != null) && !u.SendTaskText) ? "User does not allow texting." : ((u == null) ? "No user found." : "No phone # found.")), nt.ToString() + ">" + username, "");

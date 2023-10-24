@@ -65,11 +65,7 @@ namespace CStat.Pages.Churches
 
         public static string GetPOCMinister(Church church)
         {
-            if (church.YouthMinister != null)
-                return church.YouthMinister.FirstName + " " + church.YouthMinister.LastName;
-            if (church.SeniorMinister != null)
-                return church.SeniorMinister.FirstName + " " + church.SeniorMinister.LastName;
-            return "???";
+            return Person.GetPOCMinister(church);
         }
         public static string GetPhone(Church church)
         {

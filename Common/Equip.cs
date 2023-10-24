@@ -182,7 +182,7 @@ namespace CStat.Common
             if (double.TryParse(waterPress, out _WaterPress))
                 WaterPress = _WaterPress*0.547619 + 3.5;
             if (double.TryParse(powerOn, out double _PowerOn))
-                PowerOn = (_PowerOn >= 370) ? 100 : 0;
+                PowerOn = (_PowerOn >= 300) ? 100 : 0;
             if (double.TryParse(analog5, out double _Analog5))
                 Analog5 = _Analog5;
             TimeStamp = timeStamp;

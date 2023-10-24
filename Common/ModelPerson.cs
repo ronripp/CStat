@@ -599,6 +599,15 @@ namespace CStat.Models
             return raw;
         }
 
+        public static string GetPOCMinister(Church church)
+        {
+            if (church.YouthMinister != null)
+                return church.YouthMinister.FirstName + " " + church.YouthMinister.LastName;
+            if (church.SeniorMinister != null)
+                return church.SeniorMinister.FirstName + " " + church.SeniorMinister.LastName;
+            return "???";
+        }
+
         public static string GetVS(string str)
         {
             return !string.IsNullOrEmpty(str) ? str : "";
@@ -1917,6 +1926,24 @@ namespace CStat.Models
                 return retDT;
             }
             return dt;
+        }
+        public string GetECRole()
+        {
+            switch ((Person.TitleRoles)this.Roles)
+            {
+                case Person.TitleRoles.President:
+                    return "President";
+                case Person.TitleRoles.Treasurer:
+                    return "Treasurer";
+                case Person.TitleRoles.Secretary:
+                    return "Secretary";
+                 case Person.TitleRoles.Vice_Pres:
+                    return "VicePres.";
+                case Person.TitleRoles.Memb_at_Lg:
+                    return "MemAtLarge";
+                default:
+                    return "";
+            }
         }
 
         public int GetTermExpire()

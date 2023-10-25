@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static CStat.Models.Event;
 
@@ -17,6 +18,7 @@ namespace CStat.Common
     public class CmdMgr
     {
         public delegate string HandleSrcDel(List<string> words);
+        private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
 
         public enum CmdAction
         {
@@ -1027,6 +1029,36 @@ namespace CStat.Common
                     (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
                     (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
             }
+
+            // EMail a CSV File
+            if (fLock.TryEnterWriteLock(3000))
+            {
+                int retVal = 0;
+                try
+                {
+                    var TempPath = Path.GetTempPath();
+                    using (StreamWriter wFile = new StreamWriter(Path.Combine(TempPath, "Churches.csv")))
+                    {
+                        string line;
+                        line = "Church Name,Address,Member Status,Contact,Phone,EMail,Website\n" 
+                        wFile.WriteLine(line);
+                    }
+                }
+                catch
+                {
+                    retVal = -3;
+                }
+                finally
+                {
+                    fLock.ExitWriteLock();
+                }
+                return retVal;
+            }
+            else
+            {
+                report += " FAILED TO EMAIL EXCEL OF CHURCHES DUE TO LOCK.";
+            }
+
             return report;
 
             //*** OLDER CODE RELATED TO PEOPLE

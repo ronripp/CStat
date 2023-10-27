@@ -1023,7 +1023,7 @@ namespace CStat.Common
                 var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
 
                 report += "CHURCH: " + c.Name + " " +
-                    (Address.FormatAddress(c.Address, true) + " " +
+                    (Address.FormatAddress(c.Address) + " " +
                     (!string.IsNullOrEmpty(status) ? " " + status : "") +
                     (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
                     (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
@@ -1033,26 +1033,52 @@ namespace CStat.Common
             // EMail a CSV File
             if (fLock.TryEnterWriteLock(3000))
             {
-                int retVal = 0;
                 try
                 {
                     var TempPath = Path.GetTempPath();
-                    using (StreamWriter wFile = new StreamWriter(Path.Combine(TempPath, "Churches.csv")))
+                    var FullFile = Path.Combine(TempPath, "Churches.csv");
+                    using (StreamWriter wFile = new StreamWriter(FullFile))
                     {
-                        string line;
-                        line = "Church Name,Address,Member Status,Contact,Phone,EMail,Website\n" 
-                        wFile.WriteLine(line);
+                        wFile.WriteLine("Church Name,Address,Member Status,Contact,Phone,EMail,Website\n");
+                        foreach (var c in churches)
+                        {
+                            var poc = Person.GetPOCMinister(c);
+                            var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
+                            string website = "";
+                            if (!string.IsNullOrEmpty(c.StatusDetails))
+                            {
+                                int windex = c.StatusDetails.IndexOf("@website=\"");
+                                if (windex > -1)
+                                {
+                                    string wstr = c.StatusDetails.Substring(windex + 10);
+                                    int eindex = wstr.IndexOf("\"");
+                                    if (eindex != -1)
+                                        website = wstr.Substring(0, eindex);
+                                }
+                            }
+                            wFile.WriteLine(c.Name + "," +
+                                   Address.FormatAddress(c.Address) + "," +
+                                   (!string.IsNullOrEmpty(status) ? status : "") + "," +
+                                   (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
+                                   (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : "") + "," +
+                                   (!string.IsNullOrEmpty(c.Email) ? c.Email : "") + "," +
+                                   website + "\n");
+                        }
+                        wFile.Close();
+                        var email = new CSEMail(_config, _userManager);
+
+                        email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile });
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    retVal = -3;
+                    var csl = new CSLogger();
+                    csl.Log("CmdMgr: EMail Churches CSV failed : " + ((e==null)? "???": e.Message));
                 }
                 finally
                 {
                     fLock.ExitWriteLock();
                 }
-                return retVal;
             }
             else
             {

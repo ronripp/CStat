@@ -349,9 +349,9 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(a.Street))
                 astr += " " + a.Street;
             if (!string.IsNullOrEmpty(a.Town))
-                astr += " " + a.Town;
+                astr += ", " + a.Town;
             if (!string.IsNullOrEmpty(a.State))
-                astr += " " + GetStateAbbr(a.State);
+                astr += ", " + GetStateAbbr(a.State);
             if (!string.IsNullOrEmpty(a.ZipCode))
                 astr += " " + a.ZipCode;
             if (addPhone)

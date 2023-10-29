@@ -995,6 +995,15 @@ namespace CStat.Common
             return report;
         }
 
+        private static string EncloseCommasForCSV (string instr)
+        {
+            if (!String.IsNullOrEmpty(instr) && instr.Contains(","))
+            {
+                return "\"" + instr + "\"";
+            }
+            return instr;
+        }
+
         //***************************************************************
         private string HandleChurch(List<string> words) // ZAA
         //***************************************************************
@@ -1039,11 +1048,11 @@ namespace CStat.Common
                     var FullFile = Path.Combine(TempPath, "Churches.csv");
                     using (StreamWriter wFile = new StreamWriter(FullFile))
                     {
-                        wFile.WriteLine("Church Name,Address,Member Status,Contact,Phone,EMail,Website\n");
+                        wFile.WriteLine("Church Name,Address,Member Status,Contact,Phone,EMail,Website");
                         foreach (var c in churches)
                         {
-                            var poc = Person.GetPOCMinister(c);
-                            var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
+                            var poc = EncloseCommasForCSV(Person.GetPOCMinister(c));
+                            var status = EncloseCommasForCSV(Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name);
                             string website = "";
                             if (!string.IsNullOrEmpty(c.StatusDetails))
                             {
@@ -1053,16 +1062,16 @@ namespace CStat.Common
                                     string wstr = c.StatusDetails.Substring(windex + 10);
                                     int eindex = wstr.IndexOf("\"");
                                     if (eindex != -1)
-                                        website = wstr.Substring(0, eindex);
+                                        website = EncloseCommasForCSV(wstr.Substring(0, eindex));
                                 }
                             }
-                            wFile.WriteLine(c.Name + "," +
-                                   Address.FormatAddress(c.Address) + "," +
+                            wFile.WriteLine(EncloseCommasForCSV(c.Name) + "," +
+                                   EncloseCommasForCSV(Address.FormatAddress(c.Address)) + "," +
                                    (!string.IsNullOrEmpty(status) ? status : "") + "," +
                                    (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
-                                   (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : "") + "," +
-                                   (!string.IsNullOrEmpty(c.Email) ? c.Email : "") + "," +
-                                   website + "\n");
+                                   (!string.IsNullOrEmpty(c.Address.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address.Phone)) : "") + "," +
+                                   (!string.IsNullOrEmpty(EncloseCommasForCSV(c.Email)) ? c.Email : "") + "," +
+                                   website);
                         }
                         wFile.Close();
                         var email = new CSEMail(_config, _userManager);

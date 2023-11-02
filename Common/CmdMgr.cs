@@ -1081,8 +1081,8 @@ namespace CStat.Common
                 }
                 catch (Exception e)
                 {
-                    var csl = new CSLogger();
-                    csl.Log("CmdMgr: EMail Churches CSV failed : " + ((e==null)? "???": e.Message));
+                    var cl = new CSLogger();
+                    cl.Log("CmdMgr: EMail Churches CSV failed : " + ((e==null)? "???": e.Message));
                 }
                 finally
                 {

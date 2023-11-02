@@ -45,9 +45,9 @@ namespace CStat.Common
 
         public async Task DoWork(CancellationToken stoppingToken)
         {
-            var csl = new CSLogger();
+            var cl = new CSLogger();
 
-            csl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
+            cl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 
             // SET THE MINIMUM TIME BETWEEN PROCESSING RUNS IN MINUTES
             int MinWaitMins = 120; // 2 hrs
@@ -56,12 +56,12 @@ namespace CStat.Common
             {
                 try
                 {
-                    csl.Log("CSProc: Top of while Loop");
+                    cl.Log("CSProc: Top of while Loop");
 
                     DateTime enow = PropMgr.ESTNow;
                     DateTime lastW = (_csSettings.LastTaskUpdate != null) ? _csSettings.LastTaskUpdate : new DateTime(2020, 1, 1);
 
-                    csl.Log("CSProc: DoWork() Now=" + PropMgr.ESTNowStr + " LastTaskUpdate=" + lastW.ToString());
+                    cl.Log("CSProc: DoWork() Now=" + PropMgr.ESTNowStr + " LastTaskUpdate=" + lastW.ToString());
 
                     // Has it been MinWait (minutes) or more since last run ?
 #if DEBUG
@@ -72,7 +72,7 @@ namespace CStat.Common
                     {
                         // Check Stock for possibly needed items
 
-                        csl.Log("CSProc: DoWork() Check Stock");
+                        cl.Log("CSProc: DoWork() Check Stock");
 
                         OrderedEvents ordEvs = new OrderedEvents(_context);
                         IList<InventoryItem> InventoryItems = _context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).ToList();
@@ -102,7 +102,7 @@ namespace CStat.Common
                         }
 
                         // Check for new Tasks
-                        csl.Log("CSProc: DoWork() Check for new Tasks");
+                        cl.Log("CSProc: DoWork() Check for new Tasks");
 
                         AutoGen ag = new AutoGen(_context);
                         _csSettings.LastTaskUpdate = PropMgr.ESTNow;
@@ -118,7 +118,7 @@ namespace CStat.Common
                         pmgr.CheckValue(pl); // check
 
                         // Check for any unexpected propane usage (not potentially impacted from events) from recent daily usage
-                        csl.Log("CSProc: DoWork() Check Propane");
+                        cl.Log("CSProc: DoWork() Check Propane");
                         var plList = pmgr.GetAll(3);
                         var plCnt = plList.Count;
                         if ((pl != null) && (plCnt > 1))
@@ -126,7 +126,7 @@ namespace CStat.Common
                             if (pl.ReadingTime > plList[plCnt-1].ReadingTime)
                             {
                                 // Append new value to files and to this list of 3
-                                pmgr.WritePropane(pl, csl);
+                                pmgr.WritePropane(pl, cl);
                                 plList.Add(pl);
                                 plList.RemoveAt(0);
                             }
@@ -156,19 +156,19 @@ namespace CStat.Common
                             }
                         }
                         else
-                            csl.Log("CSProc: DoWork() Check Propane FAILED: pl=null?" + (pl == null) + " plCnt=" + plCnt);
+                            cl.Log("CSProc: DoWork() Check Propane FAILED: pl=null?" + (pl == null) + " plCnt=" + plCnt);
 
                         // Check for new EMails to process / store
-                        csl.Log("CSProc: DoWork() Check for new EMails");
+                        cl.Log("CSProc: DoWork() Check for new EMails");
                         CSEMail.ProcessEMails(_hostEnv, _configuration, _userManager, _csSettings, _context);
 
                         // Check/Truncate Size of Arduino file
-                        csl.Log("CSProc: DoWork() Check/Truncate Arduino file");
+                        cl.Log("CSProc: DoWork() Check/Truncate Arduino file");
                         ArdMgr amgr = new ArdMgr(_hostEnv, _configuration, _userManager);
                         amgr.GetAll(true);
 
                         // Clean/{Reset to full view} Camera
-                        csl.Log("CSProc: DoWork() Clean/Reset Camera");
+                        cl.Log("CSProc: DoWork() Clean/Reset Camera");
 
                         using (var ptz = new PtzCamera())
                         {
@@ -176,21 +176,21 @@ namespace CStat.Common
                             ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
                         }
 
-                        csl.Log($"CSProc: DoWork() Done!");
+                        cl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");
                     }
                 }
                 catch (Exception e)
                 {
-                    csl.Log("CSProc: Exception : " + e.Message);
+                    cl.Log("CSProc: Exception : " + e.Message);
                 }
 
                 int MSecsToStart = MinWaitMins * 60000; // sleep for MinWaitMins then do work again
 
-                csl.Log($"CSProc: DoWork() Waiting " + MSecsToStart + " msecs.");
+                cl.Log($"CSProc: DoWork() Waiting " + MSecsToStart + " msecs.");
                 await(System.Threading.Tasks.Task.Delay(MSecsToStart, stoppingToken));
             }
-            csl.Log("CSProc: DoWork() **** TERMINATED ****");
+            cl.Log("CSProc: DoWork() **** TERMINATED ****");
             Interlocked.Decrement(ref CSPInstCnt);
         }
     }

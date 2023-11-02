@@ -17,6 +17,7 @@ namespace CStat.Pages
     {
         private static CamOps _CamOps = new CamOps();
         private const COp DefaultCOp = COp.Preset4;
+        private CSLogger cl = new CSLogger();
 
         [BindProperty]
         public string CameraLink { get; set; } = "";
@@ -42,7 +43,7 @@ namespace CStat.Pages
             {
                 PtzCamera.ResetLogin();
 
-                csl.Log("CAMERA.OnGet HandleOp " + op.ToString());
+                cl.Log("CAMERA.OnGet HandleOp " + op.ToString());
                 if (op == (int)PtzCamera.COp.HRSnapShot)
                 {
                     CameraLink = _CamOps.SnapShot(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
@@ -52,7 +53,7 @@ namespace CStat.Pages
                     var delay = _CamOps.HandleOp(_hostEnv, (COp)op);
                     CameraLink = _CamOps.SnapShot(_hostEnv, false);
                 }
-                csl.Log("OnGet CameraLink[" + CameraLink + "]");
+                cl.Log("OnGet CameraLink[" + CameraLink + "]");
                 var now = PropMgr.ESTNow;
                 _VideoLinks = _CamOps.GetVideoAnchors(_hostEnv, now.AddDays(-14), now);
             }
@@ -77,7 +78,7 @@ namespace CStat.Pages
 
             try
             {
-                csl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 string link;
                 int delay;
                 if (op == (int)PtzCamera.COp.HRSnapShot)
@@ -90,13 +91,13 @@ namespace CStat.Pages
                     delay = _CamOps.HandleOp(_hostEnv, (COp)op);
                     link = _CamOps.SnapShot(_hostEnv, false);
                 }
-                csl.Log("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
+                cl.Log("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
                 return new JsonResult("OK~:delay=" + delay.ToString() + ";link=" + link);
             }
             catch (Exception e)
             {
                 _ = e;
-                csl.Log("AJAX.OnGetCamOp [ERROR~: CamOp Exception]");
+                cl.Log("AJAX.OnGetCamOp [ERROR~: CamOp Exception]");
                 return new JsonResult("ERROR~: CamOp Exception");
             }
         }
@@ -136,7 +137,7 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             try
             {
-                csl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 var link = _CamOps.SnapShot(_hostEnv, op==(int)PtzCamera.COp.HRSnapShot);
                 var pending = _CamOps.PendingOps();
                 return new JsonResult("OK~:todo=" + pending + "&" + link);

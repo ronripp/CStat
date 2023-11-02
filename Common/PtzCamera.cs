@@ -887,6 +887,7 @@ public class PtzCamera : System.IDisposable
         }
         public int EnableEMailAlerts(bool enable)
         {
+            var cl = new CSLogger();
             try
             {
                 // Get Light State
@@ -905,22 +906,20 @@ public class PtzCamera : System.IDisposable
                 var sResult = req.SendForString();
                 if (String.IsNullOrEmpty(sResult))
                 {
-                    csl.Log("Enable EMail Camera Alert : sResult Null / Empty");
+                    cl.Log("Enable EMail Camera Alert : sResult Null / Empty");
                     return 0;
                 }
 
                 // "rspCode" : 200
                 dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                 
-                {
-                    var csl = new CSLogger();
-                    csl.Log("Enable EMail Camera Alert enable=" + enable + " Response Code =" + LoginResp[0].value.rspCode);
-                }
+                cl.Log("Enable EMail Camera Alert enable=" + enable + " Response Code =" + LoginResp[0].value.rspCode);
+
             }
             catch (Exception e)
             {
                 _ = e;
-                csl.Log("Enable EMail Camera Alert Exception : " + e.Message);
+                cl.Log("Enable EMail Camera Alert Exception : " + e.Message);
             }
             return 0;
         }

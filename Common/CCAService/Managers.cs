@@ -1903,7 +1903,8 @@ namespace CStat
                                 catch (Exception e)
                                 {
                                     person.ChurchId = null;
-                                    csl.Log("Add Church Exception : " + e.Message);
+                                    var cl = new CSLogger();
+                                    cl.Log("Add Church Exception : " + e.Message);
                                 }
                             }
                         }

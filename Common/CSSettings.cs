@@ -19,7 +19,8 @@ namespace CStat.Common
 {
     public class CSSettings
     {
-        static private CSSettings _gCSet = null;
+        private static CSSettings _gCSet = null;
+        private static readonly object userLock = new object();
 
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
         private readonly IConfiguration _config;
@@ -93,279 +94,309 @@ namespace CStat.Common
 
         public void initialize ()
         {
-            List<CStatUser> Users = GetUsers(_userManager);
-            List<CStatUser> FullUsers = GetFullUsers(_userManager);
-            List<CStatUser> AdminUsers = GetAdminUsers(_userManager);
-
-            UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
+            lock (userLock) // Unlikely but may be possible under certain conditions this lock is needed
             {
-                var cu = new CSUser();
-                cu.EMail = c.UserName;
-                cu.PhoneNum = c.PhoneNumber;
-                cu.UserId = c.Id;
-                cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
-                cu.IsFull = FullUsers.Any(u => u.Id == c.Id) || cu.IsAdmin;
-                
-                return cu;
-            }).ToList();
+                //var cl = new CSLogger();
 
-            var csect = _config.GetSection("CSSettings");
-            LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
-            LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
-            LastEMailRead = csect.GetValue<DateTime>("LastEMailRead");
-            var ch = _config.GetSection("CSSettings:UserSettings").GetChildren();
-            foreach (var c in ch)
-            {
-                var email = c.GetValue<string>("EMail");
-                int uidx = UserSettings.FindIndex(u => u.EMail == email);
-                if (uidx == -1)
-                    continue;
-                UserSettings[uidx].Alias = c.GetValue<string>("Alias", GetDefAlias(UserSettings[uidx].EMail));
-                UserSettings[uidx].ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
-                UserSettings[uidx].SendEquipText = c.GetValue<bool>("SendEquipText");
-                UserSettings[uidx].SendStockText = c.GetValue<bool>("SendStockText");
-                UserSettings[uidx].SendTaskText = c.GetValue<bool>("SendTaskText");
-                UserSettings[uidx].SendEMailToo = c.GetValue<bool>("SendEMailToo");
+                List<CStatUser> Users = GetUsers(_userManager);
+                List<CStatUser> FullUsers = GetFullUsers(_userManager);
+                List<CStatUser> AdminUsers = GetAdminUsers(_userManager);
+
+                UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
+                {
+                    var cu = new CSUser();
+                    cu.EMail = c.UserName;
+                    cu.PhoneNum = c.PhoneNumber;
+                    cu.UserId = c.Id;
+                    cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
+                    cu.IsFull = FullUsers.Any(u => u.Id == c.Id) || cu.IsAdmin;
+                    //cl.Log("User : E=" + cu.EMail + " P=" + cu.PhoneNum + " Id=" + cu.UserId + " IsAdm=" + cu.IsAdmin + " IsFull=" + cu.IsFull);
+                    return cu;
+                }).ToList();
+
+                var csect = _config.GetSection("CSSettings");
+                LastStockUpdate = csect.GetValue<DateTime>("LastStockUpdate");
+                LastTaskUpdate = csect.GetValue<DateTime>("LastTaskUpdate");
+                LastEMailRead = csect.GetValue<DateTime>("LastEMailRead");
+                var ch = _config.GetSection("CSSettings:UserSettings").GetChildren();
+                foreach (var c in ch)
+                {
+                    var email = c.GetValue<string>("EMail");
+                    int uidx = UserSettings.FindIndex(u => u.EMail == email);
+                    if (uidx == -1)
+                        continue;
+                    UserSettings[uidx].Alias = c.GetValue<string>("Alias", GetDefAlias(UserSettings[uidx].EMail));
+                    UserSettings[uidx].ShowAllTasks = c.GetValue<bool>("ShowAllTasks");
+                    UserSettings[uidx].SendEquipText = c.GetValue<bool>("SendEquipText");
+                    UserSettings[uidx].SendStockText = c.GetValue<bool>("SendStockText");
+                    UserSettings[uidx].SendTaskText = c.GetValue<bool>("SendTaskText");
+                    UserSettings[uidx].SendEMailToo = c.GetValue<bool>("SendEMailToo");
+                }
+                UserSettings.ForEach(u =>
+                {
+                    if (string.IsNullOrEmpty(u.Alias))
+                        u.Alias = GetDefAlias(u.EMail);
+                });
+
+                GetEquipLists(_config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
+                EquipProps = allEPs;
+                ActiveEquip = activeEPs;
+
+                if (UserSettings.Count == 0)
+                {
+                    CSUser u1 = new CSUser
+                    {
+                        EMail = "ronripp@outlook.com",
+                        ShowAllTasks = true,
+                        SendEquipText = false,
+                        SendStockText = false,
+                        SendTaskText = false,
+                        SendEMailToo = false
+                    };
+                    UserSettings.Add(u1);
+                    CSUser u2 = new CSUser
+                    {
+                        EMail = "ellenripp@gmail.com",
+                        ShowAllTasks = false,
+                        SendEquipText = false,
+                        SendStockText = false,
+                        SendTaskText = false,
+                        SendEMailToo = false
+                    };
+                    UserSettings.Add(u2);
+                }
+
+                if (EquipProps.Count == 0)
+                {
+                    EquipProp e1 = new EquipProp
+                    {
+                        Active = true,
+                        Title = "Walk-in Freezer",
+                        PropName = "freezerTemp",
+                        EquipUnits = EquipUnitsType.TemperatureF,
+                        ChartBottom = 0,
+                        ChartTop = 36,
+                        RedBottom = 0,
+                        RedTop = 30,
+                        GreenBottom = 0,
+                        GreenTop = 20,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e1);
+
+                    EquipProp e2 = new EquipProp
+                    {
+                        Active = true,
+                        Title = "Walk-in Frig.",
+                        PropName = "frigTemp",
+                        EquipUnits = EquipUnitsType.TemperatureF,
+                        ChartBottom = 30,
+                        ChartTop = 50,
+                        RedBottom = 34,
+                        RedTop = 45,
+                        GreenBottom = 36,
+                        GreenTop = 42,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e2);
+
+                    EquipProp e5 = new EquipProp
+                    {
+                        Active = true,
+                        Title = "Kitchen Temp",
+                        PropName = "kitchTemp",
+                        EquipUnits = EquipUnitsType.TemperatureF,
+                        ChartBottom = 0,
+                        ChartTop = 100,
+                        RedBottom = 50,
+                        RedTop = 95,
+                        GreenBottom = 60,
+                        GreenTop = 85,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e5);
+
+                    EquipProp e3 = new EquipProp
+                    {
+                        Active = true,
+                        Title = "Propane Tank",
+                        PropName = "propaneTank",
+                        EquipUnits = EquipUnitsType.PercentFull,
+                        ChartBottom = 0,
+                        ChartTop = 100,
+                        RedBottom = 10,
+                        RedTop = 0,
+                        GreenBottom = 20,
+                        GreenTop = 100,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e3);
+
+                    EquipProp e4 = new EquipProp
+                    {
+                        Active = true,
+                        Title = "Water Plumbing",
+                        PropName = "waterPres",
+                        EquipUnits = EquipUnitsType.PSI,
+                        ChartBottom = 0,
+                        ChartTop = 60,
+                        RedBottom = 25,
+                        RedTop = 55,
+                        GreenBottom = 35,
+                        GreenTop = 50,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e4);
+
+                    EquipProp e6 = new EquipProp
+                    {
+                        Active = false,
+                        Title = "Electric Power",
+                        PropName = "?",
+                        EquipUnits = EquipUnitsType.KWH,
+                        ChartBottom = 0,
+                        ChartTop = 100,
+                        RedBottom = 0,
+                        RedTop = 70,
+                        GreenBottom = 0,
+                        GreenTop = 50,
+                        MinsPerSample = 15,
+                        Attributes = ""
+                    };
+                    EquipProps.Add(e6);
+                }
+
+                for (int i = EquipProps.Count; i < CSSettings.MAX_EQUIP; ++i)
+                {
+                    EquipProps.Add(new EquipProp());
+                }
+                _isInitialized = true;
             }
-            UserSettings.ForEach(u =>
-            {
-                if (string.IsNullOrEmpty(u.Alias))
-                    u.Alias = GetDefAlias(u.EMail);
-            });
-
-            GetEquipLists(_config, out List<EquipProp> allEPs, out List<EquipProp> activeEPs);
-            EquipProps = allEPs;
-            ActiveEquip = activeEPs;
-
-            if (UserSettings.Count == 0)
-            {
-                CSUser u1 = new CSUser
-                {
-                    EMail = "ronripp@outlook.com",
-                    ShowAllTasks = true,
-                    SendEquipText = false,
-                    SendStockText = false,
-                    SendTaskText = false,
-                    SendEMailToo = false
-                };
-                UserSettings.Add(u1);
-                CSUser u2 = new CSUser
-                {
-                    EMail = "ellenripp@gmail.com",
-                    ShowAllTasks = false,
-                    SendEquipText = false,
-                    SendStockText = false,
-                    SendTaskText = false,
-                    SendEMailToo = false
-                };
-                UserSettings.Add(u2);
-            }
-
-            if (EquipProps.Count == 0)
-            {
-                EquipProp e1 = new EquipProp
-                {
-                    Active = true,
-                    Title = "Walk-in Freezer",
-                    PropName = "freezerTemp",
-                    EquipUnits = EquipUnitsType.TemperatureF,
-                    ChartBottom = 0,
-                    ChartTop = 36,
-                    RedBottom = 0,
-                    RedTop = 30,
-                    GreenBottom = 0,
-                    GreenTop = 20,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e1);
-
-                EquipProp e2 = new EquipProp
-                {
-                    Active = true,
-                    Title = "Walk-in Frig.",
-                    PropName = "frigTemp",
-                    EquipUnits = EquipUnitsType.TemperatureF,
-                    ChartBottom = 30,
-                    ChartTop = 50,
-                    RedBottom = 34,
-                    RedTop = 45,
-                    GreenBottom = 36,
-                    GreenTop = 42,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e2);
-
-                EquipProp e5 = new EquipProp
-                {
-                    Active = true,
-                    Title = "Kitchen Temp",
-                    PropName = "kitchTemp",
-                    EquipUnits = EquipUnitsType.TemperatureF,
-                    ChartBottom = 0,
-                    ChartTop = 100,
-                    RedBottom = 50,
-                    RedTop = 95,
-                    GreenBottom = 60,
-                    GreenTop = 85,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e5);
-
-                EquipProp e3 = new EquipProp
-                {
-                    Active = true,
-                    Title = "Propane Tank",
-                    PropName = "propaneTank",
-                    EquipUnits = EquipUnitsType.PercentFull,
-                    ChartBottom = 0,
-                    ChartTop = 100,
-                    RedBottom = 10,
-                    RedTop = 0,
-                    GreenBottom = 20,
-                    GreenTop = 100,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e3);
-
-                EquipProp e4 = new EquipProp
-                {
-                    Active = true,
-                    Title = "Water Plumbing",
-                    PropName = "waterPres",
-                    EquipUnits = EquipUnitsType.PSI,
-                    ChartBottom = 0,
-                    ChartTop = 60,
-                    RedBottom = 25,
-                    RedTop = 55,
-                    GreenBottom = 35,
-                    GreenTop = 50,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e4);
-
-                EquipProp e6 = new EquipProp
-                {
-                    Active = false,
-                    Title = "Electric Power",
-                    PropName = "?",
-                    EquipUnits = EquipUnitsType.KWH,
-                    ChartBottom = 0,
-                    ChartTop = 100,
-                    RedBottom = 0,
-                    RedTop = 70,
-                    GreenBottom = 0,
-                    GreenTop = 50,
-                    MinsPerSample = 15,
-                    Attributes = ""
-                };
-                EquipProps.Add(e6);
-            }
-
-            for (int i = EquipProps.Count; i < CSSettings.MAX_EQUIP; ++i)
-            {
-                EquipProps.Add(new EquipProp());
-            }
-            _isInitialized = true;
         }
 
         public static bool GetEquipLists (IConfiguration config, out List<EquipProp>allEquipProps, out List<EquipProp> activeEquipProps)
         {
-            var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
-            allEquipProps = new List<EquipProp>();
-            activeEquipProps = new List<EquipProp>();
-            foreach (var e in eqProps)
+            lock (userLock)
             {
-                EquipProp eqProp = new EquipProp();
-                eqProp.Active = e.GetValue<bool>("Active");
-                eqProp.Title = e.GetValue<string>("Title");
-                eqProp.PropName = e.GetValue<string>("PropName");
-                eqProp.EquipUnits = e.GetValue<EquipUnitsType>("EquipUnits"); // TBD enum with stable, supported api
-                eqProp.ChartBottom = e.GetValue<double>("ChartBottom");
-                eqProp.ChartTop = e.GetValue<double>("ChartTop");
-                eqProp.RedBottom = e.GetValue<double>("RedBottom");
-                eqProp.RedTop = e.GetValue<double>("RedTop");
-                eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
-                eqProp.GreenTop = e.GetValue<double>("GreenTop");
-                eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
-                var atts = e.GetValue<string>("Attributes");
-                eqProp.Attributes = atts ?? "";
-                if (eqProp.Active)
-                    activeEquipProps.Add(eqProp);
-                allEquipProps.Add(eqProp);
+                var eqProps = config.GetSection("CSSettings:EquipProps").GetChildren();
+                allEquipProps = new List<EquipProp>();
+                activeEquipProps = new List<EquipProp>();
+                foreach (var e in eqProps)
+                {
+                    EquipProp eqProp = new EquipProp();
+                    eqProp.Active = e.GetValue<bool>("Active");
+                    eqProp.Title = e.GetValue<string>("Title");
+                    eqProp.PropName = e.GetValue<string>("PropName");
+                    eqProp.EquipUnits = e.GetValue<EquipUnitsType>("EquipUnits"); // TBD enum with stable, supported api
+                    eqProp.ChartBottom = e.GetValue<double>("ChartBottom");
+                    eqProp.ChartTop = e.GetValue<double>("ChartTop");
+                    eqProp.RedBottom = e.GetValue<double>("RedBottom");
+                    eqProp.RedTop = e.GetValue<double>("RedTop");
+                    eqProp.GreenBottom = e.GetValue<double>("GreenBottom");
+                    eqProp.GreenTop = e.GetValue<double>("GreenTop");
+                    eqProp.MinsPerSample = e.GetValue<double>("MinsPerSample");
+                    var atts = e.GetValue<string>("Attributes");
+                    eqProp.Attributes = atts ?? "";
+                    if (eqProp.Active)
+                        activeEquipProps.Add(eqProp);
+                    allEquipProps.Add(eqProp);
+                }
+                return eqProps.Count() > 0;
             }
-            return eqProps.Count() > 0;
         }
 
         public CSUser GetUser(string userName)
         {
-            if (UserSettings == null)
+            if (!_isInitialized)
+                initialize();
+            if (!_isInitialized)
                 return null;
 
-            foreach (var u in UserSettings)
+            lock (userLock)
             {
-                if (u.EMail == userName)
-                    return u;
+                if (UserSettings == null)
+                    return null;
+
+                foreach (var u in UserSettings)
+                {
+                    if (u.EMail == userName)
+                        return u;
+                }
+                return null;
             }
-            return null;
         }
 
         public CSUser GetUserByPhone(string phone)
         {
             //diag = "Diag : Phone=[" + phone + "] " + ((UserSettings == null) ? "NULL UserSettings" : "Users = " + UserSettings.Count.ToString());
-
-            if ((UserSettings == null) || String.IsNullOrEmpty(phone))
+            if (!_isInitialized)
+                initialize();
+            if (!_isInitialized)
                 return null;
 
-            var tPhone = phone.Replace("-", "").Replace("+", "").Replace("(", "").Replace(")", "").Replace(".", "");
-            var tLen = tPhone.Length;
-            if ((tLen == 11) && tPhone.StartsWith("1"))
-                tPhone = tPhone.Substring(1);
-            //diag = diag + " tPhone[" + tPhone + "]";
-
-            foreach (var u in UserSettings)
+            lock (userLock)
             {
-                //diag = diag + "[" + u.EMail + "][" + (String.IsNullOrEmpty(u.PhoneNum) ? "???" : u.PhoneNum) + "]";
-                if (String.IsNullOrEmpty(u.PhoneNum))
-                {
-                    continue;
-                }
+                if ((UserSettings == null) || String.IsNullOrEmpty(phone))
+                    return null;
 
-                var uPhone = u.PhoneNum.Replace("-", "").Replace("+", "").Replace("(", "").Replace(")", "").Replace(".", "");
-                var uLen = uPhone.Length;
-                if ((uLen == 11) && uPhone.StartsWith("1"))
-                    uPhone = uPhone.Substring(1);
-                //diag = diag + " uPhone[" + uPhone + "]";
-                if (uPhone == tPhone)
-                    return u;
+                var tPhone = phone.Replace("-", "").Replace("+", "").Replace("(", "").Replace(")", "").Replace(".", "");
+                var tLen = tPhone.Length;
+                if ((tLen == 11) && tPhone.StartsWith("1"))
+                    tPhone = tPhone.Substring(1);
+                //diag = diag + " tPhone[" + tPhone + "]";
+
+                foreach (var u in UserSettings)
+                {
+                    //diag = diag + "[" + u.EMail + "][" + (String.IsNullOrEmpty(u.PhoneNum) ? "???" : u.PhoneNum) + "]";
+                    if (String.IsNullOrEmpty(u.PhoneNum))
+                    {
+                        continue;
+                    }
+
+                    var uPhone = u.PhoneNum.Replace("-", "").Replace("+", "").Replace("(", "").Replace(")", "").Replace(".", "");
+                    var uLen = uPhone.Length;
+                    if ((uLen == 11) && uPhone.StartsWith("1"))
+                        uPhone = uPhone.Substring(1);
+                    //diag = diag + " uPhone[" + uPhone + "]";
+                    if (uPhone == tPhone)
+                        return u;
+                }
             }
             return null;
         }
 
-        public CSUser SetUser(string userName, CSUser modUser)
+        public void SetUser(string userName, CSUser modUser)
         {
-            if (UserSettings == null)
-                return null;
-            int i = 0;
-            for (i = 0; i < UserSettings.Count; ++i)
-            {
-                if (UserSettings[i].EMail == userName)
-                {
-                    var SavedPhone = UserSettings[i].PhoneNum;
-                    UserSettings[i] = modUser; // Replace existing user
-                    if (string.IsNullOrEmpty(UserSettings[i].PhoneNum))
-                        UserSettings[i].PhoneNum = SavedPhone;
-                    break;
-                }
-            }
-            if (i == UserSettings.Count)
-                UserSettings.Add(modUser); // Add new user
+            if (!_isInitialized)
+                initialize();
+            if (!_isInitialized)
+                return;
 
-            return null;
+            lock (userLock)
+            {
+                if (UserSettings == null)
+                    return;
+
+                int i = 0;
+                for (i = 0; i < UserSettings.Count; ++i)
+                {
+                    if (UserSettings[i].EMail == userName)
+                    {
+                        var SavedPhone = UserSettings[i].PhoneNum;
+                        UserSettings[i] = modUser; // Replace existing user
+                        if (string.IsNullOrEmpty(UserSettings[i].PhoneNum))
+                            UserSettings[i].PhoneNum = SavedPhone;
+                        break;
+                    }
+                }
+                if (i == UserSettings.Count)
+                    UserSettings.Add(modUser); // Add new user
+            }
         }
         public bool Save()
         {
@@ -421,8 +452,8 @@ namespace CStat.Common
 
         public static string GetColor(List<EquipProp>equipProps, string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
-           string ltPropName = propName.ToLower().Trim();
-           if (ltPropName == "all")
+            string ltPropName = propName.ToLower().Trim();
+            if (ltPropName == "all")
                 return GetEqColor(equipProps, null, ar, pl, returnClass);
             EquipProp ep = equipProps.Find(e => e.PropName.ToLower().Trim() == ltPropName);
             if (ep != null)

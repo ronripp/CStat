@@ -638,7 +638,7 @@ namespace CStat.Common
 
         public PropaneLevel GetTUTank(bool appendToFile=false) // Tank Utility Propane meter
         {
-            var csl = new CSLogger();
+            var cl = new CSLogger();
 
             try
             {
@@ -652,7 +652,7 @@ namespace CStat.Common
                 if (readings.Count < 3)
                     return null;
 
-                csl.Log("GetTUTank read Readings : " + readings["device.lastReading.tank"] + ", " + readings["device.lastReading.time_iso"] + ", " + readings["device.lastReading.temperature"]);
+                cl.Log("GetTUTank read Readings : " + readings["device.lastReading.tank"] + ", " + readings["device.lastReading.time_iso"] + ", " + readings["device.lastReading.temperature"]);
 
                 double level;
                 double temp;
@@ -660,30 +660,30 @@ namespace CStat.Common
                 if (double.TryParse(readings["device.lastReading.tank"], out level) && DateTime.TryParse(readings["device.lastReading.time_iso"], out readTime) && double.TryParse(readings["device.lastReading.temperature"], out temp))
                 {
                     PropaneLevel pl = new PropaneLevel(level, PropMgr.UTCtoEST(readTime), temp);
-                    csl.Log("GetTUTank read " + JsonConvert.SerializeObject(pl));
+                    cl.Log("GetTUTank read " + JsonConvert.SerializeObject(pl));
                     if (appendToFile)
                     {
-                        WritePropane(pl, csl);
+                        WritePropane(pl, cl);
                     }
                     return pl;
                 }
             }
             catch (Exception e)
             {
-                csl.Log("GetTUTank EXCEPTION " + e.Message);
+                cl.Log("GetTUTank EXCEPTION " + e.Message);
             }
             return null;
         }
 
-        public bool WritePropane(PropaneLevel pl, CSLogger csl=null)
+        public bool WritePropane(PropaneLevel pl, CSLogger cl=null)
         {
             bool res = true;
             if (fLock.TryEnterWriteLock(250))
             {
                 try
                 {
-                    if (csl != null)
-                        csl.Log("WritePropane Appending to All and Hist Files : ");
+                    if (cl != null)
+                        cl.Log("WritePropane Appending to All and Hist Files : ");
 
                     using (StreamWriter sw = new StreamWriter(PropaneFullAll, true))
                     {
@@ -698,8 +698,8 @@ namespace CStat.Common
                 }
                 catch (Exception e)
                 {
-                    if (csl != null)
-                        csl.Log("WritePropane EXCEPTION : " + e.Message);
+                    if (cl != null)
+                        cl.Log("WritePropane EXCEPTION : " + e.Message);
                     res = false;
                 }
                 finally

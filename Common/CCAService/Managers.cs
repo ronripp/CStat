@@ -9,6 +9,7 @@ using static CStat.Models.Church;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CStat.Common;
+using CCAAttendance;
 
 namespace CStat
 {
@@ -232,7 +233,7 @@ namespace CStat
 
                 if (attList.Count() == 1)
                 {
-                    Attendance.AttData ad = new Attendance.AttData();
+                    AttData ad = new AttData();
                     foreach (var aobj in attList)
                     {
                         ad.PersonName = aobj.fName + " " + aobj.lName;
@@ -331,10 +332,10 @@ namespace CStat
                                   EMail = p.Email
                               };
 
-                Attendance.AttData adList = new Attendance.AttData();
+                AttData adList = new AttData();
                 foreach (var a in attList)
                 {
-                    Attendance.AttData ad = new Attendance.AttData();
+                    AttData ad = new AttData();
                     ad.PersonName = a.fName + " " + a.lName;
                     ad.EventName = a.EventName;
 
@@ -406,10 +407,10 @@ namespace CStat
                                   Zip = adr.ZipCode,
                                   EMail = p.Email 
                               };
-                List<Attendance.AttData> AttList = new List<Attendance.AttData>();
+                List<AttData> AttList = new List<AttData>();
                 foreach (var a in attList)
                 {
-                    Attendance.AttData ad = new Attendance.AttData();
+                    AttData ad = new AttData();
                     ad.PersonName = a.fName + " " + a.lName;
                     ad.EventName = a.EventName;
 
@@ -452,7 +453,7 @@ namespace CStat
             }
             
         }
-        public MgrStatus Update(Attendance.AttData adata) // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        public MgrStatus Update(CCAAttendance.AttData adata) // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         {
             Attendance a = null;
             Registration reg = null;
@@ -2236,7 +2237,7 @@ namespace CStat
             }
             else
             {
-                pv = props.Find(prop => prop.Key == "PG1_id");
+                pv = props.Find(prop => prop.Key == "PGInfo1");
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {
@@ -2318,7 +2319,7 @@ namespace CStat
             }
             else
             {
-                pv = props.Find(prop => prop.Key == "PG2_id");
+                pv = props.Find(prop => prop.Key == "PGInfo2");
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {

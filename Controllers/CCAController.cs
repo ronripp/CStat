@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
 using CStat.Models;
-using CCAEvents2;
+using CCAEvents;
 using CCAChurch;
 using CCAAttendance;
 using Microsoft.EntityFrameworkCore;
@@ -128,7 +128,7 @@ namespace CStat.Controllers
                 };
 
                 //var atd = JsonConvert.DeserializeObject<Attendance.AttData>(raw.data, settings);
-                var atd = JsonConvert.DeserializeObject<Attendance.AttData>(raw.data);
+                var atd = JsonConvert.DeserializeObject<AttData>(raw.data);
 
                 AttendanceMgr amgr = new AttendanceMgr(entities);
                 String resultsStr = "";

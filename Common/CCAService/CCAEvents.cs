@@ -1,6 +1,10 @@
 ﻿using System;
 
-namespace CCAEvents2
+//**************************************************************************************
+//****** ONLY CHANGE IN CSTAT THEN RE-ADD to CCAEvent And CCAAttendance PROJECT ********
+//**************************************************************************************
+
+namespace CCAEvents
 {
     public enum EventType
     {
@@ -21,6 +25,16 @@ namespace CCAEvents2
         Family_Retreat,
         Annual_Meeting,
         SignIn_Sheet,
+        Church_Event,
+        Private_Event,
+        Private_Retreat,
+        VOE_Retreat,
+        Work_Event,
+        Elementary_Retreat,
+        Intermediate_Retreat,
+        Senior_Retreat,
+        Leadership_Retreat,
+        SWAT_Training,
         Other
     }
 
@@ -88,6 +102,8 @@ namespace CCAEvents2
             return this.line;
         }
     }
-
 }
 
+//**************************************************************************************
+//****** ONLY CHANGE IN CSTAT THEN RE-ADD to CCAEvent And CCAAttendance PROJECT ********
+//**************************************************************************************

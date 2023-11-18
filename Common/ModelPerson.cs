@@ -9,6 +9,7 @@ using CStat.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using MinAddressPerson;
 
 namespace CStat.Models
 {
@@ -339,7 +340,7 @@ namespace CStat.Models
                 foreach (var m in MPList)
                 {
                     String PG1Str = null, PG2Str = null;
-                    int PG1_id = 0, PG2_id = 0;
+                    int PGInfo1 = 0, PGInfo2 = 0;
 
                     Person p1 = entities.Person.FirstOrDefault(p => p.Id == m.PG1_Person_id);
                     if (p1 != null)
@@ -347,7 +348,7 @@ namespace CStat.Models
                         p1.FirstName = PersonMgr.MakeFirstName(p1);
                         p1.LastName = PersonMgr.MakeLastName(p1);
                         PG1Str = p1.FirstName + " " + p1.LastName;
-                        PG1_id = p1.Id;
+                        PGInfo1 = p1.Id;
                     }
 
                     Person p2 = entities.Person.FirstOrDefault(p => p.Id == m.PG2_Person_id);
@@ -356,7 +357,7 @@ namespace CStat.Models
                         p2.FirstName = PersonMgr.MakeFirstName(p2);
                         p2.LastName = PersonMgr.MakeLastName(p2);
                         PG2Str = p2.FirstName + " " + p2.LastName;
-                        PG2_id = p2.Id;
+                        PGInfo2 = p2.Id;
                     }
 
                     if ((PG1Str != null) || (PG2Str != null))
@@ -364,12 +365,12 @@ namespace CStat.Models
                         if (PG1Str != null)
                         {
                             pgObj.PG1Name = PG1Str;
-                            pgObj.PG1_id = PG1_id;
+                            pgObj.PGInfo1 = PGInfo1;
                         }
                         if (PG2Str != null)
                         {
                             pgObj.PG2Name = PG2Str;
-                            pgObj.PG2_id = PG2_id;
+                            pgObj.PGInfo2 = PGInfo2;
                         }
 
                         var jsonPG = JsonConvert.SerializeObject(pgObj, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
@@ -643,8 +644,8 @@ namespace CStat.Models
             if (Id > 0) kvp.Add(new KeyValuePair<string, string>("id", Id.ToString()));
             if (Pg1PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG1_pid", Pg1PersonId.Value.ToString()));
             if (Pg2PersonId.HasValue) kvp.Add(new KeyValuePair<string, string>("PG2_pid", Pg1PersonId.Value.ToString()));
-            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PG1_id", pg1));
-            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PG2_id", pg2));
+            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PGInfo1", pg1));
+            if (String.IsNullOrEmpty(pg1)) kvp.Add(new KeyValuePair<string, string>("PGInfo2", pg2));
             kvp.Add(new KeyValuePair<string, string>("Comments", GetVS(this.Notes)));
             if (!String.IsNullOrEmpty(baptized))
             {
@@ -1181,7 +1182,7 @@ namespace CStat.Models
             }
             else
             {
-                pv = props.Find(prop => prop.Key == "PG1_id");
+                pv = props.Find(prop => prop.Key == "PGInfo1");
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {
@@ -1264,7 +1265,7 @@ namespace CStat.Models
             }
             else
             {
-                pv = props.Find(prop => prop.Key == "PG2_id");
+                pv = props.Find(prop => prop.Key == "PGInfo2");
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {

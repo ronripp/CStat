@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Text;
 using CStat.Models;
 using Microsoft.EntityFrameworkCore;
+using MinAddressPerson;
 
 namespace CStat
 {
@@ -47,58 +48,18 @@ namespace CStat
         public PG()
         {
             Adr_id = 0;
-            PG1_id = 0;
-            PG2_id = 0;
+            PGInfo1 = 0;
+            PGInfo2 = 0;
             PG1Name = null;
             PG2Name = null;
         }
         public int Adr_id { get; set; }
         public string PG1Name { get; set; }
-        public int PG1_id { get; set; }
+        public int PGInfo1 { get; set; }
         public string PG2Name { get; set; }
-        public int PG2_id { get; set; }
+        public int PGInfo2 { get; set; }
     }
 
-    public class MinAddress
-    {
-        public int id { get; set; }
-        public string Street { get; set; }
-        public string Town { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
-        public string Phone { get; set; }
-        public string Fax { get; set; }
-        public string Country { get; set; }
-        public string WebSite { get; set; }
-    }
-
-    public class MinPerson
-    {
-        public MinPerson()
-        {
-            Address = new MinAddress();
-        }
-        public int id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Alias { get; set; }
-        public Nullable<System.DateTime> DOB { get; set; }
-        public Nullable<byte> Gender { get; set; }
-        public Nullable<long> Status { get; set; }
-        public string SSNum { get; set; }
-        public Nullable<int> Address_id { get; set; }
-        public Nullable<int> PG1_Person_id { get; set; }
-        public Nullable<int> PG2_Person_id { get; set; }
-        public Nullable<int> Church_id { get; set; }
-        public long SkillSets { get; set; }
-        public long Roles { get; set; } = 0;
-        public string CellPhone { get; set; }
-        public string EMail { get; set; }
-        public string ContactPref { get; set; }
-        public string Notes { get; set; }
-        public MinAddress Address;
-    }
-    
     public class ValuesController
     {
         private CStatContext entities;
@@ -253,7 +214,7 @@ namespace CStat
                 int pid = Int32.Parse(pidStr);
 
                 String PG1Str = null, PG2Str = null;
-                int PG1_id = 0, PG2_id = 0;
+                int PGInfo1 = 0, PGInfo2 = 0;
 
                 //var PList = from p in entities.People
                 //            where p.id == pid
@@ -295,7 +256,7 @@ namespace CStat
                         p1.FirstName = PersonMgr.MakeFirstName(p1);
                         p1.LastName = PersonMgr.MakeLastName(p1);
                         PG1Str = p1.FirstName + " " + p1.LastName;
-                        PG1_id = p1.Id;
+                        PGInfo1 = p1.Id;
                     }
 
                     Person p2 = entities.Person.FirstOrDefault(p => p.Id == pr.Pg2PersonId);
@@ -304,7 +265,7 @@ namespace CStat
                         p2.FirstName = PersonMgr.MakeFirstName(p2);
                         p2.LastName = PersonMgr.MakeLastName(p2);
                         PG2Str = p2.FirstName + " " + p2.LastName;
-                        PG2_id = p2.Id;
+                        PGInfo2 = p2.Id;
                     }
 
                     if ((PG1Str != null) || (PG2Str != null))
@@ -312,12 +273,12 @@ namespace CStat
                         if (PG1Str != null)
                         {
                             pgObj.PG1Name = PG1Str;
-                            pgObj.PG1_id = PG1_id;
+                            pgObj.PGInfo1 = PGInfo1;
                         }
                         if (PG2Str != null)
                         {
                             pgObj.PG2Name = PG2Str;
-                            pgObj.PG2_id = PG2_id;
+                            pgObj.PGInfo2 = PGInfo2;
                         }
 
                         var jsonPG = JsonConvert.SerializeObject(pgObj, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });

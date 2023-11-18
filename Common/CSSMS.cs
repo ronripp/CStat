@@ -42,6 +42,8 @@ namespace CStat.Common
 
     public class CSSMS
     {
+        // 11/1/23 : Your Account-Sid: AC0f7677eaacbcd57b526caf812170880d and Bundle-Sid: BUadac1f4fd229fa98704e46792c356b06 
+
         public enum NotifyType { EquipNT=1, StockNT=2, TaskNT=3};
 
         private readonly IConfiguration _config;

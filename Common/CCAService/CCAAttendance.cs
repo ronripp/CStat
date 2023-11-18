@@ -1,8 +1,12 @@
-﻿#define ADD_TO_DB
-using System;
+﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using CCAEvents;
+
+//**************************************************************************************
+//****** ONLY CHANGE IN CSTAT THEN RE-ADD to CCAEvent And CCAAttendance PROJECT ********
+//**************************************************************************************
 
 namespace CCAAttendance
 {
@@ -87,8 +91,6 @@ namespace CCAAttendance
             Cell = "";
             SSNum = "";
             EMail = "";
-            PG1_id = "";
-            PG2_id = "";
             CMT = "";
             EventType = "";
             Baptized = "";
@@ -103,8 +105,12 @@ namespace CCAAttendance
             AttEnd = "";
             AttGrade = "";
             AttSRole = "";
-            PG1_Info = "";
-            PG2_Info = "";
+            PGInfo1 = "";
+            PGInfo2 = "";
+            PGPhone1 = "";
+            PGEMail1 = "";
+            PGPhone2 = "";
+            PGEMail2 = "";
         }
 
         public String LFName
@@ -139,13 +145,7 @@ namespace CCAAttendance
                 }
             }
         }
-        public String FLName
-        {
-            set
-            {
-                LFName = value;
-            }
-        }
+        public String FLName { get; set; }
         public String FName { get; set; }
         public String LName { get; set; }
         public String Alias { get; set; }
@@ -173,8 +173,8 @@ namespace CCAAttendance
         public String Cell { get; set; }
         public String SSNum { get; set; }
         public String EMail { get; set; }
-        public String PG1_id { get; set; }
-        public String PG2_id { get; set; }
+        public String PGInfo1 { get; set; }
+        public String PGInfo2 { get; set; }
         public String CMT { get; set; }
         public String EventType
         {
@@ -187,47 +187,50 @@ namespace CCAAttendance
                 String uvalue = value.ToUpper().Trim();
                 if (uvalue.Contains("BWAC") || uvalue.StartsWith("FALL"))
                 {
-                    _EventType = CCAEvents2.EventType.BWAC_Fall_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.BWAC_Fall_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("MEN"))
                 {
-                    _EventType = CCAEvents2.EventType.Mens_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Mens_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("WINT"))
                 {
-                    _EventType = CCAEvents2.EventType.Winter_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Winter_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("WOM"))
                 {
-                    _EventType = CCAEvents2.EventType.Womans_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Womans_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("FAM"))
                 {
-                    _EventType = CCAEvents2.EventType.Family_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Family_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("Y"))
                 {
-                    _EventType = CCAEvents2.EventType.Young_Adult_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Young_Adult_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("V"))
                 {
-                    _EventType = CCAEvents2.EventType.VOE_Week.ToString();
+                    _EventType = CCAEvents.EventType.VOE_Week.ToString();
                 }
                 else if (uvalue.StartsWith("SE") || value.StartsWith("SN"))
                 {
-                    _EventType = CCAEvents2.EventType.Senior_Week.ToString();
+                    //Make sure split for Elem, Inter and Sen includes Retreat or Week
+                    _EventType = uvalue.Contains("RETREAT") ? CCAEvents.EventType.Senior_Retreat.ToString() : CCAEvents.EventType.Senior_Week.ToString();
                 }
                 else if (uvalue.StartsWith("SP") || value.StartsWith("SR"))
                 {
-                    _EventType = CCAEvents2.EventType.Spring_Work_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.Spring_Work_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("I"))
                 {
-                    _EventType = CCAEvents2.EventType.Intermediate_Week.ToString();
+                    //Make sure split for Elem, Inter and Sen includes Retreat or Week
+                    _EventType = uvalue.Contains("RETREAT") ? CCAEvents.EventType.Intermediate_Retreat.ToString() : CCAEvents.EventType.Intermediate_Week.ToString();
                 }
                 else if (uvalue.StartsWith("E"))
                 {
-                    _EventType = CCAEvents2.EventType.Elementary_Week.ToString();
+                    //Make sure split for Elem, Inter and Sen includes Retreat or Week
+                    _EventType = uvalue.Contains("RETREAT") ? CCAEvents.EventType.Elementary_Retreat.ToString() : CCAEvents.EventType.Elementary_Week.ToString();
                 }
                 else if (uvalue.StartsWith("FI") ||
                          uvalue.StartsWith("F") ||
@@ -235,18 +238,18 @@ namespace CCAAttendance
                          uvalue.StartsWith("CHA") ||
                          uvalue.StartsWith("CB"))
                 {
-                    _EventType = CCAEvents2.EventType.First_Chance_Retreat.ToString();
+                    _EventType = CCAEvents.EventType.First_Chance_Retreat.ToString();
                 }
                 else if (uvalue.StartsWith("B"))
                 {
-                    _EventType = CCAEvents2.EventType.Banquet.ToString();
+                    _EventType = CCAEvents.EventType.Banquet.ToString();
                 }
                 else if (uvalue.StartsWith("FUND"))
                 {
-                    _EventType = CCAEvents2.EventType.Fund_Raiser.ToString();
+                    _EventType = CCAEvents.EventType.Fund_Raiser.ToString();
                 }
                 else
-                    _EventType = CCAEvents2.EventType.Other.ToString();
+                    _EventType = CCAEvents.EventType.Other.ToString();
             }
         }
         public String Baptized { get; set; }
@@ -314,14 +317,21 @@ namespace CCAAttendance
             }
             return full;
         }
+
+        //******************************************************************
+        //  PGn_id format is "First Last/Relationship/Phone/Email"
+        //******************************************************************
+
+        //TBD : Add PGPhone1 and PGEMail1 to all PG1 below with / delim when present at some point
+
         public String PGFirst1
         {
             set
             {
-                if ((PG1_id != null) && (PG1_id.Length > 0))
-                    PG1_id = value.Trim() + " " + PG1_id;
+                if ((PGInfo1 != null) && (PGInfo1.Length > 0))
+                    PGInfo1 = value.Trim() + " " + PGInfo1;
                 else
-                    PG1_id = value.Trim();
+                    PGInfo1 = value.Trim();
 
             }
         }
@@ -331,10 +341,10 @@ namespace CCAAttendance
             {
                 _PGLast = value.Trim();
 
-                if ((PG1_id != null) && (PG1_id.Length > 0))
-                    PG1_id = PG1_id + " " + value.Trim();
+                if ((PGInfo1 != null) && (PGInfo1.Length > 0))
+                    PGInfo1 = PGInfo1 + " " + _PGLast;
                 else
-                    PG1_id = value.Trim();
+                    PGInfo1 = _PGLast;
             }
         }
 
@@ -342,10 +352,10 @@ namespace CCAAttendance
         {
             set
             {
-                if ((PG2_id != null) && (PG2_id.Length > 0))
-                    PG2_id = value.Trim() + " " + PG2_id;
+                if ((PGInfo2 != null) && (PGInfo2.Length > 0))
+                    PGInfo2 = value.Trim() + " " + PGInfo2;
                 else
-                    PG2_id = value.Trim();
+                    PGInfo2 = value.Trim();
 
             }
         }
@@ -355,10 +365,10 @@ namespace CCAAttendance
             {
                 _PGLast = value.Trim();
 
-                if ((PG2_id != null) && (PG2_id.Length > 0))
-                    PG2_id = PG2_id + " " + value.Trim();
+                if ((PGInfo2 != null) && (PGInfo2.Length > 0))
+                    PGInfo2 = PGInfo2 + " " + _PGLast;
                 else
-                    PG2_id = value.Trim();
+                    PGInfo2 = _PGLast;
             }
         }
         public String PGFirst12
@@ -369,20 +379,78 @@ namespace CCAAttendance
                 String[] fnames = value.Split(delims);
                 if (fnames.Count() > 0)
                 {
-                    if ((PG1_id != null) && PG1_id.Length > 0)
-                        PG1_id = fnames[0].Trim() + " " + PG1_id;
+                    if ((PGInfo1 != null) && PGInfo1.Length > 0)
+                        PGInfo1 = fnames[0].Trim() + " " + PGInfo1;
                     else
-                        PG1_id = fnames[0].Trim() + " " + _PGLast;
+                        PGInfo1 = fnames[0].Trim() + " " + _PGLast;
                     if (fnames.Count() > 1)
                     {
-                        if ((PG2_id != null) && (PG2_id.Length > 0))
-                            PG2_id = fnames[1].Trim() + " " + PG2_id;
+                        if ((PGInfo2 != null) && (PGInfo2.Length > 0))
+                            PGInfo2 = fnames[1].Trim() + " " + PGInfo2;
                         else
-                            PG2_id = fnames[1].Trim() + " " + _PGLast;
+                            PGInfo2 = fnames[1].Trim() + " " + _PGLast;
                     }
                 }
             }
         }
+
+        public string PGPhone1
+        {
+            get;
+            set;
+        }
+
+        public string PGEMail1
+        {
+            get;
+            set;
+        }
+
+        public string PGPhone2
+        {
+            get;
+            set;
+        }
+
+        public string PGEMail2
+        {
+            get;
+            set;
+        }
+
+        string RemovePhone(string val, out string phone)
+        {
+            phone = "";
+            string newVal = "";
+            string[] fields = val.Split(new char[] { ' ', '-' });
+            for (int i = fields.Length - 1; i >= 0; --i)
+            {
+                bool phoneDone = false;
+                var fld = fields[i].Replace("(", "").Replace(")", "").Trim();
+                if (Int32.TryParse(fld, out int ival))
+                {
+                    if ((phone.Length == 0) && (ival < 100))
+                        phoneDone = true;
+                    else
+                        phone = fld + phone;
+                }
+                else
+                    phoneDone = true;
+
+                if (phoneDone || (phone.Length >= 9))
+                {
+                    if (i <= 0)
+                        return newVal;
+                    for (int j = (phoneDone ? i : i - 1); j >= 0; --j)
+                    {
+                        newVal = fields[j].Trim() + (!string.IsNullOrEmpty(newVal) ? " " + newVal : "");
+                    }
+                    return newVal;
+                }
+            }
+            return newVal;
+        }
+
         public String PGFirstLast1
         {
             set
@@ -392,9 +460,9 @@ namespace CCAAttendance
                     String[] names = value.Split(',');
                     if (names.Count() > 0)
                     {
-                        PG1_id = names[0].Trim();
+                        PGInfo1 = names[0].Trim();
                         if (names.Count() > 1)
-                            PG1_id = names[1].Trim() + " " + PG1_id;
+                            PGInfo1 = names[1].Trim() + " " + PGInfo1;
                     }
                 }
                 else
@@ -405,9 +473,45 @@ namespace CCAAttendance
                         int count = nms.Count();
                         if (count > 0)
                         {
-                            PG1_id = nms[0].Trim();
+                            PGInfo1 = nms[0].Trim();
                             if (count > 1)
-                                PG1_id = PG1_id + " " + nms[FindLNIndex(nms)].Trim();
+                                PGInfo1 = PGInfo1 + " " + nms[FindLNIndex(nms)].Trim();
+                        }
+                    }
+                    //FName = value ZZZ;
+                    //LName = value ZZZ;
+                }
+            }
+        }
+
+        public String PGFirstLast2
+        {
+            set
+            {
+                //  PGn_id format is "First Last/Relationship/Phone/Email"
+                var valueR = RemovePhone(value, out string phone); // use valueN for name
+
+                if (valueR.Contains(','))
+                {
+                    String[] names = valueR.Split(',');
+                    if (names.Count() > 0)
+                    {
+                        PGInfo2 = names[0].Trim();
+                        if (names.Count() > 1)
+                            PGInfo2 = names[1].Trim() + " " + PGInfo2;
+                    }
+                }
+                else
+                {
+                    if (valueR.Contains(' '))
+                    {
+                        String[] nms = value.Split(new char[] { ' ', '-' });
+                        int count = nms.Count();
+                        if (count > 0)
+                        {
+                            PGInfo2 = nms[0].Trim();
+                            if (count > 1)
+                                PGInfo2 = PGInfo2 + " " + nms[FindLNIndex(nms)].Trim();
                         }
                     }
                     //FName = value ZZZ;
@@ -448,22 +552,6 @@ namespace CCAAttendance
                     AttRole = (int)ar;
                 else
                     AttRole = (int)AttendanceRoles.Unknown;
-            }
-        }
-
-        public String PG1_Info
-        {
-            set
-            {
-                PG1_id = value;
-            }
-        }
-
-        public String PG2_Info
-        {
-            set
-            {
-                PG2_id = value;
             }
         }
 
@@ -533,3 +621,6 @@ namespace CCAAttendance
         }
     }
 }
+//**************************************************************************************
+//****** ONLY CHANGE IN CSTAT THEN RE-ADD to CCAEvent And CCAAttendance PROJECT ********
+//**************************************************************************************

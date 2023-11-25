@@ -2241,18 +2241,18 @@ namespace CStat
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {
-                    //  First Last/Relationship/Phone/Email
+                    //  First Last/Relationship/Phone/Email/Ad
                     String[] pga = pv.Value.Split('/');
-                    bool bParent = true;
+                    //bool bParent = true;
 
-                    if (pga.Count() > 1)
-                    {
-                        String rel = pga[1].Trim().ToUpper();
-                        if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
-                            bParent = false;
-                    }
+                    //if (pga.Count() > 1)
+                    //{
+                    //String rel = pga[1].Trim().ToUpper();
+                    //if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
+                    //bParent = false;
+                    //}
 
-                    if (bParent)
+                    //DO NOT LIMIT TO PARENT   if (bParent)
                     {
                         bool bAbort = false;
                         for (int i = 0; i < pga.Count(); ++i)
@@ -2289,7 +2289,8 @@ namespace CStat
                                         if (PG1Person != null)
                                         {
                                             PG1Person.CellPhone = pga[2].Trim();
-                                            bNeedToModPG1 = true;
+                                            if (!string.IsNullOrEmpty(PG1Person.CellPhone))
+                                                bNeedToModPG1 = true;
                                         }
                                     }
                                     break;
@@ -2298,12 +2299,25 @@ namespace CStat
                                     {
                                         if (PG1Person != null)
                                         {
-                                            PG1Person.Email = pga[3].Trim();
-                                            bNeedToModPG1 = true;
+                                            if (!string.IsNullOrEmpty(PG1Person.Email))
+                                                bNeedToModPG1 = true;
                                         }
                                     }
                                     break;
 
+                                case 4: // Address
+                                    {
+                                        if (PG1Person != null)
+                                        {
+                                            var PG1Adr = pga[4].Trim();
+                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG1Adr))
+                                            {
+                                                if (!PG1Person.AddressId.HasValue && person.AddressId.HasValue)
+                                                    PG1Person.AddressId = person.AddressId.Value;
+                                            }
+                                        }
+                                    }
+                                    break;
                                 default:
                                     break;
                             }
@@ -2323,18 +2337,18 @@ namespace CStat
 
                 if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
                 {
-                    //  First Last/Relationship/Phone/Email
+                    //  First Last/Relationship/Phone/Email/Address
                     String[] pga = pv.Value.Split('/');
-                    bool bParent = true;
+                    //bool bParent = true;
 
-                    if (pga.Count() > 1)
-                    {
-                        String rel = pga[1].Trim().ToUpper();
-                        if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
-                            bParent = false;
-                    }
+                    //if (pga.Count() > 1)
+                    //{
+                        //String rel = pga[1].Trim().ToUpper();
+                        //if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
+                            //bParent = false;
+                    //}
 
-                    if (bParent)
+                    ////DO NOT LIMIT TO PARENT if (bParent)
                     {
                         bool bAbort = false;
                         for (int i = 0; i < pga.Count(); ++i)
@@ -2372,18 +2386,32 @@ namespace CStat
                                         if (PG2Person != null)
                                         {
                                             PG2Person.CellPhone = pga[2].Trim();
-                                            bNeedToModPG2 = true;
+                                            if (!string.IsNullOrEmpty(PG2Person.CellPhone))
+                                                bNeedToModPG2 = true;
                                         }
                                     }
                                     break;
 
                                 case 3: // EMail
                                     {
+                                        if (PG2Person != null)
                                         {
-                                            if (PG2Person != null)
-                                            {
-                                                PG2Person.Email = pga[3].Trim();
+                                            PG2Person.Email = pga[3].Trim();
+                                            if (!string.IsNullOrEmpty(PG2Person.Email))
                                                 bNeedToModPG2 = true;
+                                        }
+                                    }
+                                    break;
+
+                                case 4: // Address
+                                    {
+                                        if (PG2Person != null)
+                                        {
+                                            var PG2Adr = pga[4].Trim();
+                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG2Adr))
+                                            {
+                                                if (!PG2Person.AddressId.HasValue && person.AddressId.HasValue)
+                                                    PG2Person.AddressId = person.AddressId.Value;
                                             }
                                         }
                                     }
@@ -3022,6 +3050,30 @@ namespace CStat
 
     static class LevenshteinDistance
     {
+        public static bool IsStreetSimilar(string s1, string s2)
+        {
+            if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2))
+                return false;
+
+            if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var flds1 = s1.Split(' ');
+            var flds2 = s2.Split(' ');
+
+            if ((flds1.Length < 2) || (flds2.Length < 2))
+                return false;
+
+            if (flds1[0].Equals(flds2[0], StringComparison.OrdinalIgnoreCase))
+            {
+                if ((flds1[1].Length < 1) || (flds2[1].Length < 1))
+                    return false;
+
+                return flds1[1].StartsWith(flds2[1][0].ToString(), StringComparison.OrdinalIgnoreCase) && (LevenshteinDistance.Compute(flds1[1], flds2[1]) < 2);
+            }
+            return false;
+        }
+
         public static int Compute(string s, string t)
         {
             if (string.IsNullOrEmpty(s))

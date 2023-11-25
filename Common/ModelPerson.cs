@@ -1188,16 +1188,16 @@ namespace CStat.Models
                 {
                     //  First Last/Relationship/Phone/Email
                     String[] pga = pv.Value.Split('/');
-                    bool bParent = true;
+                    //bool bParent = true;
 
-                    if (pga.Count() > 1)
-                    {
-                        String rel = pga[1].Trim().ToUpper();
-                        // {TBD : deal with all pgs. Assume pg for now} if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
-                        //    bParent = false;
-                    }
+                    //if (pga.Count() > 1)
+                    //{
+                        //String rel = pga[1].Trim().ToUpper();
+                        //// {TBD : deal with all pgs. Assume pg for now} if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
+                        ////    bParent = false;
+                    //}
 
-                    if (bParent)
+                    // DO NOT LIMIT TO PARENTS   if (bParent)
                     {
                         bool bAbort = false;
                         for (int i = 0; i < pga.Count(); ++i)
@@ -1250,6 +1250,19 @@ namespace CStat.Models
                                     }
                                     break;
 
+                                case 4: // Address
+                                    {
+                                        if (PG1Person != null)
+                                        {
+                                            var PG1Adr = pga[4].Trim();
+                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG1Adr))
+                                            {
+                                                if (!PG1Person.AddressId.HasValue && person.AddressId.HasValue)
+                                                    PG1Person.AddressId = person.AddressId.Value;
+                                            }
+                                        }
+                                    }
+                                    break;
                                 default:
                                     break;
                             }
@@ -1271,16 +1284,16 @@ namespace CStat.Models
                 {
                     //  First Last/Relationship/Phone/Email
                     String[] pga = pv.Value.Split('/');
-                    bool bParent = true;
+                    //bool bParent = true;
 
-                    if (pga.Count() > 1)
-                    {
-                        String rel = pga[1].Trim().ToUpper();
-                        if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
-                            bParent = false;
-                    }
+                    //if (pga.Count() > 1)
+                    //{
+                        //String rel = pga[1].Trim().ToUpper();
+                        //if ((rel.Length > 0) && !rel.Contains("MOTHER") && !rel.Contains("MOM") && !rel.Contains("FATHER") && !rel.Contains("DAD"))
+                            //bParent = false;
+                    //}
 
-                    if (bParent)
+                    //DO NOT LIMIT TO PARENTS if (bParent)
                     {
                         bool bAbort = false;
                         for (int i = 0; i < pga.Count(); ++i)
@@ -1335,6 +1348,19 @@ namespace CStat.Models
                                     }
                                     break;
 
+                                case 4: // Address
+                                    {
+                                        if (PG2Person != null)
+                                        {
+                                            var PG2Adr = pga[4].Trim();
+                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG2Adr))
+                                            {
+                                                if (!PG2Person.AddressId.HasValue && person.AddressId.HasValue)
+                                                    PG2Person.AddressId = person.AddressId.Value;
+                                            }
+                                        }
+                                    }
+                                    break;
                                 default:
                                     break;
                             }

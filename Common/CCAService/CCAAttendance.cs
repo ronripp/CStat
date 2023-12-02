@@ -111,6 +111,7 @@ namespace CCAAttendance
             PGEMail1 = "";
             PGPhone2 = "";
             PGEMail2 = "";
+            PGAdr1 = "";
         }
 
         public String LFName
@@ -394,28 +395,42 @@ namespace CCAAttendance
             }
         }
 
-        public string PGPhone1
-        {
-            get;
-            set;
-        }
+        public string PGPhone1 { get; set; }
 
-        public string PGEMail1
-        {
-            get;
-            set;
-        }
+        public string PGEMail1 { get; set; }
 
-        public string PGPhone2
-        {
-            get;
-            set;
-        }
+        public string PGAdr1 { get; set; }
 
-        public string PGEMail2
+        public string PGPhone2 { get; set; }
+
+        public string PGEMail2 { get; set; }
+
+        public string PGAdr2 { get; set; }
+
+        public void AdjustPGInfos()
         {
-            get;
-            set;
+            // Ensure "First Last/Relationship/Phone/Email/Address"
+            var pi1 = PGInfo1.Trim();
+            var pi2 = PGInfo2.Trim();
+            char delim = '/';
+
+            var phone1 = PGPhone1.Trim();
+            var email1 = PGEMail1.Trim();
+            var adr1 = string.IsNullOrEmpty(PGAdr1) ? "" : PGAdr1.Trim();
+
+            if (pi1.IndexOf(delim) == pi1.LastIndexOf(delim) && (!string.IsNullOrEmpty(phone1) || !string.IsNullOrEmpty(email1) || !string.IsNullOrEmpty(adr1)))
+            {
+                PGInfo1 = pi1 + "/PG/" + phone1 + "/" + email1 + "/" + adr1;
+            }
+
+            var phone2 = PGPhone2.Trim();
+            var email2 = PGEMail2.Trim();
+            var adr2 = string.IsNullOrEmpty(PGAdr2) ? "" : PGAdr2.Trim();
+
+            if (pi2.IndexOf(delim) == pi2.LastIndexOf(delim) && (!string.IsNullOrEmpty(phone2) || !string.IsNullOrEmpty(email2) || !string.IsNullOrEmpty(adr2)))
+            {
+                PGInfo2 = pi2 + "/PG/" + phone2 + "/" + email2 + "/" + adr2;
+            }
         }
 
         string RemovePhone(string val, out string phone)
@@ -428,16 +443,11 @@ namespace CCAAttendance
                 bool phoneDone = false;
                 var fld = fields[i].Replace("(", "").Replace(")", "").Trim();
                 if (Int32.TryParse(fld, out int ival))
-                {
-                    if ((phone.Length == 0) && (ival < 100))
-                        phoneDone = true;
-                    else
-                        phone = fld + phone;
-                }
+                    phone = fld + phone;
                 else
                     phoneDone = true;
 
-                if (phoneDone || (phone.Length >= 9))
+                if (phoneDone || (phone.Length >= 10))
                 {
                     if (i <= 0)
                         return newVal;
@@ -490,6 +500,8 @@ namespace CCAAttendance
             {
                 //  PGn_id format is "First Last/Relationship/Phone/Email"
                 var valueR = RemovePhone(value, out string phone); // use valueN for name
+                if (!string.IsNullOrEmpty(phone))
+                    PGPhone2 = phone;
 
                 if (valueR.Contains(','))
                 {
@@ -505,7 +517,7 @@ namespace CCAAttendance
                 {
                     if (valueR.Contains(' '))
                     {
-                        String[] nms = value.Split(new char[] { ' ', '-' });
+                        String[] nms = valueR.Split(new char[] { ' ', '-' });
                         int count = nms.Count();
                         if (count > 0)
                         {

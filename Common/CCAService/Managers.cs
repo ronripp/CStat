@@ -2299,6 +2299,7 @@ namespace CStat
                                     {
                                         if (PG1Person != null)
                                         {
+                                            PG1Person.Email = pga[3].Trim();
                                             if (!string.IsNullOrEmpty(PG1Person.Email))
                                                 bNeedToModPG1 = true;
                                         }
@@ -2583,36 +2584,41 @@ namespace CStat
                 {
                     if (bNeedToModPG1)
                     {
-                        ce.Person.Attach(PG1Person);
+                        if (bNeedToAddPG2)
+                            ce.Person.Attach(PG1Person);
                         ce.Entry(PG1Person).State = EntityState.Modified;
                         ce.SaveChanges();
                         ce.Entry(PG1Person).State = EntityState.Detached;
                     }
                 }
 
-                if (bNeedToAddPG2)
+                // Filter out case where PG1Person is the same as PG2Person
+                if ((PG1Person != null) && (PG2Person != null) && (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    tryState = 3;
-                    if (newAdr.Id != 0)
-                        PG2Person.AddressId = newAdr.Id; // Assume PG lives with child.
+                    if (bNeedToAddPG2)
+                    {
+                        tryState = 3;
+                        if (newAdr.Id != 0)
+                            PG2Person.AddressId = newAdr.Id; // Assume PG lives with child.
 
-                    if (ce.Person.Add(PG2Person) != null)
-                    {
-                        ce.SaveChanges();
-                        if (PG2Person.Id != 0)
-                            person.Pg2PersonId = PG2Person.Id;
-                        else
-                            person.Pg2PersonId = null;
+                        if (ce.Person.Add(PG2Person) != null)
+                        {
+                            ce.SaveChanges();
+                            if (PG2Person.Id != 0)
+                                person.Pg2PersonId = PG2Person.Id;
+                            else
+                                person.Pg2PersonId = null;
+                        }
                     }
-                }
-                else
-                {
-                    if (bNeedToModPG2)
+                    else
                     {
-                        ce.Person.Attach(PG2Person);
-                        ce.Entry(PG2Person).State = EntityState.Modified;
-                        ce.SaveChanges();
-                        ce.Entry(PG2Person).State = EntityState.Detached;
+                        if (bNeedToModPG2)
+                        {
+                            ce.Person.Attach(PG2Person);
+                            ce.Entry(PG2Person).State = EntityState.Modified;
+                            ce.SaveChanges();
+                            ce.Entry(PG2Person).State = EntityState.Detached;
+                        }
                     }
                 }
 

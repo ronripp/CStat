@@ -1245,7 +1245,8 @@ namespace CStat.Models
                                         if (PG1Person != null)
                                         {
                                             PG1Person.Email = pga[3].Trim();
-                                            bNeedToModPG1 = true;
+                                            if (!string.IsNullOrEmpty(PG1Person.Email))
+                                                bNeedToModPG1 = true;
                                         }
                                     }
                                     break;
@@ -1338,12 +1339,11 @@ namespace CStat.Models
 
                                 case 3: // EMail
                                     {
+                                        if (PG2Person != null)
                                         {
-                                            if (PG2Person != null)
-                                            {
-                                                PG2Person.Email = pga[3].Trim();
+                                            PG2Person.Email = pga[3].Trim();
+                                            if (!string.IsNullOrEmpty(PG2Person.Email))
                                                 bNeedToModPG2 = true;
-                                            }
                                         }
                                     }
                                     break;
@@ -1553,42 +1553,46 @@ namespace CStat.Models
                     }
                 }
 
-                if (bNeedToAddPG2)
+                // Filter out case where PG1Person is the same as PG2Person
+                if ((PG1Person != null) && (PG2Person != null) && (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    tryState = 3;
-                    if (newAdr.Id != 0)
-                        PG2Person.AddressId = newAdr.Id; // Assume PG lives with child.
-                    try
+                    if (bNeedToAddPG2)
                     {
-                        if (ce.Person.Add(PG2Person) != null)
+                        tryState = 3;
+                        if (newAdr.Id != 0)
+                            PG2Person.AddressId = newAdr.Id; // Assume PG lives with child.
+                        try
                         {
-                            ce.SaveChanges();
-                            if (PG2Person.Id != 0)
-                                person.Pg2PersonId = PG2Person.Id;
-                            else
-                                person.Pg2PersonId = null;
+                            if (ce.Person.Add(PG2Person) != null)
+                            {
+                                ce.SaveChanges();
+                                if (PG2Person.Id != 0)
+                                    person.Pg2PersonId = PG2Person.Id;
+                                else
+                                    person.Pg2PersonId = null;
+                            }
+                        }
+                        catch
+                        {
+
                         }
                     }
-                    catch
+                    else
                     {
-
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        if (bNeedToModPG2)
+                        try
                         {
-                            ce.Person.Attach(PG2Person);
-                            ce.Entry(PG2Person).State = EntityState.Modified;
-                            ce.SaveChanges();
-                            ce.Entry(PG2Person).State = EntityState.Detached;
+                            if (bNeedToModPG2)
+                            {
+                                ce.Person.Attach(PG2Person);
+                                ce.Entry(PG2Person).State = EntityState.Modified;
+                                ce.SaveChanges();
+                                ce.Entry(PG2Person).State = EntityState.Detached;
+                            }
                         }
-                    }
-                    catch
-                    {
+                        catch
+                        {
 
+                        }
                     }
                 }
 
@@ -1956,7 +1960,7 @@ namespace CStat.Models
         }
         public string GetECRole()
         {
-            switch ((Person.TitleRoles)this.Roles)
+            switch ((Person.TitleRoles)(this.Roles ?? 0))
             {
                 case Person.TitleRoles.President:
                     return "President";

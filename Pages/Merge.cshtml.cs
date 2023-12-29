@@ -17,6 +17,7 @@ namespace CStat.Pages
         public MergeModel(CStat.Models.CStatContext context)
         {
             _ctx = context;
+            DetachAllEntities(_ctx);
         }
 
         [BindProperty]
@@ -157,6 +158,7 @@ namespace CStat.Pages
             string res = "FAILED: Merge Not Handled";
             try
             {
+                DetachAllEntities(_ctx);
                 switch (cmd)
                 {
                     case 1:
@@ -1806,5 +1808,17 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~: OnGetCamCleanup Exception");
             }
         }
+        public static void DetachAllEntities(CStatContext ctx)
+        {
+            if (ctx == null)
+                return;
+            var undetachedEntriesCopy = ctx.ChangeTracker.Entries()
+                .Where(e => e.State != EntityState.Detached)
+                .ToList();
+
+            foreach (var entry in undetachedEntriesCopy)
+                entry.State = EntityState.Detached;
+        }
+
     }
 }

@@ -21,10 +21,10 @@ namespace CStat.Common
         public bool SendEMailToo { get; set; } = false;
         [JsonIgnore]
         public string PhoneNum { get; set; } = "";
-        public int? pid = null;
-        public string UserId = "";
-        public bool IsFull = false;
-        public bool IsAdmin = false;
+        public int? pid { get; set; } = null;
+        public string UserId { get; set; } = "";
+        public bool IsFull { get; set; } = false;
+        public bool IsAdmin { get; set; } = false;
         public bool SetPersonIDByEmail (CStat.Models.CStatContext context)
         {
             var lcEMail = !string.IsNullOrEmpty(EMail) ? EMail.ToLower() : "EMPTY";

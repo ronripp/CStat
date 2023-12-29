@@ -96,7 +96,7 @@ namespace CStat.Common
         {
             lock (userLock) // Unlikely but may be possible under certain conditions this lock is needed
             {
-                //var cl = new CSLogger();
+                var cl = new CSLogger();
 
                 List<CStatUser> Users = GetUsers(_userManager);
                 List<CStatUser> FullUsers = GetFullUsers(_userManager);
@@ -110,7 +110,7 @@ namespace CStat.Common
                     cu.UserId = c.Id;
                     cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
                     cu.IsFull = FullUsers.Any(u => u.Id == c.Id) || cu.IsAdmin;
-                    //cl.Log("User : E=" + cu.EMail + " P=" + cu.PhoneNum + " Id=" + cu.UserId + " IsAdm=" + cu.IsAdmin + " IsFull=" + cu.IsFull);
+                    cl.Log("User : E=" + cu.EMail + " P=" + cu.PhoneNum + " Id=" + cu.UserId + " IsAdm=" + cu.IsAdmin + " IsFull=" + cu.IsFull);
                     return cu;
                 }).ToList();
 

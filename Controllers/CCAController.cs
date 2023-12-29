@@ -13,6 +13,7 @@ using CCAChurch;
 using CCAAttendance;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+//using System.Diagnostics;
 
 namespace CStat.Controllers
 {
@@ -80,6 +81,10 @@ namespace CStat.Controllers
                 Address ra;
 
                 MgrStatus result = pmgr.Update(ref props, false, bAllowNoAddress, out rp, out ra);
+
+                //MgrStatus result = pmgr.Update(ref props, true, bAllowNoAddress, out rp, out ra); // TEMP !!! DO NOT CHECK IN !!!
+                //string pstr = "[" + rp.Id + "] " + rp.FirstName + " " + rp.LastName + " oldAdrId=" + rp.AddressId.Value + " RAW=" + raw.data;
+                //Trace.WriteLine("PI: " + pstr);
 
                 if (result == MgrStatus.Add_Update_Succeeded)
                 {

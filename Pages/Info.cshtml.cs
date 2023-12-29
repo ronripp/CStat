@@ -18,12 +18,15 @@ namespace CStat
     {
         private readonly CStat.Models.CStatContext _context;
         private readonly CSUser _curUser;
+        private readonly CSLogger _cl;
 
         public InfoModel(CStat.Models.CStatContext context, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
+            _cl = new CSLogger();
             _context = context;
             _curUser = CCommon.GetCurUser(context, config, httpCA, userManager);
             IsFull = (_curUser != null) ? _curUser.IsFull : false;
+            _cl.Log("InfoModel _curUser=" + ((_curUser != null) ? ("OK " + _curUser.EMail) : "NULL") + " IsFull=" + IsFull);
         }
 
         public IActionResult OnGet()

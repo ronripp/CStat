@@ -2204,12 +2204,6 @@ namespace CStat
                 }
             }
 
-            pv = props.Find(prop => prop.Key == "Comments");
-            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-            {
-                person.Notes = pv.Value.Trim();
-            }
-
             pv = props.Find(prop => prop.Key == "Baptized");
             if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
             {
@@ -2464,6 +2458,14 @@ namespace CStat
 
                 int adr_id = -1;
                 int id = FindPersonIDByName(psnL, ref person, bAllowNoAddress, out adr_id);
+
+                if (id == -1)
+                {
+                    // Match first name only due to marriage changing last name
+                    adr_id = -1;
+                    id = FindPersonIDByName(psnL, ref person, bAllowNoAddress, out adr_id, false);
+                }
+
                 if (id != -1)
                 {
                     bPersonFound = true;
@@ -2502,8 +2504,22 @@ namespace CStat
             if (bJustGetPerson)
             { 
                 ResPerson = JGPerson;
+                ResPerson.Id = person.Id;
                 ResAddress = JGnewAdr;
+                ResPerson.AddressId = ResAddress.Id = bFoundOldAdr ? oldAdr.Id : newAdr.Id;
                 return MgrStatus.Add_Update_Succeeded;
+            }
+
+            pv = props.Find(prop => prop.Key == "CMT");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                string comment = pv.Value.Trim();
+                if (bPersonFound && (person.Notes != null))
+                   person.Notes = comment + "|" + person.Notes;
+                else
+                    person.Notes = comment;
+                if (person.Notes.Length > 255)
+                    person.Notes = person.Notes.Substring(0, 255);
             }
 
             int tryState = 1;
@@ -2593,7 +2609,8 @@ namespace CStat
                 }
 
                 // Filter out case where PG1Person is the same as PG2Person
-                if ((PG1Person != null) && (PG2Person != null) && (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
+                if ((PG1Person != null) && (PG2Person != null) && (PG1Person.FirstName != null) && (PG2Person.FirstName != null) && (PG1Person.LastName != null) && (PG2Person.LastName != null) &&
+                    (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (bNeedToAddPG2)
                     {
@@ -2807,7 +2824,9 @@ namespace CStat
                             continue;
                     }
 
-                    if ( (p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child)) )
+                    if ( ((p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child))) ||
+                          Person.SameFirstName(p.FirstName, person.FirstName) ||
+                          ((p.Alias != null) && Person.SameFirstName(p.FirstName, person.FirstName)) )
                     {
                         if (p.AddressId.HasValue && (p.AddressId.Value > 0))
                             address_id = p.AddressId.Value;

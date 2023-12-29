@@ -200,5 +200,14 @@ namespace CStat.Models
                 return numStr.Substring(0, 5) + "-" + numStr.Substring(5);
             return numStr;
         }
+        public static void DetachAllEntities(CStatContext ctx)
+        {
+            var undetachedEntriesCopy = ctx.ChangeTracker.Entries()
+                .Where(e => e.State != EntityState.Detached)
+                .ToList();
+
+            foreach (var entry in undetachedEntriesCopy)
+                entry.State = EntityState.Detached;
+        }
     }
 }

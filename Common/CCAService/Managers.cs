@@ -2420,6 +2420,12 @@ namespace CStat
                 }
             }
 
+            pv = props.Find(prop => prop.Key == "CMT");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                person.Notes = pv.Value.Trim();
+            }
+
             Person JGPerson = (bJustGetPerson) ? person.ShallowCopy() : person;
             Address JGnewAdr = (bJustGetPerson) ? newAdr.ShallowCopy() : newAdr;
 
@@ -2508,18 +2514,6 @@ namespace CStat
                 ResAddress = JGnewAdr;
                 ResPerson.AddressId = ResAddress.Id = bFoundOldAdr ? oldAdr.Id : newAdr.Id;
                 return MgrStatus.Add_Update_Succeeded;
-            }
-
-            pv = props.Find(prop => prop.Key == "CMT");
-            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-            {
-                string comment = pv.Value.Trim();
-                if (bPersonFound && (person.Notes != null))
-                   person.Notes = comment + "|" + person.Notes;
-                else
-                    person.Notes = comment;
-                if (person.Notes.Length > 255)
-                    person.Notes = person.Notes.Substring(0, 255);
             }
 
             int tryState = 1;
@@ -2974,8 +2968,32 @@ namespace CStat
             if ((src.SkillSets != 0) && (dst.SkillSets == 0))
                 dst.SkillSets = src.SkillSets;
 
+            dst.Notes = MergeComments(src.Notes, dst.Notes);
+
+            if ((src.Roles.HasValue) && (!dst.Roles.HasValue || (src.Roles != dst.Roles)))
+                dst.Roles = src.Roles.Value | (dst.Roles.HasValue ? dst.Roles.Value : 0);
+
             if ((src.ChurchId.HasValue) && (!dst.ChurchId.HasValue))
                 dst.ChurchId = src.ChurchId;
+        }
+
+        public string MergeComments(string oldCmt, string newCmt)
+        {
+            if (string.IsNullOrEmpty(newCmt))
+                return oldCmt;
+
+            if (!string.IsNullOrEmpty(oldCmt))
+            {
+                if (!oldCmt.Contains(newCmt, StringComparison.OrdinalIgnoreCase))
+                {
+                    string cmt = newCmt + "|" + oldCmt;
+                    return (cmt.Length > 255) ? cmt.Substring(0, 255) : cmt;
+                }
+            }
+            else
+                return newCmt;
+
+            return oldCmt;
         }
     
         static public bool SplitName (String name, ref Person p, string defLast="") // Currently assumes no possible last name alias

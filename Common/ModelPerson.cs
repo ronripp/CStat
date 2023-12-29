@@ -1363,6 +1363,12 @@ namespace CStat.Models
                 }
             }
 
+            pv = props.Find(prop => prop.Key == "CMT");
+            if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+            {
+                person.Notes = pv.Value.Trim();
+            }
+
             Person JGPerson = (bJustGetPerson) ? person.ShallowCopy() : person;
             Address JGnewAdr = (bJustGetPerson) ? newAdr.ShallowCopy() : newAdr;
 
@@ -1588,18 +1594,6 @@ namespace CStat.Models
 
                         }
                     }
-                }
-
-                pv = props.Find(prop => prop.Key == "CMT");
-                if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-                {
-                    string comment = pv.Value.Trim();
-                    if (bPersonFound && (person.Notes != null))
-                        person.Notes = comment + "|" + person.Notes;
-                    else
-                        person.Notes = comment;
-                    if (person.Notes.Length > 255)
-                        person.Notes = person.Notes.Substring(0, 255);
                 }
 
                 if (!bPersonFound)

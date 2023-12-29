@@ -57,7 +57,7 @@ namespace CStat.Controllers
             if (((raw.type == "Person") || (raw.type == "DeletePerson")) && (raw.data != null))
             {
                 // Generate Key/Value Pairs to update person
-                char[] outerDelims = { ';', '~', '&', ',' };
+                char[] outerDelims = { ';' };
                 char[] innerDelims = { ':', '=' };
 
                 string[] pairs = raw.data.Split(outerDelims);
@@ -65,10 +65,11 @@ namespace CStat.Controllers
                 List<KeyValuePair<string, string>> props = new List<KeyValuePair<string, string>>();
                 foreach (string nvs in pairs)
                 {
-                    string[] nvp = nvs.Split(innerDelims);
-                    if ((nvp.Length == 2) && (nvp[1].Length > 0))
+                    int colonIdx = nvs.IndexOf(':');
+                    if (colonIdx != -1)
                     {
-                        props.Add(new KeyValuePair<string, string>(nvp[0], nvp[1]));
+                        if (colonIdx != (nvs.Length - 1))
+                            props.Add(new KeyValuePair<string, string>(nvs.Substring(0, colonIdx), nvs.Substring(colonIdx + 1)));
                     }
                 }
 

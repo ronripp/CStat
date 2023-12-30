@@ -659,17 +659,15 @@ namespace CStat.Common
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
-                    var ecRole = p.GetECRole();
-                    result += ("*" + p.FirstName + " " + p.LastName + " : " + ((!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) :
-                        ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"))) +  (!string.IsNullOrEmpty(p.Email) ? " " + p.Email : "") + (!string.IsNullOrEmpty(ecRole) ? " " + ecRole : "")).Trim();
-
-                    var exp = p.GetTermExpire();
-                    if (exp != 0)
-                        result += " Exp.Nov." + exp.ToString();
-                    result += $"\n";
-                }
+                    result += (("*" + p.FirstName + " " + p.LastName + " : " +
+                        Person.GetBestPhone(p) + " " +
+                        Address.GetAddressStr(p.Address) + " " +
+                        Person.GetEMailStr(p) + " " +
+                        Person.GetRoleStr(p) + " " +
+                        Person.GetSkillStr(p)) + $"\n\n");
+               }
             }
-            return result;
+            return result.Trim();
         }
         private string HandleEquip(List<string> words)
         {

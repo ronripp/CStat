@@ -2572,5 +2572,38 @@ namespace CStat.Models
             return SameNames.Any(list => list.Any(n => n.Equals(fn1, StringComparison.OrdinalIgnoreCase) && list.Any(n => n.Equals(fn2, StringComparison.OrdinalIgnoreCase))));
         }
 
+        public static string GetBestPhone(Person p)
+        {
+            return (!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"));
+        }
+
+        public static string GetRoleStr(Person p)
+        {
+            var ecRole = p.GetECRole();
+            string rstr = (!string.IsNullOrEmpty(ecRole) ? ecRole : "").Trim();
+            var exp = p.GetTermExpire();
+            if (exp != 0)
+                rstr += " Exp.Nov." + exp.ToString();
+            return rstr;
+        }
+
+        public static string GetEMailStr(Person p)
+        {
+            return (!string.IsNullOrEmpty(p.Email) ? p.Email : "");
+        }
+
+        public static string GetSkillStr(Person p)
+        {
+            string sstr = "";
+            if (p.SkillSets == 0)
+                return "";
+            foreach (int sval in Enum.GetValues(typeof(eSkills)))
+            {
+                if ((p.SkillSets & (long)sval) != 0)
+                    sstr += ((sstr.Length > 0) ? "," : "") + ((eSkills)sval).ToString();               
+            }
+            return "[" + sstr.Trim() + "]";
+        }
+
     }
 }

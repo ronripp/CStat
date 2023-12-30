@@ -659,12 +659,22 @@ namespace CStat.Common
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
-                    result += (("*" + p.FirstName + " " + p.LastName + " : " +
+                    if (_cmdSrc == CmdSource.EC)
+                    {
+                        result += ("*" + p.FirstName + " " + p.LastName + " : " +
+                        Person.GetBestPhone(p) + " " +
+                        Person.GetEMailStr(p) + " " +
+                        Person.GetRoleStr(p) + $"\n\n");
+                    }
+                    else
+                    {
+                        result += ("*" + p.FirstName + " " + p.LastName + " : " +
                         Person.GetBestPhone(p) + " " +
                         Address.GetAddressStr(p.Address) + " " +
                         Person.GetEMailStr(p) + " " +
                         Person.GetRoleStr(p) + " " +
-                        Person.GetSkillStr(p)) + $"\n\n");
+                        Person.GetSkillStr(p) + $"\n\n");
+                    }
                }
             }
             return result.Trim();

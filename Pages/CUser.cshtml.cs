@@ -61,7 +61,7 @@ namespace CStat.Pages
             var cmdStr = (cmdIndex != -1) ? rawQS.Substring(cmdIndex + 1, rawQS.Length - (cmdIndex + 1)) : rawQS;
 
             // Execute Command String
-            CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager, _curUser);
+            CmdMgr cmdMgr = new CmdMgr(_context, _csSettings, _hostEnv, _config, _userManager, _curUser, false);
             return this.Content(cmdMgr.ExecuteCmd(cmdStr, true));  // Response 
         }
     }

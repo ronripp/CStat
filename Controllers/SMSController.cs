@@ -27,7 +27,7 @@ namespace TwilioReceive.Controllers
         private readonly CStat.Models.CStatContext Context;
         private readonly CSSettings csSettings;
 
-        private static readonly int MaxSendChars = 1000;
+        public static readonly int MaxSendChars = 1600;
 
         public SmsController(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CStat.Models.CStatContext context)
         {
@@ -54,7 +54,7 @@ namespace TwilioReceive.Controllers
             string reqStr = req.Body.Trim();
             if (reqStr.Length == 0)
                 return SendMsgResp(name, "How can I help?");
-            var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser);
+            var cmdMgr = new CmdMgr(Context, csSettings, HostEnv, Config, UserManager, curUser, true);
             return SendMsgResp(cmdMgr.ExecuteCmd(reqStr));
         }
 

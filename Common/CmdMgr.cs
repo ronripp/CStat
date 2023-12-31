@@ -103,6 +103,12 @@ namespace CStat.Common
             {"doc", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"manual", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"document", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"file", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"meeting", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"minutes", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"meeting-minutes", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"bylaws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
+            {"by-laws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
             {"pics", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
             {"photos", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
             {"shots", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
@@ -210,8 +216,9 @@ namespace CStat.Common
         private readonly IConfiguration _config;
         private readonly UserManager<CStatUser> _userManager;
         private readonly CSUser _curUser;
+        private readonly bool _isTextMsg;
 
-        public CmdMgr(CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser)
+        public CmdMgr(CStat.Models.CStatContext context, CSSettings cset, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, bool isTextMsg)
         {
             _context = context;
             _csSettings = cset;
@@ -219,6 +226,7 @@ namespace CStat.Common
             _config = config;
             _userManager = userManager;
             _curUser = curUser;
+            _isTextMsg = isTextMsg;
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
@@ -269,7 +277,7 @@ namespace CStat.Common
                     // Interpret and clear out ending punctuation
                     if (word.EndsWith("?"))
                     {
-                        //_isQuestion = true;
+                        _isQuestion = true;
                         word = word.Replace("?", "");
                     }
                     if (word.EndsWith("."))
@@ -278,16 +286,17 @@ namespace CStat.Common
                     }
                     if (word.EndsWith("!"))
                     {
-                        //_isUrgent = true;
+                        _isUrgent = true;
                         word = word.Replace("!", "");
                     }
                 }
 
-                if (rawWords[i] == "camp")
+                if ((rawWords[i] == "camp") || (rawWords[i] == "please"))
                     continue; // skip because it is implied / gets in the way
                 int j = i + 1;
                 if (j < NumWords)
                 {
+                    // Combine certain words
                     var word2 = rawWords[j];
                     if (((word == "young") && (word2.StartsWith("adult"))) ||
                         ((word == "spring") && (word2.StartsWith("work"))) ||
@@ -303,12 +312,16 @@ namespace CStat.Common
                     {
                         word = word + word2; // Combine with NO space
                     }
+                    else if (((word == "meeting") && (word2.StartsWith("minutes"))) ||
+                             ((word == "by") && (word2.StartsWith("laws"))))
+                    {
+                        word = word + "-" + word2; // Combine with hyphen
+                    }
                 }
                 words.Add(word);
             }
 
-            // Look for command source first
-            FindCmdSource(words);
+            FindCmdSource(words); // Look for command source first
             FindCmdAction(words);
             FindInsts(words);
             FindNumber(words);
@@ -342,7 +355,7 @@ namespace CStat.Common
                 return ("Try later.");
             var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
 
-            if (!noEMail && (IsEMail(words) || (result.Length > 1800)))
+            if (!noEMail && (IsEMail(words) || (_isTextMsg && (result.Length > TwilioReceive.Controllers.SmsController.MaxSendChars))) )
             {
                 CSEMail csEMail = new CSEMail(_config, _userManager);
                 return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? " successfully sent to " : " FAILED to be sent to ") + _curUser.EMail;
@@ -376,6 +389,47 @@ namespace CStat.Common
             var NumWords = words.Count;
             for (int i = 0; i < NumWords; ++i)
             {
+                if (words[i] == "two")
+                    words[i] = "2";
+                else if (words[i] == "three")
+                    words[i] = "3";
+                else if (words[i] == "four")
+                    words[i] = "4";
+                else if (words[i] == "five")
+                    words[i] = "5";
+                else if (words[i] == "six")
+                    words[i] = "6";
+                else if (words[i] == "seven")
+                    words[i] = "7";
+                else if (words[i] == "eight")
+                    words[i] = "8";
+                else if (words[i] == "nine")
+                    words[i] = "9";
+                else if (words[i] == "ten")
+                    words[i] = "10";
+                else if (words[i] == "eleven")
+                    words[i] = "11";
+                else if (words[i] == "twelve")
+                    words[i] = "12";
+                else if (words[i] == "thirteen")
+                    words[i] = "13";
+                else if (words[i] == "fourteen")
+                    words[i] = "14";
+                else if (words[i] == "fifteen")
+                    words[i] = "15";
+                else if (words[i] == "sixteen")
+                    words[i] = "16";
+                else if (words[i] == "seventeen")
+                    words[i] = "17";
+                else if (words[i] == "eighteen")
+                    words[i] = "18";
+                else if (words[i] == "nineteen")
+                    words[i] = "19";
+                else if (words[i] == "twenty")
+                    words[i] = "20";
+                else if (words[i] == "thirty")
+                    words[i] = "30";
+
                 if (int.TryParse(words[i], out int num))
                 {
                     _cmdNumber = num;
@@ -1150,11 +1204,62 @@ namespace CStat.Common
         private string HandleAttendance(List<string> words)
         {
             return "Not Implemented";
+
         }
 
         private string HandleDocs(List<string> words)
         {
-            return "Not Implemented";
+            if (_cmdSrc == CmdSource.DOC)
+            {
+
+            }
+            else if (_cmdSrc == CmdSource.REQ)
+            {
+
+            }
+            else if (_cmdSrc == CmdSource.BYLAWS)
+            {
+                var dbox = GetDropBox();
+                if (dbox == null)
+                {
+                    return "ERROR : DropBox NOT Accessible.";
+                }
+                string SrcPath = "/Corporate/By-Laws & IDs";
+                string FileName = "CCA By-Laws 2021.docx";
+                string FullSrcPath = SrcPath + "/" + FileName;
+                string FullDestPath = Path.Combine(Path.GetTempPath(), FileName);
+                if (System.IO.File.Exists(FullDestPath))
+                    System.IO.File.Delete(FullDestPath);
+
+                try
+                {
+                    if (dbox.FileExists(FullSrcPath))
+                    {
+                        var task = dbox.DownloadToFile(SrcPath, FileName, FullDestPath);
+                        task.Wait();
+                        if (System.IO.File.Exists(FullDestPath))
+                        {
+                            var email = new CSEMail(_config, _userManager);
+                            if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find the CCA By-Laws\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
+                                return "ERROR : Failed to EMail By-Laws";
+                        }
+                        else
+                            return "ERROR : Failed to Download By-Laws";
+                    }
+                    else
+                        return ("ERROR : DropBox file : " + FullSrcPath + " NOT FOUND!");
+                }
+                catch (Exception e)
+                {
+                    return "ERROR : " + e.Message;
+                }
+            }
+            return "Command Performed.";
+        }
+
+        CSDropBox GetDropBox ()
+        {
+            return new CSDropBox(Startup.CSConfig, (_curUser == null || _curUser.IsFull));
         }
 
         //***************************************************************
@@ -1210,8 +1315,8 @@ namespace CStat.Common
         private bool _isPlural = false;
         private bool _hasDoneOnly = false;
         private int _hasMyIdx = -1;
-        //private bool _isQuestion = false;
-        //private bool _isUrgent = false;
+        private bool _isQuestion = false;
+        private bool _isUrgent = false;
 
         private List<string> _cmdDescList = new List<string>();
 

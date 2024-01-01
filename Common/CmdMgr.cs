@@ -1219,10 +1219,12 @@ namespace CStat.Common
             }
             else if (_cmdSrc == CmdSource.BYLAWS)
             {
+                var ByLawsLink = "https://ccaserve.org/CCAByLaws2021.html";
+
                 var dbox = GetDropBox();
                 if (dbox == null)
                 {
-                    return "ERROR : DropBox NOT Accessible.";
+                    return ByLawsLink + "\nERROR : DropBox NOT Accessible.";
                 }
                 string SrcPath = "/Corporate/By-Laws & IDs";
                 string FileName = "CCA By-Laws 2021.docx";
@@ -1241,20 +1243,21 @@ namespace CStat.Common
                         {
                             var email = new CSEMail(_config, _userManager);
                             if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find the CCA By-Laws\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
-                                return "ERROR : Failed to EMail By-Laws";
+                                return ByLawsLink + "\nERROR : Failed to EMail By-Laws";
                         }
                         else
-                            return "ERROR : Failed to Download By-Laws";
+                            return ByLawsLink + "\nERROR : Failed to Download By-Laws";
+                        return ByLawsLink + "\nCCA By-Laws sent to your EMail.";
                     }
                     else
-                        return ("ERROR : DropBox file : " + FullSrcPath + " NOT FOUND!");
+                        return ByLawsLink + "\nERROR : DropBox file : " + FullSrcPath + " NOT FOUND!";
                 }
                 catch (Exception e)
                 {
-                    return "ERROR : " + e.Message;
+                    return ByLawsLink + "\nERROR : " + e.Message;
                 }
             }
-            return "Command Performed.";
+            return "Document sent to your EMail.";
         }
 
         CSDropBox GetDropBox ()

@@ -61,6 +61,15 @@ namespace CStat.Data
             return FolderList.Entries.Count();
         }
 
+        // Get Folder List
+        public ListFolderResult GetFolderList2(string folder)
+        {
+            if (!(_Allowed = AllowFolderList(folder)))
+                return new ListFolderResult();
+
+            return dbx.Files.ListFolderAsync(folder).Result;
+        }
+
         public string GetSharedLink(string path)
         {
 //            if (path.StartsWith(@"/Getting")) return "";

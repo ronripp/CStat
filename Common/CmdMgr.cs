@@ -1,6 +1,7 @@
 ﻿using CStat.Areas.Identity.Data;
 using CStat.Data;
 using CStat.Models;
+using Dropbox.Api.Files;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -122,6 +123,7 @@ namespace CStat.Common
             {"instructions", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"requirements", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"required", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
+            {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"list", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
             {"todo", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
             {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
@@ -162,6 +164,7 @@ namespace CStat.Common
             {"doh", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"health", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"department", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+
         };
 
         //===============================================================
@@ -293,16 +296,33 @@ namespace CStat.Common
 
                 if ((rawWords[i] == "camp") || (rawWords[i] == "please"))
                     continue; // skip because it is implied / gets in the way
+
                 int j = i + 1;
+                int k = j + 1;
+
+                if (k < NumWords)
+                {
+                    var word2 = rawWords[j].ToLower().Replace("-", "").Replace("'s", "");
+                    var word3 = rawWords[k].ToLower().Replace("-", "").Replace("'s", "");
+                    // Combine certain words
+                    if ((word == "new") && (word2 == "york") && (word3 == "state"))
+                    {
+                        words.Add("nys");
+                        i = k;
+                        continue;
+                    }
+                }
+
                 if (j < NumWords)
                 {
                     // Combine certain words
-                    var word2 = rawWords[j];
+                    var word2 = rawWords[j].ToLower().Replace("-", "").Replace("'s", "");
                     if (((word == "young") && (word2.StartsWith("adult"))) ||
                         ((word == "spring") && (word2.StartsWith("work"))) ||
                         ((word == "first") && (word2.StartsWith("chance"))))
                     {
                         word = word + " " + word2; // Combine with space
+                        i = j;
                     }
                     else if (((word == "up") && (word2.StartsWith("coming"))) ||
                              ((word == "to") && (word2.StartsWith("do"))) ||
@@ -311,13 +331,16 @@ namespace CStat.Common
                              ((word == "over") && (word2.StartsWith("due"))))
                     {
                         word = word + word2; // Combine with NO space
+                        i = j;
                     }
                     else if (((word == "meeting") && (word2.StartsWith("minutes"))) ||
                              ((word == "by") && (word2.StartsWith("laws"))))
                     {
                         word = word + "-" + word2; // Combine with hyphen
+                        i = j;
                     }
                 }
+
                 words.Add(word);
             }
 
@@ -1050,8 +1073,12 @@ namespace CStat.Common
                         report += " : " + b.Poc.FirstName + " " + b.Poc.LastName;
                     }
                     if ((b.Address != null) && !string.IsNullOrEmpty(b.Address.Phone))
-                        report += " : " + Person.FixPhone(b.Address.Phone); 
+                        report += " : " + Person.FixPhone(b.Address.Phone) + " ";
+                    if (!string.IsNullOrEmpty(b.Terms))
+                        report += " : " + b.Terms;
+                    report += "\n\n";
                 }
+                return report.Trim();
             }
             report += "\n";
             return report;
@@ -1207,15 +1234,49 @@ namespace CStat.Common
 
         }
 
+        public void RenderFolder (CSDropBox dbox, string fld, string indent, ref string report)
+        {
+            ListFolderResult FldList = dbox.GetFolderList2(fld);
+            if (FldList.Entries.Count > 0)
+            {
+                foreach (var entry in FldList.Entries)
+                {
+                    if (entry.IsFolder)
+                    {
+                        if ((entry.PathLower == "/archive") || (entry.PathLower == "/_archive") || (entry.PathLower == "/vault") || (entry.PathLower == "/memorandum"))
+                            continue;
+
+                        report += (indent + entry.Name + "\n");
+                        RenderFolder(dbox, fld + "/" + entry.Name, indent + "    ", ref report);
+                    }
+                    else
+                    report += (indent + entry.Name + "\n");
+                }
+            }
+        }
+
         private string HandleDocs(List<string> words)
         {
             if (_cmdSrc == CmdSource.DOC)
             {
-
+                var dbox = GetDropBox();
+                string report = "";
+                RenderFolder(dbox, "", "", ref report);
+                return report;
             }
             else if (_cmdSrc == CmdSource.REQ)
             {
-
+                var ReqLink = "https://ccaserve.org/Required21.html";
+                var SrcPath = Path.Combine(Utils.GetTempDir(_hostEnv, @"docs"), "Required2021.pdf");
+                if (System.IO.File.Exists(SrcPath))
+                {
+                    var email = new CSEMail(_config, _userManager);
+                    if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For CCA Required by Law", "Hi\nAttached, please find the CCA Required by Law document.\n\nThanks!\nCee Stat", new string[] { SrcPath }))
+                        return ReqLink + "\nERROR : Failed to EMail Required by Law";
+                }
+                else
+                    return ReqLink + "\nERROR : Cannot find Required by Law";
+                return ReqLink + "\nCCA Required by Law also sent to your EMail.";
             }
             else if (_cmdSrc == CmdSource.BYLAWS)
             {
@@ -1247,7 +1308,7 @@ namespace CStat.Common
                         }
                         else
                             return ByLawsLink + "\nERROR : Failed to Download By-Laws";
-                        return ByLawsLink + "\nCCA By-Laws sent to your EMail.";
+                        return ByLawsLink + "\nCCA By-Laws also sent to your EMail.";
                     }
                     else
                         return ByLawsLink + "\nERROR : DropBox file : " + FullSrcPath + " NOT FOUND!";

@@ -231,6 +231,8 @@ namespace CStat.Common
             _userManager = userManager;
             _curUser = curUser;
             _isTextMsg = isTextMsg;
+            _isQuestion = _isUrgent;  // temp : removes unused warning
+            _isUrgent = _isQuestion;  // temp : removes unused warning
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
@@ -1267,7 +1269,7 @@ namespace CStat.Common
             }
             else if (_cmdSrc == CmdSource.REQ)
             {
-                var ReqLink = "https://ccaserve.org/Required21.html";
+                var ReqLink = "https://ccaserve.org/Required.html";
                 var SrcPath = Path.Combine(Utils.GetTempDir(_hostEnv, @"docs"), "Required2021.pdf");
                 if (System.IO.File.Exists(SrcPath))
                 {

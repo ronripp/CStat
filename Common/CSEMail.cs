@@ -532,30 +532,35 @@ namespace CStat.Common
         {
             // Examine the subject of email
             var subject = e.Subject.Trim().ToLower();
-            Char[] delimiters = {' ', ','};
+            Char[] delimiters = { ' ', ',' };
             var words = subject.Split(delimiters);
 
             if (words.Any(w => w == "meeting") || words.Any(w => w == "minutes") || words.Any(w => w == "meeting-minutes") || words.Any(w => w == "zoom"))
             {
-                DateTime? mmDate = null;
-
-                mmDate = FindDateTime(words);
-
-                if (!mmDate.HasValue)
+                if (e.Attachments.Count == 0)
                 {
-                    // Try to get date from attachment filename or TBD text body
-                    foreach (var f in e.Attachments)
+                    DateTime? mmDate = null;
+
+                    mmDate = FindDateTime(words);
+                    int mmDateCount = 0;
+
+                    if (!mmDate.HasValue)
                     {
-                        var fABody = Path.GetFileNameWithoutExtension(f);
-                        var fWords = fABody.Substring(4).Split(delimiters); // 4 -> Skip A###
-                        mmDate = FindDateTime(fWords);
-                        if (mmDate.HasValue)
-                            break;
-                    }
-                }
+                        // Try to get date from attachment filename or TBD text body
 
-                if (mmDate.HasValue)
-                {
+                        foreach (var f in e.Attachments)
+                        {
+                            var fABody = Path.GetFileNameWithoutExtension(f);
+                            var fWords = fABody.Substring(4).Split(delimiters); // 4 -> Skip A###
+                            mmDate = FindDateTime(fWords);
+                            if (mmDate.HasValue)
+                                ++mmDateCount;
+                        }
+                    }
+
+                    if (!mmDate.HasValue || (mmDateCount > 1))
+                        mmDate = e.Date; // Set mmDate to email date
+
                     var year = mmDate.Value.Year;
                     string adjWord;
                     if (words.Any(w => w == "special"))
@@ -565,41 +570,40 @@ namespace CStat.Common
                     else
                         adjWord = "_EC";
 
-                    // Meeting Minutes with a specific date
+                    // Add Body if no attachments
                     string mmFileName = year + "-" + mmDate.Value.Month.ToString("D2") + "-" + mmDate.Value.Day.ToString("D2") + adjWord + "_MM.pdf";
-                    if (e.Attachments.Count == 0)
-                    {
-                        // This email is likely meeting minutes
-                        if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
-                            e.AddHtmlAsPDFAttachment(mmFileName);
-                    }
-                    var dbox = new CSDropBox(Startup.CSConfig);
-                    var destPath = "/Corporate/Meeting Minutes";
-                    foreach (var a in e.Attachments)
-                    {
-                        try
-                        {
-                            string FileName = e.GetFinalFileName(Path.GetFileName(a));
-                            var fBody = Path.GetFileNameWithoutExtension(FileName);
-                            var fExt = Path.GetExtension(FileName);
-                            if (dbox.FileExists(destPath + "/" + FileName))
-                            {
-                                for (char j = 'B'; j < 'Z'; ++j)
-                                {
-                                    FileName = fBody + "_Rev_" + j.ToString() + fExt;
-                                    if (!dbox.FileExists(destPath + "/" + FileName))
-                                        break;
-                                }
-                            }
-                            dbox.UploadFile(a, destPath, FileName);
-                            File.Delete(a);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    return true;
+
+                    // This email body is likely the meeting minutes
+                    if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
+                        e.AddHtmlAsPDFAttachment(mmFileName);
                 }
+
+                var dbox = new CSDropBox(Startup.CSConfig);
+                var destPath = "/Corporate/Meeting Minutes";
+                foreach (var a in e.Attachments)
+                {
+                    try
+                    {
+                        string FileName = e.GetFinalFileName(Path.GetFileName(a));
+                        var fBody = Path.GetFileNameWithoutExtension(FileName);
+                        var fExt = Path.GetExtension(FileName);
+                        if (dbox.FileExists(destPath + "/" + FileName))
+                        {
+                            for (char j = 'B'; j < 'Z'; ++j)
+                            {
+                                FileName = fBody + "_Rev_" + j.ToString() + fExt;
+                                if (!dbox.FileExists(destPath + "/" + FileName))
+                                    break;
+                            }
+                        }
+                        dbox.UploadFile(a, destPath, FileName);
+                        File.Delete(a);
+                    }
+                    catch
+                    {
+                    }
+                }
+                return true;
             }
 
             return false;

@@ -53,7 +53,7 @@ namespace CStat
 
         private void InitECExire(Person person)
         {
-            _NeedECExpire = (person.Roles & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
+            _NeedECExpire = ((person.Roles ?? 0) & (long)(Person.TitleRoles.President | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Secretary | Person.TitleRoles.Treasurer | Person.TitleRoles.Memb_at_Lg)) != 0;
 
             _ECExpire = "";
             if (!string.IsNullOrEmpty(person.Notes))

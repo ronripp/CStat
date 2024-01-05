@@ -90,7 +90,7 @@
                 }
             });
 
-            $("#zTitleRoles").change(function () {
+            @*$("#zTitleRoles").change(function () {
 
                 var roles = $("#zTitleRoles").val();
                 if (roles.any(r => {
@@ -104,7 +104,7 @@
                 }
                 else
                     _ExpireYear$("#ECExpire").css('display', 'inline-block');
-            });
+            });*@
 
         $("#DelBtn").click(function () {
             if (confirm("Delete Person : " + $("#zPerson_FirstName").val() + " " + $("#zPerson_LastName").val() + " ? ")) {

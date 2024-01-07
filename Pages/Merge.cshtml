@@ -37,6 +37,10 @@
             #DoExport {
                 margin-left: 16px;
             }
+
+            #DoPeople {
+                margin-left: 16px;
+            }
         </style>
 
         <script type="text/javascript">
@@ -196,6 +200,24 @@
                     });
                 });
 
+                $('#DoPeople').click(function () {
+                    var parameters = "{'type':'" + cmdId + "'}";
+                    $.ajax({
+                        url: "/Merge?handler=DoPeople",
+                        contentType: "application/json",
+                        async: false, // Synchronous because reload of page follows merge
+                        dataType: "json",
+                        data: parameters,
+                        success: function (response) {
+                            alert(response);
+                        },
+                        fail: function (response) {
+                            alert(response);
+                        }
+                    });
+                });
+
+
                 function UpdateMerge() {
                     if ((toIdx != "0") && (fromIdxList.length > 0)) {
                         $("#DoMerge").prop('disabled', false);
@@ -248,6 +270,9 @@
                     </li>
                     <li class="nav-item">
                         <button id="DoExport">Export</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="DoPeople">Ppl.CSV</button>
                     </li>
                 </ul>
             </div>

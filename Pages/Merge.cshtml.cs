@@ -1800,14 +1800,39 @@ namespace CStat.Pages
                 JObject jObj = JObject.Parse(jsonQS);
                 int type = int.Parse((string)jObj["type"]);
 
-                return new JsonResult(Person.ExportPeople(_ctx));
+                return new JsonResult(Person.ExportPeople(_ctx, true));
             }
             catch (Exception e)
             {
                 _ = e;
-                return new JsonResult("ERROR~: OnGetCamCleanup Exception");
+                return new JsonResult("ERROR~: OnGetDoExport Exception");
             }
         }
+
+        public JsonResult OnGetDoPeople()
+        {
+            var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
+            if (String.IsNullOrEmpty(rawQS))
+                return new JsonResult("ERROR~:No Parameters");
+
+            int stIdx = rawQS.IndexOf("{'type");
+            if (stIdx == -1)
+                return new JsonResult("ERROR~:No Parameters");
+            var jsonQS = rawQS.Substring(stIdx);
+            try
+            {
+                JObject jObj = JObject.Parse(jsonQS);
+                int type = int.Parse((string)jObj["type"]);
+
+                return new JsonResult(Person.ExportPeople(_ctx, false));
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                return new JsonResult("ERROR~: OnGetDoPeople Exception");
+            }
+        }
+
         public static void DetachAllEntities(CStatContext ctx)
         {
             if (ctx == null)

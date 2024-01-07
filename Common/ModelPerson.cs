@@ -2005,7 +2005,7 @@ namespace CStat.Models
 
         // {FName=&LName=&Gender=0&AgeRange=&Church=-1&SkillSets=0&Roles=1024}
         // return new JsonResult(Person.FindPeople(_context, "Find People:" + jsonQS));
-        public static string ExportPeople (CStatContext ctx)
+        public static string ExportPeople (CStatContext ctx, bool fullInfo)
         {
             if (ctx == null)
                 return "FAILED: No CStat DB Context";
@@ -2020,7 +2020,7 @@ namespace CStat.Models
                 Directory.CreateDirectory(LogPath);
             }
             DateTime now = PropMgr.ESTNow; 
-            var ExpFile = Path.Combine(LogPath, "CSPeopleExport" + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".csv");
+            var ExpFile = Path.Combine(LogPath, (fullInfo ? "CSFullPeopleExport" : "CSPeopleList") + (now.Year-2000).ToString() + now.Month.ToString().PadLeft(2,'0') + now.Day.ToString().PadLeft(2, '0') + now.Hour.ToString().PadLeft(2, '0') + now.Minute.ToString().PadLeft(2, '0') + now.Second.ToString().PadLeft(2, '0') + ".csv");
 
             if (Person.fLock.TryEnterWriteLock(250))
             {
@@ -2030,7 +2030,10 @@ namespace CStat.Models
                     using (StreamWriter sw = new StreamWriter(ExpFile, false))
                     {
                         //"Id,First Name,Last Name,Alias,DOB,Gender,Status,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,SkillSets,Notes,Roles,ContactPref,SS,Pg1PersonId,Pg2PersonId,ChurchId,AddressId,Fax,Country,WebSite"
-                        sw.WriteLine("Id,First Name,Last Name,Alias,DOB,Gender,Status,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,SkillSets,Notes,Roles,ContactPref,SS,Pg1PersonId,Pg2PersonId,ChurchId,AddressId,Fax,Country,WebSite");
+                        sw.WriteLine(fullInfo ?
+                            "Id,First Name,Last Name,Alias,DOB,Gender,Status,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,SkillSets,Notes,Roles,ContactPref,SS,Pg1PersonId,Pg2PersonId,ChurchId,AddressId,Fax,Country,WebSite"
+                          :
+                            "First Name,Last Name,DOB,Gender,Cell Phone,Email,Street,Town,State,Zip,Phone,Church,Notes");
 
                         // use 166 a6 ¦ for separator and replace it lastly with ,
                         foreach (var p in pList)
@@ -2055,13 +2058,14 @@ namespace CStat.Models
                             //    line += "¦¦¦¦¦¦¦";
                             //}
 
-                            string line = GetStr(p.Id) + "¦" +
+                            string line =
+                                (fullInfo ? GetStr(p.Id) + "¦" : "") +
                                 GetStr(p.FirstName) + "¦" +
                                 GetStr(p.LastName) + "¦" +
-                                GetStr(p.Alias) + "¦" +
+                                (fullInfo ? GetStr(p.Alias) + "¦" : "") +
                                 GetStr(p.Dob) + "¦" +
                                 GetStr(p.Gender) + "¦" +
-                                GetStr(p.Status) + "¦" +
+                                (fullInfo ? GetStr(p.Status) + "¦" : "") +
                                 GetStr(p.CellPhone) + "¦" +
                                 GetStr(p.Email) + "¦";
 
@@ -2078,28 +2082,31 @@ namespace CStat.Models
                                     line += "¦¦¦¦¦";
                                 }
                                 line += (p.Church != null) ? GetStr(p.Church.Name) + "¦" : "¦";
-
-                                line += GetStr(p.SkillSets) + "¦" +
+                                line += (fullInfo ? GetStr(p.SkillSets) + "¦" : "") +
                                 GetStr(p.Notes) + "¦" +
-                                GetStr(p.Roles) + "¦" +
-                                GetStr(p.ContactPref) + "¦" +
-                                GetStr(p.Ssnum) + "¦" +
-                                GetStr(p.Pg1PersonId) + "¦" +
-                                GetStr(p.Pg2PersonId) + "¦" +
-                                GetStr(p.ChurchId) + "¦" +
-                                GetStr(p.AddressId) + "¦";
-                                if (p.Address != null)
+                                (fullInfo ? GetStr(p.Roles) + "¦" : "") +
+                                (fullInfo ? GetStr(p.ContactPref) + "¦" : "") +
+                                (fullInfo ? GetStr(p.Ssnum) + "¦" : "") +
+                                (fullInfo ? GetStr(p.Pg1PersonId) + "¦" : "") +
+                                (fullInfo ? GetStr(p.Pg2PersonId) + "¦" : "") +
+                                (fullInfo ? GetStr(p.ChurchId) + "¦" : "") +
+                                (fullInfo ? GetStr(p.AddressId) + "¦" : "");
+
+                                if (fullInfo)
                                 {
-                                    line += GetStr(p.Address.Fax) + "¦" +
-                                    GetStr(p.Address.Country) + "¦" +
-                                    GetStr(p.Address.WebSite);
+                                    if (p.Address != null)
+                                    {
+                                        line += GetStr(p.Address.Fax) + "¦" +
+                                        GetStr(p.Address.Country) + "¦" +
+                                        GetStr(p.Address.WebSite);
+                                    }
+                                    else
+                                    {
+                                        line += "¦¦";
+                                    }
                                 }
-                                else
-                                {
-                                    line += "¦¦";
-                                }
-    
-                                line = line.Replace(",", ";").Replace("¦", ",");
+
+                            line = line.Replace(",", ";").Replace("¦", ",");
                                 sw.WriteLine(line);
                         }
                         sw.Close();

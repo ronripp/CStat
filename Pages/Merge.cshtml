@@ -217,7 +217,6 @@
                     });
                 });
 
-
                 function UpdateMerge() {
                     if ((toIdx != "0") && (fromIdxList.length > 0)) {
                         $("#DoMerge").prop('disabled', false);
@@ -227,6 +226,10 @@
                 }
 
             });
+
+            function editPerson(id) {
+                window.open("People/Edit?id=" + id);
+            }
 
         </script>
 
@@ -302,11 +305,11 @@
                             {
                                var rowId = "row_" + item.Id;
                                 <tr id="@rowId" class="OffRow">
-                                    <td>
+                                    <td onclick="editPerson(@item.Id)">
                                         @{string nstr = String.IsNullOrEmpty(item.Alias) ? item.FirstName : item.FirstName + "(" + item.Alias + ")";}
                                         @nstr
                                     </td>
-                                    <td>
+                                    <td onclick="editPerson(@item.Id)">
                                         @Html.DisplayFor(modelItem => item.LastName)
                                     </td>
                                     <td>

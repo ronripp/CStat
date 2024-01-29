@@ -64,6 +64,9 @@ namespace CStat.Models
         public int? Elder4Id { get; set; }
         [Column("Elder5_id")]
         public int? Elder5Id { get; set; }
+        [Column("EMail")]
+        [StringLength(100)]
+        public string Email { get; set; }
 
         [ForeignKey(nameof(AddressId))]
         [InverseProperty("Church")]

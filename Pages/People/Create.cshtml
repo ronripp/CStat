@@ -232,94 +232,98 @@
         </div>
     </div>
     <div class="row">
-        <div class="form-group col-xs-6 lpad" style="min-width:40%">
+        <div class="form-group col-xs-5 lpad" style="min-width:30%">
             <label asp-for="_State" class="control-label">State:</label>
             <select asp-for="_State" class="mi" style="margin-top:0.2em; min-height:2em">
                 @Html.Raw(Address.GetStateOptions())
             </select>
         </div>
-        <div class="form-group col-xs-6 lpad">
+        <div class="form-group col-xs-4 lpad">
             <label asp-for="_ZipCode" class="control-label">Zip:</label>
             <input asp-for="_ZipCode" class="form-control mi" />
             <span asp-validation-for="_ZipCode" class="text-danger"></span>
         </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-xs-6 lpad" style="min-width:40%">
-            <label asp-for="_Person.CellPhone" class="control-label">Cell:</label>
-            <input asp-for="_Person.CellPhone" class="form-control mli" />
-            <span asp-validation-for="_Person.CellPhone" class="text-danger"></span>
-        </div>
-        <div class="form-group col-xs-6 lpad" style="min-width:40%">
-            <label asp-for="_Person.Address.Phone" class="control-label">Home Phone:</label>
-            <input asp-for="_Person.Address.Phone" class="form-control mli" />
-            <span asp-validation-for="_Person.Address.Phone" class="text-danger"></span>
+        <div class="form-group col-xs-3 lpad">
+            <label asp-for="_RTS">RTS:</label>
+            <input asp-for="_RTS" class="si" />
         </div>
     </div>
-    <div class="row">
-        <div class="form-group col-xs-4 lpad" style="min-width:40%">
-            <label asp-for="_Person.Email" class="control-label">EMail:</label>
-            <input asp-for="_Person.Email" class="form-control xli" />
-            <span asp-validation-for="_Person.Email" class="text-danger"></span>
-        </div>
-        <div class="form-group col-xs-8 lpad">
-            <label asp-for="_Person.ChurchId" class="control-label">Church<button id="AddChurch">+</button>:</label>
-            <select asp-for="_Person.ChurchId" class="form-control xli" asp-items="ViewBag.ChurchId"></select>
-            <input asp-for="_Church" class="form-control li" hidden />
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="form-group col-xs-12 lpad" style="display:inline-block; margin-right:10px; margin-bottom:10px;">
-            <label asp-for="_TitleRoles" +":">Current Title(s):</label>
-            <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
-        </div>
-    </div>
-    <div class="row">
-        <div id="ECExpDiv" class="lpad" style="display:none; margin-right:10px; margin-bottom:10px;">
-            <label asp-for="_ECExpire">Year Term Expires Nov.:</label>
-            <input asp-for="_ECExpire" style="max-width:4em" data-val="false" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-xs-12 lpad" style="margin-bottom:0px">
-            <h5>Skill Set:</h5>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group">
-            <div class="form-group col-xs-12 lpad" style="display:inline-block; border:3px solid blue; margin-bottom:6px">
-                @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+        <div class="row">
+            <div class="form-group col-xs-6 lpad" style="min-width:40%">
+                <label asp-for="_Person.CellPhone" class="control-label">Cell:</label>
+                <input asp-for="_Person.CellPhone" class="form-control mli" />
+                <span asp-validation-for="_Person.CellPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group col-xs-6 lpad" style="min-width:40%">
+                <label asp-for="_Person.Address.Phone" class="control-label">Home Phone:</label>
+                <input asp-for="_Person.Address.Phone" class="form-control mli" />
+                <span asp-validation-for="_Person.Address.Phone" class="text-danger"></span>
             </div>
         </div>
-    </div>
-    <div style="margin-right: -15px; margin-left: -15px;">
-        <div class="form-group lpad">
-            <label asp-for="_Person.Notes" class="control-label"></label>
-            <input asp-for="_Person.Notes" class="form-control xxli" style="min-width:100%" />
-            <span asp-validation-for="_Person.Notes" class="text-danger"></span>
+        <div class="row">
+            <div class="form-group col-xs-4 lpad" style="min-width:40%">
+                <label asp-for="_Person.Email" class="control-label">EMail:</label>
+                <input asp-for="_Person.Email" class="form-control xli" />
+                <span asp-validation-for="_Person.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group col-xs-8 lpad">
+                <label asp-for="_Person.ChurchId" class="control-label">Church<button id="AddChurch">+</button>:</label>
+                <select asp-for="_Person.ChurchId" class="form-control xli" asp-items="ViewBag.ChurchId"></select>
+                <input asp-for="_Church" class="form-control li" hidden />
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-xs-4 lpad">
-            <label asp-for="_PG1" class="control-label">Parent/Guard 1:</label>
+
+        <div class="row">
+            <div class="form-group col-xs-12 lpad" style="display:inline-block; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_TitleRoles" +":">Current Title(s):</label>
+                <select asp-for="_TitleRoles" asp-items="ViewBag.TitleRoles" style="max-width:12em; vertical-align: middle;" data-val="false" multiple></select>
+            </div>
         </div>
-        <div class="form-group col-xs-8 lpad">
-            <input asp-for="_PG1" class="form-control xli" />
+        <div class="row">
+            <div id="ECExpDiv" class="lpad" style="display:none; margin-right:10px; margin-bottom:10px;">
+                <label asp-for="_ECExpire">Year Term Expires Nov.:</label>
+                <input asp-for="_ECExpire" style="max-width:4em" data-val="false" />
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-xs-4 lpad">
-            <label asp-for="_PG2" class="control-label">Parent/Guard 2:</label>
+        <div class="row">
+            <div class="form-group col-xs-12 lpad" style="margin-bottom:0px">
+                <h5>Skill Set:</h5>
+            </div>
         </div>
-        <div class="form-group col-xs-8 lpad">
-            <input asp-for="_PG2" class="form-control xli" />
+        <div class="row">
+            <div class="form-group">
+                <div class="form-group col-xs-12 lpad" style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+                </div>
+            </div>
         </div>
-    </div>
-    <div id="errMsg" style="display:none; color:red"> Add Incomplete : Set First, Last and Gender then click [Add]</div>
-    <div class="form-group">
-        <input type="submit" id="SubmitId2" value="Add Person" class="btn btn-primary" />
-    </div>
+        <div style="margin-right: -15px; margin-left: -15px;">
+            <div class="form-group lpad">
+                <label asp-for="_Person.Notes" class="control-label"></label>
+                <input asp-for="_Person.Notes" class="form-control xxli" style="min-width:100%" />
+                <span asp-validation-for="_Person.Notes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-4 lpad">
+                <label asp-for="_PG1" class="control-label">Parent/Guard 1:</label>
+            </div>
+            <div class="form-group col-xs-8 lpad">
+                <input asp-for="_PG1" class="form-control xli" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-xs-4 lpad">
+                <label asp-for="_PG2" class="control-label">Parent/Guard 2:</label>
+            </div>
+            <div class="form-group col-xs-8 lpad">
+                <input asp-for="_PG2" class="form-control xli" />
+            </div>
+        </div>
+        <div id="errMsg" style="display:none; color:red"> Add Incomplete : Set First, Last and Gender then click [Add]</div>
+        <div class="form-group">
+            <input type="submit" id="SubmitId2" value="Add Person" class="btn btn-primary" />
+        </div>
 </form>
 
     @section Scripts {

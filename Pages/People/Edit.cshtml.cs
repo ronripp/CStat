@@ -379,6 +379,27 @@ namespace CStat
         [BindProperty]
         public bool _NeedECExpire { get; set; } = false;
 
+        [BindProperty]
+        public bool _RTS
+        {
+            get
+            {
+                if (_Address == null)
+                    return false;
+                return (_Address.Status & (int)Address.AddressStatus.AdrStat_RTS) != 0;
+            }   // get method
+            set
+            {
+                if (_Address != null)
+                {
+                    if (value)
+                        _Address.Status |= (int)Address.AddressStatus.AdrStat_RTS;
+                    else
+                        _Address.Status &= ~(int)Address.AddressStatus.AdrStat_RTS;
+                }
+            }
+        }
+
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         public IActionResult OnPost()

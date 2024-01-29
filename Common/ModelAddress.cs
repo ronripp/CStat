@@ -8,6 +8,14 @@ namespace CStat.Models
 {
     public partial class Address
     {
+        public enum AddressStatus
+        {
+           AdrStat_RTS      = 0x10000000,
+           AdrStat_LastMMYY = 0x00001000,
+           AdrStat_MM_MASK  = 0x00000F00,
+           AdrStat_YY_MASK  = 0x000000FF
+        }
+
         public static int UpdateAddress(Models.CStatContext ce, Address inAdr)
         {
             if (inAdr == null)
@@ -129,6 +137,8 @@ namespace CStat.Models
 
             if (!string.IsNullOrEmpty(inAdr.Fax))
                 newAdr.Fax = inAdr.Fax;
+
+            newAdr.Status = inAdr.Status; // TBD : May want to add more logic for status.
 
             //AddressMgr amgr = new AddressMgr(ce);
             bValidAddress = AddressMgr.Validate(ref newAdr);

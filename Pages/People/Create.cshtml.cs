@@ -44,7 +44,7 @@ namespace CStat
                 new SelectListItem { Text = "?", Value = "0" },
                 new SelectListItem { Text = "N", Value = "1" },
                 new SelectListItem { Text = "Y", Value = "2" }
-            };              
+            };
             ViewData["Baptized"] = new SelectList(bList, "Value", "Text");
 
             long Roles = _Person.Roles.HasValue ? _Person.Roles.Value : 0;
@@ -100,7 +100,6 @@ namespace CStat
 
         [BindProperty]
         public string _ZipCode { get; set; } = "";
-
         [BindProperty]
         public string _Church { get; set; } = "";
 
@@ -109,6 +108,27 @@ namespace CStat
 
         [BindProperty]
         public bool _NeedECExpire { get; set; } = false;
+
+        [BindProperty]
+        public bool _RTS {
+            get
+            {
+                if (_Person.Address == null)
+                    return false;
+                return ( _Person.Address.Status & (int)Address.AddressStatus.AdrStat_RTS) != 0; 
+            }   // get method
+            set
+            {
+                if (_Person.Address != null)
+                {
+                    if (value)
+                        _Person.Address.Status |= (int)Address.AddressStatus.AdrStat_RTS;
+                    else
+                        _Person.Address.Status &= ~(int)Address.AddressStatus.AdrStat_RTS;
+                }
+            }
+        }
+        
 
         private void UpdateECExpire(Person person)
         {

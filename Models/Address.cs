@@ -30,6 +30,7 @@ namespace CStat.Models
             Fax = "";
             Country = "";
             WebSite = "";
+            Status = 0;
         }
 
         [Key]
@@ -57,6 +58,7 @@ namespace CStat.Models
         public string Country { get; set; }
         [StringLength(60)]
         public string WebSite { get; set; }
+        public int Status { get; set; }
 
         [InverseProperty("Address")]
         public virtual ICollection<Business> Business { get; set; }

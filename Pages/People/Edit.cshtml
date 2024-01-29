@@ -195,15 +195,20 @@
                 </div>
             </div>
             <div class="row">
-                <div class="form-group col-xs-6 lpad" style="min-width:40%">
+                <div class="form-group col-xs-5 lpad" style="min-width:30%">
                     <label asp-for="_Address.State" class="control-label">State:</label>
                     <select asp-for="_Address.State" class="mi" style="margin-top:0.2em; min-height:2em">
                         @Html.Raw(Address.GetStateOptions(Model._Address.State))
                     </select>
                 </div>
-                <div class="form-group col-xs-6 lpad labelInput">
-                    <label asp-for="_Address.ZipCode">Zip:</label>
+                <div class="form-group col-xs-4 lpad labelInput">
+                    <label asp-for="_Address.ZipCode" class="control-label">Zip:</label>
                     <input asp-for="_Address.ZipCode" style="max-width:4em" data-val="false" />
+                    <span asp-validation-for="_Address.ZipCode" class="text-danger"></span>
+                </div>
+                <div class="form-group col-xs-3 lpad">
+                    <label asp-for="_RTS">RTS:</label>
+                    <input asp-for="_RTS" class="si" />
                 </div>
             </div>
             <div id="HandleAdrId" style="color:darkred; font-weight:bold ;display:none; margin-right:10px; margin-bottom:10px; border: 2px groove red; padding: 2px 2px 2px 2px;">
@@ -236,51 +241,51 @@
             @{
                 var dispStr = Model._NeedECExpire ? "inline-block" : "none";
             }
-        <div class="row">
-            <div id="ECExpDiv" class="lpad" style="display:@dispStr; margin-right:10px; margin-bottom:10px;">
-                <label asp-for="_ECExpire">Year Term Expires Nov.:</label>
-                <input asp-for="_ECExpire" style="max-width:4em" data-val="false" />
+            <div class="row">
+                <div id="ECExpDiv" class="lpad" style="display:@dispStr; margin-right:10px; margin-bottom:10px;">
+                    <label asp-for="_ECExpire">Year Term Expires Nov.:</label>
+                    <input asp-for="_ECExpire" style="max-width:4em" data-val="false" />
+                </div>
             </div>
-        </div>
             <div class="row">
                 <div style="display:inline-block; margin-right:10px; margin-bottom:10px;">
                     <label asp-for="_Person.Notes">Comments:</label>
                     <input asp-for="_Person.Notes" style="min-width:26em" data-val="false" maxlength="230" />
                 </div>
             </div>
-                <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
-                    @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
-                </div>
+            <div style="display:inline-block; border:3px solid blue; margin-bottom:6px">
+                @Html.Raw(Model.GenSkillButtons((int)Model._Person.SkillSets))
+            </div>
 
-                <div class="form-group center">
-                    <span class="md-8">
-                        <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
-                    </span>
-                    <span class="col-md-2">
-                        <input type="button" onclick="window.history.go(-1)" value="Cancel" />
-                    </span>
-                    <span class="col-md-2">
-                        <input type="button" id="DelBtn" value="Delete" style="background-color: #FFCCCC" />
-                    </span>
-                </div>
+            <div class="form-group center">
+                <span class="md-8">
+                    <input type="submit" id="SubmitId" value="Save" class="btn btn-primary" />
+                </span>
+                <span class="col-md-2">
+                    <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+                </span>
+                <span class="col-md-2">
+                    <input type="button" id="DelBtn" value="Delete" style="background-color: #FFCCCC" />
+                </span>
+            </div>
 
-                <div class="form-group">
+            <div class="form-group">
 
-                </div>
+            </div>
 
-                @Html.HiddenFor(model => model._Person.Alias)
-                @Html.HiddenFor(model => model._Person.Status)
-                @Html.HiddenFor(model => model._Person.Ssnum)
-                @Html.HiddenFor(model => model._Person.AddressId)
-                @Html.HiddenFor(model => model._Person.Pg1PersonId)
-                @Html.HiddenFor(model => model._Person.Pg2PersonId)
-                @Html.HiddenFor(model => model._Person.ContactPref)
-                @Html.HiddenFor(model => model._Person.Roles)
+            @Html.HiddenFor(model => model._Person.Alias)
+            @Html.HiddenFor(model => model._Person.Status)
+            @Html.HiddenFor(model => model._Person.Ssnum)
+            @Html.HiddenFor(model => model._Person.AddressId)
+            @Html.HiddenFor(model => model._Person.Pg1PersonId)
+            @Html.HiddenFor(model => model._Person.Pg2PersonId)
+            @Html.HiddenFor(model => model._Person.ContactPref)
+            @Html.HiddenFor(model => model._Person.Roles)
 
-                @Html.HiddenFor(model => model._Address.Id)
-                @Html.HiddenFor(model => model._Address.Country)
-                @Html.HiddenFor(model => model._Address.WebSite)
-                @Html.HiddenFor(model => model._Address.Fax)
+            @Html.HiddenFor(model => model._Address.Id)
+            @Html.HiddenFor(model => model._Address.Country)
+            @Html.HiddenFor(model => model._Address.WebSite)
+            @Html.HiddenFor(model => model._Address.Fax)
 
         </form>
     </div>

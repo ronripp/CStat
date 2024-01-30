@@ -633,6 +633,7 @@ namespace CStat.Models
                 kvp.Add(new KeyValuePair<string, string>("State", GetVS(Address.State)));
                 kvp.Add(new KeyValuePair<string, string>("Zip", GetVS(Address.ZipCode)));
                 kvp.Add(new KeyValuePair<string, string>("HPhone", GetVS(Address.Phone)));
+                kvp.Add(new KeyValuePair<string, string>("AdrStatus", GetVS(Address.Status.ToString())));
             }
 
             kvp.Add(new KeyValuePair<string, string>("Cell", GetVS(CellPhone)));
@@ -855,11 +856,12 @@ namespace CStat.Models
                 }
             }
 
-            KeyValuePair<string, string> street, zip, city, rawState, state;
+            KeyValuePair<string, string> street, zip, city, rawState, state, adrStatus;
             zip = props.Find(prop => prop.Key == "Zip");
             city = props.Find(prop => prop.Key == "City");
             rawState = props.Find(prop => prop.Key == "State");
             street = props.Find(prop => prop.Key == "Street");
+            adrStatus = props.Find(prop => prop.Key == "AdrStatus");
             bool bHasSSNum = false;
             bool bHasDOB = false;
             bool bHasZip = !zip.Equals(default(KeyValuePair<String, String>)) && (zip.Value.Length > 0);
@@ -1454,6 +1456,11 @@ namespace CStat.Models
             {
                 if (bValidNewAddress)
                 {
+                    // Set Statos on new Adr 
+                    pv = props.Find(prop => prop.Key == "AdrStatus");
+                    if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
+                        newAdr.Status = int.Parse(pv.Value);
+
                     if (bMatchingOldAdr)
                     {
                         // Make sure all address fields are updated.
@@ -1554,7 +1561,8 @@ namespace CStat.Models
                 }
 
                 // Filter out case where PG1Person is the same as PG2Person
-                if ((PG1Person != null) && (PG2Person != null) && (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
+                if ((PG1Person != null) && (PG2Person != null) && (PG1Person.FirstName != null) && (PG2Person.FirstName != null) && (PG1Person.LastName != null) && (PG2Person.LastName != null) &&
+                    (!PG1Person.FirstName.Equals(PG2Person.FirstName, StringComparison.OrdinalIgnoreCase) || !PG1Person.LastName.Equals(PG2Person.LastName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (bNeedToAddPG2)
                     {

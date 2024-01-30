@@ -98,6 +98,15 @@
 
         $(document).ready(function () {
 
+            let gDisable = false;
+            if ($('#zRTS').is(':checked')) {
+                gDisable = true;
+            }
+            $("#zAddress_Street").prop("disabled", gDisable);
+            $("#zAddress_Town").prop("disabled", gDisable);
+            $("#zAddress_State").prop("disabled", gDisable);
+            $("#zAddress_ZipCode").prop("disabled", gDisable);
+
             document.getElementById('SubmitId2').addEventListener('click', (e) => {
 
                 var errMsg = document.getElementById("errMsg");
@@ -132,12 +141,27 @@
                 //alert("Address has been changed.");
             });
 
+            $("[id^=zRTS]").change(function () {
+                let disable = false;
+                if ($('#zRTS').is(':checked')) {
+                    disable = true;
+                }
+                $("#zAddress_Street").prop("disabled", disable);
+                $("#zAddress_Town").prop("disabled", disable);
+                $("#zAddress_State").prop("disabled", disable);
+                $("#zAddress_ZipCode").prop("disabled", disable);
+            });
+
             $("#SubmitId").click(function (event) {
 
                 if (($("#HandleAdrId").css("display") != "none") && !$('#KeepOld').is(':checked') && !$('#ChangeOld').is(':checked')) {
                     $("#AdrIdWarn").css("display", "block");
                     event.preventDefault();
                 }
+                $("#zAddress_Street").prop("disabled", false);
+                $("#zAddress_Town").prop("disabled", false);
+                $("#zAddress_State").prop("disabled", false);
+                $("#zAddress_ZipCode").prop("disabled", false);
             });
 
             $("#AddChurch").click(function (event) {

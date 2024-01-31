@@ -1918,6 +1918,7 @@ namespace CStat
             city = props.Find(prop => prop.Key == "City");
             rawState = props.Find(prop => prop.Key == "State");
             street = props.Find(prop => prop.Key == "Street");
+    
             bool bHasSSNum = false;
             bool bHasDOB = false;
             bool bHasZip = !zip.Equals(default(KeyValuePair<String, String>)) && (zip.Value.Length > 0);
@@ -2521,6 +2522,11 @@ namespace CStat
             {
                 if (bValidNewAddress)
                 {
+                    // Set Status on new Adr 
+                    var adrStatus = props.Find(prop => prop.Key == "AdrStatus");
+                    if (!adrStatus.Equals(default(KeyValuePair<String, String>)) && (adrStatus.Value.Length > 0))
+                        newAdr.Status = int.Parse(adrStatus.Value);
+
                     if (bMatchingOldAdr)
                     {
                         // Make sure all address fields are updated.

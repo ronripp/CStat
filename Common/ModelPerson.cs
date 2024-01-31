@@ -856,12 +856,11 @@ namespace CStat.Models
                 }
             }
 
-            KeyValuePair<string, string> street, zip, city, rawState, state, adrStatus;
+            KeyValuePair<string, string> street, zip, city, rawState, state;
             zip = props.Find(prop => prop.Key == "Zip");
             city = props.Find(prop => prop.Key == "City");
             rawState = props.Find(prop => prop.Key == "State");
             street = props.Find(prop => prop.Key == "Street");
-            adrStatus = props.Find(prop => prop.Key == "AdrStatus");
             bool bHasSSNum = false;
             bool bHasDOB = false;
             bool bHasZip = !zip.Equals(default(KeyValuePair<String, String>)) && (zip.Value.Length > 0);
@@ -1456,10 +1455,10 @@ namespace CStat.Models
             {
                 if (bValidNewAddress)
                 {
-                    // Set Statos on new Adr 
-                    pv = props.Find(prop => prop.Key == "AdrStatus");
-                    if (!pv.Equals(default(KeyValuePair<String, String>)) && (pv.Value.Length > 0))
-                        newAdr.Status = int.Parse(pv.Value);
+                    // Set Status on new Adr 
+                    var adrStatus = props.Find(prop => prop.Key == "AdrStatus");
+                    if (!adrStatus.Equals(default(KeyValuePair<String, String>)) && (adrStatus.Value.Length > 0))
+                        newAdr.Status = int.Parse(adrStatus.Value);
 
                     if (bMatchingOldAdr)
                     {

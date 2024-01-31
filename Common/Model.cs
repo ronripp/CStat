@@ -333,11 +333,17 @@ namespace CStat.Models
             newAdr.Fax = MergeField(oldAdr.Fax, newAdr.Fax);
             newAdr.Country = MergeField(oldAdr.Country, newAdr.Country);
             newAdr.WebSite = MergeField(oldAdr.WebSite, newAdr.WebSite);
+            newAdr.Status = MergeField(oldAdr.Status, newAdr.Status);
             return newAdr;
         }
         public static string MergeField(string oldFld, string newFld)
         {
             return string.IsNullOrEmpty(newFld) ? oldFld : newFld;
+        }
+
+        public static int MergeField(int oldFld, int newFld)
+        {
+            return oldFld | newFld;
         }
 
         public static string FormatAddress(Address a, bool addPhone = false)

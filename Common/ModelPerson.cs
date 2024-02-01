@@ -121,7 +121,8 @@ namespace CStat.Models
             Phone,
             Fax,
             Country,
-            WebSite
+            WebSite,
+            AdrStatus
         };
 
         public Person ShallowCopy()
@@ -551,6 +552,7 @@ namespace CStat.Models
                                 m.Address.Fax = (string)row.GetValue((int)Person.ePA.Fax).ToString();
                                 m.Address.Country = (string)row.GetValue((int)Person.ePA.Country).ToString();
                                 m.Address.WebSite = (string)row.GetValue((int)Person.ePA.WebSite).ToString();
+                                m.Address.Status = (int)row.GetValue((int)Person.ePA.AdrStatus);
                             }
                             else
                             {
@@ -562,6 +564,7 @@ namespace CStat.Models
                                 m.Address.Fax = "";
                                 m.Address.Country = "";
                                 m.Address.WebSite = "";
+                                m.Address.Status = 0;
                             }
                             MPList.Add(m);
                         }

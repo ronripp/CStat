@@ -17,6 +17,7 @@ namespace MinAddressPerson
         public string Fax { get; set; }
         public string Country { get; set; }
         public string WebSite { get; set; }
+        public int Status { get; set; }
     }
 
     public class MinPerson

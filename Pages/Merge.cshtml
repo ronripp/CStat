@@ -338,7 +338,7 @@
                                     </td>
                                     <td>
                                         @{var adrColor = (item.Address != null) && ((item.Address.Status & (int)Address.AddressStatus.AdrStat_RTS) != 0) ? "red" : "black";}
-                                        @Html.Raw("<div style=\"color:" + adrColor + ";\">" + ((item.Address != null) ? Address.FormatAddress(item.Address, true) : "---") + "</div>");
+                                        @Html.Raw("<div style=\"color:" + adrColor + ";\">" + ((item.Address != null) ? Address.FormatAddress(item.Address, true) : "---") + "</div>")
                                     </td>
                                 </tr>
                             }
@@ -367,33 +367,35 @@
                                 @foreach (var item in Model.Address)
                                 {
                                     var rowId = "row_" + item.Id;
-                                <tr id="@rowId" class="OffRow">
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Street)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Town)
-                                    </td>
-                                    <td>
-                                        @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.State)
-                                    </td>
-                                    <td>
-                                        @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ZipCode)
-                                    </td>
-                                    <td>
-                                        @{string cstr = Models.Person.FixPhone(item.Phone);}
-                                        @cstr
-                                    </td>
-                                    <td>
-                                        @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">X</span>")
-                                    </td>
-                                </tr>
+                                    var adrColor = ((item.Status & (int)Address.AddressStatus.AdrStat_RTS) != 0) ? "red" : "black";
+
+                                    <tr id="@rowId" class="OffRow" style="color:@adrColor;">
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Street)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Town)
+                                        </td>
+                                        <td>
+                                            @Html.Raw("<span id=\"mto_" + item.Id + "\" style=\"color:green; font-weight:bold\">&#9673</span>")
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.State)
+                                        </td>
+                                        <td>
+                                            @Html.Raw("<span id=\"mfrom_" + item.Id + "\" style=\"color:red; font-weight:bold\">&#9668</span>")
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ZipCode)
+                                        </td>
+                                        <td>
+                                            @{string cstr = Models.Person.FixPhone(item.Phone);}
+                                            @cstr
+                                        </td>
+                                        <td>
+                                            @Html.Raw("<span id=\"del_" + item.Id + "\" style=\"color:red; font-weight:bold\">X</span>")
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>

@@ -21,6 +21,19 @@
         .table td {
             padding: 0.5rem;
         }
+
+        .DBX_ON {
+            color: black;
+            background-color: LawnGreen;
+            font-weight: bold;
+        }
+
+        .DBX_OFF {
+            color: black;
+            background-color: LightGray;
+            font-weight: normal;
+        }
+
     </style>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -28,6 +41,7 @@
 
         var curEditIdx = -1;
         var cur_inputEl;
+        initDBXClick();
 
         function switchToEdit(idx) {
             let scanEl = document.querySelector("#" + "sid" + idx);
@@ -42,7 +56,8 @@
         }
 
         function openFileShare(folder, file) {
-            var parameters = "{'Folder':'" + folder + "','File':'" + file + "','useEMail':" + useEMail + "}";
+
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "','useEMail':" + getDBXUseEMail() + "}";
             $.ajax({
                 url: "/Docs?handler=FileShare",
                 contentType: "application/json",
@@ -121,6 +136,55 @@
         function encodeQuotes(str) {
             return str.replace(/\"/g, "^^").replace(/\'/g, "^");
         }
+
+        function setDBXUseEMail(useEMail) {
+            localStorage.setItem("DBXUseEMail",useEMail.toString());
+        }
+
+        function getDBXUseEMail() {
+            const useDE = localStorage.getItem("DBXUseEMail");
+            if (!useDE) {
+                return false;
+            }
+            return useDE.toLowerCase() === "true";
+        }
+
+        function initDBXClick() {
+            const openBtn = document.getElementById("DBX_Open");
+            const emailBtn = document.getElementById("DBX_EMail");
+            if (getDBXUseEMail()) {
+                emailBtn.classList.remove('DBX_OFF')
+                emailBtn.classList.add('DBX_ON');
+                openBtn.classList.remove('DBX_ON')
+                openBtn.classList.add('DBX_OFF');
+            } else {
+                openBtn.classList.remove('DBX_OFF')
+                openBtn.classList.add('DBX_ON');
+                emailBtn.classList.remove('DBX_ON')
+                emailBtn.classList.add('DBX_OFF');
+            }
+        }
+
+        function onDBXOpen() {
+            const openBtn = document.getElementById("DBX_Open");
+            const emailBtn = document.getElementById("DBX_EMail");
+            openBtn.classList.remove('DBX_OFF')
+            openBtn.classList.add('DBX_ON');
+            emailBtn.classList.remove('DBX_ON')
+            emailBtn.classList.add('DBX_OFF');
+            setDBXUseEMail(false);
+        }
+
+        function onDBXEMail() {
+            const openBtn = document.getElementById("DBX_Open");
+            const emailBtn = document.getElementById("DBX_EMail");
+            emailBtn.classList.remove('DBX_OFF')
+            emailBtn.classList.add('DBX_ON');
+            openBtn.classList.remove('DBX_ON')
+            openBtn.classList.add('DBX_OFF');
+            setDBXUseEMail(true);
+        }
+
     </script>
 
 </head>

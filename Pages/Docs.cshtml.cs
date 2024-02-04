@@ -30,15 +30,20 @@ namespace CStat
         private string DescFile = null;
         private Dictionary<string, string> DescMap=null;
         private const String RepStr = "~";
+        private readonly UserManager<CStatUser> _userManager;
+        private readonly IConfiguration _config;
+        private readonly CSUser _curUser;
 
         private string _FolderName = "";
         public DocsModel(IWebHostEnvironment hstEnv, IHttpContextAccessor httpContextAccessor, IConfiguration config, UserManager<CStatUser> userManager)
         {
             hostEnv = hstEnv;
+            _config = config;
+            _userManager = userManager;
             var csSettings = CSSettings.GetCSSettings(config, userManager);
             string UserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
-            var curUser = csSettings.GetUser(UserId);
-            dbox = new CSDropBox(Startup.CSConfig, (curUser == null || curUser.IsFull));
+            _curUser = csSettings.GetUser(UserId);
+            dbox = new CSDropBox(Startup.CSConfig, (_curUser == null || _curUser.IsFull));
         }
 
         public void OnGet(string id, string selectStr)
@@ -160,18 +165,26 @@ namespace CStat
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);
-            
+            bool UseEMail = NVPairs.TryGetValue("useEMail", out string useEMailStr) ? useEMailStr.ToLower() == "true" : false;
             if (NVPairs.TryGetValue("Folder", out string FolderName) && NVPairs.TryGetValue("File", out string FileName))
             {
                 if (FileName.EndsWith(".txt", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".pdf", StringComparison.CurrentCultureIgnoreCase) ||
-                    FileName.EndsWith(".docx", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".doc", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".docx", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".odt", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".dot", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".xls", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".xlsx", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".csv", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".ppt", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".pptx", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".htm", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".html", StringComparison.CurrentCultureIgnoreCase))
                 {
                     FileName = UnencodeQuotes(FileName);
-                    string destFName = Path.Combine("tmpDBox", (FolderName + FileName).Replace('/', '~').Replace('\\', '~'));
+                    string FolderFile = FolderName + FileName;
+                    string destFName = Path.Combine("tmpDBox", FolderFile.Replace('/', '~').Replace('\\', '~'));
                     string destFile = Path.Combine(hostEnv.WebRootPath, destFName);
                     
                     if (System.IO.File.Exists(destFile))
@@ -184,6 +197,18 @@ namespace CStat
                     catch (Exception ex)
                     {
                         return new JsonResult("ERROR~:" + ex.Message ?? "Failed to download");
+                    }
+
+                    if (UseEMail)
+                    {
+                        if (System.IO.File.Exists(destFile))
+                        {
+                            var email = new CSEMail(_config, _userManager);
+                            if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: CCA DropBox File: " + FolderFile , "Hi\nAttached, please find the CCA DropBox file, " + FolderFile + "\n\nThanks!\nCee Stat", new string[] { destFile }))
+                                return new JsonResult("ERROR~: EMail Failed to Send");
+                        }
+                        else
+                            return new JsonResult("ERROR~:File not Downloaded.");
                     }
                     return new JsonResult(destFName);
                 }

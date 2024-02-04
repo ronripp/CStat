@@ -1,129 +1,129 @@
 ﻿@page
 @model DocsModel
 @{
-    ViewData["Title"] = "Info";
+    ViewData["Title"] = "Drop Box";
+    Layout = "_LayoutDropBox";
 }
 
-    <head>
-        @using System.Web;
+<head>
+    @using System.Web;
 
-        <style>
-            a {
-                cursor: pointer;
-            }
+    <style>
+        a {
+            cursor: pointer;
+        }
 
-            .table th {
-                padding: 0.1rem;
-                color: lightgray;
-            }
+        .table th {
+            padding: 0.1rem;
+            color: lightgray;
+        }
 
-            .table td {
-                padding: 0.5rem;
-            }
-        </style>
+        .table td {
+            padding: 0.5rem;
+        }
+    </style>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script type="text/javascript">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script type="text/javascript">
 
-            var curEditIdx = -1;
-            var cur_inputEl;
+        var curEditIdx = -1;
+        var cur_inputEl;
 
-            function switchToEdit(idx) {
-                let scanEl = document.querySelector("#" + "sid" + idx);
-                scanEl.style.display = "none";
-                let inputEl = document.querySelector("#" + "iid" + idx);
-                curEditIdx = idx;
-                cur_inputEl = inputEl;
-                inputEl.type = "text";
-                let desc = scanEl.innerHTML;
-                inputEl.value = (desc.indexOf("[Add]") != -1) ? "" : desc;
-                inputEl.focus();
-            }
+        function switchToEdit(idx) {
+            let scanEl = document.querySelector("#" + "sid" + idx);
+            scanEl.style.display = "none";
+            let inputEl = document.querySelector("#" + "iid" + idx);
+            curEditIdx = idx;
+            cur_inputEl = inputEl;
+            inputEl.type = "text";
+            let desc = scanEl.innerHTML;
+            inputEl.value = (desc.indexOf("[Add]") != -1) ? "" : desc;
+            inputEl.focus();
+        }
 
-            function openFileShare(folder, file) {
-                var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
-                $.ajax({
-                    url: "/Docs?handler=FileShare",
-                    contentType: "application/json",
-                    dataType: "json",
-                    data: parameters,
-                    success: function (response) {
-                        if (response.indexOf("ERROR~:") === -1) {
-                            window.location.href = response;
-                        }
-                    },
-                });
-            }
-
-            function setSelected(folder, file) {
-                var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
-                sessionStorage.setItem("@Model.SelectStr" + "DocFolder", folder);
-                sessionStorage.setItem("@Model.SelectStr" + "DocFile", file);
-                let retUrl = sessionStorage.getItem("@Model.SelectStr" + "DocReturn");
-                window.location.href = retUrl;
-            }
-
-            function updateFileDesc(idx) {
-                let scanEl = document.querySelector("#" + "sid" + idx);
-                let inputEl = document.querySelector("#" + "iid" + idx);
-                var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
-
-                $.ajax({
-                    url: "Docs?handler=FileDesc",
-                    contentType: "application/json",
-                    dataType: "json",
-                    data: parameters,
-                    success: function (response) {
-                        if (response.indexOf("ERROR~:") === -1) {
-                            scanEl.innerHTML = inputEl.value;
-                        }
-                        else {
-                            scanEl.innerHTML = "[Add]";
-                        }
-                        inputEl.type = "hidden";
-                        scanEl.style.display = "inline-block";
-                    },
-                    fail: function (response) {
-                        inputEl.type = "hidden";
-                        scanEl.innerHTML = "[Add]";
-                        scanEl.style.display = "inline-block"
+        function openFileShare(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "','useEMail':" + useEMail + "}";
+            $.ajax({
+                url: "/Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        window.location.href = response;
                     }
+                },
+            });
+        }
+
+        function setSelected(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+            sessionStorage.setItem("@Model.SelectStr" + "DocFolder", folder);
+            sessionStorage.setItem("@Model.SelectStr" + "DocFile", file);
+            let retUrl = sessionStorage.getItem("@Model.SelectStr" + "DocReturn");
+            window.location.href = retUrl;
+        }
+
+        function updateFileDesc(idx) {
+            let scanEl = document.querySelector("#" + "sid" + idx);
+            let inputEl = document.querySelector("#" + "iid" + idx);
+            var parameters = "{'Folder':'" + inputEl.getAttribute("folder") + "','File':'" + inputEl.getAttribute("file") + "','Desc':'" + encodeQuotes(inputEl.value) + "'}";
+
+            $.ajax({
+                url: "Docs?handler=FileDesc",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        scanEl.innerHTML = inputEl.value;
+                    }
+                    else {
+                        scanEl.innerHTML = "[Add]";
+                    }
+                    inputEl.type = "hidden";
+                    scanEl.style.display = "inline-block";
+                },
+                fail: function (response) {
+                    inputEl.type = "hidden";
+                    scanEl.innerHTML = "[Add]";
+                    scanEl.style.display = "inline-block"
+                }
+            });
+
+            curEditIdx = -1;
+        }
+
+        function docsBeforeUnload() {
+            if (curEditIdx !== -1) {
+                var parameters = "{'Folder':'" + cur_inputEl.getAttribute("folder") + "','File':'" + cur_inputEl.getAttribute("file") + "','Desc':'" + cur_inputEl.value + "'}";
+                $.ajax({
+                    url: "/Docs?handler=FileDesc",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: parameters,
                 });
-
-                curEditIdx = -1;
             }
+        }
 
-            function docsBeforeUnload() {
-                if (curEditIdx !== -1) {
-                    var parameters = "{'Folder':'" + cur_inputEl.getAttribute("folder") + "','File':'" + cur_inputEl.getAttribute("file") + "','Desc':'" + cur_inputEl.value + "'}";
-                    $.ajax({
-                        url: "/Docs?handler=FileDesc",
-                        contentType: "application/json",
-                        dataType: "json",
-                        data: parameters,
-                    });
-                }
+        function toggleTime(idx, bShowLG) {
+            let st = document.querySelector("#" + "smt" + idx);
+            let lt = document.querySelector("#" + "lgt" + idx);
+            if (bShowLG) {
+                st.style.display = "none";
+                lt.style.display = "inline-block";
+            } else {
+                st.style.display = "inline-block";
+                lt.style.display = "none";
             }
+        }
 
-            function toggleTime(idx, bShowLG) {
-                let st = document.querySelector("#" + "smt" + idx);
-                let lt = document.querySelector("#" + "lgt" + idx);
-                if (bShowLG) {
-                    st.style.display = "none";
-                    lt.style.display = "inline-block";
-                } else {
-                    st.style.display = "inline-block";
-                    lt.style.display = "none";
-                }
-            }
+        function encodeQuotes(str) {
+            return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+        }
+    </script>
 
-            function encodeQuotes(str) {
-                return str.replace(/\"/g, "^^").replace(/\'/g, "^");
-            }
-
-        </script>
-
-    </head>
+</head>
 
 <body onbeforeunload="docsBeforeUnload()">
     @{
@@ -150,63 +150,63 @@
                 </tr>
             </thead>
             <tbody>
-            @if (!Model.dbox._Allowed)
-            {
-                <tr>
-                    <td>
-                        <b>*** RESTRICTED ACCESS ***</b>
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            }
-            else
-            {
-                @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
+                @if (!Model.dbox._Allowed)
                 {
-                    @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name.ToLower() == "archive")) continue;
                     <tr>
                         <td>
-                            <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                            <b>*** RESTRICTED ACCESS ***</b>
                         </td>
                         <td></td>
                         <td></td>
                     </tr>
                 }
-                int idx = 0;
-                foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
+                else
                 {
-                    <tr>
-                        <td>
-                            @if (Model.IsSelect)
-                            {
-                                <a onclick='setSelected("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
-                            }
-                            else
-                            {
-                                <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
-                            }
+                    @foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFolder))
+                    {
+                        @if ((item.Name == "_archive") || (item.Name == "DotNetApi") || (item.Name == "CCA PICS") || (item.Name.ToLower() == "archive")) continue;
+                        <tr>
+                            <td>
+                                <b><a href="Docs?id=@Uri.EscapeDataString(Model.FolderName + "/" + item.Name)&selectStr=@SelStr">@Html.DisplayFor(modelItem => item.Name)</a></b>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    int idx = 0;
+                    foreach (var item in Model.dbox.FolderList.Entries.Where(i => i.IsFile))
+                    {
+                        <tr>
+                            <td>
+                                @if (Model.IsSelect)
+                                {
+                                    <a onclick='setSelected("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                                }
+                                else
+                                {
+                                    <a onclick='openFileShare("@Model.EncodeQuotes(Model.FolderName)","@Model.EncodeQuotes(item.Name)")'>@Html.DisplayFor(modelItem => item.Name)</a>
+                                }
 
-                        </td>
-                        <td>
-                            @{
-                                var sid = "sid" + idx;
-                                var fid = "fid" + idx;
-                                var iid = "iid" + idx;
-                                var smtid = "smt" + idx;
-                                var lgtid = "lgt" + idx;
-                            }
-                            <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
-                            <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
-                        </td>
-                        <td>
-                            <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
-                            <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
-                        </td>
-                    </tr>
-                    ++idx;
+                            </td>
+                            <td>
+                                @{
+                                    var sid = "sid" + idx;
+                                    var fid = "fid" + idx;
+                                    var iid = "iid" + idx;
+                                    var smtid = "smt" + idx;
+                                    var lgtid = "lgt" + idx;
+                                }
+                                <span id="@sid" style="display:inline-block;" onclick="switchToEdit(@idx)">@Model.GetDescFromFile(item.Name)</span>
+                                <form id="@fid"><input type="hidden" id="@iid" folder="@Model.FolderName" file="@item.Name" onfocusout="updateFileDesc(@idx)" value=""></form>
+                            </td>
+                            <td>
+                                <span id="@smtid" style="display:inline-block" onclick="toggleTime(@idx, true)">@item.AsFile.ClientModified.ToString("MM/dd/y")</span>
+                                <span id="@lgtid" style="display:none" onclick="toggleTime(@idx, false)">@item.AsFile.ClientModified.ToString()</span>
+                            </td>
+                        </tr>
+                        ++idx;
+                    }
                 }
-            }
             </tbody>
         </table>
     </div>

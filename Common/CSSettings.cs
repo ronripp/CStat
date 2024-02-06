@@ -43,13 +43,13 @@ namespace CStat.Common
         //public static int _csi = 0;
         //public int csi;
 
-        public static CSSettings GetCSSettings()
-        {
-            if (_gCSet != null)
-                return _gCSet;
-            _gCSet = new CSSettings();
-            return _gCSet;
-        }
+        //public static CSSettings GetCSSettings()
+        //{
+        //    if (_gCSet != null)
+        //        return _gCSet;
+        //    _gCSet = new CSSettings();
+        //    return _gCSet;
+        //}
 
         public static CSSettings GetCSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -69,10 +69,10 @@ namespace CStat.Common
 //            _gCSet = null;
         }
 
-        public CSSettings()
-        {
-            //csi = Interlocked.Increment(ref _csi);
-        }
+        //public CSSettings()
+        //{
+        //    //csi = Interlocked.Increment(ref _csi);
+        //}
         public CSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
             //csi = Interlocked.Increment(ref _csi);
@@ -101,6 +101,8 @@ namespace CStat.Common
                 List<CStatUser> Users = GetUsers(_userManager);
                 List<CStatUser> FullUsers = GetFullUsers(_userManager);
                 List<CStatUser> AdminUsers = GetAdminUsers(_userManager);
+
+                cl.Log("CSSettings.intialize : Users=" + Users.Count + " FullUsers=" + FullUsers.Count + " AdminUsers=" + AdminUsers.Count);
 
                 UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
                 {

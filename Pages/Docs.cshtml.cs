@@ -179,6 +179,11 @@ namespace CStat
                     FileName.EndsWith(".csv", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".ppt", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".pptx", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".jpg", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".jpeg", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".png", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".gif", StringComparison.CurrentCultureIgnoreCase) ||
+                    FileName.EndsWith(".mp4", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".htm", StringComparison.CurrentCultureIgnoreCase) ||
                     FileName.EndsWith(".html", StringComparison.CurrentCultureIgnoreCase))
                 {

@@ -64,7 +64,7 @@ namespace CStat.Pages
             ArdRecord ar = ardMgr.GetLast();
             PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
             PropaneLevel pl = pmgr.GetTUTank();
-            return CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false);
+            return CSSettings.GetColor(CSSettings.GetCSSettings(_config, _userManager).ActiveEquip, "All", ar, pl, false);
         }
 
         public string GetInvGradient()
@@ -93,7 +93,7 @@ namespace CStat.Pages
             ArdRecord ar = ardMgr.GetLast();
             PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
             PropaneLevel pl = pmgr.GetTUTank();
-            switch (CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false))
+            switch (CSSettings.GetColor(CSSettings.GetCSSettings(_config, _userManager).ActiveEquip, "All", ar, pl, false))
             {
                 default:
                 case CSSettings.green:
@@ -135,7 +135,7 @@ namespace CStat.Pages
             ArdRecord ar = ardMgr.GetLast();
             PropaneMgr pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
             PropaneLevel pl = pmgr.GetTUTank();
-            switch (CSSettings.GetColor(CSSettings.GetCSSettings().ActiveEquip, "All", ar, pl, false))
+            switch (CSSettings.GetColor(CSSettings.GetCSSettings(_config, _userManager).ActiveEquip, "All", ar, pl, false))
             {
                 default:
                 case CSSettings.green:

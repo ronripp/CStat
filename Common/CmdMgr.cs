@@ -1118,8 +1118,16 @@ namespace CStat.Common
             var churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.Name).ToList();
 
             string report = "";
-            foreach (var c in churches)
+
+            if (!_isPlural)
             {
+                Church c = null;
+                foreach (var ch in churches)
+                {
+                    // try word match and calculate smallest Levenstein distance for a match
+                    c = ch;
+                    // TBD dertermine c
+                }
                 var poc = Person.GetPOCMinister(c);
                 var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
 
@@ -1130,62 +1138,76 @@ namespace CStat.Common
                     (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
                     (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
             }
-
-            // EMail a CSV File
-            if (fLock.TryEnterWriteLock(3000))
-            {
-                try
-                {
-                    var TempPath = Path.GetTempPath();
-                    var FullFile = Path.Combine(TempPath, "Churches.csv");
-                    using (StreamWriter wFile = new StreamWriter(FullFile))
-                    {
-                        wFile.WriteLine("Church Name,Address,Member Status,Contact,Phone,EMail,Website");
-                        foreach (var c in churches)
-                        {
-                            var poc = EncloseCommasForCSV(Person.GetPOCMinister(c));
-                            var status = EncloseCommasForCSV(Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name);
-                            string website = "";
-                            if (!string.IsNullOrEmpty(c.StatusDetails))
-                            {
-                                int windex = c.StatusDetails.IndexOf("@website=\"");
-                                if (windex > -1)
-                                {
-                                    string wstr = c.StatusDetails.Substring(windex + 10);
-                                    int eindex = wstr.IndexOf("\"");
-                                    if (eindex != -1)
-                                        website = EncloseCommasForCSV(wstr.Substring(0, eindex));
-                                }
-                            }
-                            wFile.WriteLine(EncloseCommasForCSV(c.Name) + "," +
-                                   EncloseCommasForCSV(Address.FormatAddress(c.Address)) + "," +
-                                   (!string.IsNullOrEmpty(status) ? status : "") + "," +
-                                   (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
-                                   (!string.IsNullOrEmpty(c.Address.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address.Phone)) : "") + "," +
-                                   (!string.IsNullOrEmpty(EncloseCommasForCSV(c.Email)) ? c.Email : "") + "," +
-                                   website);
-                        }
-                        wFile.Close();
-                        var email = new CSEMail(_config, _userManager);
-
-                        email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile });
-                    }
-                }
-                catch (Exception e)
-                {
-                    var cl = new CSLogger();
-                    cl.Log("CmdMgr: EMail Churches CSV failed : " + ((e==null)? "???": e.Message));
-                }
-                finally
-                {
-                    fLock.ExitWriteLock();
-                }
-            }
             else
             {
-                report += " FAILED TO EMAIL EXCEL OF CHURCHES DUE TO LOCK.";
-            }
+                foreach (var c in churches)
+                {
+                    var poc = Person.GetPOCMinister(c);
+                    var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
 
+                    report += "CHURCH: " + c.Name + " " +
+                        (Address.FormatAddress(c.Address) + " " +
+                        (!string.IsNullOrEmpty(status) ? " " + status : "") +
+                        (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
+                        (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
+                        (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
+                }
+
+                // EMail a CSV File
+                if (fLock.TryEnterWriteLock(3000))
+                {
+                    try
+                    {
+                        var TempPath = Path.GetTempPath();
+                        var FullFile = Path.Combine(TempPath, "Churches.csv");
+                        using (StreamWriter wFile = new StreamWriter(FullFile))
+                        {
+                            wFile.WriteLine("Church Name,Address,Member Status,Contact,Phone,EMail,Website");
+                            foreach (var c in churches)
+                            {
+                                var poc = EncloseCommasForCSV(Person.GetPOCMinister(c));
+                                var status = EncloseCommasForCSV(Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name);
+                                string website = "";
+                                if (!string.IsNullOrEmpty(c.StatusDetails))
+                                {
+                                    int windex = c.StatusDetails.IndexOf("@website=\"");
+                                    if (windex > -1)
+                                    {
+                                        string wstr = c.StatusDetails.Substring(windex + 10);
+                                        int eindex = wstr.IndexOf("\"");
+                                        if (eindex != -1)
+                                            website = EncloseCommasForCSV(wstr.Substring(0, eindex));
+                                    }
+                                }
+                                wFile.WriteLine(EncloseCommasForCSV(c.Name) + "," +
+                                       EncloseCommasForCSV(Address.FormatAddress(c.Address)) + "," +
+                                       (!string.IsNullOrEmpty(status) ? status : "") + "," +
+                                       (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
+                                       (!string.IsNullOrEmpty(c.Address.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address.Phone)) : "") + "," +
+                                       (!string.IsNullOrEmpty(EncloseCommasForCSV(c.Email)) ? c.Email : "") + "," +
+                                       website);
+                            }
+                            wFile.Close();
+                            var email = new CSEMail(_config, _userManager);
+
+                            email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile });
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        var cl = new CSLogger();
+                        cl.Log("CmdMgr: EMail Churches CSV failed : " + ((e == null) ? "???" : e.Message));
+                    }
+                    finally
+                    {
+                        fLock.ExitWriteLock();
+                    }
+                }
+                else
+                {
+                    report += " FAILED TO EMAIL EXCEL OF CHURCHES DUE TO LOCK.";
+                }
+            }
             return report;
 
             //*** OLDER CODE RELATED TO PEOPLE

@@ -23,9 +23,10 @@ namespace CStat.Common
         private static readonly object userLock = new object();
 
         private static ReaderWriterLockSlim sfLock = new ReaderWriterLockSlim();
-        private readonly IConfiguration _config;
-        private readonly UserManager<CStatUser> _userManager;
+        private readonly IConfiguration _config = null;
+        private readonly UserManager<CStatUser> _userManager = null;
         private bool _isInitialized = false;
+        private bool _isValid = false;
         private const int MAX_EQUIP = 8;
 
         public const string green = "#00FF00";
@@ -53,28 +54,30 @@ namespace CStat.Common
 
         public static CSSettings GetCSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
-            if ( (_gCSet != null) && (_gCSet._isInitialized))
+            if ( (_gCSet != null) && _gCSet._isInitialized && _gCSet._isValid)
                 return _gCSet;
             _gCSet = new CSSettings(config, userManager);
             return _gCSet;
         }
 
-        public static void SetCSSettings(CSSettings csset)
-        {
-            _gCSet = csset;
-        }
+        //public static void SetCSSettings(CSSettings csset)
+        //{
+        //    _gCSet = csset;
+        //}
 
         public static void ResetCSSettings()
         {
 //            _gCSet = null;
         }
 
-        //public CSSettings()
-        //{
-        //    //csi = Interlocked.Increment(ref _csi);
-        //}
+        public CSSettings()
+        {
+            _isValid = false;
+            //csi = Interlocked.Increment(ref _csi);
+        }
         public CSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
+            _isValid = true;
             //csi = Interlocked.Increment(ref _csi);
             _config = config;
             _userManager = userManager;
@@ -96,6 +99,9 @@ namespace CStat.Common
         {
             lock (userLock) // Unlikely but may be possible under certain conditions this lock is needed
             {
+                if (!_isValid)
+                    return;
+
                 var cl = new CSLogger();
 
                 List<CStatUser> Users = GetUsers(_userManager);

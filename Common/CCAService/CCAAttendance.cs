@@ -112,6 +112,7 @@ namespace CCAAttendance
             PGPhone2 = "";
             PGEMail2 = "";
             PGAdr1 = "";
+            AdrStatus = "";
         }
 
         public String LFName
@@ -580,6 +581,8 @@ namespace CCAAttendance
             }
             return 0;
         }
+
+        public String AdrStatus { get; set; }
 
     }
     public class ComboboxItem

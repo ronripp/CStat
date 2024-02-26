@@ -161,7 +161,7 @@ namespace CStat
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
             var idx = rawQS.IndexOf('{');
-            if (idx == -1)ased
+            if (idx == -1)
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             Dictionary<string, string> NVPairs  = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonQS);

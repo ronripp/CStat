@@ -2192,7 +2192,7 @@ namespace CStat.Models
             new List<string>{"Abigail","Abby","Abbie","Abie","Nabby","Gail"},
             new List<string>{"Abner","Ab"},
             new List<string>{"Abraham","Abram","Abe"},
-            new List<string>{"Adaline","Adeline","Ada","Addy","Dell","Delia","Lena"},
+            new List<string>{"Adaline","Adeline","Ada","Addy","Dell","Delia","Lena","Adelle"},
             new List<string>{"Adam","Ad","Ade"},
             new List<string>{"Adelaide","Addy","Adele","Dell","Della","Heidi"},
             new List<string>{"Adelbert","Ad","Ade","Albert","Bert","Del","Delbert","Elbert"},

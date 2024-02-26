@@ -17,9 +17,11 @@ namespace CStat.Models
     {
         private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
 
-        enum PersonStatus
+        public enum PersonStatus
         {
-            NotBaptized = 0x0000000000000010, Baptized =0x0000000000000020
+            NotBaptized = 0x0000000000000010,
+            Baptized = 0x0000000000000020,
+            Deceased = 0x0000000000000040
         }
 
         //public object PersonStatus { get; private set; }
@@ -2079,7 +2081,7 @@ namespace CStat.Models
                                 GetStr(p.CellPhone) + "¦" +
                                 GetStr(p.Email) + "¦";
 
-                                if (p.Address != null)
+                            if ((p.Address != null) && ((p.Address.Status & (int)Address.AddressStatus.AdrStat_RTS) == 0))
                                 {
                                     line += GetStr(p.Address.Street) + "¦" +
                                     GetStr(p.Address.Town) + "¦" +

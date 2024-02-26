@@ -1705,7 +1705,9 @@ namespace CStat
 
         enum PersonStatus
         {
-            NotBaptized = 0x0000000000000010, Baptized =0x0000000000000020
+            NotBaptized = 0x0000000000000010,
+            Baptized = 0x0000000000000020,
+            Deceased = 0x0000000000000040
         }
         public static String MakeFirstName(Person p)
         {

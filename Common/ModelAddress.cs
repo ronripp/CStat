@@ -223,17 +223,21 @@ namespace CStat.Models
         public static string GetAddressStr(Address adr)
         {
             string astr = "";
-            if (adr == null)
-                return astr;
-            if (!String.IsNullOrEmpty(adr.Street))
-                astr += (adr.Street + " ");
-            if (!String.IsNullOrEmpty(adr.Town))
-                astr += (adr.Town + ", ");
-            if (!String.IsNullOrEmpty(adr.State))
-                astr += (adr.State + " ");
-            if (!String.IsNullOrEmpty(adr.ZipCode))
-                astr += (FixZip(adr.ZipCode));
-            return "{" + astr.Trim() + "}";
+            if ((adr != null) && (adr.Status & (int)AddressStatus.AdrStat_RTS) == 0)
+            {
+                if (adr == null)
+                    return astr;
+                if (!String.IsNullOrEmpty(adr.Street))
+                    astr += (adr.Street + " ");
+                if (!String.IsNullOrEmpty(adr.Town))
+                    astr += (adr.Town + ", ");
+                if (!String.IsNullOrEmpty(adr.State))
+                    astr += (adr.State + " ");
+                if (!String.IsNullOrEmpty(adr.ZipCode))
+                    astr += (FixZip(adr.ZipCode));
+                return "{" + astr.Trim() + "}";
+            }
+            return astr;
         }
 
     }

@@ -32,6 +32,15 @@ namespace CStat.Common
             NEED    = 0x00000020,
         };
 
+        public enum CmdFormat
+        {
+            TEXT  = 0x00000000,
+            PDF   = 0x00000001,
+            MSDOC = 0x00000002,
+            EXCEL = 0x00000004,
+            CSV   = 0x00000008
+        };
+
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
         {
             {"Phone", CmdAction.CALL},
@@ -43,11 +52,29 @@ namespace CStat.Common
             {"Report", CmdAction.FIND},
             {"List", CmdAction.FIND},
             {"Locate", CmdAction.FIND},
+            {"Info", CmdAction.FIND},
+            {"Information", CmdAction.FIND},
             {"Modify", CmdAction.UPDATE},
             {"Change", CmdAction.UPDATE},
             {"Append", CmdAction.ADD},
             {"we_need", CmdAction.ADD},
             {"order", CmdAction.ADD}
+        };
+
+        private static readonly Dictionary<string, CmdFormat> CmdFormatDict = new Dictionary<string, CmdFormat>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"text", CmdFormat.TEXT},
+            {"text_file", CmdFormat.TEXT},
+            {"pdf", CmdFormat.PDF},
+            {"pdf_file", CmdFormat.PDF},
+            {"excel", CmdFormat.EXCEL},
+            {"spread_sheet", CmdFormat.EXCEL},
+            {"spreadsheet", CmdFormat.EXCEL},
+            {"ms_word", CmdFormat.MSDOC},
+            {"microsoft_word", CmdFormat.MSDOC},
+            {"word_doc", CmdFormat.MSDOC},
+            {"comma_delimited", CmdFormat.CSV},
+            {"csv", CmdFormat.CSV},
         };
 
         //=================================================================
@@ -208,7 +235,7 @@ namespace CStat.Common
             {"me", CmdInsts.MY}
         };
 
-        public enum CmdDest
+        public enum CmdOutput
         {
             REPLY = 0x00000000,
             EMAIL = 0x00000001
@@ -265,18 +292,34 @@ namespace CStat.Common
 
         public static List<string> GetWords(string cmdStr)
         {
+            cmdStr = cmdStr.ToLower()
+                           .Replace("microsoft word", "microsoft_word")
+                           .Replace("ms word", "microsoft_word")
+                           .Replace("word doc", "word_doc")
+                           .Replace("pdf file", "pdf_file")
+                           .Replace("text file", "text_file")
+                           .Replace("comma delimited", "comma_delimited")
+                           .Replace("a email", "via_email")
+                           .Replace("an email", "via_email")
+                           .Replace("as email", "via_email")
+                           .Replace("via email", "via_email")
+                           .Replace("the email", "email_address")
+                           .Replace("email address", "email_address")
+                           .Replace("email addresses", "email_address");
+
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
 
-        public bool ParseCmd(List<string> rawWords)
+        public bool ParseCmd(List<string> stWords)
         {
-            var NumWords = rawWords.Count;
+            var NumWords = stWords.Count;
+            var words = new List<string>();
 
-            // Create Clean List
-            List<string> words = new List<string>();
+            // Create Clean List in words
+            List<string> rawWords = stWords.Select (w => w.Replace("-", "").Replace("'s", "")).ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                var word = rawWords[i].ToLower().Replace("-", "").Replace("'s", "");
+                var word = rawWords[i];
 
                 if (i == NumWords - 1)
                 {
@@ -297,7 +340,7 @@ namespace CStat.Common
                     }
                 }
 
-                if ((rawWords[i] == "camp") || (rawWords[i] == "please"))
+                if ((word == "camp") || (word == "please"))
                     continue; // skip because it is implied / gets in the way
 
                 int j = i + 1;
@@ -305,8 +348,8 @@ namespace CStat.Common
 
                 if (k < NumWords)
                 {
-                    var word2 = rawWords[j].ToLower().Replace("-", "").Replace("'s", "");
-                    var word3 = rawWords[k].ToLower().Replace("-", "").Replace("'s", "");
+                    var word2 = rawWords[j];
+                    var word3 = rawWords[k];
                     // Combine certain words
                     if ((word == "new") && (word2 == "york") && (word3 == "state"))
                     {
@@ -319,7 +362,7 @@ namespace CStat.Common
                 if (j < NumWords)
                 {
                     // Combine certain words
-                    var word2 = rawWords[j].ToLower().Replace("-", "").Replace("'s", "");
+                    var word2 = rawWords[j];
                     if (((word == "young") && (word2.StartsWith("adult"))) ||
                         ((word == "spring") && (word2.StartsWith("work"))) ||
                         ((word == "first") && (word2.StartsWith("chance"))))
@@ -347,13 +390,15 @@ namespace CStat.Common
                 words.Add(word);
             }
 
-            FindCmdSource(words); // Look for command source first
+            FindCmdSource(words); // Look for command source second
+            FindCmdOutput(words); // Look for command output first
             FindCmdAction(words);
             FindInsts(words);
             FindNumber(words);
             FindDates(words);
             FindEvent(words);
             FindDesc(words); // Check for descriptive hints
+            FindCmdFormat(words);
 
             if ((words.Count == 1) && (words[0].Length == 0))
             {
@@ -531,6 +576,65 @@ namespace CStat.Common
 
             return true;
         }
+
+        public bool FindCmdFormat(List<string> words)
+        {
+            _cmdFormat = CmdFormat.TEXT; // default to FIND
+            var NumWords = words.Count;
+            var CmdFormatList = Enum.GetNames(typeof(CmdFormat)).Cast<string>().ToList();
+            for (int i = 0; i < NumWords; ++i)
+            {
+                var word = words[i];
+                var match = CmdFormatList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(match))
+                {
+                    _cmdFormat = (CmdFormat)Enum.Parse(typeof(CmdFormat), match);
+                    _cmdFormatIdx = i;
+                    break;
+                }
+
+                if (CmdFormatDict.TryGetValue(word, out CmdFormat CmdFormat))
+                {
+                    _cmdFormat = CmdFormat;
+                    _cmdFormatIdx = i;
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        public bool FindCmdOutput(List<string> words)
+        {
+            var idx = words.IndexOf("via_email");
+            if (idx != -1)
+            {
+                _cmdOutputIdx = idx;
+                _cmdOutput = CmdOutput.EMAIL;
+            }
+            else if(words?[0] == "email")
+            {
+                _cmdOutputIdx = idx;
+                _cmdOutput = CmdOutput.EMAIL;
+            }
+            else
+            {
+                idx = words.IndexOf("email");
+                if ((idx != -1) && (_cmdSrc != CmdSource.PERSON) && 
+                    (_cmdSrc != CmdSource.TRUSTEE) &&
+                    (_cmdSrc != CmdSource.EC) &&
+                    (_cmdSrc != CmdSource.CHURCH) &&
+                    (_cmdSrc != CmdSource.TRASH) &&
+                    (_cmdSrc != CmdSource.INTERNET) &&
+                    (_cmdSrc != CmdSource.NYSDOH))
+                {
+                    _cmdOutputIdx = idx;
+                    _cmdOutput = CmdOutput.EMAIL;
+                }
+            }
+            return true;
+        }
+
         public bool FindInsts(List<string> words)
         {
             var NumWords = words.Count;
@@ -540,7 +644,7 @@ namespace CStat.Common
             var CmdInstsList = Enum.GetNames(typeof(CmdInsts)).Cast<string>().ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                if (i == _cmdSrcIdx)
+                if ((i == _cmdSrcIdx) || (i == _cmdOutputIdx) || (i == _cmdFormatIdx))
                     continue;
 
                 var word = words[i];
@@ -880,8 +984,7 @@ namespace CStat.Common
             var plList = pmgr.GetAll();
             if (plNow != null)
             {
-                var plCnt = plList.Count;
-                if ((plCnt > 0) && (!plList[plCnt - 1].IsSame(plNow)))
+                var plCnt = plList.Count;if ((plCnt > 0) && (!plList[plCnt - 1].IsSame(plNow)))
                     plList.Add(plNow);
             }
             return plList;
@@ -1096,6 +1199,11 @@ namespace CStat.Common
             return instr;
         }
 
+        List<string> GetSpecificChurchWords(List<string> raw)
+        {
+            return raw.Where((r, i) => (r != "of") && (r != "the") && (i != _cmdActionIdx) && (i != _cmdFormatIdx) && (r != "for") && (i != _cmdSrcIdx)).ToList();
+        }
+
         //***************************************************************
         private string HandleChurch(List<string> words) // ZAA
         //***************************************************************
@@ -1121,22 +1229,62 @@ namespace CStat.Common
 
             if (!_isPlural)
             {
-                Church c = null;
+                Church hitCh = null;
+                var specWords = GetSpecificChurchWords(words);
+                int maxHitCount = 0;
                 foreach (var ch in churches)
                 {
-                    // try word match and calculate smallest Levenstein distance for a match
-                    c = ch;
-                    // TBD dertermine c
+                    int hitCount = 0;
+                    foreach (var sw in specWords)
+                    {
+                        if (ch.Name.ToLower().Replace("church","").Trim().IndexOf(sw.ToLower()) != -1)
+                        {
+                            hitCount += sw.Length;
+                        }
+                    }
+                    if (hitCount > maxHitCount)
+                    {
+                        maxHitCount = hitCount;
+                        hitCh = ch;
+                    }
                 }
-                var poc = Person.GetPOCMinister(c);
-                var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
 
-                report += "CHURCH: " + c.Name + " " +
-                    (Address.FormatAddress(c.Address) + " " +
+                if (hitCh == null)
+                {
+                    int MinDist = 10000000;
+
+                    var fullSpec = "";
+                    foreach (var sw in specWords)
+                    {
+                        fullSpec = sw + " ";
+                    }
+                    fullSpec = fullSpec.ToLower().Replace(" christian", "").Replace(" christ", "").Replace("christ", "").Trim();
+
+                    // try closest match of church name to fullSpec via Levenshtein Distance
+                    foreach (var ch in churches)
+                    { 
+                        var chName = ch.Name.ToLower().Replace(" christian", "").Replace("church of church", "").Replace("church", "").Replace("of christ", "").Replace("christ", "").Trim();
+                        int dist = LevenshteinDistance.Compute(fullSpec, chName);
+                        if (dist < MinDist)
+                        {
+                            MinDist = dist;
+                            hitCh = ch;
+                        }
+                    }
+                }
+
+                if (hitCh == null)
+                    return "Can you be more specific?";
+
+                var poc = Person.GetPOCMinister(hitCh);
+                var status = Church.ChurchLists.MemberStatList[(int)hitCh.MembershipStatus].name;
+
+                report += "CHURCH: " + hitCh.Name + " " +
+                    (Address.FormatAddress(hitCh.Address) + " " +
                     (!string.IsNullOrEmpty(status) ? " " + status : "") +
                     (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
-                    (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
-                    (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
+                    (!string.IsNullOrEmpty(hitCh.Address.Phone) ? " " + Person.FixPhone(hitCh.Address.Phone) : " unknown #") +
+                    (!string.IsNullOrEmpty(hitCh.Email) ? " " + hitCh.Email : "")).Trim() + "\n";
             }
             else
             {
@@ -1393,6 +1541,10 @@ namespace CStat.Common
 
         private CmdAction _cmdAction = default;
         private int _cmdActionIdx = -1;
+        private CmdFormat _cmdFormat = default;
+        private int _cmdFormatIdx = -1;
+        private CmdOutput _cmdOutput = default;
+        private int _cmdOutputIdx = -1;
 
         private EventType _cmdEvent;
         private int _cmdEventIdx = -1;

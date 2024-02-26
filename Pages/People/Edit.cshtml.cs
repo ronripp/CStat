@@ -399,6 +399,32 @@ namespace CStat
                 }
             }
         }
+        [BindProperty]
+        public bool _Deceased
+        {
+            get
+            {
+                if ((_Person == null) || !_Person.Status.HasValue)
+                    return false;
+                return (_Person.Status & (int)Person.PersonStatus.Deceased) != 0;
+            }   // get method
+            set
+            {
+                if (_Person != null)
+                {
+                    if (!_Person.Status.HasValue)
+                    {
+                        if (value)
+                           _Person.Status = (int)Person.PersonStatus.Deceased;
+                        return;
+                    }
+                    if (value)
+                        _Person.Status |= (int)Person.PersonStatus.Deceased;
+                    else
+                        _Person.Status &= ~(int)Person.PersonStatus.Deceased;
+                }
+            }
+        }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

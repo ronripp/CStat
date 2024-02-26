@@ -142,12 +142,16 @@
                             }
 
                             let tColor;
-                            if ((item.Address.Status & 268435456) !== 0) {
-                                tColor = "#FF0000";
+                            if ((item.Status & 64) !== 0) {
+                                tColor = "#A0A0A0"; // Deceased
                             } else {
-                                tColor = "#000000";
+                                if ((item.Address.Status & 268435456) !== 0) {
+                                    tColor = "#FF0000"; // RTS
+                                } else {
+                                    tColor = "#000000";
+                                }
                             }
-
+                            
                             if (i % 2)
                                 strList += "<tr style=\"background-color:#FFF4CF; color:" + tColor + "\" id=\"" + item.id + "\"><td onclick=\"window.location.href='Edit?id=" + item.id + "'\" class=\"rp\">" + item.FirstName + " " + item.LastName + "</td><td class=\"rp\" onclick=\"window.location.href='Edit?id=" + item.id + "'\">" + item.Address.Street + " " + item.Address.Town + " " + state + "</td><td class=\"rp\">" + phone + "</td><td>" + eMail + "</td></tr>";
                             else

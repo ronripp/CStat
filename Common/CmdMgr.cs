@@ -150,23 +150,6 @@ namespace CStat.Common
             {"instructions", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"requirements", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
             {"required", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
-            {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
-            {"reqs", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
-            {"list", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
-            {"todo", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
-            {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
-            {"alert", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
-            {"alerts", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
-            {"alarm", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
-            {"alarms", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
-            {"urgent", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
-            {"urgencies", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
-            {"events", new Tuple<CmdSource, bool>(CmdSource.EVENT, true) },
-            {"phone#", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"phonenumber", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
-            {"name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"trustees", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
             {"delegate", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, false) },
             {"delegates", new Tuple<CmdSource, bool>(CmdSource.TRUSTEE, true) },
@@ -192,7 +175,37 @@ namespace CStat.Common
             {"doh", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"health", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"department", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
+            {"name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"last_name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"first_name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"phone_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"people_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"mailing_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"email_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
 
+            {"contact", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"contacts", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"campers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+
+            {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
+            {"reqs", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
+            {"list", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"todo", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"tasks", new Tuple<CmdSource, bool>(CmdSource.TASK, true) },
+            {"alert", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"alerts", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
+            {"alarm", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"alarms", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
+            {"urgent", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
+            {"urgencies", new Tuple<CmdSource, bool>(CmdSource.URGENCY, true) },
+            {"events", new Tuple<CmdSource, bool>(CmdSource.EVENT, true) },
+            {"phone#", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"phonenumber", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"phone_number", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"phone_numbers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"phone", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
         };
 
         //===============================================================
@@ -299,14 +312,41 @@ namespace CStat.Common
                            .Replace("pdf file", "pdf_file")
                            .Replace("text file", "text_file")
                            .Replace("comma delimited", "comma_delimited")
+                           .Replace("e-mail", "email")
                            .Replace("a email", "via_email")
                            .Replace("an email", "via_email")
                            .Replace("as email", "via_email")
                            .Replace("via email", "via_email")
                            .Replace("the email", "email_address")
                            .Replace("email address", "email_address")
-                           .Replace("email addresses", "email_address");
-
+                           .Replace("email addresses", "email_address")
+                           .Replace("last name", "last_name")
+                           .Replace("last names", "last_name")
+                           .Replace("first name", "first_name")
+                           .Replace("first names", "first_name")
+                           .Replace("phone #", "phone_number")
+                           .Replace("phone number", "phone_number")
+                           .Replace("phone #s", "phone_list")
+                           .Replace("phone numbers", "phone_list")
+                           .Replace("phone directory", "phone_list")
+                           .Replace("list of contacts", "people_list")
+                           .Replace("list of people", "people_list")
+                           .Replace("people list", "people_list")
+                           .Replace("people directory", "people_list")
+                           .Replace("contact list", "people_list")
+                           .Replace("contact directory", "people_list")
+                           .Replace("camper list", "people_list")
+                           .Replace("camper directory", "people_list")
+                           .Replace("list of people", "people_list")
+                           .Replace("camper list", "people_list")
+                           .Replace("list of campers", "people_list")
+                           .Replace("mailing list", "mailing_list")
+                           .Replace("list of mailing addresses", "mailing_list")
+                           .Replace("list of contacts", "people_list")
+                           .Replace("email list", "email_list")
+                           .Replace("list of email addresses", "email_list")
+                           .Replace("list of emails", "email_list");                   
+            
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
 
@@ -765,9 +805,9 @@ namespace CStat.Common
             for (int i = 0; i < NumWords; ++i)
             {
                 if ((i == _cmdActionIdx) || (i == _cmdEventIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
-                    (i == _cmdSrcIdx) || ((i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx)))
+                    (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx)) )
                     continue;
-                if ((LastDescIdx != -1) && (LastDescIdx != (i - 1)))
+                if ((LastDescIdx != -1) && (LastDescIdx != (i - 1)) && (_cmdSrcIdx != (i-1)))
                     break;
                 
                 _cmdDescList.Add(words[i]);
@@ -791,8 +831,10 @@ namespace CStat.Common
             var justNeeded = _cmdAction == CmdAction.NEED;
             return InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
         }
-        private string HandleUrgency(List<string> words)
+        private string HandleUrgency(List<string> raw)
         {
+            var words = new List<string>(raw);
+
             var justNeeded = _cmdAction == CmdAction.NEED;
             var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject, false);
             int? pid = _hasMy ? _curUser.pid : null;
@@ -816,12 +858,14 @@ namespace CStat.Common
 
             return report;
         }
-        private string HandlePeople(List<string> words)
+        private string HandlePeople(List<string> words) // ZZZ
         {
             string result = "";
             List<Person> people = null;
-            if (_cmdSrc == CmdSource.TRUSTEE)
-            {
+            bool showEMail, showAdr, showPhone, showAttr;
+            showEMail = showAdr = showPhone = showAttr = true;
+
+            if (_cmdSrc == CmdSource.TRUSTEE){
                 people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).ToList();
             }
             else if (_cmdSrc == CmdSource.EC)
@@ -839,7 +883,54 @@ namespace CStat.Common
                 people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
             }
 
-            if (people.Count > 0)
+            if (people == null)
+            {
+                if (FindSpecificName(words, out string fName, out string lName, out string name))
+                {
+                    people = (!string.IsNullOrEmpty(name))
+                             ? _context.Person.Where(p => (p.FirstName.StartsWith(name) || (p.LastName.StartsWith(name)))).Include(p => p.Address).ToList()
+                             : (!string.IsNullOrEmpty(fName) && !string.IsNullOrEmpty(lName))
+                                ? _context.Person.Where(p => (p.FirstName.StartsWith(fName)) && (p.LastName.StartsWith(lName))).Include(p => p.Address).ToList()
+                                : (!string.IsNullOrEmpty(fName))
+                                  ? _context.Person.Where(p => p.FirstName.StartsWith(fName)).Include(p => p.Address).ToList()
+                                  : _context.Person.Where(p => p.LastName.StartsWith(lName)).Include(p => p.Address).ToList();
+                }
+
+                if (_cmdSrcIdx != -1)
+                {
+                    switch (words[_cmdSrcIdx])
+                    {
+                        case "email_address":
+                            showAdr = showPhone = showAttr = false;
+                            break;
+                        case "phone_number":
+                            showEMail = showAdr = showAttr = false;
+                            break;
+                        case "phone_list":
+                            showEMail = showAdr = showAttr = false;
+                            people = _context.Person.Include(p => p.Address).ToList();
+                            break;
+                        case "people_list":
+                        case "contacts":
+                        case "campers":
+                        case "people":
+                            people = _context.Person.Include(p => p.Address).ToList();
+                            break;
+                        case "mailing_list":
+                            showEMail = showPhone = showAttr = false;
+                            people = _context.Person.Include(p => p.Address).ToList();
+                            break;
+                        case "email_list":
+                            showAdr = showPhone = showAttr = false;
+                            people = _context.Person.Include(p => p.Address).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if ((people?.Count ?? 0) > 0)
             {
                 foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                 {
@@ -853,16 +944,84 @@ namespace CStat.Common
                     else
                     {
                         result += ("*" + p.FirstName + " " + p.LastName + " : " +
-                        Person.GetBestPhone(p) + " " +
-                        Address.GetAddressStr(p.Address) + " " +
-                        Person.GetEMailStr(p) + " " +
-                        Person.GetRoleStr(p) + " " +
-                        Person.GetSkillStr(p) + $"\n\n");
+                        (showPhone ? Person.GetBestPhone(p) + " " : "") +
+                        (showAdr ? Address.GetAddressStr(p.Address) + " " : "") +
+                        (showEMail ? Person.GetEMailStr(p) + " " : "") +
+                        (showAttr ? Person.GetRoleStr(p)  + " " : "") +
+                        (showAttr ? Person.GetSkillStr(p) : "") + $"\n\n");
                     }
-               }
+                }
             }
+
             return result.Trim();
         }
+
+        private bool FindSpecificName(List<string> raw, out string fName, out string lName, out string name)
+        {
+            //{ "name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            //{ "names", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            //{ "last_name", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            //{ "first_name", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+
+            fName = "";
+            lName = "";
+            name = "";
+            if (_cmdSrcIdx == -1)
+                return false;
+
+            bool hasFName = (raw[_cmdSrcIdx] == "first_name");
+            bool hasLName = (raw[_cmdSrcIdx] == "last_name");
+
+            int lastWord = raw.Count-1;
+            if (hasFName || hasLName)
+            {
+                // See if fl_name is NOT end
+                if (_cmdSrcIdx < lastWord)
+                {
+                    if (hasFName)
+                        fName = raw[lastWord];
+                    else
+                        lName = raw[lastWord];
+                    return true;
+                }
+
+                var words = new List<string>(raw);
+                int priorWord = _cmdSrcIdx - 1;
+                if ((priorWord >= 0) && (words[priorWord] == "a"))
+                {
+                    words.RemoveAt(priorWord);
+                }
+                words.RemoveAll(s => s == "as");
+                words.RemoveAll(s => s == "with");
+                var newCSI = words.IndexOf(raw[_cmdSrcIdx]);
+                if (newCSI > 0)
+                {
+                    if (hasFName)
+                        fName = words[newCSI - 1];
+                    else
+                        lName = words[newCSI - 1];
+                    return true;
+                }
+            }
+
+            if ((raw[_cmdSrcIdx] == "name") || (raw[_cmdSrcIdx] == "names"))
+            {
+                // See if name is NOT at end
+                if (_cmdSrcIdx < lastWord)
+                {
+                    if ( (_cmdSrcIdx < (lastWord - 1)) && (raw[lastWord-1] != "of") && (raw[lastWord-1] != "with") )
+                    {
+                        fName = raw[lastWord - 1];
+                        lName = raw[lastWord];
+                    }
+                    else
+                        name = raw[lastWord];
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private string HandleEquip(List<string> words)
         {
             string result = "";
@@ -1493,6 +1652,7 @@ namespace CStat.Common
             }
             return "Document sent to your EMail.";
         }
+
 
         CSDropBox GetDropBox ()
         {

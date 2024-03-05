@@ -240,5 +240,65 @@ namespace CStat.Models
             return astr;
         }
 
+        public static bool SameAddress(Address adr1, Address adr2)
+        {
+            if ((adr1 == null) || (adr2 == null))
+                return false;
+
+            if (!string.Equals(GetStateAbbr(adr1.State), GetStateAbbr(adr2.State), StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (!string.Equals(adr1.Town, adr2.Town, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return IsStreetSimilar(adr1.Street, adr2.Street);
+        }
+
+        public static bool IsStreetSimilar(string s1, string s2)
+        {
+            if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2))
+                return false;
+
+            if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            s1 = s1.Replace("  ", " ");
+            s2 = s2.Replace("  ", " ");
+
+            var flds1 = s1.Split(' ');
+            var flds2 = s2.Split(' ');
+            var f1Len = flds1.Length;
+            var f2Len = flds2.Length;
+
+            if ((f1Len < 2) || (f2Len < 2))
+                return false;
+
+            if (!flds1[0].Equals(flds2[0], StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var s1Match = (flds1[1].StartsWith(flds2[1], StringComparison.OrdinalIgnoreCase) || flds2[1].StartsWith(flds1[1], StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(flds1[1], flds2[1]) < 2);
+
+            if (!s1Match)
+                return false;
+
+            int Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
+            int Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
+            bool AptMatch = (Apt1Idx == -1) && (Apt2Idx == -1);
+            if ((Apt1Idx > 1) && (Apt2Idx > 1))
+            {
+                var a1 = (flds1[Apt1Idx] + ((Apt1Idx + 1 < f1Len) ? flds1[Apt1Idx + 1] : "")).Replace(".", "").Replace("#", "");
+                var a2 = (flds2[Apt2Idx] + ((Apt2Idx + 1 < f2Len) ? flds2[Apt2Idx + 1] : "")).Replace(".", "").Replace("#", "");
+                AptMatch = a1 == a2;
+            }
+
+            if ((f1Len < 3) || (f2Len < 3))
+                return s1Match && AptMatch;
+
+            var s12 = PersonMgr.CleanStreet(flds1[2]);
+            var s22 = PersonMgr.CleanStreet(flds2[2]);
+
+            return (s12.StartsWith(s22, StringComparison.OrdinalIgnoreCase) || s22.StartsWith(s12, StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(s12, s22) < 2);
+        }
+
     }
 }

@@ -310,6 +310,8 @@ namespace CStat.Models
 
         public static string GetStateAbbr(string state)
         {
+            if (string.IsNullOrEmpty(state))
+                return "";
             string st = state.Trim();
             var abbr = StateDict.FirstOrDefault(s => String.Equals(s.Value, st, StringComparison.InvariantCultureIgnoreCase)).Key;
             return (abbr != null) ? abbr : st;

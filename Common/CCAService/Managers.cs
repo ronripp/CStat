@@ -2308,7 +2308,7 @@ namespace CStat
                                         if (PG1Person != null)
                                         {
                                             var PG1Adr = pga[4].Trim();
-                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG1Adr))
+                                            if (Address.IsStreetSimilar(streetValue, PG1Adr))
                                             {
                                                 if (!PG1Person.AddressId.HasValue && person.AddressId.HasValue)
                                                     PG1Person.AddressId = person.AddressId.Value;
@@ -2406,7 +2406,7 @@ namespace CStat
                                         if (PG2Person != null)
                                         {
                                             var PG2Adr = pga[4].Trim();
-                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG2Adr))
+                                            if (Address.IsStreetSimilar(streetValue, PG2Adr))
                                             {
                                                 if (!PG2Person.AddressId.HasValue && person.AddressId.HasValue)
                                                     PG2Person.AddressId = person.AddressId.Value;
@@ -3101,30 +3101,6 @@ namespace CStat
 
     static class LevenshteinDistance
     {
-        public static bool IsStreetSimilar(string s1, string s2)
-        {
-            if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2))
-                return false;
-
-            if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            var flds1 = s1.Split(' ');
-            var flds2 = s2.Split(' ');
-
-            if ((flds1.Length < 2) || (flds2.Length < 2))
-                return false;
-
-            if (flds1[0].Equals(flds2[0], StringComparison.OrdinalIgnoreCase))
-            {
-                if ((flds1[1].Length < 1) || (flds2[1].Length < 1))
-                    return false;
-
-                return flds1[1].StartsWith(flds2[1][0].ToString(), StringComparison.OrdinalIgnoreCase) && (LevenshteinDistance.Compute(flds1[1], flds2[1]) < 2);
-            }
-            return false;
-        }
-
         public static int Compute(string s, string t)
         {
             if (string.IsNullOrEmpty(s))

@@ -70,6 +70,7 @@ namespace CStat.Common
             {"excel", CmdFormat.EXCEL},
             {"spread_sheet", CmdFormat.EXCEL},
             {"spreadsheet", CmdFormat.EXCEL},
+            {"spreadlist", CmdFormat.EXCEL},
             {"ms_word", CmdFormat.MSDOC},
             {"microsoft_word", CmdFormat.MSDOC},
             {"word_doc", CmdFormat.MSDOC},
@@ -439,6 +440,9 @@ namespace CStat.Common
             FindEvent(words);
             FindDesc(words); // Check for descriptive hints
             FindCmdFormat(words);
+
+            if (_cmdFormat != CmdFormat.TEXT)
+                _cmdOutput = CmdOutput.EMAIL; // Send files via EMail
 
             if ((words.Count == 1) && (words[0].Length == 0))
             {
@@ -864,15 +868,22 @@ namespace CStat.Common
             List<Person> people = null;
             bool showEMail, showAdr, showPhone, showAttr;
             showEMail = showAdr = showPhone = showAttr = true;
+            bool EMailOnly, MailingOnly, PhoneOnly;
+            EMailOnly = MailingOnly = PhoneOnly = false;
 
-            if (_cmdSrc == CmdSource.TRUSTEE){
+            string EMailTitle = "Requested Contact Info";
+
+            if (_cmdSrc == CmdSource.TRUSTEE)
+            {
+                EMailTitle = "CCA Trustees";
                 people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).ToList();
             }
             else if (_cmdSrc == CmdSource.EC)
             {
-                    //President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000
-                    long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
-                    people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).ToList();
+                //President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000
+                EMailTitle = "CCA Executive Committee";
+                long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
+                people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).ToList();
             }
             else if (_cmdDescList.Count == 1)
             {
@@ -901,12 +912,16 @@ namespace CStat.Common
                     switch (words[_cmdSrcIdx])
                     {
                         case "email_address":
+                            EMailTitle = "Contact EMail Addresses";
                             showAdr = showPhone = showAttr = false;
                             break;
                         case "phone_number":
+                            EMailTitle = "Contact Phone #s";
                             showEMail = showAdr = showAttr = false;
                             break;
                         case "phone_list":
+                            PhoneOnly = true;
+                            EMailTitle = "Contact Phone #s";
                             showEMail = showAdr = showAttr = false;
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
@@ -914,13 +929,18 @@ namespace CStat.Common
                         case "contacts":
                         case "campers":
                         case "people":
+                            EMailTitle = "Contact Full List";
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
                         case "mailing_list":
+                            MailingOnly = true;
+                            EMailTitle = "Contact Mailing List";
                             showEMail = showPhone = showAttr = false;
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
                         case "email_list":
+                            EMailOnly = true;
+                            EMailTitle = "Contact EMail Addresses";
                             showAdr = showPhone = showAttr = false;
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
@@ -932,28 +952,154 @@ namespace CStat.Common
 
             if ((people?.Count ?? 0) > 0)
             {
-                foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+                if ((_cmdFormat == CmdFormat.CSV) || (_cmdFormat == CmdFormat.EXCEL))
                 {
-                    if (_cmdSrc == CmdSource.EC)
+                    // EMail a CSV File
+                    if (fLock.TryEnterWriteLock(3000))
                     {
-                        result += ("*" + p.FirstName + " " + p.LastName + " : " +
-                        Person.GetBestPhone(p) + " " +
-                        Person.GetEMailStr(p) + " " +
-                        Person.GetRoleStr(p) + $"\n\n");
+                        try
+                        {
+                            var TempPath = Path.GetTempPath();
+                            var FullFile = Path.Combine(TempPath, "PeopleReq.csv");
+                            bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
+                            using (StreamWriter wFile = new StreamWriter(FullFile))
+                            {
+                                if (!isOnly)
+                                    wFile.WriteLine("First Name,Last Name,Gender,DOB,Serve,Address,Phone,EMail");
+                                else if (MailingOnly)
+                                {
+                                    people = GetMailingListPeople(people);
+                                    wFile.WriteLine("First Name,Last Name,Address");
+                                }
+                                else if (EMailOnly)
+                                    wFile.WriteLine("First Name,Last Name,EMail");
+                                else // if (PhoneOnly)
+                                    wFile.WriteLine("First Name,Last Name,Phone");
+
+                                foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+                                {
+                                    var fn = EncloseCommasForCSV(p.FirstName);
+                                    var ln = EncloseCommasForCSV(p.LastName);
+                                    var adrStr = EncloseCommasForCSV(Address.FormatAddress(p.Address));
+                                    if (MailingOnly)
+                                    {
+                                        if (!String.IsNullOrEmpty(adrStr.Trim()))
+                                            wFile.WriteLine(fn + "," + ln + "," + adrStr);
+                                        continue;
+                                    }
+
+                                    var eMail = !string.IsNullOrEmpty(p.Email) ? EncloseCommasForCSV(p.Email) : "";
+                                    if (EMailOnly)
+                                    {
+                                        if (!String.IsNullOrEmpty(eMail.Trim()))
+                                            wFile.WriteLine(fn + "," + ln + "," + eMail);
+                                        continue;
+                                    }
+
+                                    var phone = EncloseCommasForCSV(Person.GetBestPhone(p, ""));
+                                    if (PhoneOnly)
+                                    { 
+                                        if (!String.IsNullOrEmpty(phone.Trim()))
+                                            wFile.WriteLine(fn + "," + ln + "," + phone);
+                                        continue;
+                                    }
+
+                                    var gender = Person.GetGender(p);
+                                    var dob = Person.GetDOB(p);
+                                    var serve = EncloseCommasForCSV(Person.GetRoleStr(p) + Person.GetSkillStr(p));
+                                    wFile.WriteLine(fn + "," + ln + "," + gender + "," + dob + "," + serve + "," + adrStr + "," + phone + "," + eMail);            
+                                }
+
+                                wFile.Close();
+
+                                var email = new CSEMail(_config, _userManager);
+                                result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + "\nThanks!\nCee Stat", new string[] { FullFile })
+                                    ? "E-Mail sent with " + EMailTitle
+                                    : "Failed to E-Mail : " + EMailTitle;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            var cl = new CSLogger();
+                            cl.Log("CmdMgr: EMail with " + EMailTitle + " CSV failed : " + ((e == null) ? "???" : e.Message));
+                        }
+                        finally
+                        {
+                            fLock.ExitWriteLock();
+                        }
                     }
                     else
                     {
-                        result += ("*" + p.FirstName + " " + p.LastName + " : " +
-                        (showPhone ? Person.GetBestPhone(p) + " " : "") +
-                        (showAdr ? Address.GetAddressStr(p.Address) + " " : "") +
-                        (showEMail ? Person.GetEMailStr(p) + " " : "") +
-                        (showAttr ? Person.GetRoleStr(p)  + " " : "") +
-                        (showAttr ? Person.GetSkillStr(p) : "") + $"\n\n");
+                        result += " FAILED TO EMail Spreadsheet of Contacts.";
+                    }
+                }
+                else
+                {
+                    foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+                    {
+                        if (_cmdSrc == CmdSource.EC)
+                        {
+                            result += ("*" + p.FirstName + " " + p.LastName + " : " +
+                            Person.GetBestPhone(p) + " " +
+                            Person.GetEMailStr(p) + " " +
+                            Person.GetRoleStr(p) + $"\n\n");
+                        }
+                        else
+                        {
+                            result += ("*" + p.FirstName + " " + p.LastName + " : " +
+                            (showPhone ? Person.GetBestPhone(p) + " " : "") +
+                            (showAdr ? Address.GetAddressStr(p.Address) + " " : "") +
+                            (showEMail ? Person.GetEMailStr(p) + " " : "") +
+                            (showAttr ? Person.GetRoleStr(p) + " " : "") +
+                            (showAttr ? Person.GetSkillStr(p) : "") + $"\n\n");
+                        }
                     }
                 }
             }
-
             return result.Trim();
+        }
+
+        private static List<Person> GetMailingListPeople (List<Person> raw)
+        {
+            string curln = "";
+            List<List<Person>> LALists = null;
+            List<Person> LAPeople = null;
+
+            foreach (var p in raw.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+            {
+                var ln = p.LastName;
+                if (string.IsNullOrEmpty(ln))
+                    continue;
+
+                if (!string.IsNullOrEmpty(curln) && (curln != ln))
+                {
+                    curln = ln;
+                    AddLAPeople(LALists, LAPeople);
+                }
+                UpdateLAPeople(LALists, p);
+            }
+            AddLAPeople(LALists, LAPeople);
+            return LAPeople;
+        }
+
+        private static void UpdateLAPeople (List<List<Person>> laLists, Person p)
+        {
+            int numLists = laLists.Count();
+            foreach (var la in laLists)
+            {
+                if (Address.SameAddress(la[0].Address, p.Address))
+                {
+                    la.Add(p);
+                    return;
+                }
+            }
+            var nla = new List<Person>();
+            nla.Add(p);
+        }
+
+        private static int AddLAPeople(List<List<Person>> laLists, List<Person> laPeople)
+        {
+            return 0;
         }
 
         private bool FindSpecificName(List<string> raw, out string fName, out string lName, out string name)
@@ -1491,7 +1637,7 @@ namespace CStat.Common
                                        (!string.IsNullOrEmpty(status) ? status : "") + "," +
                                        (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
                                        (!string.IsNullOrEmpty(c.Address.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address.Phone)) : "") + "," +
-                                       (!string.IsNullOrEmpty(EncloseCommasForCSV(c.Email)) ? c.Email : "") + "," +
+                                       (!string.IsNullOrEmpty(c.Email) ? EncloseCommasForCSV(c.Email) : "") + "," +
                                        website);
                             }
                             wFile.Close();

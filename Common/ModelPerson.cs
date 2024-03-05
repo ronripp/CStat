@@ -1256,7 +1256,7 @@ namespace CStat.Models
                                         if (PG1Person != null)
                                         {
                                             var PG1Adr = pga[4].Trim();
-                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG1Adr))
+                                            if (Address.IsStreetSimilar(streetValue, PG1Adr))
                                             {
                                                 if (!PG1Person.AddressId.HasValue && person.AddressId.HasValue)
                                                     PG1Person.AddressId = person.AddressId.Value;
@@ -1353,7 +1353,7 @@ namespace CStat.Models
                                         if (PG2Person != null)
                                         {
                                             var PG2Adr = pga[4].Trim();
-                                            if (LevenshteinDistance.IsStreetSimilar(streetValue, PG2Adr))
+                                            if (Address.IsStreetSimilar(streetValue, PG2Adr))
                                             {
                                                 if (!PG2Person.AddressId.HasValue && person.AddressId.HasValue)
                                                     PG2Person.AddressId = person.AddressId.Value;
@@ -2591,9 +2591,19 @@ namespace CStat.Models
             return SameNames.Any(list => list.Any(n => n.Equals(fn1, StringComparison.OrdinalIgnoreCase) && list.Any(n => n.Equals(fn2, StringComparison.OrdinalIgnoreCase))));
         }
 
-        public static string GetBestPhone(Person p)
+        public static string GetBestPhone(Person p, string emptyStr = "unknown #")
         {
-            return (!string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "unknown #"));
+            return !string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : emptyStr);
+        }
+
+        public static string GetGender(Person p)
+        {
+           return p.Gender.HasValue ? ((p.Gender.Value == (byte)'M') ? "M" : ((p.Gender.Value == (byte)'F') ? "F" : "")) : "";
+        }
+
+        public static string GetDOB(Person p)
+        {
+            return (p.Dob.HasValue && (p.Dob.Value.Year != 1900)) ? p.Dob.Value.Date.ToString("MM/dd/yy") : "---";
         }
 
         public static string GetRoleStr(Person p)

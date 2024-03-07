@@ -262,6 +262,12 @@ namespace CStat.Models
             if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
                 return true;
 
+            s1 = PersonMgr.CleanStreet(s1);
+            s2 = PersonMgr.CleanStreet(s2);
+
+            if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
+                return true;
+
             s1 = s1.Replace("  ", " ");
             s2 = s2.Replace("  ", " ");
 
@@ -294,8 +300,8 @@ namespace CStat.Models
             if ((f1Len < 3) || (f2Len < 3))
                 return s1Match && AptMatch;
 
-            var s12 = PersonMgr.CleanStreet(flds1[2]);
-            var s22 = PersonMgr.CleanStreet(flds2[2]);
+            var s12 = flds1[2];
+            var s22 = flds2[2];
 
             return (s12.StartsWith(s22, StringComparison.OrdinalIgnoreCase) || s22.StartsWith(s12, StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(s12, s22) < 2);
         }

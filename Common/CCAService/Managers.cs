@@ -3068,6 +3068,10 @@ namespace CStat
                 newStr = newStr.Remove(len - 4) + "Rd.";
             else if (upStr.EndsWith(" RD"))
                 newStr = newStr.Remove(len - 2) + "Rd.";
+            else if (upStr.EndsWith(" LANE"))
+                newStr = newStr.Remove(len - 4) + "Ln.";
+            else if (upStr.EndsWith(" LN"))
+                newStr = newStr.Remove(len - 2) + "Ln.";
             else if (upStr.EndsWith(" COURT"))
                 newStr = newStr.Remove(len - 5) + "Ct.";
             else if (upStr.EndsWith(" CT"))

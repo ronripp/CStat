@@ -183,7 +183,10 @@ namespace CStat.Common
             {"phone_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"people_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"mailing_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"mailing", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+
             {"email_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"emails", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
 
             {"contact", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"contacts", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
@@ -808,12 +811,17 @@ namespace CStat.Common
             int LastDescIdx = -1;
             for (int i = 0; i < NumWords; ++i)
             {
-                if ((i == _cmdActionIdx) || (i == _cmdEventIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+                if ((i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                     (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx)) )
                     continue;
+
                 if ((LastDescIdx != -1) && (LastDescIdx != (i - 1)) && (_cmdSrcIdx != (i-1)))
                     break;
-                
+
+                string word = words[i];
+                if ((word == "as") || (word == "with") || (word == "a") || (word == "the") || (word == "in") || (word == "from"))
+                    continue;
+
                 _cmdDescList.Add(words[i]);
                 LastDescIdx = i;
             }
@@ -885,14 +893,6 @@ namespace CStat.Common
                 long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
                 people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).ToList();
             }
-            else if (_cmdDescList.Count == 1)
-            {
-               people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
-            }
-            else if (_cmdDescList.Count == 2)
-            {
-                people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
-            }
 
             if (people == null)
             {
@@ -933,6 +933,7 @@ namespace CStat.Common
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
                         case "mailing_list":
+                        case "mailing":
                             MailingOnly = true;
                             EMailTitle = "Contact Mailing List";
                             showEMail = showPhone = showAttr = false;
@@ -947,6 +948,19 @@ namespace CStat.Common
                         default:
                             break;
                     }
+                }
+            }
+
+            // Last try
+            if ((people?.Count ?? 0) == 0)
+            {
+                if (_cmdDescList.Count == 1)
+                {
+                    people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
+                }
+                else if (_cmdDescList.Count == 2)
+                {
+                    people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
                 }
             }
 
@@ -1063,31 +1077,35 @@ namespace CStat.Common
         {
             string curln = "";
             List<List<Person>> LALists = null;
-            List<Person> LAPeople = null;
+            List<Person> LAPeople = new List<Person>();
 
             foreach (var p in raw.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
             {
                 var ln = p.LastName;
+                if (ln == "Clinton")
+                    ln = ln + "";
+
                 if (string.IsNullOrEmpty(ln))
                     continue;
 
                 if (!string.IsNullOrEmpty(curln) && (curln != ln))
-                {
-                    curln = ln;
                     AddLAPeople(LALists, LAPeople);
-                }
-                UpdateLAPeople(LALists, p);
+                UpdateLAPeople(ref LALists, p);
+                curln = ln;
             }
             AddLAPeople(LALists, LAPeople);
             return LAPeople;
         }
 
-        private static void UpdateLAPeople (List<List<Person>> laLists, Person p)
+        private static void UpdateLAPeople (ref List<List<Person>> laLists, Person p)
         {
-            int numLists = laLists.Count();
+            if (laLists == null)
+                laLists = new List<List<Person>>();
+
             foreach (var la in laLists)
             {
-                if (Address.SameAddress(la[0].Address, p.Address))
+                
+                if (String.Equals(la[0].LastName, p.LastName, StringComparison.OrdinalIgnoreCase) && Address.SameAddress(la[0].Address, p.Address))
                 {
                     la.Add(p);
                     return;
@@ -1095,11 +1113,17 @@ namespace CStat.Common
             }
             var nla = new List<Person>();
             nla.Add(p);
+            laLists.Add(nla);
         }
 
         private static int AddLAPeople(List<List<Person>> laLists, List<Person> laPeople)
         {
-            return 0;
+            int startPpl = laPeople.Count;
+            foreach (var la in laLists)
+            {
+                laPeople.AddRange(la);
+            }
+            return laPeople.Count - startPpl;
         }
 
         private bool FindSpecificName(List<string> raw, out string fName, out string lName, out string name)

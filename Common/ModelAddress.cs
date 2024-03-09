@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 
 namespace CStat.Models
@@ -10,10 +11,10 @@ namespace CStat.Models
     {
         public enum AddressStatus
         {
-           AdrStat_RTS      = 0x10000000,
-           AdrStat_LastMMYY = 0x00001000,
-           AdrStat_MM_MASK  = 0x00000F00,
-           AdrStat_YY_MASK  = 0x000000FF
+            AdrStat_RTS = 0x10000000,
+            AdrStat_LastMMYY = 0x00001000,
+            AdrStat_MM_MASK = 0x00000F00,
+            AdrStat_YY_MASK = 0x000000FF
         }
 
         public static int UpdateAddress(Models.CStatContext ce, Address inAdr)
@@ -65,7 +66,7 @@ namespace CStat.Models
                                 if (IsTrim && (a.ZipCode.Length > 5) && (a.ZipCode != inAdr.ZipCode))
                                     continue;
                                 if (!bHasCS || cm.EQ(a.State, inAdr.State))
-                                   adrList.Add(a);
+                                    adrList.Add(a);
                             }
                         }
                     }
@@ -245,13 +246,72 @@ namespace CStat.Models
             if ((adr1 == null) || (adr2 == null))
                 return false;
 
+            Debug.WriteLine("*** SA : [{0}]-[{1}]  [{2}]-[{3}]", adr1.Town, adr2.Town, GetStateAbbr(adr1.State), GetStateAbbr(adr2.State));
+
             if (!string.Equals(GetStateAbbr(adr1.State), GetStateAbbr(adr2.State), StringComparison.OrdinalIgnoreCase))
                 return false;
 
             if (!string.Equals(adr1.Town, adr2.Town, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            return IsStreetSimilar(adr1.Street, adr2.Street);
+            var res = IsStreetSimilar(adr1.Street, adr2.Street);
+            Debug.WriteLine("CA : [{0}] [{1}] = {2}", adr1.Street, adr2.Street, res);
+            return res;
+        }
+
+        public static string CleanStreetEx(string s)
+        {
+            return PersonMgr.CleanStreet(s.Replace("PO", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P O", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O. Box", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO. Box", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO.Box", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O.Box", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("POBox", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O.", "PO Box", StringComparison.OrdinalIgnoreCase)
+                                          .Replace(" S ", " South ", StringComparison.OrdinalIgnoreCase).Replace(" S.", " South ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace(" N ", " North ", StringComparison.OrdinalIgnoreCase).Replace(" N.", " North ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace(" E ", " East ", StringComparison.OrdinalIgnoreCase).Replace(" E.", " East ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace(" W ", " West ", StringComparison.OrdinalIgnoreCase).Replace(" W.", " West ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("  ", " ").Replace("  ", " ").Trim());
+        }
+
+        public static string AddNumberHyphen(string s)
+        {
+            if ((s?.Length ?? 0) == 0)
+                return "";
+
+            char[] sa = s.Trim().ToCharArray();
+
+            bool InNum1 = false;
+            bool InNum2 = false;
+            int spaceIdx = -1;
+            for (int i=0; i < sa.Length; ++i)
+            {
+                var c = sa[i];
+                if ((c >= '0') && (c <= '9'))
+                {
+                    if (!InNum1 && (spaceIdx == -1))
+                        InNum1 = true;
+                    else if (!InNum2 && (spaceIdx != -1))
+                        InNum2 = true;
+                }
+                else
+                {
+                    if (c != ' ')
+                        return s;
+                    
+                    if (InNum1 && (spaceIdx == -1))
+                        spaceIdx = i;
+
+                    if (InNum2)
+                    {
+                        sa[spaceIdx] = '-';
+                        return sa.ToString();
+                    }
+                }
+            }
+            return s;
         }
 
         public static bool IsStreetSimilar(string s1, string s2)
@@ -262,13 +322,16 @@ namespace CStat.Models
             if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            s1 = PersonMgr.CleanStreet(s1);
-            s2 = PersonMgr.CleanStreet(s2);
+            s1 = CleanStreetEx(s1);
+            s2 = CleanStreetEx(s2);
+            s1 = AddNumberHyphen(s1);
+            s2 = AddNumberHyphen(s2);
 
             if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            s1 = s1.Replace("  ", " ");
+            s1 = s1.Replace(" S ", " South ").Replace(" S.", " South ").Replace(" N ", " North ").Replace(" N.", " North ").Replace(" E ", " East ").Replace(" E.", " East ").Replace(" W ", " West ").Replace(" W.", " West ").Replace("  ", " ");
+
             s2 = s2.Replace("  ", " ");
 
             var flds1 = s1.Split(' ');
@@ -282,13 +345,19 @@ namespace CStat.Models
             if (!flds1[0].Equals(flds2[0], StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            var s1Match = (flds1[1].StartsWith(flds2[1], StringComparison.OrdinalIgnoreCase) || flds2[1].StartsWith(flds1[1], StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(flds1[1], flds2[1]) < 2);
+            var s1Match = (flds1[1].Equals(flds2[1], StringComparison.OrdinalIgnoreCase) ||
+                            (flds1[1].StartsWith(flds2[1], StringComparison.OrdinalIgnoreCase) ||
+                              flds2[1].StartsWith(flds1[1], StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(flds1[1], flds2[1]) < 2));
 
             if (!s1Match)
                 return false;
 
             int Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
+            if (Apt1Idx == -1)
+                Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("suit"));
             int Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
+            if (Apt2Idx == -1)
+                Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("suit"));
             bool AptMatch = (Apt1Idx == -1) && (Apt2Idx == -1);
             if ((Apt1Idx > 1) && (Apt2Idx > 1))
             {
@@ -303,7 +372,8 @@ namespace CStat.Models
             var s12 = flds1[2];
             var s22 = flds2[2];
 
-            return (s12.StartsWith(s22, StringComparison.OrdinalIgnoreCase) || s22.StartsWith(s12, StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(s12, s22) < 2);
+            return s12.Equals(s22, StringComparison.OrdinalIgnoreCase) ||
+                   ((s12.StartsWith(s22, StringComparison.OrdinalIgnoreCase) || s22.StartsWith(s12, StringComparison.OrdinalIgnoreCase)) && (LevenshteinDistance.Compute(s12, s22) < 2));
         }
 
     }

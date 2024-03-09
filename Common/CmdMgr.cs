@@ -1082,9 +1082,6 @@ namespace CStat.Common
             foreach (var p in raw.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
             {
                 var ln = p.LastName;
-                if (ln == "Clinton")
-                    ln = ln + "";
-
                 if (string.IsNullOrEmpty(ln))
                     continue;
 

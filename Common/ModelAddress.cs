@@ -254,26 +254,53 @@ namespace CStat.Models
             if (!string.Equals(adr1.Town, adr2.Town, StringComparison.OrdinalIgnoreCase))
                 return false;
 
+            //if ((adr1?.Street.IndexOf("sid2") ?? -1) != -1)
+            //    Debug.WriteLine("sid2");
+            //if ((adr2?.Street.IndexOf("sid2") ?? -1) != -1)
+            //    Debug.WriteLine("sid2");
             var res = IsStreetSimilar(adr1.Street, adr2.Street);
+
             Debug.WriteLine("CA : [{0}] [{1}] = {2}", adr1.Street, adr2.Street, res);
             return res;
         }
 
         public static string CleanStreetEx(string s)
         {
-            return PersonMgr.CleanStreet(s.Replace("PO", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("P O", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("P.O. Box", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("PO. Box", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("PO.Box", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("P.O.Box", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("POBox", "PO Box", StringComparison.OrdinalIgnoreCase)
-                                          .Replace("P.O.", "PO Box", StringComparison.OrdinalIgnoreCase)
+            var str = PersonMgr.CleanStreet(s.Replace("Mt", "Mount", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("Mt.", "Mount", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO Box", "~@~", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P O", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O. Box", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO. Box", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("PO.Box", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O.Box", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("POBox", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("P.O.", "PO Box ", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("~@~", "PO Box ", StringComparison.OrdinalIgnoreCase)
                                           .Replace(" S ", " South ", StringComparison.OrdinalIgnoreCase).Replace(" S.", " South ", StringComparison.OrdinalIgnoreCase)
                                           .Replace(" N ", " North ", StringComparison.OrdinalIgnoreCase).Replace(" N.", " North ", StringComparison.OrdinalIgnoreCase)
                                           .Replace(" E ", " East ", StringComparison.OrdinalIgnoreCase).Replace(" E.", " East ", StringComparison.OrdinalIgnoreCase)
                                           .Replace(" W ", " West ", StringComparison.OrdinalIgnoreCase).Replace(" W.", " West ", StringComparison.OrdinalIgnoreCase)
                                           .Replace("  ", " ").Replace("  ", " ").Trim());
+
+            if (str.IndexOf("PO Box") != -1)
+            {
+                str = str.Replace("#", " ");
+            }
+            else
+            {
+                str = str.Replace("Apt.", "~@~", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Apt", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Apt #", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Apt#", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Suite #", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Suite#", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("Suite", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("#", " Apt. ", StringComparison.OrdinalIgnoreCase)
+                         .Replace("~@~", "Apt.", StringComparison.OrdinalIgnoreCase);
+            }
+            return str.Replace("  ", " ").Replace("  ", " ").Trim();
         }
 
         public static string AddNumberHyphen(string s)
@@ -307,7 +334,7 @@ namespace CStat.Models
                     if (InNum2)
                     {
                         sa[spaceIdx] = '-';
-                        return sa.ToString();
+                        return new string(sa);
                     }
                 }
             }
@@ -330,10 +357,6 @@ namespace CStat.Models
             if (s1.Equals(s2, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            s1 = s1.Replace(" S ", " South ").Replace(" S.", " South ").Replace(" N ", " North ").Replace(" N.", " North ").Replace(" E ", " East ").Replace(" E.", " East ").Replace(" W ", " West ").Replace(" W.", " West ").Replace("  ", " ");
-
-            s2 = s2.Replace("  ", " ");
-
             var flds1 = s1.Split(' ');
             var flds2 = s2.Split(' ');
             var f1Len = flds1.Length;
@@ -352,12 +375,9 @@ namespace CStat.Models
             if (!s1Match)
                 return false;
 
-            int Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
-            if (Apt1Idx == -1)
-                Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("suit"));
-            int Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("apt"));
-            if (Apt2Idx == -1)
-                Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("suit"));
+
+            int Apt1Idx = flds1.ToList().FindIndex(s => s.ToLower().StartsWith("Apt."));
+            int Apt2Idx = flds2.ToList().FindIndex(s => s.ToLower().StartsWith("Apt."));
             bool AptMatch = (Apt1Idx == -1) && (Apt2Idx == -1);
             if ((Apt1Idx > 1) && (Apt2Idx > 1))
             {

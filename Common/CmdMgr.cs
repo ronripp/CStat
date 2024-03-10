@@ -966,6 +966,9 @@ namespace CStat.Common
 
             if ((people?.Count ?? 0) > 0)
             {
+                if (MailingOnly)
+                    people = GetMailingListPeople(people);
+
                 if ((_cmdFormat == CmdFormat.CSV) || (_cmdFormat == CmdFormat.EXCEL))
                 {
                     // EMail a CSV File
@@ -981,10 +984,7 @@ namespace CStat.Common
                                 if (!isOnly)
                                     wFile.WriteLine("First Name,Last Name,Gender,DOB,Serve,Address,Phone,EMail");
                                 else if (MailingOnly)
-                                {
-                                    people = GetMailingListPeople(people);
                                     wFile.WriteLine("First Name,Last Name,Address");
-                                }
                                 else if (EMailOnly)
                                     wFile.WriteLine("First Name,Last Name,EMail");
                                 else // if (PhoneOnly)
@@ -998,7 +998,13 @@ namespace CStat.Common
                                     if (MailingOnly)
                                     {
                                         if (!String.IsNullOrEmpty(adrStr.Trim()))
-                                            wFile.WriteLine(fn + "," + ln + "," + adrStr);
+                                        {
+                                            if (fn == "Family")
+                                                wFile.WriteLine(ln + "," + fn + "," + adrStr);
+                                            else
+                                                wFile.WriteLine(fn + "," + ln + "," + adrStr);
+
+                                        }
                                         continue;
                                     }
 
@@ -1027,7 +1033,7 @@ namespace CStat.Common
                                 wFile.Close();
 
                                 var email = new CSEMail(_config, _userManager);
-                                result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + "\nThanks!\nCee Stat", new string[] { FullFile })
+                                result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { FullFile })
                                     ? "E-Mail sent with " + EMailTitle
                                     : "Failed to E-Mail : " + EMailTitle;
                             }
@@ -1060,12 +1066,12 @@ namespace CStat.Common
                         }
                         else
                         {
-                            result += ("*" + p.FirstName + " " + p.LastName + " : " +
+                            result += ((!MailingOnly ? "*" : "") + ((p.FirstName == "Family") ? p.LastName + " " + p.FirstName : p.FirstName + " " + p.LastName) + " : " +
                             (showPhone ? Person.GetBestPhone(p) + " " : "") +
-                            (showAdr ? Address.GetAddressStr(p.Address) + " " : "") +
+                            (showAdr ? Address.GetAddressStr(p.Address, !MailingOnly) + " " : "") +
                             (showEMail ? Person.GetEMailStr(p) + " " : "") +
                             (showAttr ? Person.GetRoleStr(p) + " " : "") +
-                            (showAttr ? Person.GetSkillStr(p) : "") + $"\n\n");
+                            (showAttr ? Person.GetSkillStr(p) : "") + $"\n" + (!MailingOnly ? "\n" : ""));
                         }
                     }
                 }
@@ -1073,7 +1079,7 @@ namespace CStat.Common
             return result.Trim();
         }
 
-        private static List<Person> GetMailingListPeople (List<Person> raw)
+        private static List<Person> GetMailingListPeople(List<Person> raw)
         {
             string curln = "";
             List<List<Person>> LALists = null;
@@ -1081,11 +1087,16 @@ namespace CStat.Common
 
             foreach (var p in raw.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
             {
-                var ln = p.LastName;
-                if (string.IsNullOrEmpty(ln))
-                    continue;
+                var ln = p.LastName.Trim();
+                if (string.IsNullOrEmpty(ln)
+                    || (p.Address == null)
+                    || string.IsNullOrEmpty(p.Address.Street)
+                    || p.Address.Street.StartsWith("<missing>", StringComparison.OrdinalIgnoreCase)
+                    || ((p.Address.Status & (int)Address.AddressStatus.AdrStat_RTS) != 0)
+                    || (p.Status.HasValue && ((p.Status.Value & (int)Person.PersonStatus.Deceased) != 0)) )
+                       continue;
 
-                if (!string.IsNullOrEmpty(curln) && (curln != ln))
+                if (!string.IsNullOrEmpty(curln) && !string.Equals(curln,ln, StringComparison.OrdinalIgnoreCase))
                     AddLAPeople(LALists, LAPeople);
                 UpdateLAPeople(ref LALists, p);
                 curln = ln;
@@ -1118,8 +1129,34 @@ namespace CStat.Common
             int startPpl = laPeople.Count;
             foreach (var la in laLists)
             {
-                laPeople.AddRange(la);
+                int totalCount = la.Count;
+                var fam = la.Where(p => p.FirstName.StartsWith("Family", StringComparison.OrdinalIgnoreCase)).ToList();
+                int famCount = fam.Count;
+                if ((famCount >= 1) && (((totalCount - famCount) > 1) || (famCount == totalCount)))
+                {
+                    // Just output existing family person since there are {no individual person} or {multiple people} at same address 
+                    var fp = fam.First();
+                    fp.FirstName = "Family";
+                    laPeople.Add(fp); // Add LastName Family
+                }
+                else
+                {
+                    if ((totalCount - famCount) > 1)
+                    {
+                        // Just output family since there are multiple people at same address
+                        var fp = la.First();
+                        fp.FirstName = "Family";
+                        laPeople.Add(fp); // Add LastName Family
+                    }
+                    else
+                    {
+                        // Just output single person
+                        var fp = la.Find(p => !p.FirstName.StartsWith("Family", StringComparison.OrdinalIgnoreCase));
+                        laPeople.Add(fp); // Add individual
+                    }
+                }
             }
+            laLists.RemoveAll(p => true);
             return laPeople.Count - startPpl;
         }
 

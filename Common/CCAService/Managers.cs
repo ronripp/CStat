@@ -1536,7 +1536,7 @@ namespace CStat
                 bool bHasCS = (city.Length > 0) && (state.Length > 0);
                 String streetValue;
                 if (bHasStreet)
-                    streetValue = PersonMgr.CleanStreet(street);
+                    streetValue = Address.CleanStreet(street);
                 else
                     streetValue = "";
 
@@ -1932,7 +1932,7 @@ namespace CStat
             bool bHasCS = (!city.Equals(default(KeyValuePair<String, String>)) && (city.Value.Length > 0)) && bHasState;
             String streetValue;
             if (bHasStreet)
-                streetValue = CleanStreet(street.Value);
+                streetValue = Address.CleanStreet(street.Value);
             else
                 streetValue = "";
             if (((bHasStreet != bHasCS) || (bHasCS != bHasZip)) && !bJustGetPerson && !bAllowNoAddress)
@@ -3038,68 +3038,6 @@ namespace CStat
             p.LastName = raw.Substring(isp + 1);
             p.LastName = p.LastName.Trim();
             return true;
-        }
-
-        static public String CleanStreet(String oldStr)
-        {
-            String newStr = oldStr.Trim();
-            newStr = newStr.Replace("  ", " ");
-            String upStr = newStr.ToUpper();
-            int len = newStr.Length;
-            if (upStr.EndsWith(" DRIVE"))
-                newStr = newStr.Remove(len - 5) + "Dr.";
-            else if (upStr.EndsWith(" DR"))
-                newStr = newStr.Remove(len - 2) + "Dr.";
-            else if (upStr.EndsWith(" PLACE"))
-                newStr = newStr.Remove(len - 5) + "Pl.";
-            else if (upStr.EndsWith(" PL"))
-                newStr = newStr.Remove(len - 2) + "Pl.";
-            else if (upStr.EndsWith(" AVENUE"))
-                newStr = newStr.Remove(len - 6) + "Ave.";
-            else if (upStr.EndsWith(" AVE"))
-                newStr = newStr.Remove(len - 3) + "Ave.";
-            else if (upStr.EndsWith(" AV"))
-                newStr = newStr.Remove(len - 2) + "Ave.";
-            else if (upStr.EndsWith(" STREET"))
-                newStr = newStr.Remove(len - 6) + "St.";
-            else if (upStr.EndsWith(" ST"))
-                newStr = newStr.Remove(len - 2) + "St.";
-            else if (upStr.EndsWith(" ROAD"))
-                newStr = newStr.Remove(len - 4) + "Rd.";
-            else if (upStr.EndsWith(" RD"))
-                newStr = newStr.Remove(len - 2) + "Rd.";
-            else if (upStr.EndsWith(" LANE"))
-                newStr = newStr.Remove(len - 4) + "Ln.";
-            else if (upStr.EndsWith(" LN"))
-                newStr = newStr.Remove(len - 2) + "Ln.";
-            else if (upStr.EndsWith(" COURT"))
-                newStr = newStr.Remove(len - 5) + "Ct.";
-            else if (upStr.EndsWith(" CT"))
-                newStr = newStr.Remove(len - 2) + "Ct.";
-            else if (upStr.EndsWith(" TRAIL"))
-                newStr = newStr.Remove(len - 5) + "Tr.";
-            else if (upStr.EndsWith(" TR"))
-                newStr = newStr.Remove(len - 2) + "Tr.";
-            else if (upStr.EndsWith(" TERRACE"))
-                newStr = newStr.Remove(len - 7) + "Ter.";
-            else if (upStr.EndsWith(" TER"))
-                newStr = newStr.Remove(len - 3) + "Ter.";
-            else if (upStr.EndsWith(" TERR"))
-                newStr = newStr.Remove(len - 4) + "Ter.";
-            else if (upStr.EndsWith(" Boulevard"))
-                newStr = newStr.Remove(len - 9) + "Blvd.";
-            else if (upStr.EndsWith(" Blvd"))
-                newStr = newStr.Remove(len - 4) + "Blvd.";
-            else if (upStr.EndsWith(" Blv"))
-                newStr = newStr.Remove(len - 3) + "Blvd.";
-            else if (upStr.EndsWith(" Bl"))
-                newStr = newStr.Remove(len - 2) + "Blvd.";
-            else if (upStr.EndsWith(" HIGHWAY"))
-                newStr = newStr.Remove(len - 7) + "Hwy.";
-            else if (upStr.EndsWith(" WAY"))
-                newStr = newStr.Remove(len - 3) + "Way";
-
-            return newStr;
         }
     }
 

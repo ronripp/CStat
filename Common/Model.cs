@@ -361,7 +361,7 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(a.State))
                 astr += ", " + GetStateAbbr(a.State);
             if (!string.IsNullOrEmpty(a.ZipCode))
-                astr += " " + a.ZipCode;
+                astr += " " + FixZip(a.ZipCode);
             if (addPhone)
             {
                 if (!string.IsNullOrEmpty(a.Phone))

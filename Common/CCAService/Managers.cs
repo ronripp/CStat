@@ -2687,6 +2687,7 @@ namespace CStat
         {
             if ((value != null) && (value.Length > 0))
             {
+                value = value.Replace("'", "''");
                 if (!bFiltered)
                     sel = sel + " WHERE ";
                 else

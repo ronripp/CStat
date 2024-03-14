@@ -105,7 +105,8 @@ namespace CStat.Common
             CHURCH     = 0x00100000,
             TRASH      = 0x00200000,
             INTERNET   = 0x00400000,
-            NYSDOH     = 0x00800000
+            NYSDOH     = 0x00800000,
+            BUSINESS   = 0x01000000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -165,6 +166,14 @@ namespace CStat.Common
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) },
             {"church", new Tuple<CmdSource, bool>(CmdSource.CHURCH, false) },
             {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) },
+            {"vendors", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"business", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"biz", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"store", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"stores", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
+            {"businesses", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
+            {"company", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"companies", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
             {"garbage", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"rubbish", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"cable", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
@@ -300,6 +309,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.INTERNET, HandleBiz);
             _srcDelegateDict.Add(CmdSource.TRASH, HandleBiz);
             _srcDelegateDict.Add(CmdSource.NYSDOH, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.BUSINESS, HandleBiz);
 
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
@@ -1528,6 +1538,26 @@ namespace CStat.Common
             {
                 bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.NYS)).ToList();
             }
+            else
+            {
+                if (_cmdDescList.Count > 0)
+                {
+                    var match = _cmdDescList[0];
+                    string[] BizTypes = System.Enum.GetNames(typeof(Business.EType)).Select (b => b.Replace("_", " ")).ToArray();
+                    int i;
+                    for (i = 0; i < BizTypes.Length; ++i)
+                    {
+                        if (BizTypes[i].StartsWith(match, StringComparison.OrdinalIgnoreCase))
+                            break;
+                    }
+                    if (i == BizTypes.Length)
+                        bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Name.StartsWith(match, StringComparison.OrdinalIgnoreCase)).ToList();
+                    else
+                        bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == i)).ToList();
+                }
+                else
+                    bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).ToList();
+            }
 
             string report = "";
             if (bizList.Count == 0)
@@ -1542,7 +1572,7 @@ namespace CStat.Common
                         report += " : " + b.Poc.FirstName + " " + b.Poc.LastName;
                     }
                     if ((b.Address != null) && !string.IsNullOrEmpty(b.Address.Phone))
-                        report += " : " + Person.FixPhone(b.Address.Phone) + " ";
+                        report += " : " + Address.FormatAddress(b.Address) + " " + Person.FixPhone(b.Address.Phone) + " ";
                     if (!string.IsNullOrEmpty(b.Terms))
                         report += " : " + b.Terms;
                     report += "\n\n";

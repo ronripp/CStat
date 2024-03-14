@@ -146,6 +146,22 @@
             //window.dispatchEvent(new Event('resize'));
             //window.location.reload(true);
             //alert(window.innerHeight);
+            //$('#aaa').text("scrH=" + window.screen.height);
+            //$('#bbb').text("outH=" + window.outerHeight);
+        
+            if ((window.outerHeight == 0) || (window.outerHeight > window.screen.height)) {
+                //    setTimeout(() => {
+                //        if ((window.outerHeight == 0) || (window.outerHeight > window.screen.height)) {
+                //            window.location.reload(true);
+                //        }
+                //    }, 200);
+                //    setTimeout(() => {
+                //        if ((window.outerHeight == 0) || (window.outerHeight > window.screen.height)) {
+                //            window.location.reload(true);
+                //        }
+                //    }, 400);
+                document.location.href = "https://ccaserve.org/Identity/Account/Login?ReturnUrl=%2F";
+            }
         }
 
         $(document).ready(function () {
@@ -154,7 +170,7 @@
     </script>
 
 </head>
-<body>
+<body onload="resetCS()">
     <div class="box">
         <div class="row header">
             @{

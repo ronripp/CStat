@@ -125,7 +125,6 @@ namespace CStat.Common
             {"lpg", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
             {"lp", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
             {"propanes", new Tuple<CmdSource, bool>(CmdSource.PROPANE, true) },
-            {"power", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"meter", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"inv", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
             {"?", new Tuple<CmdSource, bool>(CmdSource.QUESTION, false) },
@@ -182,6 +181,7 @@ namespace CStat.Common
             {"rubbish", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"cable", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
             {"mtc", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
+            {"power", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
             {"new york", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"ny", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"nys", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
@@ -1582,7 +1582,7 @@ namespace CStat.Common
                 {
                     // Try to determine from a descriptive word in command
                     var match = _cmdDescList[0];
-                    string[] BizTypes = System.Enum.GetNames(typeof(Business.EType)).Select (b => b.Replace("_", " ")).ToArray();
+                    string[] BizTypes = System.Enum.GetNames(typeof(Business.EType)).Select(b => b.Replace("_", " ")).ToArray();
                     int i;
                     for (i = 0; i < BizTypes.Length; ++i)
                     {
@@ -1590,12 +1590,16 @@ namespace CStat.Common
                             break;
                     }
                     if (i == BizTypes.Length)
-                        bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Name.StartsWith(match, StringComparison.OrdinalIgnoreCase)).ToList();
+                        bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Name.ToLower().StartsWith(match)).ToList();
                     else
                         bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == i)).ToList();
                 }
-                else
-                    bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).ToList();
+                if (bizList.Count == 0)
+                {
+                    bizList = (words.IndexOf("power") != -1)
+                              ? bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Electric)).ToList()
+                              : _context.Business.Include(b => b.Poc).Include(b => b.Address).ToList();
+                }
             }
 
             string report = "";

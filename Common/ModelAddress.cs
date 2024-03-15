@@ -349,19 +349,22 @@ namespace CStat.Models
             newStr = newStr.Remove(len - 3) + "Ter.";
         else if (upStr.EndsWith(" TERR"))
             newStr = newStr.Remove(len - 4) + "Ter.";
-        else if (upStr.EndsWith(" Boulevard"))
+        else if (upStr.EndsWith(" BOULEVARD"))
             newStr = newStr.Remove(len - 9) + "Blvd.";
-        else if (upStr.EndsWith(" Blvd"))
+        else if (upStr.EndsWith(" BLVD"))
             newStr = newStr.Remove(len - 4) + "Blvd.";
-        else if (upStr.EndsWith(" Blv"))
+        else if (upStr.EndsWith(" BLV"))
             newStr = newStr.Remove(len - 3) + "Blvd.";
-        else if (upStr.EndsWith(" Bl"))
+        else if (upStr.EndsWith(" BL"))
             newStr = newStr.Remove(len - 2) + "Blvd.";
         else if (upStr.EndsWith(" HIGHWAY"))
             newStr = newStr.Remove(len - 7) + "Hwy.";
-        else if (upStr.EndsWith(" WAY"))
+        else if (upStr.EndsWith(" WY"))
             newStr = newStr.Remove(len - 3) + "Way";
-
+        else if (upStr.EndsWith(" COMMONS"))
+            newStr = newStr.Remove(len - 7) + "Cmns.";
+        else if (upStr.EndsWith(" CMNS"))
+            newStr = newStr.Remove(len - 7) + "Cmns.";
         return newStr;
     }
 

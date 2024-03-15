@@ -106,7 +106,11 @@ namespace CStat.Common
             TRASH      = 0x00200000,
             INTERNET   = 0x00400000,
             NYSDOH     = 0x00800000,
-            BUSINESS   = 0x01000000
+            FOOD       = 0x01000000,
+            BUSINESS   = 0x02000000,
+            HARDWARE   = 0x04000000,
+            OFFICE     = 0x08000000
+
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -200,6 +204,17 @@ namespace CStat.Common
             {"contact", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"contacts", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"campers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+
+            {"kitchen_supply", new Tuple<CmdSource, bool>(CmdSource.FOOD, false) },
+            {"grocery", new Tuple<CmdSource, bool>(CmdSource.FOOD, false) },
+            {"groceries", new Tuple<CmdSource, bool>(CmdSource.FOOD, true) },
+            {"produce", new Tuple<CmdSource, bool>(CmdSource.FOOD, false) },
+
+            {"hardware", new Tuple<CmdSource, bool>(CmdSource.HARDWARE, false) },
+            {"lumber", new Tuple<CmdSource, bool>(CmdSource.HARDWARE, false) },
+
+            {"office", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
+            {"office supply", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
 
             {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"reqs", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
@@ -310,6 +325,9 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.TRASH, HandleBiz);
             _srcDelegateDict.Add(CmdSource.NYSDOH, HandleBiz);
             _srcDelegateDict.Add(CmdSource.BUSINESS, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.FOOD, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.HARDWARE, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.OFFICE, HandleBiz);
 
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
@@ -357,6 +375,12 @@ namespace CStat.Common
                            .Replace("mailing list", "mailing_list")
                            .Replace("list of mailing addresses", "mailing_list")
                            .Replace("list of contacts", "people_list")
+                           .Replace("building supplies", "hardware")
+                           .Replace("building supply", "hardware")
+                           .Replace("kitchen supply", "kitchen_supply")
+                           .Replace("kitchen supplies", "kitchen_supply")
+                           .Replace("office supply", "office_supply")
+                           .Replace("office supplies", "office_supply")
                            .Replace("email list", "email_list")
                            .Replace("list of email addresses", "email_list")
                            .Replace("list of emails", "email_list");                   
@@ -1538,10 +1562,25 @@ namespace CStat.Common
             {
                 bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.NYS)).ToList();
             }
+            else if (_cmdSrc == CmdSource.FOOD)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && ((b.Type.Value == (int)Business.EType.Food) || (b.Type.Value == (int)Business.EType.Kitchen_Supply) || (b.Type.Value == (int)Business.EType.Department))).ToList();
+            }
+            else if (_cmdSrc == CmdSource.HARDWARE)
+            {
+                bizList = (words.IndexOf("lumber") != -1)
+                    ? _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Hardware)).ToList()
+                    : _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && ((b.Type.Value == (int)Business.EType.Hardware) || (b.Type.Value == (int)Business.EType.Department))).ToList();
+            }
+            else if (_cmdSrc == CmdSource.OFFICE)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && ((b.Type.Value == (int)Business.EType.Office_Supply) || (b.Type.Value == (int)Business.EType.Department))).ToList();
+            }
             else
             {
                 if (_cmdDescList.Count > 0)
                 {
+                    // Try to determine from a descriptive word in command
                     var match = _cmdDescList[0];
                     string[] BizTypes = System.Enum.GetNames(typeof(Business.EType)).Select (b => b.Replace("_", " ")).ToArray();
                     int i;
@@ -1573,8 +1612,14 @@ namespace CStat.Common
                     }
                     if ((b.Address != null) && !string.IsNullOrEmpty(b.Address.Phone))
                         report += " : " + Address.FormatAddress(b.Address) + " " + Person.FixPhone(b.Address.Phone) + " ";
+                   
                     if (!string.IsNullOrEmpty(b.Terms))
-                        report += " : " + b.Terms;
+                    {
+                        var terms = b.Terms.Trim();
+                        if (!string.IsNullOrEmpty(terms))
+                            report += " : " + terms;
+                    }
+                        
                     report += "\n\n";
                 }
                 return report.Trim();

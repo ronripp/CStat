@@ -125,6 +125,8 @@ namespace CStat.Common
             {"lpg", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
             {"lp", new Tuple<CmdSource, bool>(CmdSource.PROPANE, false) },
             {"propanes", new Tuple<CmdSource, bool>(CmdSource.PROPANE, true) },
+            {"power", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
+            {"electricity", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"meter", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"inv", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
             {"?", new Tuple<CmdSource, bool>(CmdSource.QUESTION, false) },
@@ -181,7 +183,6 @@ namespace CStat.Common
             {"rubbish", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"cable", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
             {"mtc", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
-            {"power", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
             {"new york", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"ny", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
             {"nys", new Tuple<CmdSource, bool>(CmdSource.NYSDOH, false) },
@@ -1342,29 +1343,60 @@ namespace CStat.Common
             }
             else if (_cmdSrc == CmdSource.ELECTRIC)
             {
-                var powMgr = new PowerMgr();
-                double totKWHrs = 0;
-                bool success = false;
-                string powStr = "";
-                if (_cmdDateRange != null)
+                result = "Electric Power Info :\n";
+                ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
+                ArdRecord ar = am.GetLast();
+                result = "The Power at CCA is " + ((ar.PowerOn > 70) ? "on" : "off") + " as of " + ar.TimeStampStr() + "\n\n";
+
+                List<Business> bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Electric)).ToList();
+                if (bizList.Count > 0)
                 {
-                    success = powMgr.TryGetKWHrs(_cmdDateRange.Start, _cmdDateRange.End, out totKWHrs);
-                    if (_cmdDateRange.Start.Date != _cmdDateRange.End.Date)
+                    foreach (var b in bizList)
                     {
-                        powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
-                                 " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
+                        result += b.Name;
+                        if (b.Poc != null)
+                        {
+                           result += " : " + b.Poc.FirstName + " " + b.Poc.LastName;
+                        }
+                        if ((b.Address != null) && !string.IsNullOrEmpty(b.Address.Phone))
+                            result += " : " + Address.FormatAddress(b.Address) + " " + Person.FixPhone(b.Address.Phone) + " ";
+
+                        if (!string.IsNullOrEmpty(b.Terms))
+                        {
+                            var terms = b.Terms.Trim();
+                            if (!string.IsNullOrEmpty(terms))
+                                result += " : " + terms;
+                        }
+
+                        result += "\n\n";
                     }
-                    else
-                        powStr = "Power used on " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 + " = " + totKWHrs + " KWHrs";
-                }
-                else
-                {
-                    DateTime Date = PropMgr.ESTNow;
-                    success = powMgr.TryGetKWHrs(Date, Date, out totKWHrs);
-                    powStr = "Power used on " + Date.Month + "/" + Date.Day + "/" + Date.Year % 100 + " = " + totKWHrs + " KWHrs";
+                    result = result.Trim();
+                    result += "\n";
                 }
 
-                result = success ? powStr : "Sorry. Unable to get Total KwHrs now.";
+                //var powMgr = new PowerMgr();
+                //double totKWHrs = 0;
+                //bool success = false;
+                //string powStr = "";
+                //if (_cmdDateRange != null)
+                //{
+                //    success = powMgr.TryGetKWHrs(_cmdDateRange.Start, _cmdDateRange.End, out totKWHrs);
+                //    if (_cmdDateRange.Start.Date != _cmdDateRange.End.Date)
+                //    {
+                //        powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
+                //                 " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
+                //    }
+                //    else
+                //        powStr = "Power used on " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 + " = " + totKWHrs + " KWHrs";
+                //}
+                //else
+                //{
+                //    DateTime Date = PropMgr.ESTNow;
+                //    success = powMgr.TryGetKWHrs(Date, Date, out totKWHrs);
+                //    powStr = "Power used on " + Date.Month + "/" + Date.Day + "/" + Date.Year % 100 + " = " + totKWHrs + " KWHrs";
+                //}
+
+                //result = success ? powStr : "Sorry. Unable to get Total KwHrs now.";
             }
             else
             {

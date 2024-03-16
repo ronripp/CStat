@@ -471,15 +471,15 @@ namespace CStat.Common
 
         public static double GetValue(string propName, ArdRecord ar, PropaneLevel pl, bool returnClass = true)
         {
-            string tPropName = propName.Trim();
+            string tPropName = propName.Trim().ToLower();
             return tPropName switch
             {
-                "freezerTemp" => (ar != null) ? ar.FreezerTempF : PropMgr.NotSet,
-                "frigTemp" => (ar != null) ? ar.FridgeTempF : PropMgr.NotSet,
-                "kitchTemp" => (ar != null) ? ar.KitchTempF : PropMgr.NotSet,
-                "propaneTank" => (pl != null) ? pl.LevelPct : PropMgr.NotSet,
-                "waterPres" => (ar != null) ? ar.WaterPress : PropMgr.NotSet,
-                "powerOn" => (ar != null) ? ar.PowerOn : PropMgr.NotSet,
+                "freezertemp" => (ar != null) ? ar.FreezerTempF : PropMgr.NotSet,
+                "frigtemp" => (ar != null) ? ar.FridgeTempF : PropMgr.NotSet,
+                "kitchtemp" => (ar != null) ? ar.KitchTempF : PropMgr.NotSet,
+                "propanetank" => (pl != null) ? pl.LevelPct : PropMgr.NotSet,
+                "waterpres" => (ar != null) ? ar.WaterPress : PropMgr.NotSet,
+                "poweron" => (ar != null) ? ar.PowerOn : PropMgr.NotSet,
                 _ => PropMgr.NotSet,
             };
         }

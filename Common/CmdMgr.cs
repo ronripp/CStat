@@ -23,13 +23,19 @@ namespace CStat.Common
 
         public enum CmdAction
         {
-            FIND    = 0x00000000,
-            COMPUTE = 0x00000001,
-            ADD     = 0x00000002,
-            DELETE  = 0x00000004,
-            UPDATE  = 0x00000008,
-            CALL    = 0x00000010,
-            NEED    = 0x00000020,
+            FIND     = 0x00000000,
+            COMPUTE  = 0x00000001,
+            ADD      = 0x00000002,
+            DELETE   = 0x00000004,
+            UPDATE   = 0x00000008,
+            CALL     = 0x00000010,
+            NEED     = 0x00000020,
+            CLEAN    = 0x00000040,
+            BUY      = 0x00000080,
+            USE      = 0x00000100,
+            TURN_ON  = 0x00000200,
+            TURN_OFF = 0x00000400,
+            RESET    = 0x00000000
         };
 
         public enum CmdFormat
@@ -47,18 +53,22 @@ namespace CStat.Common
             {"Phones", CmdAction.CALL},
             {"needed", CmdAction.NEED},
             {"needs", CmdAction.NEED},
-            {"Get", CmdAction.FIND},
-            {"Show", CmdAction.FIND},
-            {"Report", CmdAction.FIND},
-            {"List", CmdAction.FIND},
-            {"Locate", CmdAction.FIND},
+            {"get", CmdAction.FIND},
+            {"show", CmdAction.FIND},
+            {"report", CmdAction.FIND},
+            {"list", CmdAction.FIND},
+            {"locate", CmdAction.FIND},
             {"Info", CmdAction.FIND},
             {"Information", CmdAction.FIND},
-            {"Modify", CmdAction.UPDATE},
-            {"Change", CmdAction.UPDATE},
-            {"Append", CmdAction.ADD},
+            {"modify", CmdAction.UPDATE},
+            {"change", CmdAction.UPDATE},
+            {"append", CmdAction.ADD},
             {"we_need", CmdAction.ADD},
-            {"order", CmdAction.ADD}
+            {"order", CmdAction.BUY},
+            {"buy", CmdAction.BUY},
+            {"purchase", CmdAction.BUY},
+            {"clean", CmdAction.CLEAN},
+            {"wash", CmdAction.CLEAN}
         };
 
         private static readonly Dictionary<string, CmdFormat> CmdFormatDict = new Dictionary<string, CmdFormat>(StringComparer.OrdinalIgnoreCase)
@@ -217,6 +227,15 @@ namespace CStat.Common
             {"office", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
             {"office supply", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
 
+            //{pots_and_pans}
+            //{sink}
+            //{bathroom}
+            //dishwasher
+            //lawnmover
+            //tools
+            //water
+            //tanks
+
             {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"reqs", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
             {"list", new Tuple<CmdSource, bool>(CmdSource.URGENCY, false) },
@@ -362,6 +381,9 @@ namespace CStat.Common
                            .Replace("phone #s", "phone_list")
                            .Replace("phone numbers", "phone_list")
                            .Replace("phone directory", "phone_list")
+                           .Replace("listing", "list")
+                           .Replace("mailing address", "mailing")
+                           .Replace("mailing addresses", "mailing_list")
                            .Replace("list of contacts", "people_list")
                            .Replace("list of people", "people_list")
                            .Replace("people list", "people_list")
@@ -374,7 +396,6 @@ namespace CStat.Common
                            .Replace("camper list", "people_list")
                            .Replace("list of campers", "people_list")
                            .Replace("mailing list", "mailing_list")
-                           .Replace("list of mailing addresses", "mailing_list")
                            .Replace("list of contacts", "people_list")
                            .Replace("building supplies", "hardware")
                            .Replace("building supply", "hardware")
@@ -469,6 +490,8 @@ namespace CStat.Common
                 words.Add(word);
             }
 
+            _cmdDescList.Clear(); // Clear first as any of the Finds below may add to it.
+
             FindCmdSource(words); // Look for command source second
             FindCmdOutput(words); // Look for command output first
             FindCmdAction(words);
@@ -534,6 +557,61 @@ namespace CStat.Common
                 return "Results";
             }
         }
+
+        public bool FindCmdSource(List<string> words) // ZZZAAA ************************
+        {
+            var NumWords = words.Count;
+
+            // First find Cmd Src Descriptors
+            // phone_number of
+            // email of
+            // email_address of
+            // names of
+            // manual of
+            // address of
+            // manual of
+            // mailing_list of
+            // location of
+            // Where is/are the/a
+            // Where can we/I/someone
+            // How do/does we/I/someone/one/ <use/operate/perform/do>
+            // How to <use/operate/perform/do>
+            // What is/are
+            // Who can/has a/the
+            // What is are
+
+            //*** isWhen
+            // When is/will
+            // At what time
+            // On what date
+            // When is
+
+
+            var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
+            for (int i = NumWords - 1; i >= 0; --i)
+            {
+                if (AlreadyHandled(i)) continue;
+
+                var word = words[i];
+                var match = CmdSrcList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(match))
+                {
+                    _cmdSrc = (CmdSource)Enum.Parse(typeof(CmdSource), match);
+                    _cmdSrcIdx = i;
+                    return true;
+                }
+
+                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource, bool> cmdSrc))
+                {
+                    _cmdSrc = cmdSrc.Item1;
+                    _isPlural = cmdSrc.Item2;
+                    _cmdSrcIdx = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         public bool FindNumber(List<string> words)
         {
@@ -726,8 +804,7 @@ namespace CStat.Common
             var CmdInstsList = Enum.GetNames(typeof(CmdInsts)).Cast<string>().ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                if ((i == _cmdSrcIdx) || (i == _cmdOutputIdx) || (i == _cmdFormatIdx))
-                    continue;
+                if (AlreadyHandled(i)) continue;
 
                 var word = words[i];
                 CmdInsts cmdInsts;
@@ -770,6 +847,13 @@ namespace CStat.Common
 
             return true;
         }
+
+        public bool AlreadyHandled (int i)
+        {
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+                (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
+        }
+
         public bool FindEvent(List<string> words)
         {
             // Filter out Sources and actions not associated with Event
@@ -783,10 +867,7 @@ namespace CStat.Common
             var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).Where(s => s != "other").ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                if ((i == _cmdActionIdx) || (i == _cmdSrcIdx) || (i == _cmdNumberIdx) || (_cmdDateTimeStartIdx == i) || (_cmdDateTimeEndIdx == i))
-                    return false;
-                if (_cmdInstsIdxList.Any(j => j == i))
-                    return false;
+                if (AlreadyHandled(i)) continue;
 
                 // Make sure word match is a whole Event word
                 var eventStrs = eventList.Where(es => es.StartsWith(words[i] + " ")).ToList();
@@ -813,42 +894,14 @@ namespace CStat.Common
             return false;
         }
 
-        public bool FindCmdSource(List<string> words)
-        {
-            var NumWords = words.Count;
-            var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
-            for (int i = NumWords - 1; i >= 0; --i)
-            {
-                var word = words[i];
-                var match = CmdSrcList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
-                if (!string.IsNullOrEmpty(match))
-                {
-                    _cmdSrc = (CmdSource)Enum.Parse(typeof(CmdSource), match);
-                    _cmdSrcIdx = i;
-                    return true;
-                }
-
-                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource, bool> cmdSrc))
-                {
-                    _cmdSrc = cmdSrc.Item1;
-                    _isPlural = cmdSrc.Item2;
-                    _cmdSrcIdx = i;
-                    return true;
-                }
-            }
-            return false;
-        }
 
         public bool FindDesc(List<string> words)
         {
-            _cmdDescList.Clear();
             var NumWords = words.Count;
             int LastDescIdx = -1;
             for (int i = 0; i < NumWords; ++i)
             {
-                if ((i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
-                    (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx)) )
-                    continue;
+                if (AlreadyHandled(i)) continue;
 
                 if ((LastDescIdx != -1) && (LastDescIdx != (i - 1)) && (_cmdSrcIdx != (i-1)))
                     break;
@@ -858,6 +911,8 @@ namespace CStat.Common
                     continue;
 
                 _cmdDescList.Add(words[i]);
+                _cmdDescIdxList.Add(i);
+
                 LastDescIdx = i;
             }
 
@@ -2033,8 +2088,10 @@ namespace CStat.Common
         private int _hasMyIdx = -1;
         private bool _isQuestion = false;
         private bool _isUrgent = false;
+        private bool _isWhen = false;
 
         private List<string> _cmdDescList = new List<string>();
+        private List<int> _cmdDescIdxList = new List<int>();
 
         private int _cmdNumber = -1;
         private int _cmdNumberIdx = -1;

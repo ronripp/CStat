@@ -35,7 +35,7 @@ namespace CStat.Common
             USE      = 0x00000100,
             TURN_ON  = 0x00000200,
             TURN_OFF = 0x00000400,
-            RESET    = 0x00000000
+            RESET    = 0x00000800
         };
 
         public enum CmdFormat
@@ -121,6 +121,40 @@ namespace CStat.Common
             HARDWARE   = 0x04000000,
             OFFICE     = 0x08000000
 
+        }
+
+        public enum CmdSpecific
+        {
+            // phone_number of
+            // email of
+            // email_address of
+            // names of
+            // manual of
+            // address of
+            // manual of
+            // mailing_list of
+            // location of
+            // Where is/are the/a
+            // Where can we/I/someone
+            // How do/does we/I/someone/one/ <use/operate/perform/do>
+            // How to <use/operate/perform/do>
+            // What is/are
+            // Who is/can/has a/the
+            // What is are
+
+            NONE         = 0x00000000,
+            EMAIL_OF     = 0x00000001,
+            PHONE_OF     = 0x00000002,
+            HOW_TO       = 0x00000004,
+            LOCATION_OF  = 0x00000008,
+            DATE_TIME_OF = 0x00000010,
+            NAME_OF      = 0x00000020,
+            OWNER_OF     = 0x00000040,
+            INFO_ON      = 0x00000080,
+            AMOUNT_OF    = 0x00000100,
+            STATE_OF     = 0x00000200,
+            REASON_OF    = 0x00000400,
+            EXECUTE      = 0x00000800
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -405,7 +439,10 @@ namespace CStat.Common
                            .Replace("office supplies", "office_supply")
                            .Replace("email list", "email_list")
                            .Replace("list of email addresses", "email_list")
-                           .Replace("list of emails", "email_list");                   
+                           .Replace("list of emails", "email_list")
+                           .Replace("turn on", "turn_on")
+                           .Replace("turn off", "turn_off")
+                           ;                   
             
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
@@ -558,11 +595,19 @@ namespace CStat.Common
             }
         }
 
-        public bool FindCmdSource(List<string> words) // ZZZAAA ************************
+        static bool MatchSW(List<string> words, int index, string target)
+        {
+            return (index < words.Count) && (string.Equals(words[index], target, StringComparison.OrdinalIgnoreCase);
+        }
+
+        static string GetSW(List<string> words, int index)
+        {
+            return (index < words.Count) ? words[index] : "";
+        }
+
+        public bool FindCmdSpecific(List<string> words) // ZZZAAA ************************
         {
             var NumWords = words.Count;
-
-            // First find Cmd Src Descriptors
             // phone_number of
             // email of
             // email_address of
@@ -577,14 +622,75 @@ namespace CStat.Common
             // How do/does we/I/someone/one/ <use/operate/perform/do>
             // How to <use/operate/perform/do>
             // What is/are
-            // Who can/has a/the
+            // Who is/can/has a/the
             // What is are
+            // Why did/does/is/are the 
 
-            //*** isWhen
-            // When is/will
-            // At what time
-            // On what date
-            // When is
+            //EMAIL_OF = 0x00000001,
+            //PHONE_OF = 0x00000002,
+            //HOW_TO = 0x00000004,
+            //LOCATION_OF = 0x00000008,
+            //DATE_TIME_OF = 0x00000010,
+            //NAME_OF = 0x00000020,
+            //OWNER_OF = 0x00000040,
+            //INFO_ON = 0x00000080,
+            //AMOUNT_OF = 0x00000100,
+            //STATE_OF = 0x00000200,
+            //REASON_OF = 0x00000400,
+            //EXECUTE = 0x00000800
+
+            if (NumWords == 0) return false;
+
+            int curIdx = 0;
+            CmdSpecific cspec = CmdSpecific.NONE;
+
+            // TBD : Handle preceding tell me, show me
+
+            switch (words[curIdx])
+            {
+                case "who":
+                    _cmdSpecific = CmdSpecific.OWNER_OF;
+                    _cmdSpecificIdxList.Add(curIdx);
+                    switch (GetSW(words, ++curIdx))
+                    {
+                        case "is":
+                        case "are":
+                            _cmdSpecificIdxList.Add(curIdx);
+                            var w = GetSW(words, ++curIdx);
+                            if ((w == "the") || (w == "a") || (w == "an"))
+                                _cmdSpecificIdxList.Add(curIdx);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case "what":
+                    break;
+                case "where":
+                    break;
+                case "when":
+                    break;
+                case "why":
+                    break;
+                case "start":
+                    break;
+                case "stop":
+                    break;
+                case "turn_on":
+                    break;
+                case "turn_off":
+                    break;
+                case "reset":
+                    break;
+            }
+
+
+
+        }
+
+        public bool FindCmdSource(List<string> words) // ZZZAAA ************************
+        {
+            var NumWords = words.Count;
 
 
             var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
@@ -704,6 +810,9 @@ namespace CStat.Common
 
         public bool FindCmdAction(List<string> words)
         {
+            if (_cmdActionIdx != -1)
+                return false;
+
             _cmdAction = CmdAction.FIND; // default to FIND
 
             var NumWords = words.Count;
@@ -713,6 +822,10 @@ namespace CStat.Common
             {
                 var word = words[i];
                 var match = CmdActionList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
+
+
+
+
                 if (!string.IsNullOrEmpty(match))
                 {
                     _cmdAction = (CmdAction)Enum.Parse(typeof(CmdAction), match);
@@ -851,7 +964,7 @@ namespace CStat.Common
         public bool AlreadyHandled (int i)
         {
             return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
-                (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
+                (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
         public bool FindEvent(List<string> words)
@@ -2092,6 +2205,9 @@ namespace CStat.Common
 
         private List<string> _cmdDescList = new List<string>();
         private List<int> _cmdDescIdxList = new List<int>();
+
+        private CmdSpecific _cmdSpecific = default;
+        private List<int> _cmdSpecificIdxList = new List<int>();
 
         private int _cmdNumber = -1;
         private int _cmdNumberIdx = -1;

@@ -597,7 +597,7 @@ namespace CStat.Common
 
         static bool MatchSW(List<string> words, int index, string target)
         {
-            return (index < words.Count) && (string.Equals(words[index], target, StringComparison.OrdinalIgnoreCase);
+            return (index < words.Count) && string.Equals(words[index], target, StringComparison.OrdinalIgnoreCase);
         }
 
         static string GetSW(List<string> words, int index)
@@ -642,7 +642,6 @@ namespace CStat.Common
             if (NumWords == 0) return false;
 
             int curIdx = 0;
-            CmdSpecific cspec = CmdSpecific.NONE;
 
             // TBD : Handle preceding tell me, show me
 
@@ -683,9 +682,7 @@ namespace CStat.Common
                 case "reset":
                     break;
             }
-
-
-
+            return false;
         }
 
         public bool FindCmdSource(List<string> words) // ZZZAAA ************************

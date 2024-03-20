@@ -442,7 +442,8 @@ namespace CStat.Common
                            .Replace("list of emails", "email_list")
                            .Replace("turn on", "turn_on")
                            .Replace("turn off", "turn_off")
-                           ;                   
+                           .Replace(":", "")
+                           .Replace("  ", " ");
             
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
@@ -529,8 +530,8 @@ namespace CStat.Common
 
             _cmdDescList.Clear(); // Clear first as any of the Finds below may add to it.
 
-            FindCmdSource(words); // Look for command source second
-            FindCmdOutput(words); // Look for command output first
+            FindCmdSource(words); // Look for command source first
+            FindCmdOutput(words); // Look for command output second
             FindCmdAction(words);
             FindInsts(words);
             FindNumber(words);
@@ -568,7 +569,7 @@ namespace CStat.Common
                 return ("Try later.");
             var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
 
-            if (!noEMail && (IsEMail(words) || (_isTextMsg && (result.Length > TwilioReceive.Controllers.SmsController.MaxSendChars))) )
+            if (!noEMail && (IsEMailResult(words) || (_isTextMsg && (result.Length > TwilioReceive.Controllers.SmsController.MaxSendChars))) )
             {
                 CSEMail csEMail = new CSEMail(_config, _userManager);
                 return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? " successfully sent to " : " FAILED to be sent to ") + _curUser.EMail;
@@ -576,8 +577,11 @@ namespace CStat.Common
             return (result.Length > 0) ? result : "No Results.";
         }
 
-        private bool IsEMail(List<string> words)
+        private bool IsEMailResult(List<string> words)
         {
+            if (_cmdSpecific == CmdSpecific.EMAIL_OF)
+                return false;
+
             return ( ((words[0] == "email") && ((words.Count == 1) || (words[1] != "of"))) ||
                      ((words.Count > 2) && (words[0] == "send" && words[1] == "email")));
         }
@@ -595,12 +599,12 @@ namespace CStat.Common
             }
         }
 
-        static bool MatchSW(List<string> words, int index, string target)
+        static bool ew(List<string> words, int index, string target)
         {
             return (index < words.Count) && string.Equals(words[index], target, StringComparison.OrdinalIgnoreCase);
         }
 
-        static string GetSW(List<string> words, int index)
+        static string gw(List<string> words, int index)
         {
             return (index < words.Count) ? words[index] : "";
         }
@@ -641,47 +645,255 @@ namespace CStat.Common
 
             if (NumWords == 0) return false;
 
-            int curIdx = 0;
+            int idx = words.IndexOf("please");
+            if (idx != -1)
+                _cmdIgnoreIdxList.Add(idx);
 
-            // TBD : Handle preceding tell me, show me
+            _cmdSpecific = CmdSpecific.NONE;
 
-            switch (words[curIdx])
+            for (int curIdx = 0; curIdx < NumWords;)
             {
-                case "who":
-                    _cmdSpecific = CmdSpecific.OWNER_OF;
-                    _cmdSpecificIdxList.Add(curIdx);
-                    switch (GetSW(words, ++curIdx))
-                    {
-                        case "is":
-                        case "are":
-                            _cmdSpecificIdxList.Add(curIdx);
-                            var w = GetSW(words, ++curIdx);
+
+                // TBD : Handle preceding tell me, show me, please give me.
+                // TBD ending with to m
+
+                string w = "";
+                var startIdx = curIdx;
+                switch (words[curIdx])
+                {
+                    case "who":
+                        _cmdSpecific = CmdSpecific.OWNER_OF;
+                        _cmdSpecificIdxList.Add(curIdx);
+                        w = gw(words, ++curIdx);
+                        if ((w == "is") || (_isPlural = (w == "are")))
+                        {
+                            _cmdIgnoreIdxList.Add(curIdx);
+                            w = gw(words, ++curIdx);
                             if ((w == "the") || (w == "a") || (w == "an"))
-                                _cmdSpecificIdxList.Add(curIdx);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case "what":
-                    break;
-                case "where":
-                    break;
-                case "when":
-                    break;
-                case "why":
-                    break;
-                case "start":
-                    break;
-                case "stop":
-                    break;
-                case "turn_on":
-                    break;
-                case "turn_off":
-                    break;
-                case "reset":
-                    break;
+                                _cmdIgnoreIdxList.Add(curIdx);
+                        }
+                        return true;
+
+                    case "what":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        w = gw(words, ++curIdx);
+                        if ((w == "is") || (_isPlural = (w == "are")))
+                        {
+                            _cmdIgnoreIdxList.Add(curIdx);
+                            w = gw(words, ++curIdx);
+                            if ((w == "the") || (w == "a") || (w == "an"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+
+                        }
+                        if ((w == "location") || (w == "place") || (w == "address") || (w == "street"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.LOCATION_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        if ((w == "time") || (w == "date"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.DATE_TIME_OF;
+                            if ((w == "is") || (w == "are"))
+                            {
+                                _cmdIgnoreIdxList.Add(curIdx);
+                                w = gw(words, ++curIdx);
+                                if (w == "the")
+                                    _cmdIgnoreIdxList.Add(curIdx);
+                            }
+                            return true;
+                        }
+                        if ((w == "cost") || (w == "amount") | (w == "quantity"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.AMOUNT_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        if ((w == "phone") || (w == "phone_number"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.PHONE_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        if ((w == "email") || (w == "email_address"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.EMAIL_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        if ((w == "state") || (w == "status") || (w == "current"))
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.STATE_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        if (w == "name")
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.NAME_OF;
+                            w = gw(words, ++curIdx);
+                            if ((w == "of") || (w == "for"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        break;
+
+                    case "where":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.LOCATION_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "is") || (_isPlural = (w == "are")))
+                        {
+                            _cmdIgnoreIdxList.Add(curIdx);
+                            w = gw(words, ++curIdx);
+                            if (w == "the")
+                                _cmdIgnoreIdxList.Add(curIdx);
+                        }
+                        return true;
+
+                    case "when":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.DATE_TIME_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "is") || (_isPlural = (w == "are")))
+                        {
+                            _cmdIgnoreIdxList.Add(curIdx);
+                            w = gw(words, ++curIdx);
+                            if ((w == "the") || (w == "a") || (w == "an"))
+                                _cmdIgnoreIdxList.Add(curIdx);
+                        }
+                        return true;
+
+                    case "how":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        w = gw(words, ++curIdx);
+                        if ((w == "much") || (w == "many") )
+                        {
+                            _cmdSpecificIdxList.Add(curIdx);
+                            _cmdSpecific = CmdSpecific.AMOUNT_OF;
+                            w = gw(words, ++curIdx);
+                            if (w == "is")
+                               _cmdIgnoreIdxList.Add(curIdx);
+                            return true;
+                        }
+                        break;
+
+                    case "why":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.REASON_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "is") || (w == "are"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "start":
+                    case "stop":
+                    case "turn_on":
+                    case "turn_off":
+                    case "reset":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.EXECUTE;
+                        w = gw(words, ++curIdx);
+                        if (w == "the")
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "location":
+                    case "place":
+                    case "address":
+                    case "street":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.LOCATION_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "time":
+                    case "date":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.DATE_TIME_OF;
+                        w = gw(words, ++curIdx);
+                        if (w == "the")
+                          _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "cost":
+                    case "amount":
+                    case "quantity":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.AMOUNT_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "phone":
+                    case "phone_number":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.PHONE_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "state":
+                    case "status":
+                    case "current":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.STATE_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "name":
+                        _cmdSpecificIdxList.Add(curIdx);
+                        _cmdSpecific = CmdSpecific.NAME_OF;
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        return true;
+
+                    case "email":
+                    case "email_address":
+                        w = gw(words, ++curIdx);
+                        if ((w == "of") || (w == "for"))
+                        {
+                            // EMAIL can be be a form of output so check specifically if "of"
+                            _cmdSpecificIdxList.Add(curIdx-1);
+                            _cmdSpecific = CmdSpecific.EMAIL_OF;
+                            _cmdIgnoreIdxList.Add(curIdx);
+                        }
+                        return true;
+
+                    default:
+                        break;
+                }
+
+                if (_cmdSpecific != CmdSpecific.NONE)
+                    return true;
+
+                if (startIdx == curIdx)
+                    ++curIdx;
             }
+
             return false;
         }
 
@@ -961,7 +1173,7 @@ namespace CStat.Common
         public bool AlreadyHandled (int i)
         {
             return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
-                (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
+                (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
         public bool FindEvent(List<string> words)
@@ -2046,8 +2258,10 @@ namespace CStat.Common
 
         }
 
-        public void RenderFolder (CSDropBox dbox, string fld, string indent, ref string report)
+        public void RenderFolder (CSDropBox dbox, string hint, string fld, string indent, ref string report)
         {
+            // TBD Handle Hint filtering
+
             ListFolderResult FldList = dbox.GetFolderList2(fld);
             if (FldList.Entries.Count > 0)
             {
@@ -2059,10 +2273,10 @@ namespace CStat.Common
                             continue;
 
                         report += (indent + entry.Name + "\n");
-                        RenderFolder(dbox, fld + "/" + entry.Name, indent + "    ", ref report);
+                        RenderFolder(dbox, hint, fld + "/" + entry.Name, indent + "    ", ref report);
                     }
                     else
-                    report += (indent + entry.Name + "\n");
+                       report += (indent + entry.Name + "\n");
                 }
             }
         }
@@ -2071,10 +2285,15 @@ namespace CStat.Common
         {
             if (_cmdSrc == CmdSource.DOC)
             {
-                var dbox = GetDropBox();
-                string report = "";
-                RenderFolder(dbox, "", "", ref report);
-                return report;
+                var w = gw(words, _cmdSrcIdx + 1);
+                if (!String.IsNullOrEmpty(w) && (w.Length >= 3))
+                {
+                    var dbox = GetDropBox();
+                    string report = "";
+                    RenderFolder(dbox, w, "", "", ref report);
+                    return report;
+                }
+                return "Not performed.";
             }
             else if (_cmdSrc == CmdSource.REQ)
             {
@@ -2205,6 +2424,7 @@ namespace CStat.Common
 
         private CmdSpecific _cmdSpecific = default;
         private List<int> _cmdSpecificIdxList = new List<int>();
+        private List<int> _cmdIgnoreIdxList = new List<int>();
 
         private int _cmdNumber = -1;
         private int _cmdNumberIdx = -1;

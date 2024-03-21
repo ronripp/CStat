@@ -76,12 +76,11 @@
             if (input2 === "<enter a command here>") {
                 return;
             }
-            var parameters = "{'input2':'" + input2 + "'}";
             $.ajax({
                 url: "/CUser?handler=Input2",
                 contentType: "application/text",
                 dataType: "text",
-                data: input2,
+                data: encodeURI(input2.replaceAll("#", "number")),
                 success: function (response) {
                     $("#ExecRes").val(response);
                 },

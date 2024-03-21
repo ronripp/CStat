@@ -530,6 +530,8 @@ namespace CStat.Common
 
             _cmdDescList.Clear(); // Clear first as any of the Finds below may add to it.
 
+            FindCmdSpecific(words);
+
             FindCmdSource(words); // Look for command source first
             FindCmdOutput(words); // Look for command output second
             FindCmdAction(words);
@@ -900,7 +902,6 @@ namespace CStat.Common
         public bool FindCmdSource(List<string> words) // ZZZAAA ************************
         {
             var NumWords = words.Count;
-
 
             var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
             for (int i = NumWords - 1; i >= 0; --i)
@@ -2258,7 +2259,7 @@ namespace CStat.Common
 
         }
 
-        public void RenderFolder (CSDropBox dbox, string hint, string fld, string indent, ref string report)
+        public void RenderFolder (CSDropBox dbox, string hint, string fld, string indent, string lastFolder, ref string report)
         {
             // TBD Handle Hint filtering
 
@@ -2272,11 +2273,18 @@ namespace CStat.Common
                         if ((entry.PathLower == "/archive") || (entry.PathLower == "/_archive") || (entry.PathLower == "/vault") || (entry.PathLower == "/memorandum"))
                             continue;
 
-                        report += (indent + entry.Name + "\n");
-                        RenderFolder(dbox, hint, fld + "/" + entry.Name, indent + "    ", ref report);
+                        if (string.IsNullOrEmpty(hint))
+                            report += (indent + entry.Name + "\n");
+
+                        RenderFolder(dbox, hint, fld + "/" + entry.Name, indent + "    ", lastFolder, ref report);
                     }
                     else
-                       report += (indent + entry.Name + "\n");
+                    {
+                        if (string.IsNullOrEmpty(hint))
+                           report += indent + entry.Name + "\n";
+                        else if (entry.Name.Contains(hint,StringComparison.OrdinalIgnoreCase))
+                                report += entry.PathDisplay + "\n";
+                    }
                 }
             }
         }
@@ -2290,7 +2298,7 @@ namespace CStat.Common
                 {
                     var dbox = GetDropBox();
                     string report = "";
-                    RenderFolder(dbox, w, "", "", ref report);
+                    RenderFolder(dbox, w, "", "", "", ref report);
                     return report;
                 }
                 return "Not performed.";

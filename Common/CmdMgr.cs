@@ -91,35 +91,37 @@ namespace CStat.Common
         //=================================================================
         public enum CmdSource
         {
-            QUESTION   = 0x00000000,
-            INVENTORY  = 0x00000001,
-            PROPANE    = 0x00000002,
+            NONE       = 0x00000000,
+            QUESTION   = 0x00000001,
+            INVENTORY  = 0x00000002,
             PERSON     = 0x00000004,
-            DOC        = 0x00000008,
+            BUSINESS   = 0x00000008,
             TASK       = 0x00000010,
-            EQUIP      = 0x00000020,
-            FRIDGE     = 0x00000040,
-            FREEZER    = 0x00000080,
-            PRESSURE   = 0x00000100,
-            ELECTRIC   = 0x00000200,
-            CAMERA     = 0x00000400,
-            REQ        = 0x00000800,
-            BYLAWS     = 0x00001000,
-            EVENT      = 0x00002000,
-            ATTENDANCE = 0x00004000,
-            MENU       = 0x00008000,
-            URGENCY    = 0x00010000,
-            CSTEST     = 0x00020000,
-            TRUSTEE    = 0x00040000,
-            EC         = 0x00080000,
-            CHURCH     = 0x00100000,
-            TRASH      = 0x00200000,
-            INTERNET   = 0x00400000,
-            NYSDOH     = 0x00800000,
-            FOOD       = 0x01000000,
-            BUSINESS   = 0x02000000,
-            HARDWARE   = 0x04000000,
-            OFFICE     = 0x08000000
+            REQ        = 0x00000020,
+            DOC        = 0x00000040,
+            EQUIP      = 0x00000080,
+            MENU       = 0x00000100,
+            PROPANE    = 0x00000200,
+            FRIDGE     = 0x00000400,
+            FREEZER    = 0x00000800,
+            PRESSURE   = 0x00001000,
+            ELECTRIC   = 0x00002000,
+            CAMERA     = 0x00004000,
+            BYLAWS     = 0x00008000,
+            EVENT      = 0x00010000,
+            ATTENDANCE = 0x00020000,
+            URGENCY    = 0x00040000,
+            CSTEST     = 0x00080000,
+            TRUSTEE    = 0x00100000,
+            EC         = 0x00200000,
+            CHURCH     = 0x00400000,
+            TRASH      = 0x00800000,
+            INTERNET   = 0x01000000,
+            NYSDOH     = 0x02000000,
+            FOOD       = 0x04000000,
+            HARDWARE   = 0x08000000,
+            OFFICE     = 0x10000000,
+            POWER_CO   = 0x20000000
 
         }
 
@@ -215,14 +217,6 @@ namespace CStat.Common
             {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) },
             {"church", new Tuple<CmdSource, bool>(CmdSource.CHURCH, false) },
             {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) },
-            {"vendors", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
-            {"business", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
-            {"biz", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
-            {"store", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
-            {"stores", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
-            {"businesses", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
-            {"company", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
-            {"companies", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
             {"garbage", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"rubbish", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
             {"cable", new Tuple<CmdSource, bool>(CmdSource.INTERNET, false) },
@@ -261,6 +255,8 @@ namespace CStat.Common
             {"office", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
             {"office supply", new Tuple<CmdSource, bool>(CmdSource.OFFICE, false) },
 
+            {"power_company", new Tuple<CmdSource, bool>(CmdSource.POWER_CO, false) },
+
             //{pots_and_pans}
             //{sink}
             //{bathroom}
@@ -269,6 +265,15 @@ namespace CStat.Common
             //tools
             //water
             //tanks
+
+            {"vendors", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"business", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"biz", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"store", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"stores", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
+            {"businesses", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
+            {"company", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, false) },
+            {"companies", new Tuple<CmdSource, bool>(CmdSource.BUSINESS, true) },
 
             {"req", new Tuple<CmdSource, bool>(CmdSource.REQ, false) },
             {"reqs", new Tuple<CmdSource, bool>(CmdSource.REQ, true) },
@@ -288,6 +293,8 @@ namespace CStat.Common
             {"phone_numbers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"phone", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+
+
         };
 
         //===============================================================
@@ -305,7 +312,11 @@ namespace CStat.Common
             MY         = 0x00000100,
             DONE       = 0x00000200,
             SPECIFIC   = 0x00000400,
-            ALL =        0x00000800
+            YESTERDAY  = 0x0000080,
+            LAST_WEEK  = 0x00001000,
+            LAST_MONTH = 0x00002000,
+            LAST_YEAR  = 0x00004000,
+            ALL =        0x00008000
         }
 
         private static readonly Dictionary<string, CmdInsts> CmdInstsDict = new Dictionary<string, CmdInsts>(StringComparer.OrdinalIgnoreCase)
@@ -314,13 +325,16 @@ namespace CStat.Common
             {"full", CmdInsts.ALL},
             {"present", CmdInsts.CURRENT},
             {"todays", CmdInsts.CURRENT},
-            {"today's", CmdInsts.CURRENT},
-            {"yesterday's", CmdInsts.PRIOR},
-            {"yesterday", CmdInsts.PRIOR},
+            {"today", CmdInsts.CURRENT},
+            {"yesterday", CmdInsts.YESTERDAY},
+            {"yesterdays", CmdInsts.YESTERDAY},
             {"new", CmdInsts.NEXT},
             {"old", CmdInsts.PRIOR},
             {"past", CmdInsts.PRIOR},
             {"future", CmdInsts.NEXT},
+            {"last_week", CmdInsts.LAST_WEEK},
+            {"last_month", CmdInsts.LAST_MONTH},
+            {"last_year", CmdInsts.LAST_YEAR},
             {"coming", CmdInsts.NEXT},
             {"upcoming", CmdInsts.NEXT},    // c -
             {"overdue", CmdInsts.OVERDUE},  // c -
@@ -382,6 +396,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.FOOD, HandleBiz);
             _srcDelegateDict.Add(CmdSource.HARDWARE, HandleBiz);
             _srcDelegateDict.Add(CmdSource.OFFICE, HandleBiz);
+            _srcDelegateDict.Add(CmdSource.POWER_CO, HandleBiz);
 
             _srcDelegateDict.Add(CmdSource.EVENT, HandleEvents);
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
@@ -392,6 +407,8 @@ namespace CStat.Common
         public static List<string> GetWords(string cmdStr)
         {
             cmdStr = cmdStr.ToLower()
+                           .Replace("'s", "")
+                           .Replace("-", "")
                            .Replace("microsoft word", "microsoft_word")
                            .Replace("ms word", "microsoft_word")
                            .Replace("word doc", "word_doc")
@@ -442,6 +459,15 @@ namespace CStat.Common
                            .Replace("list of emails", "email_list")
                            .Replace("turn on", "turn_on")
                            .Replace("turn off", "turn_off")
+                           .Replace("electric power company", "power_company")
+                           .Replace("power company", "power_company")
+                           .Replace("electric company", "power_company")
+                           .Replace("last week", "last_week")
+                           .Replace("last weeks", "last_week")
+                           .Replace("last month", "last_month")
+                           .Replace("last months", "last_month")
+                           .Replace("last year", "last_year")
+                           .Replace("last years", "last_year")
                            .Replace(":", "")
                            .Replace("  ", " ");
             
@@ -454,7 +480,7 @@ namespace CStat.Common
             var words = new List<string>();
 
             // Create Clean List in words
-            List<string> rawWords = stWords.Select (w => w.Replace("-", "").Replace("'s", "")).ToList();
+            List<string> rawWords = new List<string>(stWords);
             for (int i = 0; i < NumWords; ++i)
             {
                 var word = rawWords[i];
@@ -903,31 +929,54 @@ namespace CStat.Common
         {
             var NumWords = words.Count;
 
-            var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
             for (int i = NumWords - 1; i >= 0; --i)
             {
                 if (AlreadyHandled(i)) continue;
 
-                var word = words[i];
-                var match = CmdSrcList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
-                if (!string.IsNullOrEmpty(match))
+                if (GetCmdSrc(words[i], out CmdSource cmdSrc1, out bool? isPlural1))
                 {
-                    _cmdSrc = (CmdSource)Enum.Parse(typeof(CmdSource), match);
+                    int j = i - 1;
+                    if ((j >= 0) && GetCmdSrc(words[j], out CmdSource cmdSrc2, out bool? isPlural2))
+                    {
+                        if ((int)cmdSrc2 > (int)cmdSrc1)
+                        {
+                            _cmdSrc = cmdSrc2;
+                            _cmdSrcIdx = j;
+                            if (isPlural2.HasValue)
+                                _isPlural = isPlural2.Value;
+                            return true;
+                        }
+                    }
+                    _cmdSrc = cmdSrc1;
                     _cmdSrcIdx = i;
-                    return true;
-                }
-
-                if (CmdSrcDict.TryGetValue(word, out Tuple<CmdSource, bool> cmdSrc))
-                {
-                    _cmdSrc = cmdSrc.Item1;
-                    _isPlural = cmdSrc.Item2;
-                    _cmdSrcIdx = i;
+                    if (isPlural1.HasValue)
+                        _isPlural = isPlural1.Value;
                     return true;
                 }
             }
             return false;
         }
 
+        public bool GetCmdSrc (string raw, out CmdSource cmdSrc, out bool? isPlural)
+        {
+            cmdSrc = CmdSource.NONE;
+            isPlural = null;
+            var CmdSrcList = Enum.GetNames(typeof(CmdSource)).Cast<string>().ToList();
+            var match = CmdSrcList.Find(c => c.Equals(raw, StringComparison.InvariantCultureIgnoreCase));
+            if (!string.IsNullOrEmpty(match))
+            {
+                cmdSrc = (CmdSource)Enum.Parse(typeof(CmdSource), match);
+                return true;
+            }
+
+            if (CmdSrcDict.TryGetValue(raw, out Tuple<CmdSource, bool> TCmdSrc))
+            {
+                cmdSrc = TCmdSrc.Item1;
+                isPlural = TCmdSrc.Item2;
+                return true;
+            }
+            return false;
+        }
 
         public bool FindNumber(List<string> words)
         {
@@ -1986,6 +2035,10 @@ namespace CStat.Common
             {
                 bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && ((b.Type.Value == (int)Business.EType.Office_Supply) || (b.Type.Value == (int)Business.EType.Department))).ToList();
             }
+            else if (_cmdSrc == CmdSource.POWER_CO)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Electric)).ToList();
+            }
             else
             {
                 if (_cmdDescList.Count > 0)
@@ -2437,7 +2490,7 @@ namespace CStat.Common
         private int _cmdNumber = -1;
         private int _cmdNumberIdx = -1;
 
-        private CmdSource _cmdSrc = default;
+        private CmdSource _cmdSrc = CmdSource.NONE;
         private int _cmdSrcIdx = -1;
 
         private DateRange _cmdDateRange = null;

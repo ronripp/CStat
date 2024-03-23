@@ -19,7 +19,7 @@ namespace CStat.Common
     public class CmdMgr
     {
         public delegate string HandleSrcDel(List<string> words);
-        private static ReaderWriterLockSlim fLock = new ReaderWriterLockSlim();
+
 
         public enum CmdAction
         {
@@ -40,11 +40,12 @@ namespace CStat.Common
 
         public enum CmdFormat
         {
-            TEXT  = 0x00000000,
-            PDF   = 0x00000001,
-            MSDOC = 0x00000002,
-            EXCEL = 0x00000004,
-            CSV   = 0x00000008
+            NONE  = 0x00000000,
+            TEXT  = 0x00000001,
+            PDF   = 0x00000020,
+            MSDOC = 0x00000040,
+            EXCEL = 0x00000080,
+            CSV   = 0x00000100
         };
 
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
@@ -1431,88 +1432,74 @@ namespace CStat.Common
                 if (MailingOnly)
                     people = GetMailingListPeople(people);
 
-                if ((_cmdFormat == CmdFormat.CSV) || (_cmdFormat == CmdFormat.EXCEL))
+                int NumPeople = people.Count;
+                var ssType = CSSpreadSheet.GetSSType((int)_cmdFormat);
+                if ((NumPeople > 20) || (ssType == CSSpreadSheet.SSType.CSV) || (ssType == CSSpreadSheet.SSType.EXCEL))
                 {
-                    // EMail a CSV File
-                    if (fLock.TryEnterWriteLock(3000))
+                    try
                     {
-                        try
+                        bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
+                        using (var ssh = new CSSpreadSheet("ContactList", ssType))
                         {
-                            var TempPath = Path.GetTempPath();
-                            var FullFile = Path.Combine(TempPath, "PeopleReq.csv");
-                            bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
-                            using (StreamWriter wFile = new StreamWriter(FullFile))
+                            if (!isOnly)
+                                ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail");
+                            else if (MailingOnly)
+                                ssh.AddRow("First Name", "Last Name", "Street", "Town", "State", "Zip");
+                            else if (EMailOnly)
+                                ssh.AddRow("First Name", "Last Name", "EMail");
+                            else // if (PhoneOnly)
+                                ssh.AddRow("First Name", "Last Name", "Phone");
+
+                            foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                             {
-                                if (!isOnly)
-                                    wFile.WriteLine("First Name,Last Name,Gender,DOB,Serve,Address,Phone,EMail");
-                                else if (MailingOnly)
-                                    wFile.WriteLine("First Name,Last Name,Address");
-                                else if (EMailOnly)
-                                    wFile.WriteLine("First Name,Last Name,EMail");
-                                else // if (PhoneOnly)
-                                    wFile.WriteLine("First Name,Last Name,Phone");
+                                var fn = p.FirstName;
+                                var ln = p.LastName;
+                                var a = p?.Address;
 
-                                foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+                                if (MailingOnly)
                                 {
-                                    var fn = EncloseCommasForCSV(p.FirstName);
-                                    var ln = EncloseCommasForCSV(p.LastName);
-                                    var adrStr = EncloseCommasForCSV(Address.FormatAddress(p.Address));
-                                    if (MailingOnly)
+                                    if (!String.IsNullOrEmpty(a?.Street))
                                     {
-                                        if (!String.IsNullOrEmpty(adrStr.Trim()))
-                                        {
-                                            if (fn == "Family")
-                                                wFile.WriteLine(ln + "," + fn + "," + adrStr);
-                                            else
-                                                wFile.WriteLine(fn + "," + ln + "," + adrStr);
-
-                                        }
-                                        continue;
+                                        if (fn == "Family")
+                                            ssh.AddRow(ln, fn, a.GetStreet(), a.GetTown(), a.GetState(), a.GetZip());
+                                        else
+                                            ssh.AddRow(fn, ln, a.GetStreet(), a.GetTown(), a.GetState(), a.GetZip());
                                     }
-
-                                    var eMail = !string.IsNullOrEmpty(p.Email) ? EncloseCommasForCSV(p.Email) : "";
-                                    if (EMailOnly)
-                                    {
-                                        if (!String.IsNullOrEmpty(eMail.Trim()))
-                                            wFile.WriteLine(fn + "," + ln + "," + eMail);
-                                        continue;
-                                    }
-
-                                    var phone = EncloseCommasForCSV(Person.GetBestPhone(p, ""));
-                                    if (PhoneOnly)
-                                    { 
-                                        if (!String.IsNullOrEmpty(phone.Trim()))
-                                            wFile.WriteLine(fn + "," + ln + "," + phone);
-                                        continue;
-                                    }
-
-                                    var gender = Person.GetGender(p);
-                                    var dob = Person.GetDOB(p);
-                                    var serve = EncloseCommasForCSV(Person.GetRoleStr(p) + Person.GetSkillStr(p));
-                                    wFile.WriteLine(fn + "," + ln + "," + gender + "," + dob + "," + serve + "," + adrStr + "," + phone + "," + eMail);            
+                                    continue;
                                 }
 
-                                wFile.Close();
+                                var eMail = !string.IsNullOrEmpty(p.Email) ? p.Email : "";
+                                if (EMailOnly)
+                                {
+                                    if (!String.IsNullOrEmpty(eMail.Trim()))
+                                        ssh.AddRow(fn, ln, eMail);
+                                    continue;
+                                }
 
-                                var email = new CSEMail(_config, _userManager);
-                                result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { FullFile })
-                                    ? "E-Mail sent with " + EMailTitle
-                                    : "Failed to E-Mail : " + EMailTitle;
+                                var phone = Person.GetBestPhone(p, "");
+                                if (PhoneOnly)
+                                {
+                                    if (!String.IsNullOrEmpty(phone.Trim()))
+                                        ssh.AddRow(fn, ln, phone);
+                                    continue;
+                                }
+
+                                var gender = Person.GetGender(p);
+                                var dob = Person.GetDOB(p);
+                                var serve = Person.GetRoleStr(p) + Person.GetSkillStr(p);
+                                ssh.AddRow(fn, ln, gender, dob, serve, a.GetStreet(), a.GetTown(), a.GetState(), a.GetZip(), phone, eMail);
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            var cl = new CSLogger();
-                            cl.Log("CmdMgr: EMail with " + EMailTitle + " CSV failed : " + ((e == null) ? "???" : e.Message));
-                        }
-                        finally
-                        {
-                            fLock.ExitWriteLock();
+
+                            var email = new CSEMail(_config, _userManager);
+                            result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { ssh.FileName })
+                                ? "E-Mail sent with " + EMailTitle
+                                : "Failed to E-Mail : " + EMailTitle;
                         }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        result += " FAILED TO EMail Spreadsheet of Contacts.";
+                        var cl = new CSLogger();
+                        cl.Log("CmdMgr: EMail with " + EMailTitle + " Spreadsheet failed : " + ((e == null) ? "???" : e.Message));
                     }
                 }
                 else
@@ -2095,15 +2082,6 @@ namespace CStat.Common
             return report;
         }
 
-        private static string EncloseCommasForCSV (string instr)
-        {
-            if (!String.IsNullOrEmpty(instr) && instr.Contains(","))
-            {
-                return "\"" + instr + "\"";
-            }
-            return instr;
-        }
-
         List<string> GetSpecificChurchWords(List<string> raw)
         {
             return raw.Where((r, i) => (r != "of") && (r != "the") && (i != _cmdActionIdx) && (i != _cmdFormatIdx) && (r != "for") && (i != _cmdSrcIdx)).ToList();
@@ -2207,7 +2185,7 @@ namespace CStat.Common
                 }
 
                 // EMail a CSV File
-                if (fLock.TryEnterWriteLock(3000))
+                if (CSSpreadSheet.fLock.TryEnterWriteLock(3000))
                 {
                     try
                     {
@@ -2253,7 +2231,7 @@ namespace CStat.Common
                     }
                     finally
                     {
-                        fLock.ExitWriteLock();
+                        CSSpreadSheet.fLock.ExitWriteLock();
                     }
                 }
                 else
@@ -2299,6 +2277,15 @@ namespace CStat.Common
             //    report += "CHURCH: " + c.Name + Address.FormatAddress(c.Address, true) + ".\n";
             //}
             //return report;
+        }
+
+        private static string EncloseCommasForCSV(string instr)
+        {
+            if (!String.IsNullOrEmpty(instr) && instr.Contains(","))
+            {
+                return "\"" + instr + "\"";
+            }
+            return instr;
         }
 
         private string HandleCamera(List<string> words)

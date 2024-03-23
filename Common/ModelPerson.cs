@@ -22,7 +22,7 @@ namespace CStat.Models
             NotBaptized = 0x0000000000000010,
             Baptized = 0x0000000000000020,
             Deceased = 0x0000000000000040
-        }
+        };
 
         //public object PersonStatus { get; private set; }
 

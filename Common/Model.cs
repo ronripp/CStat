@@ -369,6 +369,16 @@ namespace CStat.Models
             }
             return astr;
         }
+
+        public string GetStreet() { return !string.IsNullOrEmpty(Street) ? Street : ""; }
+        public string GetTown() { return !string.IsNullOrEmpty(Town) ? Town : ""; }
+        public string GetState() { return !string.IsNullOrEmpty(State) ? GetStateAbbr(State) : ""; }
+        public string GetZip() { return !string.IsNullOrEmpty(ZipCode) ? FixZip(ZipCode) : ""; }
+
+        public static string GetStreet(Address a) { return !string.IsNullOrEmpty(a?.Street) ? a.Street : ""; }
+        public static string GetTown(Address a)  { return !string.IsNullOrEmpty(a?.Town) ? a.Town : ""; }
+        public static string GetState(Address a) { return !string.IsNullOrEmpty(a?.State) ? GetStateAbbr(a.State) : ""; }
+        public static string GetZip(Address a) { return !string.IsNullOrEmpty(a?.ZipCode) ? FixZip(a.ZipCode) : ""; }
     }
 
     //static class LevenshteinDistance

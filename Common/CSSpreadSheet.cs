@@ -37,21 +37,24 @@ namespace CStat.Common
         public CSSpreadSheet (string filebase, SSType ssType) 
         {
             _inFLock = fLock.TryEnterWriteLock(5000);
-
             var TempPath = Path.GetTempPath();
-            var FileName = Path.Combine(TempPath, filebase);
+            _type = ssType;
+            FileName = Path.Combine(TempPath, filebase);
             switch (ssType)
             {
                 case SSType.EXCEL:
-                    _stream = new FileStream(FileName + ".xlsx", FileMode.Create, FileAccess.Write);
+                    FileName += ".xlsx";
+                    _stream = new FileStream(FileName, FileMode.Create, FileAccess.Write);
                     _xlsxWriter = new XlsxWriter(_stream);
                     _xlsxWriter.BeginWorksheet("Sheet 1");
                     break;
                 case SSType.CSV:
-                    _wFile = new StreamWriter(FileName + ".csv");
+                    FileName += ".csv";
+                    _wFile = new StreamWriter(FileName);
                     break;
                 case SSType.TEXT:
-                    _wFile = new StreamWriter(FileName + ".txt");
+                    FileName += ".txt";
+                    _wFile = new StreamWriter(FileName);
                     break;
             }
         }
@@ -69,10 +72,10 @@ namespace CStat.Common
             // Determine the number of specified strings
             int NumCols = 0;
             do {
-                if (string.IsNullOrEmpty(s16)) { NumCols = 16; break;} if (string.IsNullOrEmpty(s15)) { NumCols = 15; break;} if (string.IsNullOrEmpty(s14)) { NumCols = 14; break;} if (string.IsNullOrEmpty(s13)) { NumCols = 13; break;}
-                if (string.IsNullOrEmpty(s12)) { NumCols = 12; break;} if (string.IsNullOrEmpty(s11)) { NumCols = 11; break;} if (string.IsNullOrEmpty(s10)) { NumCols = 10; break;} if (string.IsNullOrEmpty(s9)) { NumCols = 9; break;}
-                if (string.IsNullOrEmpty(s8)) { NumCols = 8; break;} if (string.IsNullOrEmpty(s7)) { NumCols = 7; break;} if (string.IsNullOrEmpty(s6)) { NumCols = 6; break;} if (string.IsNullOrEmpty(s5)) { NumCols = 5; break;}
-                if (string.IsNullOrEmpty(s4)) { NumCols = 4; break;} if (string.IsNullOrEmpty(s3)) { NumCols = 3; break;} if (string.IsNullOrEmpty(s2)) { NumCols = 2; break;} if (string.IsNullOrEmpty(s1)) { NumCols = 1; break;}
+                if (!string.IsNullOrEmpty(s16)) { NumCols = 16; break;} if (!string.IsNullOrEmpty(s15)) { NumCols = 15; break;} if (!string.IsNullOrEmpty(s14)) { NumCols = 14; break;} if (!string.IsNullOrEmpty(s13)) { NumCols = 13; break;}
+                if (!string.IsNullOrEmpty(s12)) { NumCols = 12; break;} if (!string.IsNullOrEmpty(s11)) { NumCols = 11; break;} if (!string.IsNullOrEmpty(s10)) { NumCols = 10; break;} if (!string.IsNullOrEmpty(s9)) { NumCols = 9; break;}
+                if (!string.IsNullOrEmpty(s8)) { NumCols = 8; break;} if (!string.IsNullOrEmpty(s7)) { NumCols = 7; break;} if (!string.IsNullOrEmpty(s6)) { NumCols = 6; break;} if (!string.IsNullOrEmpty(s5)) { NumCols = 5; break;}
+                if (!string.IsNullOrEmpty(s4)) { NumCols = 4; break;} if (!string.IsNullOrEmpty(s3)) { NumCols = 3; break;} if (!string.IsNullOrEmpty(s2)) { NumCols = 2; break;} if (!string.IsNullOrEmpty(s1)) { NumCols = 1; break;}
             } while (false);
             if (NumCols == 0) return;
 
@@ -188,16 +191,16 @@ namespace CStat.Common
                 if (disposing)
                 {
                     // Dispose managed resources here.
-                    if (_stream != null)
-                    {
-                        _stream.Dispose();
-                        _stream = null;
-                    }
-
                     if (_xlsxWriter != null)
                     {
                         _xlsxWriter.Dispose();
                         _xlsxWriter = null;
+                    }
+
+                    if (_stream != null)
+                    {
+                        _stream.Dispose();
+                        _stream = null;
                     }
 
                     if (_wFile != null)

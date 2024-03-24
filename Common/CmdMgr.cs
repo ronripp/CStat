@@ -1266,8 +1266,7 @@ namespace CStat.Common
             }
             return false;
         }
-
-
+        
         public bool FindDesc(List<string> words)
         {
             var NumWords = words.Count;
@@ -1372,7 +1371,19 @@ namespace CStat.Common
 
                 if (_cmdSrcIdx != -1)
                 {
-                    switch (words[_cmdSrcIdx])
+                    string srcDetail = words[_cmdSrcIdx];
+                    if ((srcDetail == "people_list") || (srcDetail == "contacts") || (srcDetail == "campers") || (srcDetail == "people"))
+                    {
+                        // Check for more detail
+                        if (words.IndexOf("email_address") != -1) srcDetail = "email_address";
+                        if (words.IndexOf("phone_number") != -1) srcDetail = "phone_number";
+                        if (words.IndexOf("phone_list") != -1) srcDetail = "phone_list";
+                        if (words.IndexOf("mailing_list") != -1) srcDetail = "mailing_list";
+                        if (words.IndexOf("mailing") != -1) srcDetail = "mailing";
+                        if (words.IndexOf("email_list") != -1) srcDetail = "email_list";
+                    }
+
+                    switch (srcDetail)
                     {
                         case "email_address":
                             EMailTitle = "Contact EMail Addresses";
@@ -1382,6 +1393,7 @@ namespace CStat.Common
                             EMailTitle = "Contact Phone #s";
                             showEMail = showAdr = showAttr = false;
                             break;
+
                         case "phone_list":
                             PhoneOnly = true;
                             EMailTitle = "Contact Phone #s";
@@ -1439,8 +1451,10 @@ namespace CStat.Common
                     try
                     {
                         bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
+                        string sshFileName = "";
                         using (var ssh = new CSSpreadSheet("ContactList", ssType))
                         {
+                            sshFileName = ssh.FileName;
                             if (!isOnly)
                                 ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail");
                             else if (MailingOnly)
@@ -1487,14 +1501,14 @@ namespace CStat.Common
                                 var gender = Person.GetGender(p);
                                 var dob = Person.GetDOB(p);
                                 var serve = Person.GetRoleStr(p) + Person.GetSkillStr(p);
-                                ssh.AddRow(fn, ln, gender, dob, serve, a.GetStreet(), a.GetTown(), a.GetState(), a.GetZip(), phone, eMail);
+                                ssh.AddRow(fn, ln, gender, dob, serve, Address.GetStreet(a), Address.GetTown(a), Address.GetState(a), Address.GetZip(a), phone, eMail);
                             }
+                        }
 
-                            var email = new CSEMail(_config, _userManager);
-                            result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { ssh.FileName })
+                        var email = new CSEMail(_config, _userManager);
+                            result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFileName })
                                 ? "E-Mail sent with " + EMailTitle
                                 : "Failed to E-Mail : " + EMailTitle;
-                        }
                     }
                     catch (Exception e)
                     {

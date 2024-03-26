@@ -18,8 +18,11 @@ namespace CStat.Common
 {
     public class CmdMgr
     {
-        public delegate string HandleSrcDel(List<string> words);
+        // default values recommended by http://isthe.com/chongo/tech/comp/fnv/
+        static UInt32 Prime = 0x01000193; //   16777619
+        static UInt32 Seed = 0x811C9DC5; // 2166136261
 
+        public delegate string HandleSrcDel(List<string> words);
 
         public enum CmdAction
         {
@@ -2337,10 +2340,21 @@ namespace CStat.Common
                         if (string.IsNullOrEmpty(hint))
                            report += indent + entry.Name + "\n";
                         else if (entry.Name.Contains(hint,StringComparison.OrdinalIgnoreCase))
-                                report += entry.PathDisplay + "\n";
+                           report += "[ " + GetFileNameHash(entry.PathDisplay).ToString("X8") + " ]" + entry.PathDisplay + "\n";
                     }
                 }
             }
+        }
+
+        public static UInt32 GetFileNameHash (string fn)
+        {
+            char[] farr = fn.ToCharArray(0, fn.Length);
+            UInt32 hash = Seed;
+            foreach (var c in farr)
+            {
+                hash = ((UInt32)c ^ hash) * Prime;
+            }
+            return hash;
         }
 
         private string HandleDocs(List<string> words)

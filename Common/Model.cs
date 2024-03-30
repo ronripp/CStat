@@ -162,6 +162,14 @@ namespace CStat.Models
             return _context;
         }
     }
+    public class InventoryState
+    {
+        public string Name;
+        public string State;
+        public double InStock;
+        public string Units;
+    }
+
     public partial class InventoryItem
     {
         public enum States { InStock = 0, OpenNeed = 1, TakenNeed = 2, InInv = 3 };
@@ -221,7 +229,30 @@ namespace CStat.Models
             }
             return report;
         }
+        public static List<InventoryState> GetInventoryList(CStatContext context, IConfiguration config, bool justNeeded, out string subject, bool withHdr)
+        {
+            var InventoryItems = context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).Include(i => i.Person).OrderByDescending(i => (i.State != null) ? i.State % 3 : 0).ToList();
+            string[] StateStr = { "ok", "NEEDED: unassigned", "BUYING", "Not Checked" };
+            List<InventoryState> invList = new List<InventoryState>();
+    
+            string report = "";
+            DateTime Now = PropMgr.ESTNow;
+            subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
+            report = (withHdr) ? subject + "\n--------------------------------.\n" : "";
+            foreach (var i in InventoryItems)
+            {
+                var stateIdx = i.State.HasValue ? i.State.Value : 0;
+                if (justNeeded && (stateIdx != 1) && (stateIdx != 2))
+                    continue;
+    
+                var stateStr = ((stateIdx == 2) && (i.Person != null)) ? "BUYING: " + i.Person.GetShortName() : StateStr[stateIdx];
+                InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
+                invList.Add(new InventoryState { Name = i.Item.Name.Trim(), State = stateStr, InStock = (double)i.CurrentStock, Units = units.ToString() });
+            }
+            return invList;
+        }
     }
+
     public partial class Address
     {
         public static readonly Dictionary<string, string> StateDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

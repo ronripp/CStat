@@ -26,19 +26,19 @@ namespace CStat.Common
 
         public enum CmdAction
         {
-            FIND     = 0x00000000,
-            COMPUTE  = 0x00000001,
-            ADD      = 0x00000002,
-            DELETE   = 0x00000004,
-            UPDATE   = 0x00000008,
-            CALL     = 0x00000010,
-            NEED     = 0x00000020,
-            CLEAN    = 0x00000040,
-            BUY      = 0x00000080,
-            USE      = 0x00000100,
-            TURN_ON  = 0x00000200,
-            TURN_OFF = 0x00000400,
-            RESET    = 0x00000800
+            FIND         = 0x00000000,
+            COMPUTE      = 0x00000001,
+            ADD          = 0x00000002,
+            DELETE       = 0x00000004,
+            UPDATE       = 0x00000008,
+            CALL         = 0x00000010,
+            ASK          = 0x00000020,
+            CLEAN        = 0x00000040,
+            BUY          = 0x00000080,
+            USE          = 0x00000100,
+            TURN_ON      = 0x00000200,
+            TURN_OFF     = 0x00000400,
+            RESET        = 0x00000800
         };
 
         public enum CmdFormat
@@ -55,8 +55,6 @@ namespace CStat.Common
         {
             {"Phone", CmdAction.CALL},
             {"Phones", CmdAction.CALL},
-            {"needed", CmdAction.NEED},
-            {"needs", CmdAction.NEED},
             {"get", CmdAction.FIND},
             {"show", CmdAction.FIND},
             {"report", CmdAction.FIND},
@@ -67,7 +65,7 @@ namespace CStat.Common
             {"modify", CmdAction.UPDATE},
             {"change", CmdAction.UPDATE},
             {"append", CmdAction.ADD},
-            {"we_need", CmdAction.ADD},
+            {"we_need", CmdAction.BUY},
             {"order", CmdAction.BUY},
             {"buy", CmdAction.BUY},
             {"purchase", CmdAction.BUY},
@@ -125,8 +123,8 @@ namespace CStat.Common
             FOOD       = 0x04000000,
             HARDWARE   = 0x08000000,
             OFFICE     = 0x10000000,
-            POWER_CO   = 0x20000000
-
+            POWER_CO   = 0x20000000,
+            KITCH_TEMP = 0x40000000
         }
 
         public enum CmdSpecific
@@ -160,7 +158,8 @@ namespace CStat.Common
             AMOUNT_OF    = 0x00000100,
             STATE_OF     = 0x00000200,
             REASON_OF    = 0x00000400,
-            EXECUTE      = 0x00000800
+            NEED_OF      = 0x00000800,
+            EXECUTE      = 0x00001000
         }
 
         private static readonly Dictionary<string, Tuple<CmdSource, bool>> CmdSrcDict = new Dictionary<string, Tuple<CmdSource, bool>>(StringComparer.OrdinalIgnoreCase)
@@ -296,9 +295,7 @@ namespace CStat.Common
             {"phone_number", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"phone_numbers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"phone", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
-
-
+            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) }
         };
 
         //===============================================================
@@ -472,9 +469,12 @@ namespace CStat.Common
                            .Replace("last months", "last_month")
                            .Replace("last year", "last_year")
                            .Replace("last years", "last_year")
+                           .Replace("kitchen temp", "kitch_temp")
+                           .Replace("kitchen temperature", "kitch_temp")
+                           .Replace("temperature in kitchen", "kitch_temp")
                            .Replace(":", "")
                            .Replace("  ", " ");
-            
+           
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
 
@@ -572,6 +572,12 @@ namespace CStat.Common
             FindDesc(words); // Check for descriptive hints
             FindCmdFormat(words);
 
+            if ((_cmdSrc == CmdSource.NONE) && (_cmdDescList.Count > 0))
+            {
+                // Check inventory or equipment match
+            }
+
+
             if (_cmdFormat != CmdFormat.TEXT)
                 _cmdOutput = CmdOutput.EMAIL; // Send files via EMail
 
@@ -584,7 +590,7 @@ namespace CStat.Common
             if ((_cmdSrc == default) && ((_cmdAction == CmdAction.CALL) || (_cmdDescList.Count == 1) || (_cmdDescList.Count == 2)))
                 _cmdSrc = CmdSource.PERSON;
 
-            if ((_cmdAction == CmdAction.NEED) && ((_cmdSrc == default) || (_cmdSrc == CmdSource.MENU)))
+            if ( ((_cmdAction == CmdAction.BUY) || (_cmdAction == CmdAction.ADD)) && ((_cmdSrc == default) || (_cmdSrc == CmdSource.MENU)))
                 _cmdSrc = CmdSource.URGENCY;
 
             if (_hasMy && !_curUser.pid.HasValue)
@@ -691,39 +697,85 @@ namespace CStat.Common
 
                 string w = "";
                 var startIdx = curIdx;
-                switch (words[curIdx])
+                switch (w = words[curIdx])
                 {
+                    case "are":
+                    case "am":
+                        if (curIdx == 0)
+                        {
+                            w = gw(words, curIdx + 1);
+                            if ((w == "we") || (_isPlural = (w == "I")))
+                            {
+                                _isQuestion = true;
+                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
+                            }
+                        }
+                        break;
+
                     case "who":
                         _cmdSpecific = CmdSpecific.OWNER_OF;
                         _cmdSpecificIdxList.Add(curIdx);
-                        w = gw(words, ++curIdx);
+                        _isQuestion = true;
+                        w = gw(words, curIdx + 1);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
-                            _cmdIgnoreIdxList.Add(curIdx);
-                            w = gw(words, ++curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "the") || (w == "a") || (w == "an"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                         }
                         return true;
 
-                    case "what":
-                        _cmdSpecificIdxList.Add(curIdx);
-                        w = gw(words, ++curIdx);
+                    case "needed":
+                    case "needs":
+                        if (_isQuestion)
+                        {
+                            _cmdAction = CmdAction.ASK;
+                            _cmdActionIdx = curIdx;
+                            _cmdSpecific = CmdSpecific.STATE_OF;
+                            _cmdSpecificIdxList.Add(curIdx);
+                        }
+                        
+                        w = gw(words, curIdx+1);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
-                            _cmdIgnoreIdxList.Add(curIdx);
-                            w = gw(words, ++curIdx);
+                            _isQuestion = true;
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx+1);
                             if ((w == "the") || (w == "a") || (w == "an"))
-                                _cmdIgnoreIdxList.Add(curIdx);
-
+                                _cmdIgnoreIdxList.Add(++curIdx);
                         }
+                        break;
+
+                    case "what":
+                        _cmdIgnoreIdxList.Add(curIdx);
+                        w = gw(words, curIdx+1);
+                        if ((w == "is") || (_isPlural = (w == "are")))
+                        {
+                            _isQuestion = true;
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx + 1);
+                            if ((w == "the") || (w == "a") || (w == "an"))
+                                _cmdIgnoreIdxList.Add(++curIdx);
+                        }
+
+                        if (w == "do")
+                        {
+                            _isQuestion = true;
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx + 1);
+                            if ((w == "the") || (w == "a") || (w == "an") || (w == "we") || (w == "I"))
+                                _cmdIgnoreIdxList.Add(++curIdx);
+                        }
+
                         if ((w == "location") || (w == "place") || (w == "address") || (w == "street"))
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.LOCATION_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         if ((w == "time") || (w == "date"))
@@ -732,8 +784,8 @@ namespace CStat.Common
                             _cmdSpecific = CmdSpecific.DATE_TIME_OF;
                             if ((w == "is") || (w == "are"))
                             {
-                                _cmdIgnoreIdxList.Add(curIdx);
-                                w = gw(words, ++curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
+                                w = gw(words, curIdx + 1);
                                 if (w == "the")
                                     _cmdIgnoreIdxList.Add(curIdx);
                             }
@@ -743,45 +795,45 @@ namespace CStat.Common
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.AMOUNT_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         if ((w == "phone") || (w == "phone_number"))
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.PHONE_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         if ((w == "email") || (w == "email_address"))
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.EMAIL_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx+1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         if ((w == "state") || (w == "status") || (w == "current"))
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.STATE_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         if (w == "name")
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.NAME_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "of") || (w == "for"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         break;
@@ -789,39 +841,107 @@ namespace CStat.Common
                     case "where":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.LOCATION_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
-                            _cmdIgnoreIdxList.Add(curIdx);
-                            w = gw(words, ++curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx + 1);
                             if (w == "the")
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                         }
                         return true;
 
                     case "when":
+                        _isWhen = true;
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.DATE_TIME_OF;
                         w = gw(words, ++curIdx);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
-                            _cmdIgnoreIdxList.Add(curIdx);
-                            w = gw(words, ++curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
+                            w = gw(words, curIdx + 1);
                             if ((w == "the") || (w == "a") || (w == "an"))
-                                _cmdIgnoreIdxList.Add(curIdx);
+                                _cmdIgnoreIdxList.Add(++curIdx);
                         }
                         return true;
 
+                    case "need":
+                    case "needing":
+                    case "run":
+                    case "running":
+                    case "out":
+                    case "low":
+                        {
+                            bool isNeed = w.StartsWith("need");
+                            if (w.StartsWith("run"))
+                            {
+                                _cmdSpecificIdxList.Add(curIdx);
+                                w = gw(words, curIdx + 1);
+                            }
+                            else if (isNeed)
+                            {
+                                _cmdSpecificIdxList.Add(curIdx);
+                                w = gw(words, curIdx + 1);
+                                if (w == "more")
+                                    _cmdIgnoreIdxList.Add(++curIdx);
+                            }
+
+                            if ((w == "out") || (w == "low") || isNeed)
+                            {
+                                w = gw(words, curIdx + 1);
+                                if ((w == "of") || (w == "on") || isNeed)
+                                {
+                                    if (_isQuestion)
+                                    {
+                                        _cmdSpecificIdxList.Add(curIdx);
+                                        _cmdSpecific = CmdSpecific.NEED_OF;
+                                        _cmdActionIdx = curIdx;
+                                        _cmdAction = CmdAction.ASK;
+                                    }
+                                    else
+                                    {
+                                        _cmdSpecificIdxList.Add(curIdx);
+                                        _cmdSpecific = CmdSpecific.NEED_OF;
+                                        _cmdActionIdx = curIdx;
+                                        _cmdAction = CmdAction.BUY;
+                                    }
+                                    _cmdIgnoreIdxList.Add(++curIdx); // For "of" or "on"
+
+                                    // Add 1 to 3 Descriptive Details of what is needed or being asked about
+                                    w = gw(words, curIdx + 1);
+                                    if (!String.IsNullOrEmpty(w))
+                                    {
+                                        _cmdDescList.Add(w);
+                                        _cmdDescIdxList.Add(++curIdx);
+                                        w = gw(words, curIdx + 1);
+                                        if (!String.IsNullOrEmpty(w))
+                                        {
+                                            _cmdDescList.Add(w);
+                                            _cmdDescIdxList.Add(++curIdx);
+                                            w = gw(words, curIdx + 1);
+                                            if (!String.IsNullOrEmpty(w))
+                                            {
+                                                _cmdDescList.Add(w);
+                                                _cmdDescIdxList.Add(++curIdx);
+                                            }
+                                        }
+                                    }
+                                }
+                                return true;
+                            }
+                            break;
+                        }
+
                     case "how":
                         _cmdSpecificIdxList.Add(curIdx);
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "much") || (w == "many") )
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.AMOUNT_OF;
-                            w = gw(words, ++curIdx);
+                            w = gw(words, curIdx + 1);
                             if (w == "is")
-                               _cmdIgnoreIdxList.Add(curIdx);
+                               _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
                         break;
@@ -829,9 +949,9 @@ namespace CStat.Common
                     case "why":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.REASON_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "is") || (w == "are"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "start":
@@ -841,9 +961,9 @@ namespace CStat.Common
                     case "reset":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.EXECUTE;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if (w == "the")
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "location":
@@ -852,18 +972,18 @@ namespace CStat.Common
                     case "street":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.LOCATION_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx+1);
                         if ((w == "of") || (w == "for"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "time":
                     case "date":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.DATE_TIME_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if (w == "the")
-                          _cmdIgnoreIdxList.Add(curIdx);
+                          _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "cost":
@@ -871,18 +991,18 @@ namespace CStat.Common
                     case "quantity":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.AMOUNT_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "of") || (w == "for"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "phone":
                     case "phone_number":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.PHONE_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "of") || (w == "for"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "state":
@@ -890,28 +1010,28 @@ namespace CStat.Common
                     case "current":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.STATE_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "of") || (w == "for"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "name":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.NAME_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "of") || (w == "for"))
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
                     case "email":
                     case "email_address":
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx + 1);
                         if ((w == "of") || (w == "for"))
                         {
                             // EMAIL can be be a form of output so check specifically if "of"
-                            _cmdSpecificIdxList.Add(curIdx-1);
+                            _cmdSpecificIdxList.Add(curIdx++);
                             _cmdSpecific = CmdSpecific.EMAIL_OF;
-                            _cmdIgnoreIdxList.Add(curIdx);
+                            _cmdIgnoreIdxList.Add(curIdx++);
                         }
                         return true;
 
@@ -1104,7 +1224,7 @@ namespace CStat.Common
                 }
             }
 
-            if ((_cmdSrc == CmdSource.QUESTION) && (_cmdAction == CmdAction.NEED))
+            if ((_cmdSrc == CmdSource.QUESTION) && (_cmdAction == CmdAction.ASK))
             {
                 _cmdSrc = CmdSource.URGENCY; // Set Cmd Source when a generic need, needs, needed is requested.
                 _cmdSrcIdx = _cmdActionIdx;
@@ -1305,14 +1425,14 @@ namespace CStat.Common
         }
         private string HandleInventory(List<string> words)
         {
-            var justNeeded = _cmdAction == CmdAction.NEED;
+            var justAsk = _cmdAction == CmdAction.ASK;
             return InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
         }
         private string HandleUrgency(List<string> raw)
         {
             var words = new List<string>(raw);
 
-            var justNeeded = _cmdAction == CmdAction.NEED;
+            var justAsk = _cmdAction == CmdAction.ASK;
             var report = InventoryItem.GetInventoryReport(_context, _config, true, out string subject, false);
             int? pid = _hasMy ? _curUser.pid : null;
             subject = subject.Replace("Inventory", "Needed Urgencies");

@@ -1679,6 +1679,8 @@ namespace CStat.Common
                 if (_cmdDescList.Count == 1)
                 {
                     people = _context.Person.Where(p => p.FirstName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
+                    if (people.Count == 0)
+                        people = _context.Person.Where(p => p.LastName.StartsWith(_cmdDescList[0])).Include(p => p.Address).ToList();
                 }
                 else if (_cmdDescList.Count == 2)
                 {

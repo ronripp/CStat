@@ -184,6 +184,7 @@ namespace CStat.Common
             {"shot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
             {"snapshot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) }, // C -
             {"refrigerator", new Tuple<CmdSource, bool>(CmdSource.FRIDGE, false) },
+            {"freezer", new Tuple<CmdSource, bool>(CmdSource.FREEZER, false) },
             {"doc", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"manual", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"document", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
@@ -241,6 +242,7 @@ namespace CStat.Common
             {"mailing", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
 
             {"email_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"email_address", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"emails", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
 
             {"contact", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
@@ -368,8 +370,8 @@ namespace CStat.Common
             _userManager = userManager;
             _curUser = curUser;
             _isTextMsg = isTextMsg;
-            _isQuestion = _isUrgent;  // temp : removes unused warning
-            _isUrgent = _isQuestion;  // temp : removes unused warning
+            _isQuestion = false;
+            _isUrgent = false;
 
             _srcDelegateDict.Add(CmdSource.MENU, HandleMenu);
             _srcDelegateDict.Add(CmdSource.INVENTORY, HandleInventory);
@@ -389,6 +391,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.PRESSURE, HandleEquip);
             _srcDelegateDict.Add(CmdSource.ELECTRIC, HandleEquip);
             _srcDelegateDict.Add(CmdSource.CAMERA, HandleEquip);
+            _srcDelegateDict.Add(CmdSource.KITCH_TEMP, HandleEquip);
 
             _srcDelegateDict.Add(CmdSource.INTERNET, HandleBiz);
             _srcDelegateDict.Add(CmdSource.TRASH, HandleBiz);
@@ -422,20 +425,20 @@ namespace CStat.Common
                            .Replace("as email", "via_email")
                            .Replace("via email", "via_email")
                            .Replace("the email", "email_address")
+                           .Replace("email addresses", "email_list")
                            .Replace("email address", "email_address")
-                           .Replace("email addresses", "email_address")
-                           .Replace("last name", "last_name")
                            .Replace("last names", "last_name")
-                           .Replace("first name", "first_name")
+                           .Replace("last name", "last_name")
                            .Replace("first names", "first_name")
+                           .Replace("first name", "first_name")
                            .Replace("phone #", "phone_number")
                            .Replace("phone number", "phone_number")
                            .Replace("phone #s", "phone_list")
                            .Replace("phone numbers", "phone_list")
                            .Replace("phone directory", "phone_list")
                            .Replace("listing", "list")
-                           .Replace("mailing address", "mailing")
                            .Replace("mailing addresses", "mailing_list")
+                           .Replace("mailing address", "mailing")
                            .Replace("list of contacts", "people_list")
                            .Replace("list of people", "people_list")
                            .Replace("people list", "people_list")
@@ -469,9 +472,15 @@ namespace CStat.Common
                            .Replace("last months", "last_month")
                            .Replace("last year", "last_year")
                            .Replace("last years", "last_year")
-                           .Replace("kitchen temp", "kitch_temp")
                            .Replace("kitchen temperature", "kitch_temp")
+                           .Replace("kitchen temp", "kitch_temp")
                            .Replace("temperature in kitchen", "kitch_temp")
+                           .Replace("walk-in freezer", "freezer")
+                           .Replace("walk-in fridge", "refrigerator")
+                           .Replace("walk-in refrigerator", "refrigerator")
+                           .Replace("walk in freezer", "freezer")
+                           .Replace("walk in fridge", "refrigerator")
+                           .Replace("walk in refrigerator", "refrigerator")
                            .Replace(":", "")
                            .Replace("  ", " ");
            
@@ -575,8 +584,11 @@ namespace CStat.Common
             if ((_cmdSrc == CmdSource.NONE) && (_cmdDescList.Count > 0))
             {
                 // Check inventory or equipment match
+                if (!FindCmdOther(words))
+                {
+                    _cmdSrc = CmdSource.PERSON; // default
+                }
             }
-
 
             if (_cmdFormat != CmdFormat.TEXT)
                 _cmdOutput = CmdOutput.EMAIL; // Send files via EMail
@@ -647,7 +659,84 @@ namespace CStat.Common
             return (index < words.Count) ? words[index] : "";
         }
 
-        public bool FindCmdSpecific(List<string> words) // ZZZAAA ************************
+        public bool FindCmdOther(List<string> words) // ZZZAAA
+        {
+            CSSettings cset = CSSettings.GetCSSettings(_config, _userManager);
+            var InvList = InventoryItem.GetInventoryList(_context, _config, false);
+
+            int BestEquipMatch = 0;
+            EquipProp BestEquipProp = null;
+            foreach (var e in cset.EquipProps)
+            {
+                int curMatch = 0;
+                foreach (var w in _cmdDescList)
+                {
+                    var equipTitle = e.Title.ToLower();
+                    if (w.Equals(equipTitle, StringComparison.OrdinalIgnoreCase))
+                        curMatch += 10;
+                    else if (equipTitle.Contains(w))
+                         curMatch += 8;
+                    else
+                        curMatch += LevenshteinDistance.Compute(w, equipTitle) switch { 0 => 10, 1 => 7, 2 => 5, _ => 0 };
+                }
+                if (curMatch > BestEquipMatch)
+                {
+                    BestEquipMatch = curMatch;
+                    BestEquipProp = e;
+                }
+            }
+
+            int BestItemMatch = 0;
+            InventoryState BestInvState = null;
+            foreach (var i in InvList)
+            {
+                int curMatch = 0;
+                foreach (var w in _cmdDescList)
+                {
+                    var itemName = i.Name.ToLower();
+                    if (w.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                        curMatch += 10;
+                    else if (itemName.Contains(w))
+                        curMatch += 8;
+                    else
+                        curMatch += LevenshteinDistance.Compute(w, itemName) switch { 0 => 10, 1 => 7, 2 => 5, _ => 0 };
+                }
+                if (curMatch > BestItemMatch)
+                {
+                    BestItemMatch = curMatch;
+                    BestInvState = i;
+                }
+            }
+
+            if ((_cmdAction == CmdAction.BUY) && (BestItemMatch > 0))
+            {
+                if (_cmdSrc == CmdSource.NONE)
+                    _cmdSrc = CmdSource.INVENTORY;
+                _inventoryStateMatch = BestInvState;
+                return true;
+            }
+
+            if (BestEquipMatch > BestItemMatch)
+            {
+                if (_cmdSrc == CmdSource.NONE)
+                    _cmdSrc = CmdSource.EQUIP;
+                _equipPropMatch = BestEquipProp;
+                if (BestItemMatch > 0)
+                    _inventoryStateMatch = BestInvState;
+                return true;
+            }
+            if (BestItemMatch > BestEquipMatch)
+            {
+                if (_cmdSrc == CmdSource.NONE)
+                    _cmdSrc = CmdSource.INVENTORY;
+                _inventoryStateMatch = BestInvState;
+                if (BestEquipMatch > 0)
+                    _equipPropMatch = BestEquipProp;
+                return true;
+            }
+            return false;
+        }
+        public bool FindCmdSpecific(List<string> words)
         {
             var NumWords = words.Count;
             // phone_number of
@@ -907,25 +996,8 @@ namespace CStat.Common
                                     }
                                     _cmdIgnoreIdxList.Add(++curIdx); // For "of" or "on"
 
-                                    // Add 1 to 3 Descriptive Details of what is needed or being asked about
-                                    w = gw(words, curIdx + 1);
-                                    if (!String.IsNullOrEmpty(w))
-                                    {
-                                        _cmdDescList.Add(w);
-                                        _cmdDescIdxList.Add(++curIdx);
-                                        w = gw(words, curIdx + 1);
-                                        if (!String.IsNullOrEmpty(w))
-                                        {
-                                            _cmdDescList.Add(w);
-                                            _cmdDescIdxList.Add(++curIdx);
-                                            w = gw(words, curIdx + 1);
-                                            if (!String.IsNullOrEmpty(w))
-                                            {
-                                                _cmdDescList.Add(w);
-                                                _cmdDescIdxList.Add(++curIdx);
-                                            }
-                                        }
-                                    }
+                                    // Add 1 to more Descriptive Details of what is needed or being asked about
+                                    AddDescDetails(words, ref curIdx);
                                 }
                                 return true;
                             }
@@ -937,11 +1009,13 @@ namespace CStat.Common
                         w = gw(words, curIdx + 1);
                         if ((w == "much") || (w == "many") )
                         {
-                            _cmdSpecificIdxList.Add(curIdx);
+                            _isQuestion = true;
+                            _cmdSpecificIdxList.Add(++curIdx);
                             _cmdSpecific = CmdSpecific.AMOUNT_OF;
                             w = gw(words, curIdx + 1);
                             if (w == "is")
                                _cmdIgnoreIdxList.Add(++curIdx);
+                            AddDescDetails(words, ref curIdx);
                             return true;
                         }
                         break;
@@ -1049,13 +1123,36 @@ namespace CStat.Common
             return false;
         }
 
+        private void AddDescDetails(List<string> words, ref int curIdx)
+        {
+            // Add 1 to 3 Descriptive Details of what is needed or being asked about
+            string w = gw(words, curIdx + 1);
+            if (!ValidDesc(w))
+            {
+                _cmdDescList.Add(w);
+                _cmdDescIdxList.Add(++curIdx);
+                w = gw(words, curIdx + 1);
+                if (!ValidDesc(w))
+                {
+                    _cmdDescList.Add(w);
+                    _cmdDescIdxList.Add(++curIdx);
+                    w = gw(words, curIdx + 1);
+                    if (!ValidDesc(w))
+                    {
+                        _cmdDescList.Add(w);
+                        _cmdDescIdxList.Add(++curIdx);
+                    }
+                }
+            }
+        }
+
         public bool FindCmdSource(List<string> words) // ZZZAAA ************************
         {
             var NumWords = words.Count;
 
             for (int i = NumWords - 1; i >= 0; --i)
             {
-                if (AlreadyHandled(i)) continue;
+                if (AlreadyHandledExceptDesc(i)) continue;
 
                 if (GetCmdSrc(words[i], out CmdSource cmdSrc1, out bool? isPlural1))
                 {
@@ -1350,6 +1447,12 @@ namespace CStat.Common
                 (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
+        public bool AlreadyHandledExceptDesc(int i)
+        {
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+                (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
+        }
+
         public bool FindEvent(List<string> words)
         {
             // Filter out Sources and actions not associated with Event
@@ -1389,7 +1492,15 @@ namespace CStat.Common
             }
             return false;
         }
-        
+
+        public bool ValidDesc(string w)
+        {
+            if (string.IsNullOrEmpty(w) || (w == "as") || (w == "with") || (w == "a") || (w == "the") || (w == "in") || (w == "from") || (w == "do") || (w == "we") || (w == "have") || (w == "an") || (w == "i") || (w == "be"))
+                return false;
+            return true;
+        }
+
+
         public bool FindDesc(List<string> words)
         {
             var NumWords = words.Count;
@@ -1402,7 +1513,7 @@ namespace CStat.Common
                     break;
 
                 string word = words[i];
-                if ((word == "as") || (word == "with") || (word == "a") || (word == "the") || (word == "in") || (word == "from"))
+                if (!ValidDesc(word))
                     continue;
 
                 _cmdDescList.Add(words[i]);
@@ -1425,7 +1536,20 @@ namespace CStat.Common
         }
         private string HandleInventory(List<string> words)
         {
+            string report; 
             var justAsk = _cmdAction == CmdAction.ASK;
+            if (_inventoryStateMatch != null)
+            {
+                if (_cmdAction == CmdAction.BUY)
+                {
+                    report = "BUY Inventory Item : " + _inventoryStateMatch.Name + " TBD!!!\n";
+                }
+                else
+                {
+                    report = "STATUS Inventory Item : " + _inventoryStateMatch.Name + "[" + _inventoryStateMatch.State + "] current : " + _inventoryStateMatch.InStock + " " + _inventoryStateMatch.Units + " as of " + _inventoryStateMatch.Date.ToString("g") + "\n";
+                }
+                return report;
+            }
             return InventoryItem.GetInventoryReport(_context, _config, false, out string subject, true);
         }
         private string HandleUrgency(List<string> raw)
@@ -1492,9 +1616,9 @@ namespace CStat.Common
                                   : _context.Person.Where(p => p.LastName.StartsWith(lName)).Include(p => p.Address).ToList();
                 }
 
-                if (_cmdSrcIdx != -1)
+                if ((_cmdSrcIdx != -1) || (_cmdSrc == CmdSource.PERSON))
                 {
-                    string srcDetail = words[_cmdSrcIdx];
+                    string srcDetail = (_cmdSrcIdx != -1) ? words[_cmdSrcIdx] : "unknown";
                     if ((srcDetail == "people_list") || (srcDetail == "contacts") || (srcDetail == "campers") || (srcDetail == "people"))
                     {
                         // Check for more detail
@@ -1889,7 +2013,7 @@ namespace CStat.Common
                 }
                 else
                 {
-                    return AppendPropLine(pmgr, plNow, result);
+                    return "As of " + AppendPropLine(pmgr, plNow, result) + "of propane.\n";
                 }
             }
             else if (_cmdSrc == CmdSource.ELECTRIC)
@@ -1951,9 +2075,57 @@ namespace CStat.Common
             }
             else
             {
-                result = "Equipment Report :\n";
-                ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
-                var ar = am.ReportLastestValues(ref result, false); // Ard only : No propane
+                string PropName = "";
+                if (_equipPropMatch != null)
+                    PropName = _equipPropMatch.PropName;
+                else
+                {
+                    PropName = _cmdSrc switch
+                    {
+                        CmdSource.KITCH_TEMP => "kitchTemp",
+                        CmdSource.FREEZER => "freezerTemp",
+                        CmdSource.FRIDGE => "frigTemp",
+                        CmdSource.PRESSURE => "waterPres",
+                        CmdSource.PROPANE => "propaneTank",
+                        CmdSource.ELECTRIC => "powerOn",
+                        _ => ""
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(PropName))
+                {
+                    result = "";
+                    CSSettings cset = CSSettings.GetCSSettings(_config, _userManager);
+                    foreach (var ep in cset.EquipProps)
+                    {
+                        if (ep.PropName.Equals(PropName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (ep.IsPropane())
+                            {
+                                var pmgr = new PropaneMgr(_hostEnv, _config, _userManager);
+                                if (!pmgr.ReportLatestValue(ref result))
+                                    result = "Failed to read value.";
+                                break;
+                            }
+                            else
+                            {
+                                ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
+                                result = "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, am.GetLast(), null, false);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    result = "Equipment Report :\n";
+                    ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
+                    var ar = am.ReportLastestValues(ref result, false); // Ard only : No propane
+
+                    PropaneMgr pm = new PropaneMgr(_hostEnv, _config, _userManager);
+                    pm.ReportLatestValue(ref result); // propane only
+
+                }
             }
 
             return (result.Length == 0) ? "Huh?" : result;
@@ -2631,6 +2803,8 @@ namespace CStat.Common
         private DateRange _cmdDateRange = null;
         private int _cmdDateTimeStartIdx = -1;
         private int _cmdDateTimeEndIdx = -1;
+        private EquipProp _equipPropMatch = null;
+        private InventoryState _inventoryStateMatch = null;
 
         private string _rawCmd = "";
 

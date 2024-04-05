@@ -164,10 +164,12 @@ namespace CStat.Models
     }
     public class InventoryState
     {
+        public int ItemID;
         public string Name;
         public string State;
         public double InStock;
         public string Units;
+        public DateTime Date;
     }
 
     public partial class InventoryItem
@@ -229,16 +231,13 @@ namespace CStat.Models
             }
             return report;
         }
-        public static List<InventoryState> GetInventoryList(CStatContext context, IConfiguration config, bool justNeeded, out string subject, bool withHdr)
+        public static List<InventoryState> GetInventoryList(CStatContext context, IConfiguration config, bool justNeeded)
         {
             var InventoryItems = context.InventoryItem.Include(i => i.Inventory).Include(i => i.Item).Include(i => i.Person).OrderByDescending(i => (i.State != null) ? i.State % 3 : 0).ToList();
             string[] StateStr = { "ok", "NEEDED: unassigned", "BUYING", "Not Checked" };
             List<InventoryState> invList = new List<InventoryState>();
     
-            string report = "";
             DateTime Now = PropMgr.ESTNow;
-            subject = "CCA Inventory Report as of " + Now.ToShortDateString() + " " + Now.ToShortTimeString();
-            report = (withHdr) ? subject + "\n--------------------------------.\n" : "";
             foreach (var i in InventoryItems)
             {
                 var stateIdx = i.State.HasValue ? i.State.Value : 0;
@@ -247,7 +246,7 @@ namespace CStat.Models
     
                 var stateStr = ((stateIdx == 2) && (i.Person != null)) ? "BUYING: " + i.Person.GetShortName() : StateStr[stateIdx];
                 InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
-                invList.Add(new InventoryState { Name = i.Item.Name.Trim(), State = stateStr, InStock = (double)i.CurrentStock, Units = units.ToString() });
+                invList.Add(new InventoryState { ItemID = i.Item.Id, Name = i.Item.Name.Trim(), State = stateStr, InStock = (double)i.CurrentStock, Units = units.ToString(), Date = i.Date.Value });
             }
             return invList;
         }

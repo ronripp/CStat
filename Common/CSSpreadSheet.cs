@@ -33,6 +33,7 @@ namespace CStat.Common
         private SSType _type = SSType.NONE;
         StreamWriter _wFile = null;
         public string FileName = "";
+        private int P1=0,P2=0,P3=0,P4=0,P5=0,P6=0,P7=0,P8=0,P9=0,P10=0,P11=0,P12=0,P13=0,P14=0,P15=0,P16=0;
 
         public CSSpreadSheet (string filebase, SSType ssType) 
         {
@@ -65,6 +66,11 @@ namespace CStat.Common
         ~CSSpreadSheet()
         {
             this.Dispose(false);
+        }
+
+        public void SetPad(int p1, int p2 = 0, int p3 = 0, int p4 = 0, int p5 = 0, int p6 = 0, int p7 = 0, int p8 = 0, int p9 = 0, int p10 = 0, int p11 = 0, int p12 = 0, int p13 = 0, int p14 = 0, int p15 = 0, int p16 = 0)
+        {
+            P1 = p1; P2 = p2; P3 = p3; P4 = p4; P5 = p5; P6 = p6; P7 = p7; P8 = p8; P9 = p9; P10 = p10; P11 = p11; P12 = p12; P13 = p13; P14 = p14; P15 = p15; P16 = p16;
         }
 
         public void AddRow(string s1, string s2 = "", string s3 = "", string s4 = "", string s5 = "", string s6 = "", string s7 = "", string s8 = "", string s9 = "", string s10 = "", string s11 = "", string s12 = "", string s13 = "", string s14 = "", string s15 = "", string s16 = "")
@@ -135,22 +141,22 @@ namespace CStat.Common
                     {
                         switch (NumCols)
                         {
-                            case 1: _wFile.WriteLine(s1); break;
-                            case 2: _wFile.WriteLine(s1 + "," + s2); break;
-                            case 3: _wFile.WriteLine(s1 + "," + s2 + "," + s3); break;
-                            case 4: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4); break;
-                            case 5: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5); break;
-                            case 6: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6); break;
-                            case 7: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7); break;
-                            case 8: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8); break;
-                            case 9: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9); break;
-                            case 10: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10); break;
-                            case 11: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11); break;
-                            case 12: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11 + "," + s12); break;
-                            case 13: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11 + "," + s12 + "," + s13); break;
-                            case 14: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11 + "," + s12 + "," + s13 + "," + s14); break;
-                            case 15: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11 + "," + s12 + "," + s13 + "," + s14 + "," + s15); break;
-                            case 16: _wFile.WriteLine(s1 + "," + s2 + "," + s3 + "," + s4 + "," + s5 + "," + s6 + "," + s7 + "," + s8 + "," + s9 + "," + s10 + "," + s11 + "," + s12 + "," + s13 + "," + s14 + "," + s15 + "," + s16); break;
+                            case 1: _wFile.WriteLine(s1.PadLeft(P1)); break;
+                            case 2: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2)); break;
+                            case 3: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3)); break;
+                            case 4: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4)); break;
+                            case 5: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5)); break;
+                            case 6: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6)); break;
+                            case 7: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7)); break;
+                            case 8: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8)); break;
+                            case 9: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9)); break;
+                            case 10: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10)); break;
+                            case 11: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11)); break;
+                            case 12: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11) + "," + s12.PadLeft(P12)); break;
+                            case 13: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11) + "," + s12.PadLeft(P12) + "," + s13.PadLeft(P13)); break;
+                            case 14: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11) + "," + s12.PadLeft(P12) + "," + s13.PadLeft(P13) + "," + s1.PadLeft(P14)); break;
+                            case 15: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11) + "," + s12.PadLeft(P12) + "," + s13.PadLeft(P13) + "," + s1.PadLeft(P14) + "," + s15.PadLeft(P15)); break;
+                            case 16: _wFile.WriteLine(s1.PadLeft(P1) + "," + s2.PadLeft(P2) + "," + s3.PadLeft(P3) + "," + s4.PadLeft(P4) + "," + s5.PadLeft(P5) + "," + s6.PadLeft(P6) + "," + s7.PadLeft(P7) + "," + s8.PadLeft(P8) + "," + s9.PadLeft(P9) + "," + s10.PadLeft(P10) + "," + s11.PadLeft(P11) + "," + s12.PadLeft(P12) + "," + s13.PadLeft(P13) + "," + s1.PadLeft(P14) + "," + s15.PadLeft(P15) + "," + s16.PadLeft(P16)); break;
                             default:
                                 break;
                         }

@@ -1695,7 +1695,7 @@ namespace CStat.Common
 
                 int NumPeople = people.Count;
                 var ssType = CSSpreadSheet.GetSSType((int)_cmdFormat);
-                if ((NumPeople > 20) || (ssType == CSSpreadSheet.SSType.CSV) || (ssType == CSSpreadSheet.SSType.EXCEL))
+                if ((NumPeople > 10) || (ssType == CSSpreadSheet.SSType.CSV) || (ssType == CSSpreadSheet.SSType.EXCEL))
                 {
                     try
                     {
@@ -1705,13 +1705,25 @@ namespace CStat.Common
                         {
                             sshFileName = ssh.FileName;
                             if (!isOnly)
+                            {
                                 ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail");
+                                ssh.SetPad(16, 16, 1, 10, 30, 20, 15, 4, 11, 13, 25);
+                            }
                             else if (MailingOnly)
+                            {
                                 ssh.AddRow("First Name", "Last Name", "Street", "Town", "State", "Zip");
+                                ssh.SetPad(16, 16, 30, 20, 4, 10);
+                            }
                             else if (EMailOnly)
+                            {
                                 ssh.AddRow("First Name", "Last Name", "EMail");
+                                ssh.SetPad(16, 16, 25);
+                            }
                             else // if (PhoneOnly)
+                            {
                                 ssh.AddRow("First Name", "Last Name", "Phone");
+                                ssh.SetPad(16, 16, 13);
+                            }
 
                             foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
                             {

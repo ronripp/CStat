@@ -3,10 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CStat.Controllers
 {
@@ -25,10 +22,19 @@ namespace CStat.Controllers
 
         public object Results { get; private set; }
 
-        public FileResult Index()
+        private readonly String[] _videos =
         {
-            //string fileName = "Videos\\southford.mp4";
-            string fileName = "Videos\\CCA_Dave_Miller_21.mp4";
+            "",
+            "Videos\\CCA_Dave_Miller_21.mp4"
+        };
+
+        [HttpGet("{vidx}")]
+        public FileResult Index(int vidx)
+        {
+            string fileName = _videos[vidx] ?? "";
+            if (string.IsNullOrEmpty(fileName))
+                return null;
+
             string physPath = Path.Combine(_hostEnv.WebRootPath, fileName);
 
             //var content = new FileStream(physPath, FileMode.Open, FileAccess.Read, FileShare.Read);

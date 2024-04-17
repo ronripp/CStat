@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Bootstrap Example</title>
+    <title>Chapel Heater</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -11,8 +11,8 @@
     <style>
 
         .img-responsive {
-            max-width: 100%;
-            max-height: calc(100vh - 120px);
+/*            max-width: 100%;
+            max-height: calc(100vh-120px);*/
             width: auto;
             object-fit: contain;
             display: block;
@@ -36,73 +36,80 @@
             color: lawngreen;
         }
 
-        /*        .carousel {
-            height: calc(100vh - 0px);
-            position: relative;
-        }
-
-
-
-        .carousel-item img {
-            width: auto;
-            height: calc(100vh - 0px);
-            object-fit: contain;
-            display: block;
-        }
-
-        .carousel-item img + p {
-            display: none;
-        }
-
-        .carousel-item, .carousel {
-            overflow: hidden;
-        }*/
     </style>
+    <script>
+        function setVideoWidth(cmd) {
+            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
+            let vidWidth = vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
+            document.getElementById("vid").style.width = vidWidth + "px";
+        }
+        function showVideo(idx) {
+            let vidStr = "vid" + idx;
+            document.getElementById(vidStr).style.display = (document.getElementById(vidStr).style.display === "block") ? "none" : "block";
+            setVideoWidth(0);
+        }
+    </script>
 
 </head>
 <body style="background-color:black; color:goldenrod">
 
+    <div>
+        <div><a class="LC" href="#" onclick="showVideo(2);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview from front of attic:</h3></a></div>
+        <video id="vid2" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
+            <source src="https://localhost:44377/api/Video/2" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+        <div><a class="LC" href="#" onclick="showVideo(3);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview of Heater:</h3></a></div>
+        <video id="vid3" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
+            <source src="https://localhost:44377/api/Video/3" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+        <div><a class="LC" href="#" onclick="showVideo(4);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Propane Coming in, Air in, Heat out of Unit:</h3></a></div>
+        <video id="vid4" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
+            <source src="https://localhost:44377/api/Video/4" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
     <div class="container">
-        <h3><b>CCA Children's Camp Quilts</b></h3>
+        <h3><b>CCA Chapel Propane Heater</b></h3>
         <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
-            <!--<ol class="carousel-indicators">
-                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                <li data-target="#myCarousel" data-slide-to="1"></li>
-                <li data-target="#myCarousel" data-slide-to="2"></li>
-            </ol>-->
-            <!--<span id="PicTitle">Picture title.</span>-->
             <div class="carousel-inner">
                 <div class="item active">
-                    <span id="PicTitle">Picture title 1.</span>
-                    <img src="\quilts\quilt01.jpg" alt="Quilt 1" class="img-responsive">
+                    <span id="PicTitle">Propane Heater</span>
+                    <img src="\chapelHeat\Propane Heater.jpg" alt="Quilt 1" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 2.</span>
-                    <img src="\quilts\quilt02.jpg" alt="Quilt 2" class="img-responsive">
+                    <span id="PicTitle">Unit Controller</span>
+                    <img src="\chapelHeat\Unit Controller.jpg" alt="Quilt 2" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 3.</span>
-                    <img src="\quilts\quilt03.jpg" alt="Quilt 3" class="img-responsive">
+                    <span id="PicTitle">Heater Elements</span>
+                    <img src="\chapelHeat\Heater Elements.jpg" alt="Quilt 3" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 4.</span>
-                    <img src="\quilts\quilt04.jpg" alt="Quilt 4" class="img-responsive">
+                    <span id="PicTitle">Front Left Heat Duct</span>
+                    <img src="\chapelHeat\Front Left Heat Duct.jpg" alt="Quilt 4" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 5.</span>
-                    <img src="\quilts\quilt05.jpg" alt="Quilt 5" class="img-responsive">
+                    <span id="PicTitle">Front Right Heat Duct</span>
+                    <img src="\chapelHeat\Front Right Heat Duct.jpg" alt="Quilt 5" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 6.</span>
-                    <img src="\quilts\quilt06.jpg" alt="Quilt 6" class="img-responsive">
+                    <span id="PicTitle">Back Left Heat Duct</span>
+                    <img src="\chapelHeat\Back Left Heat Duct.jpg" alt="Quilt 6" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 7.</span>
-                    <img src="\quilts\quilt07.jpg" alt="Quilt 7" class="img-responsive">
+                    <span id="PicTitle">Back Right Duct</span>
+                    <img src="\chapelHeat\Back Right Duct.jpg" alt="Quilt 7" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Picture title 8.</span>
-                    <img src="\quilts\quilt08.jpg" alt="Quilt 8" class="img-responsive">
+                    <span id="PicTitle">Front Cover of Unit</span>
+                    <img src="\chapelHeat\Front Cover of Unit.jpg" alt="Quilt 8" class="img-responsive">
+                </div>
+                <div class="item">
+                    <span id="PicTitle">Unit Conversion Note</span>
+                    <img src="\chapelHeat\Unit Conversion Note.jpg" alt="Quilt 9" class="img-responsive">
                 </div>
             </div>
             <a class="left carousel-control" href="#myCarousel" data-slide="prev">

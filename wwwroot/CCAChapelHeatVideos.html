@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chapel Heater Videos</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+
+        .vdiv {
+            color:white;
+            font-size: 1.5em;
+            font-weight:bold;
+        }
+
+        .video-container {
+            /*position: absolute;
+            top: 0;
+            bottom: 0;*/
+/*            width: 90%;*/
+            /*height: 600px;*/
+/*            overflow: hidden;*/
+        }
+
+        .video-container video {
+            /* Make video to at least 100% wide and tall */
+/*            min-width: 90%;*/
+            /*max-height: 600px;*/
+            /* Setting width & height to auto prevents the browser from stretching or squishing the video */
+            width: auto;
+            height: auto;
+            /* Center the video */
+            /*position: absolute;*/
+/*            top: 20px;
+            left: 2px;*/
+/*            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);*/
+        }
+    </style>
+
+    <script>
+
+        var curVideo = 2;
+
+        function setVideoHeight() {
+            document.getElementById("vdiv2").style.display = "block";
+            document.getElementById("vdiv3").style.display = "none";
+            document.getElementById("vdiv4").style.display = "none";
+            let vHeight = (document.documentElement.clientHeight || document.body.clientHeight || window.innerHeight);
+            document.getElementById("vid2").style.maxHeight = vHeight-30 + "px";
+            document.getElementById("vid3").style.maxHeight = vHeight-30 + "px";
+            document.getElementById("vid4").style.maxHeight = vHeight-30 + "px";
+        }
+        function nextVideo() {
+            switch (curVideo) {
+                case 2:
+                    curVideo = 3;
+                    document.getElementById("vdiv2").style.display = "none";
+                    document.getElementById("vdiv3").style.display = "block";
+                    document.getElementById("vdiv4").style.display = "none";
+                    break;
+                case 3:
+                    curVideo = 4;
+                    document.getElementById("vdiv2").style.display = "none";
+                    document.getElementById("vdiv3").style.display = "none";
+                    document.getElementById("vdiv4").style.display = "block";
+                    break;
+                case 4:
+                    curVideo = 2;
+                    document.getElementById("vdiv2").style.display = "block";
+                    document.getElementById("vdiv3").style.display = "none";
+                    document.getElementById("vdiv4").style.display = "none";
+                    break;
+            }
+        }
+    </script>
+
+</head>
+<body style="background-color:black; color:goldenrod" onload="setVideoHeight()">
+
+    <div class="video-container">
+        <div class="vdiv" id="vdiv2">
+            <div>&nbsp;&nbsp;VIDEO : Overview from front of attic:&nbsp;&nbsp;&nbsp;&nbsp;<button style="color:blue" onclick="nextVideo()">Next Video</button></></div>
+            <div>
+                <video id="vid2" style="padding-left:2px" controls>
+                    <source src="https://localhost:44377/api/Video/2" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <div class="vdiv" id="vdiv3">
+            <div>&nbsp;&nbsp;VIDEO : Overview of Heater:&nbsp;&nbsp;&nbsp;&nbsp;<button style="color:blue" onclick="nextVideo()">Next Video</button></div>
+            <div>
+                <video id="vid3" style="padding-left:2px" controls>
+                    <source src="https://localhost:44377/api/Video/3" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <div class="vdiv" id="vdiv4">
+            <div>&nbsp;&nbsp;VIDEO : Propane Coming in, Air in, Heat out of Unit:&nbsp;&nbsp;&nbsp;&nbsp;<button style="color:blue" onclick="nextVideo()">Next Video</button></div>
+            <div>
+                <video id="vid4" style="padding-left:2px" controls>
+                    <source src="https://localhost:44377/api/Video/4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

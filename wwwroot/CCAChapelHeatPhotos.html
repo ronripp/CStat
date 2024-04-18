@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Chapel Heater</title>
+    <title>Chapel Heater Photos</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -11,8 +11,8 @@
     <style>
 
         .img-responsive {
-/*            max-width: 100%;
-            max-height: calc(100vh-120px);*/
+            max-width: 100%;
+            max-height: calc(100vh - 120px);
             width: auto;
             object-fit: contain;
             display: block;
@@ -37,7 +37,7 @@
         }
 
     </style>
-    <script>
+    <!--<script>
         function setVideoWidth(cmd) {
             let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
             let vidWidth = vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
@@ -48,12 +48,12 @@
             document.getElementById(vidStr).style.display = (document.getElementById(vidStr).style.display === "block") ? "none" : "block";
             setVideoWidth(0);
         }
-    </script>
+    </script>-->
 
 </head>
 <body style="background-color:black; color:goldenrod">
 
-    <div>
+    <!--<div>
         <div><a class="LC" href="#" onclick="showVideo(2);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview from front of attic:</h3></a></div>
         <video id="vid2" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
             <source src="https://localhost:44377/api/Video/2" type="video/mp4" />
@@ -69,7 +69,7 @@
             <source src="https://localhost:44377/api/Video/4" type="video/mp4" />
             Your browser does not support the video tag.
         </video>
-    </div>
+    </div>-->
 
     <div class="container">
         <h3><b>CCA Chapel Propane Heater</b></h3>
@@ -111,6 +111,15 @@
                     <span id="PicTitle">Unit Conversion Note</span>
                     <img src="\chapelHeat\Unit Conversion Note.jpg" alt="Quilt 9" class="img-responsive">
                 </div>
+
+                <!--<div class="item">
+                    <div><a class="LC" href="#" onclick="showVideo(2);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview from front of attic:</h3></a></div>
+                    <video id="vid2" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
+                        <source src="https://localhost:44377/api/Video/2" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>-->
+
             </div>
             <a class="left carousel-control" href="#myCarousel" data-slide="prev">
                 <span class="glyphicon glyphicon-chevron-left"></span>

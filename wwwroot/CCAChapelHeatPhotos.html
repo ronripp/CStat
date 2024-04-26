@@ -31,48 +31,17 @@
         }
 
         #PicTitle {
-            font-size: 2em;
+            font-size: 1.5em;
             padding-left: 20px;
-            color: lawngreen;
+            color: goldenrod;
         }
 
     </style>
-    <!--<script>
-        function setVideoWidth(cmd) {
-            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
-            let vidWidth = vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
-            document.getElementById("vid").style.width = vidWidth + "px";
-        }
-        function showVideo(idx) {
-            let vidStr = "vid" + idx;
-            document.getElementById(vidStr).style.display = (document.getElementById(vidStr).style.display === "block") ? "none" : "block";
-            setVideoWidth(0);
-        }
-    </script>-->
 
 </head>
 <body style="background-color:black; color:goldenrod">
 
-    <!--<div>
-        <div><a class="LC" href="#" onclick="showVideo(2);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview from front of attic:</h3></a></div>
-        <video id="vid2" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-            <source src="https://localhost:44377/api/Video/2" type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
-        <div><a class="LC" href="#" onclick="showVideo(3);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Overview of Heater:</h3></a></div>
-        <video id="vid3" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-            <source src="https://localhost:44377/api/Video/3" type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
-        <div><a class="LC" href="#" onclick="showVideo(4);event.preventDefault();"><h3>&nbsp;&nbsp;VIDEO : Propane Coming in, Air in, Heat out of Unit:</h3></a></div>
-        <video id="vid4" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-            <source src="https://localhost:44377/api/Video/4" type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
-    </div>-->
-
     <div class="container">
-        <h3><b>CCA Chapel Propane Heater</b></h3>
         <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
             <div class="carousel-inner">
                 <div class="item active">
@@ -84,23 +53,23 @@
                     <img src="\chapelHeat\Unit Controller.jpg" alt="Quilt 2" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Heater Elements</span>
+                    <span id="PicTitle">Heater Burners</span>
                     <img src="\chapelHeat\Heater Elements.jpg" alt="Quilt 3" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Front Left Heat Duct</span>
+                    <span id="PicTitle">Front Left Heat Vent</span>
                     <img src="\chapelHeat\Front Left Heat Duct.jpg" alt="Quilt 4" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Front Right Heat Duct</span>
+                    <span id="PicTitle">Front Right Heat Vent</span>
                     <img src="\chapelHeat\Front Right Heat Duct.jpg" alt="Quilt 5" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Back Left Heat Duct</span>
+                    <span id="PicTitle">Back Left Heat Vent</span>
                     <img src="\chapelHeat\Back Left Heat Duct.jpg" alt="Quilt 6" class="img-responsive">
                 </div>
                 <div class="item">
-                    <span id="PicTitle">Back Right Duct</span>
+                    <span id="PicTitle">Back Right Vent</span>
                     <img src="\chapelHeat\Back Right Duct.jpg" alt="Quilt 7" class="img-responsive">
                 </div>
                 <div class="item">

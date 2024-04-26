@@ -26,7 +26,7 @@ namespace CStat.Common
         private readonly ILogger _logger;
         private readonly CStat.Models.CStatContext _context;
         private readonly IConfiguration _configuration;
-        private readonly CSSettings _csSettings;
+        private CSSettings _csSettings;
         private readonly IWebHostEnvironment _hostEnv;
         private readonly UserManager<CStatUser> _userManager;
 
@@ -40,7 +40,7 @@ namespace CStat.Common
 
             //var dr = new DateRange(new DateTime(2020, 1, 1), new DateTime(2022, 12, 1));
             //var list = CStat.Models.Task.GetAllTasks(context, dr, null, false);
-            _csSettings = CSSettings.GetCSSettings(_configuration, userManager);
+            //_csSettings = new CSSettings(_configuration, userManager);
         }
 
         public async Task DoWork(CancellationToken stoppingToken)
@@ -57,6 +57,8 @@ namespace CStat.Common
                 try
                 {
                     cl.Log("CSProc: Top of while Loop");
+
+                    _csSettings = new CSSettings(_configuration, _userManager); // refresh settings every MinWaitMins.
 
                     DateTime enow = PropMgr.ESTNow;
                     DateTime lastW = (_csSettings.LastTaskUpdate != null) ? _csSettings.LastTaskUpdate : new DateTime(2020, 1, 1);

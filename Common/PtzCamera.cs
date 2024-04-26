@@ -899,7 +899,7 @@ public class PtzCamera : System.IDisposable
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
                 if (enable)
-                    req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 587, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp3@gmail.com\", \"addr2\": \"handiguy2@optonline.net\"}}}]");
+                    req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 587, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp3@gmail.com\", \"addr2\": \"gmbesthelp@gmail.com\"}}}]");
                 else
                     req.AddBody("[{\"cmd\": \"SetEmailV20\", \"param\": {\"Email\": {\"ssl\": 1, \"smtpPort\": 588, \"userName\": \"ronripp@outlook.com\", \"password\": \"Red35823\", \"addr1\": \"ronripp@charter.net\", \"addr2\": \"ellenripp@gmail.com\"}}}]");
                     

@@ -28,7 +28,7 @@ namespace CStat.Controllers
             "Videos\\CCA_Dave_Miller_21.mp4",
             "chapelHeat\\Overview from front of attic.mp4",
             "chapelHeat\\Overview of Heater.mp4",
-            "chapelHeat\\Propane Coming in, Air in, Heat out of Unit.mp4"
+            "chapelHeat\\Propane,Air in_Exhaust,Heat out of Unit.mp4"
         };
 
         [HttpGet("{vidx}")]

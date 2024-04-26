@@ -11,11 +11,13 @@
     <Compile Remove="EquipSrc\**" />
     <Compile Remove="ModelsLast\**" />
     <Compile Remove="Pages\NewFolder1\**" />
+    <Compile Remove="wwwroot\chapelHeat\**" />
     <Compile Remove="wwwroot\DropBox_\**" />
     <Compile Remove="wwwroot\Equip\**" />
     <Compile Remove="wwwroot\items\**" />
     <Compile Remove="wwwroot\Tasks\**" />
     <Compile Remove="wwwroot\tmpDBox\**" />
+    <Compile Remove="wwwroot\Videos\**" />
     <Compile Remove="_debugSU\**" />
     <Compile Remove="_Models\**" />
     <Compile Remove="__Models\**" />
@@ -24,11 +26,13 @@
     <Content Remove="EquipSrc\**" />
     <Content Remove="ModelsLast\**" />
     <Content Remove="Pages\NewFolder1\**" />
+    <Content Remove="wwwroot\chapelHeat\**" />
     <Content Remove="wwwroot\DropBox_\**" />
     <Content Remove="wwwroot\Equip\**" />
     <Content Remove="wwwroot\items\**" />
     <Content Remove="wwwroot\Tasks\**" />
     <Content Remove="wwwroot\tmpDBox\**" />
+    <Content Remove="wwwroot\Videos\**" />
     <Content Remove="_debugSU\**" />
     <Content Remove="_Models\**" />
     <Content Remove="__Models\**" />
@@ -37,11 +41,13 @@
     <EmbeddedResource Remove="EquipSrc\**" />
     <EmbeddedResource Remove="ModelsLast\**" />
     <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\chapelHeat\**" />
     <EmbeddedResource Remove="wwwroot\DropBox_\**" />
     <EmbeddedResource Remove="wwwroot\Equip\**" />
     <EmbeddedResource Remove="wwwroot\items\**" />
     <EmbeddedResource Remove="wwwroot\Tasks\**" />
     <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
+    <EmbeddedResource Remove="wwwroot\Videos\**" />
     <EmbeddedResource Remove="_debugSU\**" />
     <EmbeddedResource Remove="_Models\**" />
     <EmbeddedResource Remove="__Models\**" />
@@ -50,11 +56,13 @@
     <None Remove="EquipSrc\**" />
     <None Remove="ModelsLast\**" />
     <None Remove="Pages\NewFolder1\**" />
+    <None Remove="wwwroot\chapelHeat\**" />
     <None Remove="wwwroot\DropBox_\**" />
     <None Remove="wwwroot\Equip\**" />
     <None Remove="wwwroot\items\**" />
     <None Remove="wwwroot\Tasks\**" />
     <None Remove="wwwroot\tmpDBox\**" />
+    <None Remove="wwwroot\Videos\**" />
     <None Remove="_debugSU\**" />
     <None Remove="_Models\**" />
     <None Remove="__Models\**" />
@@ -115,7 +123,6 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
     <Folder Include="Migrations\" />
-    <Folder Include="wwwroot\Videos\" />
     <Folder Include="wwwroot\trails\" />
   </ItemGroup>
 

@@ -54,10 +54,13 @@ namespace CStat.Common
 
         public static CSSettings GetCSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
-            if ( (_gCSet != null) && _gCSet._isInitialized && _gCSet._isValid)
+            lock (userLock) // Unlikely but may be possible under certain conditions this lock is needed
+            {
+                if ((_gCSet != null) && _gCSet._isInitialized && _gCSet._isValid)
+                    return _gCSet;
+                _gCSet = new CSSettings(config, userManager);
                 return _gCSet;
-            _gCSet = new CSSettings(config, userManager);
-            return _gCSet;
+            }
         }
 
         //public static void SetCSSettings(CSSettings csset)
@@ -77,11 +80,14 @@ namespace CStat.Common
         }
         public CSSettings(IConfiguration config, UserManager<CStatUser> userManager)
         {
-            _isValid = true;
-            //csi = Interlocked.Increment(ref _csi);
-            _config = config;
-            _userManager = userManager;
-            initialize();
+            lock (userLock) // Unlikely but may be possible under certain conditions this lock is needed
+            {
+                _isValid = true;
+                //csi = Interlocked.Increment(ref _csi);
+                _config = config;
+                _userManager = userManager;
+                initialize();
+            }
         }
         public static string GetDefAlias (string email)
         {
@@ -284,6 +290,7 @@ namespace CStat.Common
                     EquipProps.Add(new EquipProp());
                 }
                 _isInitialized = true;
+                _gCSet = this;
             }
         }
 

@@ -2586,6 +2586,9 @@ namespace CStat.Models
 
         public static bool SameFirstName(string fn1, string fn2)
         {
+            if (String.IsNullOrEmpty(fn1) || String.IsNullOrEmpty(fn2))
+                return false;
+
             if (fn1.Equals(fn2, StringComparison.OrdinalIgnoreCase))
                 return true;
             return SameNames.Any(list => list.Any(n => n.Equals(fn1, StringComparison.OrdinalIgnoreCase) && list.Any(n => n.Equals(fn2, StringComparison.OrdinalIgnoreCase))));

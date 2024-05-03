@@ -42,8 +42,16 @@ namespace CStat.Models
                 email = httpCA.HttpContext.User.Identity.Name;
             var userSettings = csSettings.GetUser(email);
             if (userSettings != null)
-                userSettings.SetPersonIDByEmail(context);
+                userSettings.SetPersonIDByEmailPhoneAlias(context);
             return userSettings;
+        }
+        public static bool SamePhone(string p1, string p2)
+        {
+            if (String.IsNullOrEmpty(p1) || String.IsNullOrEmpty(p2))
+                return false;
+            p1 = string.Join("", p1.ToCharArray(0, p1.Length).Where(c => (c >= '0') && (c <= '9')));
+            p2 = string.Join("", p2.ToCharArray(0, p2.Length).Where(c => (c >= '0') && (c <= '9')));
+            return (p1 == p2);
         }
 
         public static void ExifOrientJPEGFile(string jpgFile)

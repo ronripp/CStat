@@ -340,7 +340,7 @@ namespace CStat.Common
                 foreach (var u in UserSettings)
                 {
                     if (u.EMail == userName)
-                        return u;
+                       return u;
                 }
                 return null;
             }

@@ -47,7 +47,7 @@ namespace TwilioReceive.Controllers
                 return SendMsgResp("I don't know you. ");
             var name = !string.IsNullOrEmpty(curUser.Alias) ? curUser.Alias : CSSettings.GetDefAlias(curUser.EMail);
 
-            curUser.SetPersonIDByEmail(Context);
+            curUser.SetPersonIDByEmailPhoneAlias(Context);
             if (string.IsNullOrEmpty(req.Body))
                 return SendMsgResp(name, "How can I help?");
 

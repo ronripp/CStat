@@ -39,7 +39,7 @@ namespace CStat.Pages.Tasks
                 email = httpCA.HttpContext.User.Identity.Name;
             _userSettings = csSettings.GetUser(email);
             if (_userSettings != null)
-                _userSettings.SetPersonIDByEmail(context);
+                _userSettings.SetPersonIDByEmailPhoneAlias(context);
             Person person = (email != null) ? context.Person.FirstOrDefault(m => m.Email == email) : null;
             _personId = (person != null) ? person.Id : -1;
             _personRoles = ((person != null) && (person.Roles.HasValue)) ? person.Roles.Value : 0;

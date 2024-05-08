@@ -2633,7 +2633,8 @@ namespace CStat.Common
                 {
                     if (entry.IsFolder)
                     {
-                        if ((entry.PathLower == "/archive") || (entry.PathLower == "/_archive") || (entry.PathLower == "/vault") || (entry.PathLower == "/memorandum"))
+                        var lcName = entry.Name.ToLower();
+                        if ((lcName == "archive") || (lcName == "_archive") || (lcName == "reference") || (lcName == "vault") || (lcName == "memorandum") || (lcName == "todo"))
                             continue;
 
                         if (string.IsNullOrEmpty(hint))
@@ -2672,7 +2673,17 @@ namespace CStat.Common
                 {
                     var dbox = GetDropBox();
                     string report = "";
-                    RenderFolder(dbox, w, "", "", "", ref report);
+                    RenderFolder(dbox, w, "/Manuals & Procedures", "", "", ref report);
+                    var startIdx = report.IndexOf("]");
+                    if (startIdx != -1)
+                    {
+                        var endIdx = report.IndexOf("\n");
+                        if (endIdx != -1)
+                        {
+                            var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+
+                        }
+                    }
                     return report;
                 }
                 return "Not performed.";
@@ -2734,6 +2745,50 @@ namespace CStat.Common
             return "Document sent to your EMail.";
         }
 
+        private string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile)
+        {
+            var dbox = GetDropBox();
+            if (dbox == null)
+            {
+                return "ERROR : DropBox NOT Accessible.";
+            }
+
+            var fnIdx = dboxFile.LastIndexOf("/");
+            if (fnIdx == -1)
+                return "ERROR : DropBox File is NOT Valid.";
+
+            var FileName = dboxFile.Substring(fnIdx + 1);
+            var SrcPath = dboxFile.Substring(0, fnIdx);
+            string FullSrcPath = dboxFile;
+
+            string FullDestPath = Path.Combine(Path.GetTempPath(), FileName);
+            if (System.IO.File.Exists(FullDestPath))
+                System.IO.File.Delete(FullDestPath);
+
+            try
+            {
+                if (dbox.FileExists(FullSrcPath))
+                {
+                    var task = dbox.DownloadToFile(SrcPath, FileName, FullDestPath);
+                    task.Wait();
+                    if (System.IO.File.Exists(FullDestPath))
+                    {
+                        var email = new CSEMail(_config, _userManager);
+                        if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find " + FileName + "\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
+                            return "ERROR : Failed to EMail" + FileName;
+                    }
+                    else
+                        return dboxFile + "ERROR : Failed to Download By-Laws";
+                    return "SUCCESS : " + FileName + " sent to your EMail.";
+                }
+                else
+                    return FileName + "\nERROR : DropBox file : " + FullSrcPath + " NOT FOUND!";
+            }
+            catch (Exception e)
+            {
+                return dboxFile + "\nERROR : " + e.Message;
+            }
+        }
 
         CSDropBox GetDropBox ()
         {

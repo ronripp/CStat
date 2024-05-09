@@ -2622,11 +2622,13 @@ namespace CStat.Common
 
         }
 
-        public void RenderFolder (CSDropBox dbox, string hint, string fld, string indent, string lastFolder, ref string report)
+        public void RenderFolder (CSDropBox dbox, string[] hints, string fld, string indent, string lastFolder, ref string report)
         {
             // TBD Handle Hint filtering
 
             ListFolderResult FldList = dbox.GetFolderList2(fld);
+
+            bool NoHints = (hints == null) || (hints.Length == 0);
             if (FldList.Entries.Count > 0)
             {
                 foreach (var entry in FldList.Entries)
@@ -2637,17 +2639,31 @@ namespace CStat.Common
                         if ((lcName == "archive") || (lcName == "_archive") || (lcName == "reference") || (lcName == "vault") || (lcName == "memorandum") || (lcName == "todo"))
                             continue;
 
-                        if (string.IsNullOrEmpty(hint))
+                        if (NoHints)
                             report += (indent + entry.Name + "\n");
 
-                        RenderFolder(dbox, hint, fld + "/" + entry.Name, indent + "    ", lastFolder, ref report);
+                        RenderFolder(dbox, hints, fld + "/" + entry.Name, indent + "    ", lastFolder, ref report);
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(hint))
-                           report += indent + entry.Name + "\n";
-                        else if (entry.Name.Contains(hint,StringComparison.OrdinalIgnoreCase))
-                           report += "[ " + GetFileNameHash(entry.PathDisplay).ToString("X8") + " ]" + entry.PathDisplay + "\n";
+                        if (NoHints)
+                            report += indent + entry.Name + "\n";
+                        else
+                        {
+                            bool hasAllHints = false;
+                            foreach (var hint in hints)
+                            {
+                                if (!entry.Name.Contains(hint, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    hasAllHints = false;
+                                    break;
+                                }
+                                else
+                                    hasAllHints = true;
+                            }
+                            if (hasAllHints)
+                                report += "[ " + GetFileNameHash(entry.PathDisplay).ToString("X8") + " ]" + entry.PathDisplay + "\n";
+                        }
                     }
                 }
             }
@@ -2668,12 +2684,11 @@ namespace CStat.Common
         {
             if (_cmdSrc == CmdSource.DOC)
             {
-                var w = gw(words, _cmdSrcIdx + 1);
-                if (!String.IsNullOrEmpty(w) && (w.Length >= 3))
+                if (_cmdDescList.Count > 0)
                 {
                     var dbox = GetDropBox();
                     string report = "";
-                    RenderFolder(dbox, w, "/Manuals & Procedures", "", "", ref report);
+                    RenderFolder(dbox, _cmdDescList.ToArray(), "/Manuals & Procedures", "", "", ref report);
                     var startIdx = report.IndexOf("]");
                     if (startIdx != -1)
                     {
@@ -2681,7 +2696,7 @@ namespace CStat.Common
                         if (endIdx != -1)
                         {
                             var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
-
+                            report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
                         }
                     }
                     return report;

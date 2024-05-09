@@ -2622,7 +2622,7 @@ namespace CStat.Common
 
         }
 
-        public void RenderFolder (CSDropBox dbox, string[] hints, string fld, string indent, string lastFolder, ref string report)
+        public static void RenderFolder (CSDropBox dbox, string[] hints, string fld, string indent, string lastFolder, ref string report)
         {
             // TBD Handle Hint filtering
 
@@ -2760,9 +2760,9 @@ namespace CStat.Common
             return "Document sent to your EMail.";
         }
 
-        private string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile)
+        private static string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile)
         {
-            var dbox = GetDropBox();
+            var dbox = new CSDropBox(Startup.CSConfig, (curUser == null || curUser.IsFull));
             if (dbox == null)
             {
                 return "ERROR : DropBox NOT Accessible.";
@@ -2788,8 +2788,8 @@ namespace CStat.Common
                     task.Wait();
                     if (System.IO.File.Exists(FullDestPath))
                     {
-                        var email = new CSEMail(_config, _userManager);
-                        if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find " + FileName + "\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
+                        var email = new CSEMail(config, userManager);
+                        if (!email.Send(curUser.EMail, curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find " + FileName + "\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
                             return "ERROR : Failed to EMail" + FileName;
                     }
                     else

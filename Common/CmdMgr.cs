@@ -419,6 +419,7 @@ namespace CStat.Common
                            .Replace("pdf file", "pdf_file")
                            .Replace("text file", "text_file")
                            .Replace("comma delimited", "comma_delimited")
+                           .Replace("dock", "doc")
                            .Replace("e-mail", "email")
                            .Replace("a email", "via_email")
                            .Replace("an email", "via_email")
@@ -1367,7 +1368,7 @@ namespace CStat.Common
             }
             else if(words?[0] == "email")
             {
-                _cmdOutputIdx = idx;
+                _cmdOutputIdx = 0;
                 _cmdOutput = CmdOutput.EMAIL;
             }
             else
@@ -1443,13 +1444,13 @@ namespace CStat.Common
 
         public bool AlreadyHandled (int i)
         {
-            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                 (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
         public bool AlreadyHandledExceptDesc(int i)
         {
-            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                 (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
@@ -2699,6 +2700,24 @@ namespace CStat.Common
                             report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
                         }
                     }
+                    else
+                    {
+                        RenderFolder(dbox, GetFilteredDesc(), "/Manuals & Procedures", "", "", ref report);
+                        startIdx = report.IndexOf("]");
+                        if (startIdx != -1)
+                        {
+                            var endIdx = report.IndexOf("\n");
+                            if (endIdx != -1)
+                            {
+                                var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+                                report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                            }
+                        }
+                        else
+                        {
+                            return "No Matching Doc found. Try a different description.";
+                        }
+                    }
                     return report;
                 }
                 return "Not performed.";
@@ -2760,7 +2779,7 @@ namespace CStat.Common
             return "Document sent to your EMail.";
         }
 
-        private static string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile)
+        private static string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile, string subjectFileDesc="")
         {
             var dbox = new CSDropBox(Startup.CSConfig, (curUser == null || curUser.IsFull));
             if (dbox == null)
@@ -2789,7 +2808,7 @@ namespace CStat.Common
                     if (System.IO.File.Exists(FullDestPath))
                     {
                         var email = new CSEMail(config, userManager);
-                        if (!email.Send(curUser.EMail, curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find " + FileName + "\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
+                        if (!email.Send(curUser.EMail, curUser.EMail, "RE: Request For " + (!String.IsNullOrEmpty(subjectFileDesc) ? subjectFileDesc : FileName), "Hi\nAttached, please find " + FileName + "\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
                             return "ERROR : Failed to EMail" + FileName;
                     }
                     else
@@ -2850,6 +2869,25 @@ namespace CStat.Common
             return report;
         }
 
+        private string[] GetFilteredDesc()
+        {
+            return _cmdDescList.Where(s => !CmdActionDict.Any(a => s.Equals(a.Key, StringComparison.OrdinalIgnoreCase))
+                                        && !CmdFormatDict.Any(f => s.Equals(f.Key, StringComparison.OrdinalIgnoreCase))
+                                        && !CmdSrcDict.Any(src => s.Equals(src.Key, StringComparison.OrdinalIgnoreCase))
+                                        && !CmdInstsDict.Any(inst => s.Equals(inst.Key, StringComparison.OrdinalIgnoreCase))
+                                        && !s.Equals("email", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("show", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("send", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("me", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("please", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("the", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("on", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("about", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("how", StringComparison.OrdinalIgnoreCase)
+                                        && !s.Equals("to", StringComparison.OrdinalIgnoreCase)
+                                     ).ToArray();
+        }
+
         private CmdAction _cmdAction = default;
         private int _cmdActionIdx = -1;
         private CmdFormat _cmdFormat = default;
@@ -2894,4 +2932,7 @@ namespace CStat.Common
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
     }
+
+
+
 }

@@ -20,6 +20,7 @@
             /* Outline */
             -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000, -2px 0 0 #000000, 2px 0 0 #000000, 0 2px 0 #000000, 0 -2px 0 #000000; /* Terminate with a semi-colon */
         }
+
         .LC {
             color: powderblue;
             text-decoration: none;
@@ -39,7 +40,6 @@
         h3 {
             text-align: left;
         }
-
     </style>
 
     <script>
@@ -49,31 +49,21 @@
             document.getElementById("vid").style.width = vidWidth + "px";
         }
         function showVideo(cmd) {
-            document.getElementById("vid").style.display = (document.getElementById("vid").style.display === "block") ? "none" : "block";
             setVideoWidth(0);
         }
     </script>
 </head>
 <body onresize="setVideoWidth(1)">
-    
+
     <div class="TC">
-        <h1>Catskill Christian Assembly Public Docs</h1>
-        <h2><i>..."One of the primary goals of the CCA is to introduce people to Jesus Christ and to subsequently reinforce their faith in him"..."</i></h2>
-        <hr />
-        <p><a class="LC" href="CCAByLaws2021.html"><h3>&nbsp;&nbsp;CCA By-Laws 2021</h3></a></p>
-        <p><a class="LC" href="CCAHistory.html"><h3>&nbsp;&nbsp;CCA History</h3></a></p>
-        <p><a class="LC" href="CCAQuilts.html"><h3>&nbsp;&nbsp;CCA Quilts</h3></a></p>
-        <p><a class="LC" href="trails/trails.html"><h3>&nbsp;&nbsp;CCA Trails</h3></a></p>
+        <h1>Catskill Christian Assembly Presentation Video</h1>
         <p>
-            <div><a class="LC" href="#" onclick="showVideo();event.preventDefault();"><h3>&nbsp;&nbsp;Dave Miller's 9/21 Presentation:</h3></a></div>
-            <video id="vid" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-                <source src="https://ccaserve.org/api/Video" type="video/mp4" />
-                <source src="https://ccaserve.org/api/Video/1" type="video/mp4" />
+            <div><a class="LC" href="#" onclick="showVideo();event.preventDefault();"><h3>&nbsp;&nbsp;CCA Presentation:</h3></a></div>
+            <video id="vid" style="display:block; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
+                <!--<source src="https://ccaserve.org/api/Video" type="video/mp4" />-->
+                <source src="https://ccaserve.org/api/Video/7" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-        </p>
-        <p>
-            <div><a class="LC" href="CCA_Presentation.html"><h3>&nbsp;&nbsp;CCA Presentation:</h3></a></div>
         </p>
     </div>
 

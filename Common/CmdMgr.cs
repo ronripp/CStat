@@ -2654,7 +2654,8 @@ namespace CStat.Common
                             bool hasAllHints = false;
                             foreach (var hint in hints)
                             {
-                                if (!entry.Name.Contains(hint, StringComparison.OrdinalIgnoreCase))
+                                var entryName = entry.Name.Replace("'", "").Replace("-", " ");
+                                if (!entryName.Contains(hint, StringComparison.OrdinalIgnoreCase))
                                 {
                                     hasAllHints = false;
                                     break;
@@ -2885,7 +2886,7 @@ namespace CStat.Common
                                         && !s.Equals("about", StringComparison.OrdinalIgnoreCase)
                                         && !s.Equals("how", StringComparison.OrdinalIgnoreCase)
                                         && !s.Equals("to", StringComparison.OrdinalIgnoreCase)
-                                     ).ToArray();
+                                     ).Select(s2 => s2.Replace("'", "").Replace("-", " ")).ToArray();
         }
 
         private CmdAction _cmdAction = default;

@@ -24,11 +24,14 @@ namespace CStat.Controllers
 
         private readonly String[] _videos =
         {
-            "",
-            "Videos\\CCA_Dave_Miller_21.mp4",
-            "chapelHeat\\Overview from front of attic.mp4",
-            "chapelHeat\\Overview of Heater.mp4",
-            "chapelHeat\\Propane,Air in_Exhaust,Heat out of Unit.mp4"
+            "", // 0
+            "Videos\\CCA_Dave_Miller_21.mp4", // 1
+            "chapelHeat\\Overview from front of attic.mp4", // 2
+            "chapelHeat\\Overview of Heater.mp4", // 3
+            "chapelHeat\\Propane,Air in_Exhaust,Heat out of Unit.mp4", // 4
+            "", // 5
+            "", // 6
+            "Videos\\CCA Video_Captions.mp4", // 7
         };
 
         [HttpGet("{vidx}")]

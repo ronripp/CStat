@@ -411,7 +411,10 @@ namespace CStat.Common
         public static List<string> GetWords(string cmdStr)
         {
             cmdStr = cmdStr.ToLower()
+                           .Replace("  ", " ")
+                           .Replace("sop ", "sop~")
                            .Replace("'s", "")
+                           .Replace("sop-", "sop~")
                            .Replace("-", "")
                            .Replace("microsoft word", "microsoft_word")
                            .Replace("ms word", "microsoft_word")
@@ -1360,6 +1363,9 @@ namespace CStat.Common
 
         public bool FindCmdOutput(List<string> words)
         {
+            if ((words.Count > 0) && (words[0] == "send"))
+                _cmdIgnoreIdxList.Add(0);
+
             var idx = words.IndexOf("via_email");
             if (idx != -1)
             {
@@ -1501,7 +1507,6 @@ namespace CStat.Common
             return true;
         }
 
-
         public bool FindDesc(List<string> words)
         {
             var NumWords = words.Count;
@@ -1513,14 +1518,13 @@ namespace CStat.Common
                 if ((LastDescIdx != -1) && (LastDescIdx != (i - 1)) && (_cmdSrcIdx != (i-1)))
                     break;
 
+                LastDescIdx = i;
                 string word = words[i];
                 if (!ValidDesc(word))
                     continue;
 
                 _cmdDescList.Add(words[i]);
                 _cmdDescIdxList.Add(i);
-
-                LastDescIdx = i;
             }
 
             if (_cmdSrc == CmdSource.QUESTION)
@@ -2654,7 +2658,7 @@ namespace CStat.Common
                             bool hasAllHints = false;
                             foreach (var hint in hints)
                             {
-                                var entryName = entry.Name.Replace("'", "").Replace("-", " ");
+                                var entryName = entry.Name.Replace("'s", "");
                                 if (!entryName.Contains(hint, StringComparison.OrdinalIgnoreCase))
                                 {
                                     hasAllHints = false;
@@ -2690,7 +2694,7 @@ namespace CStat.Common
                 {
                     var dbox = GetDropBox();
                     string report = "";
-                    RenderFolder(dbox, _cmdDescList.ToArray(), "/Manuals & Procedures", "", "", ref report);
+                    RenderFolder(dbox, ModifySOPDesc(), "/Manuals & Procedures", "", "", ref report);
                     var startIdx = report.IndexOf("]");
                     if (startIdx != -1)
                     {
@@ -2716,7 +2720,19 @@ namespace CStat.Common
                         }
                         else
                         {
-                            return "No Matching Doc found. Try a different description.";
+                            RenderFolder(dbox, this.SingularizeDesc(), "/Manuals & Procedures", "", "", ref report);
+                            startIdx = report.IndexOf("]");
+                            if (startIdx != -1)
+                            {
+                                var endIdx = report.IndexOf("\n");
+                                if (endIdx != -1)
+                                {
+                                    var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+                                    report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                                }
+                            }
+                            else
+                                return "No Matching Doc found. Try a different description.";
                         }
                     }
                     return report;
@@ -2887,6 +2903,70 @@ namespace CStat.Common
                                         && !s.Equals("how", StringComparison.OrdinalIgnoreCase)
                                         && !s.Equals("to", StringComparison.OrdinalIgnoreCase)
                                      ).Select(s2 => s2.Replace("'", "").Replace("-", " ")).ToArray();
+        }
+
+        private string[] SingularizeDesc()
+        {
+            var destArr = new List<string>();
+            foreach (var s in _cmdDescList)
+            {
+                if (s.EndsWith("ies"))
+                    destArr.Add(s.Substring(0, s.Length - 3) + "y");
+                else if (s.EndsWith("s"))
+                    destArr.Add(s.Substring(0, s.Length - 1));
+                else
+                    destArr.Add(s);
+            }
+            return destArr.ToArray();
+        }
+
+        private string[] ModifySOPDesc()
+        {
+            var destArr = new List<string>();
+            var NumDesc = _cmdDescList.Count;
+            for (int i=0; i < NumDesc; ++i)
+            {
+                var s = _cmdDescList[i];
+                if (s.StartsWith("sop"))
+                { 
+                    if (s.Length == 3)
+                    {
+                        if (i < (NumDesc - 1))
+                        {
+                            // see if next word starts with a number
+                            var s2 = _cmdDescList[i];
+                            char[] sarr = s2.ToCharArray(0, s2.Length);
+                            if ((sarr[0] >= '0') && (sarr[0] <= '9'))
+                            {
+                                // combine words
+                                destArr.Add("sop-" + s2);
+                                ++i;
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        char[] sarr = s.ToCharArray(0, s.Length);
+                        if (sarr[3] != '-')
+                        {
+                            if ((sarr[3] == '~') || (sarr[3] == ':') || (sarr[3] == '.'))
+                            {
+                                destArr.Add("sop-" + s.Substring(4).Trim());
+                                continue;
+                            }
+
+                            else if ((sarr[3] >= '0') && (sarr[3] <= '9'))
+                            {
+                                destArr.Add("sop-" + s.Substring(3).Trim());
+                                continue;
+                            }
+                        }
+                    }
+                }
+                destArr.Add(s);
+            }
+            return destArr.ToArray();
         }
 
         private CmdAction _cmdAction = default;

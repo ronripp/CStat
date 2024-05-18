@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>CCA Public Docs</title>
+    <title>CCA Video</title>
     <style>
 
         body {
             min-width: 100%;
             min-height: 100vh;
-            background-image: url("/images/CCABkg.jpg");
+            background-color: #002000;
             background-size: cover;
             margin: 0;
         }
@@ -33,34 +33,19 @@
             text-align: center;
         }
 
-        h2 {
-            text-align: center;
-        }
-
-        h3 {
-            text-align: left;
+        #vid {
+            display: block;
+            margin: 0 auto;
         }
     </style>
 
-    <script>
-        function setVideoWidth(cmd) {
-            let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
-            let vidWidth =  vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
-            document.getElementById("vid").style.width = vidWidth + "px";
-        }
-        function showVideo(cmd) {
-            setVideoWidth(0);
-        }
-    </script>
 </head>
-<body onresize="setVideoWidth(1)">
+<body>
 
     <div class="TC">
         <h1>Catskill Christian Assembly Presentation Video</h1>
         <p>
-            <div><a class="LC" href="#" onclick="showVideo();event.preventDefault();"><h3>&nbsp;&nbsp;CCA Presentation:</h3></a></div>
-            <video id="vid" style="display:block; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-                <!--<source src="https://ccaserve.org/api/Video" type="video/mp4" />-->
+            <video id="vid" width=800 controls>
                 <source src="https://ccaserve.org/api/Video/7" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>

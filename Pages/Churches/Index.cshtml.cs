@@ -12,7 +12,7 @@ namespace CStat.Pages.Churches
     public class IndexModel : PageModel
     {
         private readonly CStat.Models.CStatContext _context;
-        private bool isAll=true;
+        private int _filter=1;
 
         public IndexModel(CStat.Models.CStatContext context)
         {
@@ -21,46 +21,88 @@ namespace CStat.Pages.Churches
 
         public IList<Church> Church { get;set; }
 
-        public async System.Threading.Tasks.Task OnGetAsync(bool all=true)
+        public async System.Threading.Tasks.Task OnGetAsync(int filter = 1)
         {
-            isAll = all;
+            _filter = filter;
+            switch (filter)
+            {
+                case 1: // All
+                    Church = await _context.Church
+                        .Include(c => c.Address)
+                        .Include(c => c.Alternate1)
+                        .Include(c => c.Alternate2)
+                        .Include(c => c.Alternate3)
+                        .Include(c => c.Elder1)
+                        .Include(c => c.Elder2)
+                        .Include(c => c.Elder3)
+                        .Include(c => c.Elder4)
+                        .Include(c => c.Elder5)
+                        .Include(c => c.SeniorMinister)
+                        .Include(c => c.Trustee1)
+                        .Include(c => c.Trustee2)
+                        .Include(c => c.Trustee3)
+                        .Include(c => c.YouthMinister).ToListAsync();
+                    break;
 
-            Church = (isAll) ? await _context.Church
-                .Include(c => c.Address)
-                .Include(c => c.Alternate1)
-                .Include(c => c.Alternate2)
-                .Include(c => c.Alternate3)
-                .Include(c => c.Elder1)
-                .Include(c => c.Elder2)
-                .Include(c => c.Elder3)
-                .Include(c => c.Elder4)
-                .Include(c => c.Elder5)
-                .Include(c => c.SeniorMinister)
-                .Include(c => c.Trustee1)
-                .Include(c => c.Trustee2)
-                .Include(c => c.Trustee3)
-                .Include(c => c.YouthMinister).ToListAsync() :
+                case 2: //Members
+                    Church = await _context.Church.Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2))
+                    .Include(c => c.Address)
+                    .Include(c => c.Alternate1)
+                    .Include(c => c.Alternate2)
+                    .Include(c => c.Alternate3)
+                    .Include(c => c.Elder1)
+                    .Include(c => c.Elder2)
+                    .Include(c => c.Elder3)
+                    .Include(c => c.Elder4)
+                    .Include(c => c.Elder5)
+                    .Include(c => c.SeniorMinister)
+                    .Include(c => c.Trustee1)
+                    .Include(c => c.Trustee2)
+                    .Include(c => c.Trustee3)
+                    .Include(c => c.YouthMinister).ToListAsync();
+                    break;
 
-                await _context.Church.Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2))
-                .Include(c => c.Address)
-                .Include(c => c.Alternate1)
-                .Include(c => c.Alternate2)
-                .Include(c => c.Alternate3)
-                .Include(c => c.Elder1)
-                .Include(c => c.Elder2)
-                .Include(c => c.Elder3)
-                .Include(c => c.Elder4)
-                .Include(c => c.Elder5)
-                .Include(c => c.SeniorMinister)
-                .Include(c => c.Trustee1)
-                .Include(c => c.Trustee2)
-                .Include(c => c.Trustee3)
-                .Include(c => c.YouthMinister).ToListAsync();
+                case 3: //IC_COC
+                    Church = await _context.Church.Where(c => (c.Affiliation == "ICCOC"))
+                    .Include(c => c.Address)
+                    .Include(c => c.Alternate1)
+                    .Include(c => c.Alternate2)
+                    .Include(c => c.Alternate3)
+                    .Include(c => c.Elder1)
+                    .Include(c => c.Elder2)
+                    .Include(c => c.Elder3)
+                    .Include(c => c.Elder4)
+                    .Include(c => c.Elder5)
+                    .Include(c => c.SeniorMinister)
+                    .Include(c => c.Trustee1)
+                    .Include(c => c.Trustee2)
+                    .Include(c => c.Trustee3)
+                    .Include(c => c.YouthMinister).ToListAsync();
+                    break;
+
+                case 4: // Attends Metro
+                    Church = await _context.Church.Where(c => c.StatusDetails.Contains("@Metro") || c.StatusDetails.Contains("@metro") || c.StatusDetails.Contains("@METRO"))
+                    .Include(c => c.Address)
+                    .Include(c => c.Alternate1)
+                    .Include(c => c.Alternate2)
+                    .Include(c => c.Alternate3)
+                    .Include(c => c.Elder1)
+                    .Include(c => c.Elder2)
+                    .Include(c => c.Elder3)
+                    .Include(c => c.Elder4)
+                    .Include(c => c.Elder5)
+                    .Include(c => c.SeniorMinister)
+                    .Include(c => c.Trustee1)
+                    .Include(c => c.Trustee2)
+                    .Include(c => c.Trustee3)
+                    .Include(c => c.YouthMinister).ToListAsync();
+                    break;
+            }
         }
 
-        public string GetBkColor (bool isall)
+        public string GetBkColor (int filter)
         {
-            return (isAll==isall) ? "#7CFC00" : "#D3D3D3";
+            return (filter==_filter) ? "#7CFC00" : "#D3D3D3";
         }
 
         public static string GetPOCMinister(Church church)

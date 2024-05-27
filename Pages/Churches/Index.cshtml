@@ -12,12 +12,12 @@
     <style>
 
         #AllBtn {
-            margin-left: 20px;
+            margin-left: 10px;
             background-color: lawngreen;
         }
 
         #MembBtn {
-            margin-left: 20px;
+            margin-left: 10px;
             background-color: lightgray;
         }
     </style>
@@ -25,12 +25,8 @@
 
     <script>
 
-        function onFilter(isFiltered) {
-            if (isFiltered) {
-                window.location.href = window.location.origin + "/Churches/Index?all=false";
-            } else {
-                window.location.href = window.location.origin + "/Churches/Index?all=true";
-            }
+        function onFilter(filter) {
+            window.location.href = window.location.origin + "/Churches/Index?filter=" + filter;
         }
 
         $(document).ready(function () {
@@ -47,8 +43,10 @@
 
 <p>
     <a asp-page="Create">Create New</a>
-    <button id="AllBtn" style="background-color: @Model.GetBkColor(true);" onclick="onFilter(false)">All</button>
-    <button id="MembBtn" style="background-color: @Model.GetBkColor(false);" onclick="onFilter(true)">Members</button>
+    <button id="AllBtn" style="background-color: @Model.GetBkColor(1);" onclick="onFilter(1)">All</button>
+    <button id="MembBtn" style="background-color: @Model.GetBkColor(2);" onclick="onFilter(2)">Memb.</button>
+    <button id="MembBtn" style="background-color: @Model.GetBkColor(3);" onclick="onFilter(3)">ICCoC</button>
+    <button id="MembBtn" style="background-color: @Model.GetBkColor(4);" onclick="onFilter(4)">Metro</button>
 </p>
 <table class="table">
     <thead>

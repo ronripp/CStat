@@ -51,6 +51,53 @@ namespace CStat.Common
             CSV   = 0x00000100
         };
 
+        //private static readonly string[] StockHelper = 
+        //{
+        //    "tin foil", 
+        //    "dish soap",
+        //    "pot soap",
+        //    "pan soap",
+        //    "baking sheets",
+        //    "chlorine tablets",
+        //    "test strip",
+        //    "dishwasher soap",
+        //    "dishwasher barrel",
+        //    "dishwasher barrels",
+        //    "bleach",
+        //    "nsf bleach",
+        //    "kitchen filter",
+        //    "kitchen water filter",
+        //    "pre filter",
+        //    "tube filter",
+        //    "cone cups",
+        //    "cooler cups",
+        //    "grill screens",
+        //    "griddle fluid",
+        //    "griddle scrubbers",
+        //    "battery",
+        //    "bathoom rolls",
+        //    "light bulbs",
+        //    "dpd-1",
+        //    "garbage bags",
+        //    "hand soap",
+        //    "laundry soap",
+        //    "pots and pans soap",
+        //    "tp",
+        //    "toilet paper",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //    "",
+        //};
+
         private static readonly Dictionary<string, CmdAction> CmdActionDict = new Dictionary<string, CmdAction>(StringComparer.OrdinalIgnoreCase)
         {
             {"Phone", CmdAction.CALL},
@@ -2434,12 +2481,14 @@ namespace CStat.Common
             //ardMgr.CheckValues(raw5);
             //ardMgr.CheckValues(raw6);
 
-            var churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.Name).ToList();
-
             string report = "";
+
+            List<Church> churches;
 
             if (!_isPlural)
             {
+                churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+
                 Church hitCh = null;
                 var specWords = GetSpecificChurchWords(words);
                 int maxHitCount = 0;
@@ -2462,6 +2511,7 @@ namespace CStat.Common
 
                 if (hitCh == null)
                 {
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).OrderBy(c => c.Name).ToList();
                     int MinDist = 10000000;
 
                     var fullSpec = "";
@@ -2494,11 +2544,20 @@ namespace CStat.Common
                     (Address.FormatAddress(hitCh.Address) + " " +
                     (!string.IsNullOrEmpty(status) ? " " + status : "") +
                     (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
-                    (!string.IsNullOrEmpty(hitCh.Address.Phone) ? " " + Person.FixPhone(hitCh.Address.Phone) : " unknown #") +
+                    (!string.IsNullOrEmpty(hitCh.Address?.Phone) ? " " + Person.FixPhone(hitCh.Address?.Phone) : " unknown #") +
                     (!string.IsNullOrEmpty(hitCh.Email) ? " " + hitCh.Email : "")).Trim() + "\n";
             }
             else
             {
+                if (words.Contains("metro"))
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.StatusDetails.Contains("@Metro") || c.StatusDetails.Contains("@metro") || c.StatusDetails.Contains("@METRO")).ToList();
+                else if (words.Contains("independent") || words.Contains("christian"))
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+                else if (words.Contains("member"))
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.Name).ToList();
+                else
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+
                 foreach (var c in churches)
                 {
                     var poc = Person.GetPOCMinister(c);
@@ -2508,7 +2567,7 @@ namespace CStat.Common
                         (Address.FormatAddress(c.Address) + " " +
                         (!string.IsNullOrEmpty(status) ? " " + status : "") +
                         (!string.IsNullOrEmpty(poc) ? " " + poc : "") +
-                        (!string.IsNullOrEmpty(c.Address.Phone) ? " " + Person.FixPhone(c.Address.Phone) : " unknown #") +
+                        (!string.IsNullOrEmpty(c.Address?.Phone) ? " " + Person.FixPhone(c.Address?.Phone) : " unknown #") +
                         (!string.IsNullOrEmpty(c.Email) ? " " + c.Email : "")).Trim() + "\n";
                 }
 
@@ -2542,7 +2601,7 @@ namespace CStat.Common
                                        EncloseCommasForCSV(Address.FormatAddress(c.Address)) + "," +
                                        (!string.IsNullOrEmpty(status) ? status : "") + "," +
                                        (!string.IsNullOrEmpty(poc) ? poc : "") + "," +
-                                       (!string.IsNullOrEmpty(c.Address.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address.Phone)) : "") + "," +
+                                       (!string.IsNullOrEmpty(c.Address?.Phone) ? " " + EncloseCommasForCSV(Person.FixPhone(c.Address?.Phone)) : "") + "," +
                                        (!string.IsNullOrEmpty(c.Email) ? EncloseCommasForCSV(c.Email) : "") + "," +
                                        website);
                             }

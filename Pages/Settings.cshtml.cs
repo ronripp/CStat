@@ -45,6 +45,8 @@ namespace CStat
                 UserSettings.SendStockText = false;
                 UserSettings.SendTaskText = false;
                 UserSettings.SendEMailToo = false;
+                UserSettings.IsFull = false;
+                UserSettings.IsAdmin = false;
                 Settings.UserSettings.Add(UserSettings);
             }
         }

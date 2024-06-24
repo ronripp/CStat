@@ -37,6 +37,11 @@
         <hr />
 
         <input type="hidden" asp-for="UserSettings.EMail" />
+        <input type="hidden" asp-for="UserSettings.IsAdmin" />
+        <input type="hidden" asp-for="UserSettings.IsFull" />
+        <input type="hidden" asp-for="UserSettings.PhoneNum" />
+        <input type="hidden" asp-for="UserSettings.UserId" />
+        <input type="hidden" asp-for="UserSettings.pid" />
 
         <div class="form-group ediv">
             <h5><span class="UserSetHdr">Settings for @Model.UserSettings.EMail</span></h5>
@@ -130,10 +135,10 @@
                         foreach (var p in PropList)
                         {
                             string prpId = "prpn" + k++;
-                        <div>
-                            <label for="@prpId">@p.Key:</label>
-                            <input id="@prpId" name="dynamicField" value="@p.Value.ToString()" style="max-width: 5em;"/>
-                        </div>
+                            <div>
+                                <label for="@prpId">@p.Key:</label>
+                                <input id="@prpId" name="dynamicField" value="@p.Value.ToString()" style="max-width: 5em;" />
+                            </div>
                         }
                     }
                 </div>

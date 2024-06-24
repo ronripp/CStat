@@ -1803,7 +1803,7 @@ namespace CStat.Common
                                     continue;
                                 }
 
-                                var phone = Person.GetBestPhone(p, "");
+                                var phone = Person.GetAllPhones(p, "");
                                 if (PhoneOnly)
                                 {
                                     if (!String.IsNullOrEmpty(phone.Trim()))
@@ -1836,14 +1836,14 @@ namespace CStat.Common
                         if (_cmdSrc == CmdSource.EC)
                         {
                             result += ("*" + p.FirstName + " " + p.LastName + " : " +
-                            Person.GetBestPhone(p) + " " +
+                            Person.GetAllPhones(p) + " " +
                             Person.GetEMailStr(p) + " " +
                             Person.GetRoleStr(p) + $"\n\n");
                         }
                         else
                         {
                             result += ((!MailingOnly ? "*" : "") + ((p.FirstName == "Family") ? p.LastName + " " + p.FirstName : p.FirstName + " " + p.LastName) + " : " +
-                            (showPhone ? Person.GetBestPhone(p) + " " : "") +
+                            (showPhone ? Person.GetAllPhones(p) + " " : "") +
                             (showAdr ? Address.GetAddressStr(p.Address, !MailingOnly) + " " : "") +
                             (showEMail ? Person.GetEMailStr(p) + " " : "") +
                             (showAttr ? Person.GetRoleStr(p) + " " : "") +

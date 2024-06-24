@@ -2596,7 +2596,24 @@ namespace CStat.Models
 
         public static string GetBestPhone(Person p, string emptyStr = "unknown #")
         {
-            return !string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : ((p.Address != null) && (!string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : emptyStr);
+            return !string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : (((p.Address != null) && !string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : emptyStr);
+        }
+
+        public static string GetAllPhones(Person p, string emptyStr = "unknown #")
+        {
+            string phone = emptyStr;
+            string cell = !string.IsNullOrEmpty(p.CellPhone) ? Person.FixPhone(p.CellPhone) : "";
+            string home = ((p.Address != null) && !string.IsNullOrEmpty(p.Address.Phone)) ? Person.FixPhone(p.Address.Phone) : "";
+            bool hasCell = !String.IsNullOrEmpty(cell);
+            bool hasHome = !String.IsNullOrEmpty(home);
+            bool hasBoth = hasCell && hasHome && (cell != home);
+            if (hasBoth)
+                return "C:" + cell + " H:" + home;
+            if (hasCell)
+                return cell;
+            if (hasHome)
+                return home;
+            return phone;
         }
 
         public static string GetGender(Person p)

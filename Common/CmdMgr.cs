@@ -712,6 +712,23 @@ namespace CStat.Common
 
         public bool FindCmdOther(List<string> words) // ZZZAAA
         {
+            if ((_cmdSrc == CmdSource.NONE) && (words.Count >= 1) && (words.Count <= 2))
+            {
+                // Check for Event match
+                if (FindEvent(words, true))
+                {
+                    _cmdSrc = CmdSource.EVENT;
+                    return true;
+                }
+
+                // Check for a match with first name 
+                if (Person.SameFirstName(words[0], words[0]))
+                {
+                    _cmdSrc = CmdSource.PERSON;
+                    return true;
+                }
+            }
+
             CSSettings cset = CSSettings.GetCSSettings(_config, _userManager);
             var InvList = InventoryItem.GetInventoryList(_context, _config, false);
 
@@ -1497,50 +1514,70 @@ namespace CStat.Common
 
         public bool AlreadyHandled (int i)
         {
-            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdEvent2Idx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                 (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (_cmdDescIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
         public bool AlreadyHandledExceptDesc(int i)
         {
-            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
+            return (i == _cmdActionIdx) || (i == _cmdEventIdx) || (i == _cmdEvent2Idx) || (i == _cmdFormatIdx) || (i == _cmdOutputIdx) || (_cmdInstsIdxList.IndexOf(i) != -1) || (i == _hasMyIdx) || (i == _cmdNumberIdx) ||
                 (_cmdIgnoreIdxList.IndexOf(i) != -1) || (_cmdSpecificIdxList.IndexOf(i) != -1) || (i == _cmdSrcIdx) || ((_cmdDateTimeStartIdx != -1) && (i >= _cmdDateTimeStartIdx) && (i <= _cmdDateTimeEndIdx));
         }
 
-        public bool FindEvent(List<string> words)
+        public bool FindEvent(List<string> words, bool forceCheck = false)
         {
-            // Filter out Sources and actions not associated with Event
-            if (((_cmdSrc != CmdSource.QUESTION) && (_cmdSrc != CmdSource.ATTENDANCE) && (_cmdSrc != CmdSource.MENU) && (_cmdSrc != CmdSource.EVENT)) ||
-                (_cmdAction == CmdAction.CALL))
+            if (!forceCheck)
             {
-                return false;
+                // Filter out Sources and actions not associated with Event
+                if (((_cmdSrc != CmdSource.QUESTION) && (_cmdSrc != CmdSource.ATTENDANCE) && (_cmdSrc != CmdSource.MENU) && (_cmdSrc != CmdSource.EVENT)) ||
+                    (_cmdAction == CmdAction.CALL))
+                {
+                    return false;
+                }
             }
 
             var NumWords = words.Count;
             var eventList = Enum.GetNames(typeof(EventType)).Cast<string>().Select(e => { return e.Replace('_', ' ').ToLower(); }).Where(s => s != "other").ToList();
             for (int i = 0; i < NumWords; ++i)
             {
-                if (AlreadyHandled(i)) continue;
+                //if (AlreadyHandled(i)) continue;
+                if (AlreadyHandledExceptDesc(i)) continue;
 
                 // Make sure word match is a whole Event word
                 var eventStrs = eventList.Where(es => es.StartsWith(words[i] + " ")).ToList();
                 if (eventStrs.Count > 0)
                 {
                     string str = eventStrs[0];
+                    bool hasRetreat = false;
                     if (eventStrs.Count > 1)
                     {
-                        if (!string.IsNullOrEmpty(words.Skip(i + 1).First(w => w.StartsWith("retreat")))) // the word, "retreat" is found futher in list
+                        if ( ((i+1) < NumWords) && words.Skip(i + 1).Any(w => w.StartsWith("retreat")) ) // the word, "retreat" is found futher in list
                         {
                             str = eventStrs.First(es => es.Contains("retreat")); // a Matching event has "retreat" in it. favor it. in this case. 
                             if (string.IsNullOrEmpty(str))
+                            {
                                 str = eventStrs[0];
+                                hasRetreat = true;
+                            }
                         }
                     }
                     if (Enum.TryParse(str.Replace(' ', '_'), true, out EventType et))
                     {
-                        _cmdEvent = et;
-                        _cmdEventIdx = i;
-                        return true;
+                        if (_cmdEventIdx == -1)
+                        {
+                            _cmdEvent = et;
+                            _cmdEventIdx = i;
+
+                            if (hasRetreat || (eventStrs.Count == 1))
+                               return true;
+
+                            if (Enum.TryParse(eventStrs[1].Replace(' ', '_'), true, out EventType et2))
+                            {
+                                _cmdEvent2 = et2;
+                                _cmdEvent2Idx = i;
+                            }
+                            return true;
+                        }
                     }
                 }
             }
@@ -2330,7 +2367,13 @@ namespace CStat.Common
                     }
                     else
                     {
-                        if (_cmdInstsList.FindAll(c => c == CmdInsts.ALL).Any())
+                        if (this._cmdEventIdx != -1)
+                        {
+                            eList = Event.GetEvents(_context, PropMgr.ESTNow, DateRangeType.On_or_After_Date).Where(e => e.Type == (int)this._cmdEvent || e.Type == (int)this._cmdEvent2).ToList();
+                            sidx = 0;
+                            eidx = eList.Count - 1;
+                        }
+                        else if (_cmdInstsList.FindAll(c => c == CmdInsts.ALL).Any())
                         {
                             eList = Event.GetEvents(_context, new DateTime(1900, 1, 1), DateRangeType.On_or_After_Date); // All
                             sidx = 0;
@@ -3037,6 +3080,10 @@ namespace CStat.Common
 
         private EventType _cmdEvent;
         private int _cmdEventIdx = -1;
+
+        private EventType _cmdEvent2;
+        private int _cmdEvent2Idx = -1;
+
 
         private List<CmdInsts>  _cmdInstsList = new List<CmdInsts>();
         private List<int> _cmdInstsIdxList = new List<int>();

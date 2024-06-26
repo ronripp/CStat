@@ -1580,6 +1580,11 @@ namespace CStat.Models
             }
         }
 
+        public static List<Event> GetEvents(CStatContext context, int type1, int type2)
+        {
+            return context.Event.Where(e => (e.Type == type1) || (e.Type == type2)).ToList();
+        }
+
         public static string GetEventNeeds(CStatContext context)
         {
             string needsStr = "";

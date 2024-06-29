@@ -1,0 +1,143 @@
+﻿@page
+@model CStat.Pages.ResCLModel
+
+@{
+    Layout = "_LayoutEmpty";
+}
+
+<head>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<style>
+    .page-header, .page-header-space {
+        height: 3em;
+    }
+
+    .page-footer, .page-footer-space {
+        height: 2em;
+    }
+
+    .page-footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid black; /* for demo */
+        
+    }
+
+    .page-header {
+        position: fixed;
+        left: 0mm;
+        top: 0mm;
+        width: 100%;
+        border-bottom: 1px solid black; /* for demo */
+        color: white;
+        background-color: #365F91;
+    }
+
+    .page {
+        page-break-after: always;
+    }
+
+    head1 {
+        font-size: 3em;
+        color: white;
+    }
+
+    @@page {
+        margin: 20mm
+    }
+
+    @@media print {
+
+        .page-header {
+            background-color: #365F91;
+            color: white;
+        }
+
+        thead {
+            display: table-header-group;
+            background-color: #365F91;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+        button {
+            display: none;
+        }
+
+        head1 {
+            font-size: 3em;
+            color: white;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            margin: 0;
+            font-size: 2em;
+        }
+
+        
+    }
+</style>
+
+<div class="page-header head1" style="text-align: center">
+    July 2024 CCA Daily Testing of Free Chlorine in Potable Water for Camp Usage
+    <br />
+    <button type="button" onClick="window.print()" style="background: pink">
+        PRINT ME!
+    </button>
+</div>
+
+    <div class="page-footer">
+        I'm The Footer
+    </div>
+
+    <table>
+
+        <thead>
+            <tr>
+                <td>
+                    <!--place holder for the fixed-position header-->
+                    <div class="page-header-space"></div>
+                </td>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <!--*** CONTENT GOES HERE ***-->
+                    <div class="page">
+
+
+
+
+
+
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td>
+                    <!--place holder for the fixed-position footer-->
+                    <div class="page-footer-space"></div>
+                </td>
+            </tr>
+        </tfoot>
+
+    </table>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

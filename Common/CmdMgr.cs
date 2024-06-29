@@ -2402,7 +2402,7 @@ namespace CStat.Common
                 {
                     var e = eList[i];
                     var DateStr = e.StartTime.Date.ToShortDateString() + "-" + e.EndTime.Date.ToShortDateString();
-                    report += e.Description + "(" + DateStr + ").\n";
+                    report += e.Description + " (" + DateStr + ").\n";
                 }
             }
             return report;

@@ -26,6 +26,7 @@ namespace CStat
             _context = context;
             _curUser = CCommon.GetCurUser(context, config, httpCA, userManager);
             IsFull = (_curUser != null) ? _curUser.IsFull : false;
+            IsAdmin = (_curUser != null) ? _curUser.IsAdmin : false;
             _cl.Log("InfoModel _curUser=" + ((_curUser != null) ? ("OK " + _curUser.EMail) : "NULL") + " IsFull=" + IsFull);
         }
 
@@ -44,6 +45,9 @@ namespace CStat
 
         [BindProperty]
         public bool IsFull { get; set; }
+
+        [BindProperty]
+        public bool IsAdmin { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

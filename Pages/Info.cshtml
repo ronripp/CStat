@@ -128,9 +128,9 @@
         <button class="usBtn" onclick="window.location.href='Vendors/Index'" )">Business/Depts ...</button>
         <button class="usBtn" onclick="location.href='CCAByLaws2021.html'">CCA By-Laws 2021...</button>
         <button class="usBtn" onclick="location.href='Required.html'">Required By Law...</button>
-        <button class="usBtn" onclick="showMenu(12)">Forms/Docs/Manu...</button>
+        <button class="usBtn" onclick="showMenu(12)">Forms/Docs/Manuals</button>
         <button class="usBtn" onclick="window.location.href='Churches/Index'" )">Churches ...</button>
-        @if (Model.IsFull)
+        @if (Model.IsAdmin)
         {<button class="usBtn" onclick="window.location.href='Merge'">Records Management</button>}
         @if (Model.IsFull)
         {<button class="usBtn" onclick="window.location.href='Docs';">Drop Box</button>}
@@ -164,6 +164,7 @@
         <button class="usSubBtn" onclick="window.location.href='Docs?id=%2FSigns%20%26%20Posters'"><b>CCA Signs & Posters ...</b></button>
         @if (Model.IsFull)
         {<button class="usSubBtn" onclick="window.location.href='Docs?id=%2FMailings%20%26%20Presentations'"><b>Presentations/Logos ...</b></button>}
+        <button class="usSubBtn" onclick="window.location.href='ResCL'"><b>Residual Chlorine Log ...</b></button>
     </div>
 
     <div id="userSel13" style="display:none">

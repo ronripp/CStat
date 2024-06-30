@@ -10,12 +10,52 @@
 </head>
 
 <style>
-    .page-header, .page-header-space {
-        height: 3em;
+
+    .page-header {
+        position: fixed;
+        left: 0mm;
+        top: 0mm;
+        width: 100%;
+        height: 2em;
+        border-bottom: 1px solid black; /* for demo */
+        color: white;
+        background-color: #365F91;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
     }
 
-    .page-footer, .page-footer-space {
-        height: 2em;
+    thead td {
+        color: white;
+        background-color: #365F91;
+        font-size: .9em;
+        font-family: 'Times New Roman';
+        border-left: 1px solid white;
+        border-right: 1px solid white;
+    }
+
+    #clwarn {
+        font-size: 1.2em;
+        color: yellow;
+        font-weight: bold;
+    }
+
+    #page {
+        font-size: .9em;
+    }
+
+    #tableId {
+        width: 100%;
+        border:none;
+    }
+
+    td {
+        padding-left: 6px;
+        border: 1px solid black;
+    }
+
+    body {
+        margin: 0;
     }
 
     .page-footer {
@@ -23,307 +63,301 @@
         left: 0;
         bottom: 0;
         width: 100%;
-        border-top: 1px solid black; /* for demo */
-        
-    }
-
-    .page-header {
-        position: fixed;
-        left: 0mm;
-        top: 0mm;
-        width: 100%;
-        border-bottom: 1px solid black; /* for demo */
-        color: white;
-        background-color: #365F91;
-    }
-
-    .page {
-        page-break-after: always;
-    }
-
-    head1 {
-        font-size: 3em;
-        color: white;
+        height: 2em;
+        text-align: center;
+        font-size: .9em;
     }
 
     @@page {
-        margin: 20mm
-    }
-
-    #tableId {
-        border: 1px solid black;
-        width:100%;
-    }
-
-    table td {
-        padding-left:10px;
-        border: 1px solid black;
+       size: letter;
     }
 
     @@media print {
 
-        .page-header {
-            background-color: #365F91;
-            color: white;
-        }
-
-        thead {
-            display: table-header-group;
-            background-color: #365F91;
-        }
-
-        tfoot {
-            display: table-footer-group;
-        }
-
         button {
             display: none;
-        }
-
-        head1 {
-            font-size: 3em;
-            color: white;
         }
 
         body {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             margin: 0;
-            font-size: 1.8em;
+        }
+
+        .page-header {
+            font-size: 1.5em;
+        }
+
+        thead td {
+            font-size: 1em;
+        }
+
+        #clwarn {
+            font-size: 1.2em;
+            color: yellow;
+            font-weight: bold;
+        }
+
+        #page {
+            font-size: 1.44em;
+        }
+
+        .page-footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 2em;
+            text-align: center;
+            font-size: 1.1em;
         }
     }
 </style>
 
-<div class="page-header head1" style="text-align: center">
-    July 2024 CCA Daily Testing of Free Chlorine in Potable Water for Camp Usage
-    <br />
-    <button type="button" onClick="window.print()" style="background: pink">
-        PRINT ME!
-    </button>
-</div>
-
-    <div class="page-footer">
-        I'm The Footer
-    </div>
-
+<div class="page-header" style="position:static"></div>
+<div id="page">
+    <table id="tableId">
         <thead>
             <tr>
-                <td>
-                    <!--place holder for the fixed-position header-->
-                    <div class="page-header-space"></div>
+                <td style="width:13%">Date of Test Performed</td>
+                <td style="width:12%">Time of Test Performed</td>
+                <td style="width:16%">Free Chlorine Level in parts per million (ppm)</td>
+                <td>Tester’s Name</td>
+                <td style="width:44%">
+                    Add Comments. Unexpected Observations?<br />
+                    <div id="clwarn">Below 0.2 ppm or above 3.0 ppm?</div>
+                    Contact CCA Manager or call 203-770-3393
                 </td>
             </tr>
         </thead>
 
-        <tbody style="border: 2px solid black;">
-            <tr>
-                <td>
-                    <div class="page">
-                        <table id="tableId">
-                            <tr>
-                                <td>Tues 7/1</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/2</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/3</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/4</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/5</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/6</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/7</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/8</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/9</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/10</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/11</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/12</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/13</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/14</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/15</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/16</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/17</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/18</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/19</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/20</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/21</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/22</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/23</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/24</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/25</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/26</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/27</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/28</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/29</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/30</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Tues 7/31</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-
-                        </table>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-
-        <tfoot>
-            <tr>
-                <td>
-                    <!--place holder for the fixed-position footer-->
-                    <div class="page-footer-space"></div>
-                </td>
-            </tr>
-        </tfoot>
-
+        <tr>
+            <td>Tues 7/1</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/2</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 10/28</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/4</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/5</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/6</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/7</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/8</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/9</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/10</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/11</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/12</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/13</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/14</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/15</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/16</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/17</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/18</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/19</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/20</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/21</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/22</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/23</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/24</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/25</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/26</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/27</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/28</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/29</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/30</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Tues 7/31</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
     </table>
-
+</div>
+<div class="page-header">
+    September 2024 CCA Daily Testing of Free Chlorine in Potable Water for Camp Usage
+    <button type="button" onClick="window.print()" style="background: pink">
+        PRINT ME!
+    </button>
+</div>
+<div class="page-footer">
+    CCA Form Rev B : CCA Daily Testing of Free Chlorine in Potable Water for Camp Events</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

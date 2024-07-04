@@ -112,7 +112,7 @@ namespace CStat.Pages.Churches
         public static string GetPhone(Church church)
         {
             if ((church.Address != null) && (!string.IsNullOrEmpty(church.Address.Phone)))
-                return Person.FixPhone(church.Address.Phone);
+                return "<a href=\"tel:" + church.Address.Phone + "\">" + Person.FixPhone(church.Address.Phone) + "</a>";
             return "---";
         }
         public static string GetMembershipStatus(Church church)

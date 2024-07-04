@@ -131,7 +131,6 @@
     <None Include="CStat.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="wwwroot\ResCLStart.html" />
     <None Include="wwwroot\_NYSDOH\v1022.html" />
   </ItemGroup>
 

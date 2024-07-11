@@ -453,6 +453,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
             _srcDelegateDict.Add(CmdSource.CHURCH, HandleChurch);
+            //_srcDelegateDict.Add(CmdSource.CSTEST, HandleCSTest);
         }
 
         public static List<string> GetWords(string cmdStr)
@@ -2952,39 +2953,43 @@ namespace CStat.Common
         private string HandleCSTest(List<string> words)
         //***************************************************************
         {
-            var cse = new CSEMail(_config, _userManager);
+
+            ArdMgr ardMgr = new ArdMgr(_hostEnv, _config, _userManager);
+            ardMgr.CheckValues("freezerTemp:68,frigTemp:71,kitchTemp:71,waterPres:103,powerOn:364,analog5:318,time:\"7/7/24 12:40:42 PM\"");
+
+            //var cse = new CSEMail(_config, _userManager);
             String report = "";
-            var eList = cse.ReadEMails();
-            foreach (var e in eList)
-            {
-                report += e.Subject + ".\n";
+            //var eList = cse.ReadEMails();
+            //foreach (var e in eList)
+            //{
+            //    report += e.Subject + ".\n";
 
-                if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
-                    e.AddHtmlAsPDFAttachment();
+            //    if ((e.HtmlBody != null) && (e.HtmlBody.Length > 5))
+            //        e.AddHtmlAsPDFAttachment();
 
-                if (e.Attachments.Count > 0)
-                {
-                    var dbox = new CSDropBox(Startup.CSConfig);
-                    var destPath = "/Memorandums";
-                    foreach (var a in e.Attachments)
-                    {
-                        string FileName = e.GetFinalFileName(Path.GetFileName(a));
-                        if (dbox.FileExists(destPath + "/" + FileName))
-                        {
-                            var fBody = Path.GetFileNameWithoutExtension(FileName);
-                            var fExt = Path.GetExtension(FileName);
-                            for (char j = 'B'; j < 'Z'; ++j)
-                            {
-                                FileName = fBody + "_Rev_" + j.ToString() + fExt;
-                                if (!dbox.FileExists(destPath + "/" + FileName))
-                                    break;
-                            }
-                        }
-                        dbox.UploadFile(a, destPath, FileName);
-                        File.Delete(a);
-                    }
-                }
-            }
+            //    if (e.Attachments.Count > 0)
+            //    {
+            //        var dbox = new CSDropBox(Startup.CSConfig);
+            //        var destPath = "/Memorandums";
+            //        foreach (var a in e.Attachments)
+            //        {
+            //            string FileName = e.GetFinalFileName(Path.GetFileName(a));
+            //            if (dbox.FileExists(destPath + "/" + FileName))
+            //            {
+            //                var fBody = Path.GetFileNameWithoutExtension(FileName);
+            //                var fExt = Path.GetExtension(FileName);
+            //                for (char j = 'B'; j < 'Z'; ++j)
+            //                {
+            //                    FileName = fBody + "_Rev_" + j.ToString() + fExt;
+            //                    if (!dbox.FileExists(destPath + "/" + FileName))
+            //                        break;
+            //                }
+            //            }
+            //            dbox.UploadFile(a, destPath, FileName);
+            //            File.Delete(a);
+            //        }
+            //    }
+            //}
             return report;
         }
 

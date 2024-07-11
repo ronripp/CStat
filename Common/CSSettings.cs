@@ -108,13 +108,13 @@ namespace CStat.Common
                 if (!_isValid)
                     return;
 
-                var cl = new CSLogger();
+                //var cl = new CSLogger();
 
                 List<CStatUser> Users = GetUsers(_userManager);
                 List<CStatUser> FullUsers = GetFullUsers(_userManager);
                 List<CStatUser> AdminUsers = GetAdminUsers(_userManager);
 
-                cl.Log("CSSettings.intialize : Users=" + Users.Count + " FullUsers=" + FullUsers.Count + " AdminUsers=" + AdminUsers.Count);
+                //cl.Log("CSSettings.intialize : Users=" + Users.Count + " FullUsers=" + FullUsers.Count + " AdminUsers=" + AdminUsers.Count);
 
                 UserSettings = Users.Where(u => u.EmailConfirmed == true).Select(c =>
                 {
@@ -124,7 +124,7 @@ namespace CStat.Common
                     cu.UserId = c.Id;
                     cu.IsAdmin = AdminUsers.Any(u => u.Id == c.Id);
                     cu.IsFull = FullUsers.Any(u => u.Id == c.Id) || cu.IsAdmin;
-                    cl.Log("User : E=" + cu.EMail + " P=" + cu.PhoneNum + " Id=" + cu.UserId + " IsAdm=" + cu.IsAdmin + " IsFull=" + cu.IsFull);
+                    //cl.Log("User : E=" + cu.EMail + " P=" + cu.PhoneNum + " Id=" + cu.UserId + " IsAdm=" + cu.IsAdmin + " IsFull=" + cu.IsFull);
                     return cu;
                 }).ToList();
 

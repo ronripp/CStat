@@ -92,7 +92,11 @@ namespace CStat.Models
             WRK = 0x40000,
             MSN = 0x80000,
             CON = 0x100000,
-            SPT = 0x200000
+            SPT = 0x200000,
+            DNR = 0x400000,
+            BKP = 0x800000,
+            SMG = 0x1000000,
+            LGL = 0x2000000
         };
 
         public enum ePA

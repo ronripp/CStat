@@ -193,6 +193,12 @@ namespace CStat.Common
             return TimeStamp.ToString("M/d/yy h:mmt");
         }
 
+        public void Log(string title)
+        {
+            var cl = new CSLogger();
+            cl.Log(title + " FreezerTempF=" + FreezerTempF.ToString("N3") + " FridgeTempF=" + FridgeTempF.ToString("N3") + " KitchTempF=" + KitchTempF.ToString("N3") + " WaterPress=" + WaterPress.ToString("N3") + " " + TimeStampStr());
+        }
+
         public double FreezerTempF { get; set; } = PropMgr.NotSet;
         public double FridgeTempF { get; set; } = PropMgr.NotSet;
         public double KitchTempF { get; set; } = PropMgr.NotSet;
@@ -213,10 +219,11 @@ namespace CStat.Common
         private string ArdFullAll = "";
         private static int MAX_FILE_ARS = 200;
         public static int MAX_USE_ARS = 100;
-        public ArdRecord LastAR;
         public static int NumCheckARs = 5;
         public static int MinFailedARs = 3;
+
         public List<ArdRecord> LastARs = null;
+        public ArdRecord LastAR = null;
 
         public ArdMgr(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -229,12 +236,16 @@ namespace CStat.Common
                 Directory.CreateDirectory(newPath);
             FullLatest = Path.Combine(newPath, "ardlatest.txt");
             ArdFullAll = Path.Combine(newPath, "ardall.txt");
-            LastARs = GetLastRecords(NumCheckARs);
-            LastAR = LastARs.Last() ?? null;
         }
 
         public bool CheckValues(string jsonStr) // Ard only : No propane
         {
+            if (LastARs == null)
+            {
+                LastARs = GetLastRecords(NumCheckARs);
+                LastAR = LastARs.Last() ?? null;
+            }
+
             ArdRecord ar = GetArdRecord(jsonStr);
             CSSettings cset = CSSettings.GetCSSettings(Config, UserManager);
 
@@ -248,7 +259,7 @@ namespace CStat.Common
                 if (ep.IsTypePowerOn() && ep.Active)
                 {
                     string curPOColor = ep.GetColor(ar.PowerOn, false);
-                    string lastPOColor = ep.GetColor(LastAR.PowerOn, false);
+                    string lastPOColor = ep.GetColor(((LastAR != null) ? LastAR.PowerOn : 100), false);
                     if ((curPOColor != CSSettings.green) && (lastPOColor == CSSettings.green))
                     {
                         CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
@@ -269,19 +280,24 @@ namespace CStat.Common
                     {
                         // Equipment must fail for last NumCheckARs values
                         bool eqOK = false;
+                        int LastFailedIdx = 0;
                         for (int i = 0; i < NumCheckARs; ++i)
                         {
                             eqOK = CSSettings.GetColor(cset.EquipProps, ep.PropName, LastARs[i], null, false) == CSSettings.green;
                             if (!eqOK)
                             {
+                                LastARs[i].Log("Failed AR : TotalFailed = " + TotalFailed);
+                                LastFailedIdx = i;
                                 if (++TotalFailed >= MinFailedARs)
+                                {
                                     break;
+                                }
                             }
                         }
-                        if (TotalFailed >= MinFailedARs)
+                        if ((TotalFailed >= MinFailedARs) && (LastFailedIdx == (NumCheckARs-1)))
                         {
                             CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-                            sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, ar, null, false), true, false); // Allow resend
+                            sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, LastARs[LastFailedIdx], null, false), true, false); // Allow resend
                         }
                     }
                 }

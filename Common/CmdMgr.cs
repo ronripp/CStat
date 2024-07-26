@@ -713,6 +713,17 @@ namespace CStat.Common
 
         public bool FindCmdOther(List<string> words) // ZZZAAA
         {
+            if ((_cmdSrc == CmdSource.NONE) && (words.Count == 1) && words[0].StartsWith("sop"))
+            {
+                if (_cmdDescList.Count == 0)
+                {
+                    _cmdDescList.Add(words[0]);
+                    _cmdDescIdxList.Add(0);
+                }
+                _cmdSrc = CmdSource.DOC;
+                return true;
+            }
+
             if ((_cmdSrc == CmdSource.NONE) && (words.Count >= 1) && (words.Count <= 2))
             {
                 // Check for Event match

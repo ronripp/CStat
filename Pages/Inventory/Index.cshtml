@@ -537,7 +537,15 @@
                             }
                         </td>
                         <td style="background-color:@bcol">
-                            <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
+                            @if (!InInv)
+                            {
+                                <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.Item.Name)
+                            }
+
                         </td>
                         <td style="background-color:@bcol">
 

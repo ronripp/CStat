@@ -431,17 +431,31 @@
             $(document).on('blur','.popover', function(){
                $(this).popover('hide');
             });
+
+            $(".InInvName").click(function (e) {
+
+                var rect = e.target.getBoundingClientRect();
+                if ((e.clientX - rect.left) / rect.width >= 0.8) {
+                    window.location.href = e.target.getAttribute("openUrl");
+                }
+            });
+
         });
 
         </script>
     </head>
     <body onbeforeunload="invBeforeUnload()">
         <div class="container space-between">
-            <div><a href="Inventory\Create"> <b>+</b> Add New Item</a></div>
-            @{ 
+            <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
+            @{
                 bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
+                string Title = InInv ? "INVENTORY " : "";
             }
-            <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
+            <select>
+                <option value="1" selected>FOOD</option>
+                <option value="2">OTHER</option>
+            </select>
+            <div>@Title<button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
             <div><button id="emailBtn" onClick="emailInv()"></button></div>
         </div>
         <table class="table">
@@ -543,7 +557,7 @@
                             }
                             else
                             {
-                                @Html.DisplayFor(modelItem => item.Item.Name)
+                               <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
                             }
 
                         </td>

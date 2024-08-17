@@ -14,9 +14,10 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container" style="background-color:#fff090;">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">@ViewData["Title"]</a>
-                <span><img style="width: 2em;" src="~/images/se.svg" alt="[<]" onclick="doExit()"></span>
+                @*<span><img style="width: 2em;" src="~/images/se.svg" alt="[<]" onclick="doExit()"></span>*@
+                <span><button style="font-weight:bold; color:darkgreen; background-color:lemonchiffon; border-color:crimson" onclick="doExit()">SAVE</button></span>
                 <span><button id="emailPDFBtn" onclick="doExport()"></button></span>
-                <span><button id="publishPDFBtn" onclick="doPublish()">Publish</button></span>
+                @*<span><button id="publishPDFBtn" onclick="doPublish()">Publish</button></span>*@
                 <span><a class="nav-link" asp-area="" asp-page="/Index"><b>Home</b></a></span>
             </div>
         </nav>

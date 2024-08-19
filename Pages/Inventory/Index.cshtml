@@ -1,10 +1,6 @@
 ﻿@page
 @model CStat.IndexInvModel
 
-@{
-    ViewData["Title"] = "Inventory";
-}
-
     <head>
         @using System.Web;
         @using CStat.Models;
@@ -143,6 +139,23 @@
 
         <script type="text/javascript">
 
+            @{
+                string StockType;
+                string InvType = Request.Query["InvType"];
+                if (String.IsNullOrEmpty(InvType)) InvType = "0";
+                switch (InvType)
+                {
+                    case "1":
+                        StockType = "Material";
+                        break;
+                    default:
+                    case "0":
+                        StockType = "Food";
+                        break;
+                }
+                ViewData["Title"] = Html.Raw("<b>" + StockType + "</b> Stock : " + ((Model.GetAllState() == IndexInvModel.INV_STATE) ? "<span style=\"color:red; font-weight:bold\">IN INVENTORY</span>" : "Update as needed"));
+            }
+
             var cur_StockInvItemId = -1;
             var STOCKED_STATE = "0";
             var STOCKED_ISTATE = 0;
@@ -161,14 +174,13 @@
 
             window.addEventListener("pageshow", function (event) {
                 var historyTraversal = event.persisted ||
-                    (typeof window.performance != "undefined" &&
-                        window.performance.navigation.type === 2);
+                (typeof window.performance != "undefined" &&
+                    window.performance.navigation.type === 2);
                 if (historyTraversal) {
-                    // Make sure to refresh top status page when returning to this page
-                    window.location.reload(true);
+                // Make sure to refresh top status page when returning to this page
+                  window.location.reload(true);
                 }
             });
-
         @{
             var LoginPid = -1;
             var LoginDisplayName = "";
@@ -446,16 +458,15 @@
     </head>
     <body onbeforeunload="invBeforeUnload()">
         <div class="container space-between">
-            <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
             @{
                 bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
-                string Title = InInv ? "INVENTORY " : "";
+                string InvType = Request.Query["InvType"];
+                if (String.IsNullOrEmpty(InvType)) InvType = "0";
+                string SelectStr = "<select>\n<option value=\"0\" " + ((InvType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((InvType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
             }
-            <select>
-                <option value="1" selected>FOOD</option>
-                <option value="2">OTHER</option>
-            </select>
-            <div>@Title<button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
+            @Html.Raw(SelectStr)
+            <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
+            <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
             <div><button id="emailBtn" onClick="emailInv()"></button></div>
         </div>
         <table class="table">

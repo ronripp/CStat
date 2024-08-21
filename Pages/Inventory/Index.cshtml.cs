@@ -64,8 +64,10 @@ namespace CStat
         private readonly IHttpContextAccessor _httpCA;
         private readonly IWebHostEnvironment _hostEnv;
         private readonly UserManager<CStatUser> _userManager;
-
         private CSSettings _csSettings;
+
+        [BindProperty]
+        public int _InvType { get; set; } = 0;
 
         public static int STOCKED_STATE = 0;
         public static int NEEDED_STATE = 1;
@@ -105,11 +107,15 @@ namespace CStat
 
         public IList<InventoryItem> InventoryItems { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(int InvType=0)
         {
+            _InvType = InvType;
+
             InventoryItems = await _context.InventoryItem
                 .Include(i => i.Inventory)
-                .Include(i => i.Item).ToListAsync();
+                .Include(i => i.Item)
+                .Where (i => i.Item.Status == _InvType)
+                .ToListAsync();
         }
 
         public Person GetPersonFromEMail(string email)

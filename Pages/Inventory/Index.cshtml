@@ -113,6 +113,7 @@
             MenuTD {
                 min-width: 50%;
                 width: 50%;
+                color:
             }
 
             .container {
@@ -140,202 +141,202 @@
         <script type="text/javascript">
 
             @{
-                string StockType;
-                string InvType = Request.Query["InvType"];
-                if (String.IsNullOrEmpty(InvType)) InvType = "0";
-                switch (InvType)
-                {
-                    case "1":
-                        StockType = "Material";
-                        break;
-                    default:
-                    case "0":
-                        StockType = "Food";
-                        break;
-                }
-                ViewData["Title"] = Html.Raw("<b>" + StockType + "</b> Stock : " + ((Model.GetAllState() == IndexInvModel.INV_STATE) ? "<span style=\"color:red; font-weight:bold\">IN INVENTORY</span>" : "Update as needed"));
+                            string StockType;
+                            string InvType = Request.Query["InvType"];
+                            if (String.IsNullOrEmpty(InvType)) InvType = "0";
+                            switch (InvType)
+                            {
+                                case "1":
+                                    StockType = "Material";
+                                    break;
+                                default:
+                                case "0":
+                                    StockType = "Food";
+                                    break;
+                            }
+                            ViewData["Title"] = Html.Raw("<b>" + StockType + "</b> Stock : " + ((Model.GetAllState() == IndexInvModel.INV_STATE) ? "<span style=\"color:red; font-weight:bold\">IN INVENTORY</span>" : "<span style=\"color:darkgreen; font-weight:bold\">Update as needed</span>"));
             }
 
-            var cur_StockInvItemId = -1;
-            var STOCKED_STATE = "0";
-            var STOCKED_ISTATE = 0;
-            var NEEDED_STATE = "1";
-            var NEEDED_ISTATE = 1;
-            var ASSIGNED_STATE = "2";
-            var ASSIGNED_ISTATE = 2;
-            var INV_STATE = "3";
-            var INV_ISTATE = 3;
-            var True = true;
-            var False = false;
+                        var cur_StockInvItemId = -1;
+                        var STOCKED_STATE = "0";
+                        var STOCKED_ISTATE = 0;
+                        var NEEDED_STATE = "1";
+                        var NEEDED_ISTATE = 1;
+                        var ASSIGNED_STATE = "2";
+                        var ASSIGNED_ISTATE = 2;
+                        var INV_STATE = "3";
+                        var INV_ISTATE = 3;
+                        var True = true;
+                        var False = false;
 
-            function onFocus(invItemId) {
-                cur_StockInvItemId = invItemId;
-            }
+                        function onFocus(invItemId) {
+                            cur_StockInvItemId = invItemId;
+                        }
 
-            window.addEventListener("pageshow", function (event) {
-                var historyTraversal = event.persisted ||
+                        window.addEventListener("pageshow", function (event) {
+                            var historyTraversal = event.persisted ||
                 (typeof window.performance != "undefined" &&
                     window.performance.navigation.type === 2);
                 if (historyTraversal) {
                 // Make sure to refresh top status page when returning to this page
                   window.location.reload(true);
                 }
-            });
+                });
         @{
-            var LoginPid = -1;
-            var LoginDisplayName = "";
-            Person p = Model.GetPersonFromEMail(User.Identity.Name);
-            if (p != null)
-            {
-                LoginPid = p.Id;
-                LoginDisplayName = p.FirstName.Substring(0, Math.Min(p.FirstName.Length, 5)) + p.LastName.Substring(0, Math.Min(p.LastName.Length, 1));
-            }
-        }
-        var loginPid = @LoginPid;
+                    var LoginPid = -1;
+                    var LoginDisplayName = "";
+                    Person p = Model.GetPersonFromEMail(User.Identity.Name);
+                    if (p != null)
+                    {
+                        LoginPid = p.Id;
+                        LoginDisplayName = p.FirstName.Substring(0, Math.Min(p.FirstName.Length, 5)) + p.LastName.Substring(0, Math.Min(p.LastName.Length, 1));
+                    }
+                }
+                var loginPid = @LoginPid;
 
-            function updateInvButton(newState) {
+                function updateInvButton(newState) {
                 $("body").css("cursor", "default");
-                let oldState = ($("#InvSt").text().startsWith("Start")) ? STOCKED_ISTATE : INV_ISTATE;
+                    let oldState = ($("#InvSt").text().startsWith("Start")) ? STOCKED_ISTATE : INV_ISTATE;
                 if (newState !== oldState) {
                     window.location.reload(true);
                 }
             }
 
             function itemStateChange(invItemId, fromStock) {
-                let stockBtn = document.querySelector("#" + "iid" + invItemId);
-                let stateBtn = document.querySelector("#" + "sid" + invItemId);
-                let state = stateBtn.getAttribute("state");
-                if (fromStock) {
-                    if (stockBtn.getAttribute("type") == "text") {
-                        cur_StockInvItemId = invItemId;
-                        if (state !== INV_STATE) {
-                            return;
+                    let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                    let stateBtn = document.querySelector("#" + "sid" + invItemId);
+                    let state = stateBtn.getAttribute("state");
+                    if (fromStock) {
+                        if (stockBtn.getAttribute("type") == "text") {
+                            cur_StockInvItemId = invItemId;
+                            if (state !== INV_STATE) {
+                                return;
+                            }
+                        }
+                        cur_StockInvItemId = -1;
+                    }
+
+                    let pid;
+                    if (fromStock) {
+                        state = STOCKED_STATE;
+                        pid = -1;
+                    }
+                    else {
+                        state = stateBtn.getAttribute("state");
+                        pid = stateBtn.getAttribute("pid");
+                        switch (state) {
+                            case STOCKED_STATE:
+                            case INV_STATE:
+                                state = NEEDED_STATE;
+                                break;
+                            case NEEDED_STATE:
+                                state = ASSIGNED_STATE;
+                                pid = loginPid;
+                                break;
+                            case ASSIGNED_STATE:
+                                if (pid == loginPid) {
+                                    state = NEEDED_STATE;
+                                    pid = -1;
+                                }
+                                break;
+                            default:
+                                state = NEEDED_STATE;
+                                break;
                         }
                     }
-                    cur_StockInvItemId = -1;
-                }
-
-                let pid;
-                if (fromStock) {
-                    state = STOCKED_STATE;
-                    pid = -1;
-                }
-                else {
-                    state = stateBtn.getAttribute("state");
-                    pid = stateBtn.getAttribute("pid");
-                    switch (state) {
-                        case STOCKED_STATE:
-                        case INV_STATE:
-                            state = NEEDED_STATE;
-                            break;
-                        case NEEDED_STATE:
-                            state = ASSIGNED_STATE;
-                            pid = loginPid;
-                            break;
-                        case ASSIGNED_STATE:
-                            if (pid == loginPid) {
-                                state = NEEDED_STATE;
-                                pid = -1;
-                            }
-                            break;
-                        default:
-                            state = NEEDED_STATE;
-                            break;
-                    }
-                }
 
                 $("body").css("cursor", "progress");
-                var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
+                    var parameters = "{'invItemId':'" + invItemId + "','pid':'" + pid + "','state':'" + state + "'}";
                 $.ajax({
-                    url: "/Inventory?handler=ItemStateChange",
+                        url: "/Inventory?handler=ItemStateChange",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
-                        if (response.indexOf("ERROR~:") === -1) {
-                            var curState = $.parseJSON(response);
-                            updateInvButton(curState.allState);
-                            stateBtn.setAttribute("state", curState.invItemState.state);
-                            stateBtn.setAttribute("pid", curState.invItemState.pid);
-                            stateBtn.className = curState.invItemState.btnClass;
-                            stateBtn.innerHTML = curState.invItemState.displayName;
-                            stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
+                            if (response.indexOf("ERROR~:") === -1) {
+                                var curState = $.parseJSON(response);
+                                updateInvButton(curState.allState);
+                                stateBtn.setAttribute("state", curState.invItemState.state);
+                                stateBtn.setAttribute("pid", curState.invItemState.pid);
+                                stateBtn.className = curState.invItemState.btnClass;
+                                stateBtn.innerHTML = curState.invItemState.displayName;
+                                stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
 
-                            if (fromStock) {
-                                stockBtn.setAttribute("type", "text");
-                                if (stockBtn.value == "In?") {
-                                    stockBtn.value = "";
-                                }
-                                // ensure value is selected after becoming text again
-                                stockBtn.blur();
-                                stockBtn.focus();
-                                stockBtn.select();
-                                stockBtn.onchange = function () { updateStock(invItemId); }
-                                stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); }
-                                stockBtn.onFocus = function () { onFocus(invItemId); }
-                                cur_StockInvItemId = invItemId;
-                            } else {
-                                if (curState.invItemState.state == ASSIGNED_ISTATE) {
-                                    stockBtn.setAttribute("type", "button");
-                                    stockBtn.className = "StockBtn" + " " + "NormInput";
-                                    if (stockBtn.value == "") {
-                                        stockBtn.value = "In?";
+                                if (fromStock) {
+                                    stockBtn.setAttribute("type", "text");
+                                    if (stockBtn.value == "In?") {
+                                        stockBtn.value = "";
                                     }
-                                    stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); };
-                                    stockBtn.onFocus = function () { };
+                                    // ensure value is selected after becoming text again
+                                    stockBtn.blur();
+                                    stockBtn.focus();
+                                    stockBtn.select();
+                                    stockBtn.onchange = function () { updateStock(invItemId); }
+                                    stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); }
+                                    stockBtn.onFocus = function () { onFocus(invItemId); }
+                                    cur_StockInvItemId = invItemId;
+                                } else {
+                                    if (curState.invItemState.state == ASSIGNED_ISTATE) {
+                                        stockBtn.setAttribute("type", "button");
+                                        stockBtn.className = "StockBtn" + " " + "NormInput";
+                                        if (stockBtn.value == "") {
+                                            stockBtn.value = "In?";
+                                        }
+                                        stockBtn.onclick = function () { this.select(); itemStateChange(invItemId, true); };
+                                        stockBtn.onFocus = function () { };
+                                    }
                                 }
-                            }
-                        } else {
+                            } else {
                             $("body").css("cursor", "default");
-                        }
-                    },
+                            }
+                        },
                     fail: function (response) {
                         $("body").css("cursor", "default");
-                    }
-                });
+                        }
+                    });
             }
 
             function updateStock(invItemId) {
-                if (invItemId === -1) {
-                    return;
-                }
-                let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                    if (invItemId === -1) {
+                        return;
+                    }
+                    let stockBtn = document.querySelector("#" + "iid" + invItemId);
 
-                var stock;
-                if (stockBtn.value.length == 0) {
-                    stock = 0;
-                }
-                else {
-                    stock = parseFloat(stockBtn.value);
-                    if (Number.isNaN(stock) || (stock == 0)) {
-                        stockBtn.value = "";
+                    var stock;
+                    if (stockBtn.value.length == 0) {
                         stock = 0;
                     }
-                }
+                    else {
+                        stock = parseFloat(stockBtn.value);
+                        if (Number.isNaN(stock) || (stock == 0)) {
+                            stockBtn.value = "";
+                            stock = 0;
+                        }
+                    }
 
                 $("body").css("cursor", "progress");
-                var parameters = "{'invItemId':'" + invItemId + "','stock':'" + stock + "'}";
+                    var parameters = "{'invItemId':'" + invItemId + "','stock':'" + stock + "'}";
                 $.ajax({
-                    url: "/Inventory?handler=ItemStockChange",
+                        url: "/Inventory?handler=ItemStockChange",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
-                        if (response.indexOf("ERROR~:") !== -1) {
-                            alert("Stock not updated.");
-                        }
-                        else {
-                            var curState = $.parseJSON(response);
-                            updateInvButton(curState.allState);
-                            stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
-                            if (cur_StockInvItemId == invItemId) {
-                                cur_StockInvItemId = -1;
+                            if (response.indexOf("ERROR~:") !== -1) {
+                                alert("Stock not updated.");
                             }
-                        }
-                    },
+                            else {
+                                var curState = $.parseJSON(response);
+                                updateInvButton(curState.allState);
+                                stockBtn.className = (curState.invItemState.state !== INV_ISTATE) ? "NormInput" : "InvInput";
+                                if (cur_StockInvItemId == invItemId) {
+                                    cur_StockInvItemId = -1;
+                                }
+                            }
+                        },
                     finally: function (response) {
                         $("body").css("cursor", "default");
-                    }
+                }
 
                 });
             }
@@ -343,142 +344,159 @@
             function setInvMode(bSet) {
 
                 $("body").css("cursor", "progress");
-                var parameters = "{'set':'" + bSet + "'}";
+                    var parameters = "{'set':'" + bSet + "'}";
                 $.ajax({
-                    url: "/Inventory?handler=SetInvMode",
+                        url: "/Inventory?handler=SetInvMode",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
-                        if (response.indexOf("ERROR~:") !== -1) {
+                            if (response.indexOf("ERROR~:") !== -1) {
                             $("body").css("cursor", "default");
-                            alert("Inv Mode not changed.");
-                        }
-                        else {
-                            var curState = $.parseJSON(response);
-                            updateInvButton(curState.allState);
-                        }
-                    },
+                                alert("Inv Mode not changed.");
+                            }
+                            else {
+                                var curState = $.parseJSON(response);
+                                updateInvButton(curState.allState);
+                            }
+                        },
                     fail: function (response) {
                         $("body").css("cursor", "default");
-                    }
-                });
+                        }
+                    });
             }
 
             function emailInv() {
 
-                var parameters = "{'user':" + "'@User.Identity.Name'" + "}";
+                    var parameters = "{'user':" + "'@User.Identity.Name'" + "}";
                 $.ajax({
-                    url: "/Inventory?handler=EMailInv",
+                        url: "/Inventory?handler=EMailInv",
                     contentType: "application/json",
                     dataType: "json",
                     data: parameters,
                     success: function (response) {
-                        if (response.indexOf("ERROR~:") !== -1) {
-                            alert("Failed to E-Mail Inventory");
-                        }
-                        else {
-                            alert(response);
-                        }
-                    },
+                            if (response.indexOf("ERROR~:") !== -1) {
+                                alert("Failed to E-Mail Inventory");
+                            }
+                            else {
+                                alert(response);
+                            }
+                        },
                     fail: function (response) {
                         $("body").css("cursor", "default");
-                    }
-                });
+                        }
+                    });
             }
 
             function encodeQuotes(str) {
-                return str.replace(/\"/g, "^^").replace(/\'/g, "^");
+                    return str.replace(/\"/g, "^^").replace(/\'/g, "^");
             }
-            function decodeQuotes(str) {
-                return str.replace(/^^/g, "\"").replace(/^/g, "'");
-            }
+                function decodeQuotes(str) {
+                    return str.replace(/^^/g, "\"").replace(/^/g, "'");
+                }
 
-            function invBeforeUnload() {
-                updateStock(cur_StockInvItemId);
-            }
+                function invBeforeUnload() {
+                    updateStock(cur_StockInvItemId);
+                }
 
         $(document).ready(function(){
             $("[data-toggle=popover]").popover();
 
             $(document).on('click', '.popover', function (e) {
-                var offset = $(this).offset();
-                var lastChild = this.lastChild;
-                var fullX = lastChild.offsetWidth;
-                var fullY = lastChild.offsetHeight;
-                var relX = (e.pageX - offset.left);
-                var relY = ((e.pageY - offset.top) - lastChild.offsetTop);
-                var xrat = relX / fullX;
-                var yrat = relY / fullY;
-                if ((xrat < 0) || (yrat < 0) || (xrat > 1) || (yrat > 1)) {
-                    return;
-                }
-                var row = (yrat > 0.4833) ? 1 : 0;
-                let outer = lastChild.outerHTML;
-                let offStart = outer.indexOf("id=\"pid");
-                let offEnd = outer.indexOf("\" src=");
-                let invItemId = "";
-                if ((offStart != -1) && (offEnd != -1)) {
-                    invItemId = outer.substring(offStart + 7, offEnd);
-                    let stockBtn = document.querySelector("#" + "iid" + invItemId);
-                    if (xrat < 0.1847) {
-                        stockBtn.value = (row === 0) ? 0 : 1.2;
-                    } else if (xrat < 0.3378) {
-                        stockBtn.value = (row === 0) ? 0.2 : 1.4;
-                    } else if (xrat < 0.4955) {
-                        stockBtn.value = (row === 0) ? 0.4 : 1.6;
-                    } else if ((row === 0) && (xrat < 0.5414)) {
-                        stockBtn.value = 0.5;
-                    } else if (xrat < 0.6486) {
-                        stockBtn.value = (row === 0) ? 0.6 : 1.8;
-                    } else if (xrat < 0.8018) {
-                        stockBtn.value = (row === 0) ? 0.8 : 2;
-                    } else  {
-                        stockBtn.value = (row === 0) ? 1 : 3;
-                    }
-                    updateStock(invItemId);
-                }
+                        var offset = $(this).offset();
+                        var lastChild = this.lastChild;
+                        var fullX = lastChild.offsetWidth;
+                        var fullY = lastChild.offsetHeight;
+                        var relX = (e.pageX - offset.left);
+                        var relY = ((e.pageY - offset.top) - lastChild.offsetTop);
+                        var xrat = relX / fullX;
+                        var yrat = relY / fullY;
+                        if ((xrat < 0) || (yrat < 0) || (xrat > 1) || (yrat > 1)) {
+                            return;
+                        }
+                        var row = (yrat > 0.4833) ? 1 : 0;
+                        let outer = lastChild.outerHTML;
+                        let offStart = outer.indexOf("id=\"pid");
+                        let offEnd = outer.indexOf("\" src=");
+                        let invItemId = "";
+                        if ((offStart != -1) && (offEnd != -1)) {
+                            invItemId = outer.substring(offStart + 7, offEnd);
+                            let stockBtn = document.querySelector("#" + "iid" + invItemId);
+                            if (xrat < 0.1847) {
+                                stockBtn.value = (row === 0) ? 0 : 1.2;
+                            } else if (xrat < 0.3378) {
+                                stockBtn.value = (row === 0) ? 0.2 : 1.4;
+                            } else if (xrat < 0.4955) {
+                                stockBtn.value = (row === 0) ? 0.4 : 1.6;
+                            } else if ((row === 0) && (xrat < 0.5414)) {
+                                stockBtn.value = 0.5;
+                            } else if (xrat < 0.6486) {
+                                stockBtn.value = (row === 0) ? 0.6 : 1.8;
+                            } else if (xrat < 0.8018) {
+                                stockBtn.value = (row === 0) ? 0.8 : 2;
+                            } else  {
+                                stockBtn.value = (row === 0) ? 1 : 3;
+                            }
+                            updateStock(invItemId);
+                        }
                 $(this).popover('hide');
-            });
+                    });
             $(document).on('blur','.popover', function(){
                $(this).popover('hide');
-            });
+                    });
 
             $(".InInvName").click(function (e) {
 
-                var rect = e.target.getBoundingClientRect();
-                if ((e.clientX - rect.left) / rect.width >= 0.8) {
-                    window.location.href = e.target.getAttribute("openUrl");
-                }
-            });
+                        var rect = e.target.getBoundingClientRect();
+                        if ((e.clientX - rect.left) / rect.width >= 0.8) {
+                            window.location.href = e.target.getAttribute("openUrl");
+                        }
+                    });
 
-        });
+            $("#InvTypeSel").change(function () {
+                        let selVal = document.getElementById("InvTypeSel").value;
+                        window.location.href = window.location.href.split('?')[0] + "?InvType=" + selVal;
+                    });
+                });
 
         </script>
     </head>
     <body onbeforeunload="invBeforeUnload()">
         <div class="container space-between">
             @{
-                bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
-                string InvType = Request.Query["InvType"];
-                if (String.IsNullOrEmpty(InvType)) InvType = "0";
-                string SelectStr = "<select>\n<option value=\"0\" " + ((InvType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((InvType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
-            }
-            @Html.Raw(SelectStr)
-            <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
-            <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
-            <div><button id="emailBtn" onClick="emailInv()"></button></div>
-        </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Cur</th>
-                    <th>Units</th>
-                    <th>Item</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
+                    bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
+                    string invType = Request.Query["InvType"];
+                    if (String.IsNullOrEmpty(invType)) invType = "0";
+                    string SelectStr = "<select id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
+                }
+                @Html.Raw(SelectStr)
+                <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
+    
+                <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
+    
+                <div><button id="emailBtn" onClick="emailInv()"></button></div>
+    
+            </div>
+    
+            <table class="table">
+    
+                <thead>
+    
+                    <tr>
+    
+                        <th>Cur</th>
+    
+                        <th>Units</th>
+    
+                        <th>Item</th>
+    
+                        <th></th>
+    
+                    </tr>
+    
+                </thead>
+    
+                <tbody>
                 @{ int LastZone = -1, CurZone, ZoneCnt = 0;
                     string LastBCol = "#FFFF00";
                     string[] bkRowColors =   { "#FFD0D0", "#FFF2CE", "#FFFFC8", "#D8FFD0", "#D0F8FF", "#D0D8FF", "#F0D0FF" };
@@ -494,57 +512,57 @@
                 {
                     <tr>
                         @{
-                            CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
-                            if (CurZone != LastZone)
-                            {
-                                LastZone = CurZone;
-                                ZoneCnt = 1;
-                            }
-                            else
-                            {
-                                ++ZoneCnt;
-                            }
-                            var bcolIdx = (CurZone - 1) % bkRowColors.Length;
-                            var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
-                            if (bcol == LastBCol)
-                                 bcol = (((ZoneCnt+1) % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
-                            LastBCol = bcol;
-
-                            string fid = "fid" + item.ItemId;
-                            string iid = "iid" + item.ItemId;
-                            string sid = "sid" + item.ItemId;
-                            string pid = "pid" + item.ItemId;
-                            string inputType;
-                            string onClickFunc;
-                            string onChangeFunc;
-                            string onFocusFunc;
-                            string inputClass;
-                            string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                            if (item.State == IndexInvModel.ASSIGNED_STATE)
-                            {
-                                inputType = "button";
-                                inputClass = "StockBtn";
-                                if (curStock.Length == 0)
-                                    curStock = "In?";
-                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                                onChangeFunc = "";
-                                onFocusFunc = "";
-                            }
-                            else
-                            {
-                                inputType = "text";
-                                onClickFunc = "";
-                                inputClass = (item.State == IndexInvModel.INV_STATE) ? "InvInput" : "NormInput";
-                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                                onChangeFunc = "updateStock(" + item.ItemId + ")";
-                                onFocusFunc = "onFocus(" + item.ItemId + ")";
-                            }
+                        CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
+                        if (CurZone != LastZone)
+                        {
+                            LastZone = CurZone;
+                            ZoneCnt = 1;
                         }
+                        else
+                        {
+                            ++ZoneCnt;
+                        }
+                        var bcolIdx = (CurZone - 1) % bkRowColors.Length;
+                        var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
+                        if (bcol == LastBCol)
+                            bcol = (((ZoneCnt+1) % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
+                        LastBCol = bcol;
+
+                        string fid = "fid" + item.ItemId;
+                        string iid = "iid" + item.ItemId;
+                        string sid = "sid" + item.ItemId;
+                        string pid = "pid" + item.ItemId;
+                        string inputType;
+                        string onClickFunc;
+                        string onChangeFunc;
+                        string onFocusFunc;
+                        string inputClass;
+                        string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                        if (item.State == IndexInvModel.ASSIGNED_STATE)
+                        {
+                            inputType = "button";
+                            inputClass = "StockBtn";
+                            if (curStock.Length == 0)
+                                curStock = "In?";
+                            onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                            onChangeFunc = "";
+                            onFocusFunc = "";
+                        }
+                        else
+                        {
+                            inputType = "text";
+                            onClickFunc = "";
+                            inputClass = (item.State == IndexInvModel.INV_STATE) ? "InvInput" : "NormInput";
+                            onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                            onChangeFunc = "updateStock(" + item.ItemId + ")";
+                            onFocusFunc = "onFocus(" + item.ItemId + ")";
+                        }
+                    }
                         <td style="background-color:@bcol">
                             @{
-                                CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
-                                var unitsStr = units.ToString();
-                            }
+                        CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
+                        var unitsStr = units.ToString();
+                    }
                             <form id="@fid">
                                 <input invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
                             </form>
@@ -557,8 +575,8 @@
                                 </div>
                             }
                             else
-                            {
-                                @unitsStr
+                {
+                    @unitsStr
                             }
                         </td>
                         <td style="background-color:@bcol">
@@ -567,7 +585,7 @@
                                 <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
                             }
                             else
-                            {
+                {
                                <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
                             }
 
@@ -575,8 +593,8 @@
                         <td style="background-color:@bcol">
 
                             @{
-                                IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
-                            }
+                    IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
+                }
                             <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
                             @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

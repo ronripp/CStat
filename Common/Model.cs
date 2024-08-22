@@ -202,7 +202,7 @@ namespace CStat.Models
             tablets = 14
         };
 
-        public enum ItemZone
+        public enum ItemZoneM
         {
             unknown = 0,
             Office = 1,
@@ -214,8 +214,24 @@ namespace CStat.Models
             Laundry_Room = 7,
             Basement_Tanks = 8,
             Basement_Heater = 9,
-            Hall_Wash_Closet = 10
+            Hall_Wash_Closet = 10,
         };
+
+        public enum ItemZoneF
+        {
+            unknown = 0,
+            Front_Shelves = 101,
+            Front_Refrigs = 102,
+            Mid_Shelves = 103,
+            Walk_In_Refrig = 104,
+            Walk_In_Freezer = 105,
+            Back_Refrigs = 106,
+            Rack_Near_Oven = 107,
+            Basement_Shelves = 108,
+            Other_1 = 109,
+            Other_2 = 110
+        };
+
 
         public static string GetInventoryReport(CStatContext context, IConfiguration config, bool justNeeded, out string subject, bool withHdr)
         {

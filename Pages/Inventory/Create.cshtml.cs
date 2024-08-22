@@ -54,7 +54,7 @@ namespace CStat
 
             InventoryItem = new InventoryItem();
             InventoryItem.Units = (int)InventoryItem.ItemUnits.unknown;
-            InventoryItem.Zone = (int)InventoryItem.ItemZone.unknown;
+            InventoryItem.Zone = (int)InventoryItem.ItemZoneM.unknown;
 
             ViewData["item"] = CreateItem;
             ViewData["InventoryItem"] = InventoryItem;
@@ -112,7 +112,7 @@ namespace CStat
 
             try
             {
-                CreateItem.Units = InventoryItem.Units.HasValue ? InventoryItem.Units.Value : (int)InventoryItem.ItemZone.unknown;
+                CreateItem.Units = InventoryItem.Units.HasValue ? InventoryItem.Units.Value : (int)InventoryItem.ItemUnits.unknown;
                 _context.Item.Add(CreateItem);
                 int res1 = await _context.SaveChangesAsync();
                 InventoryItem.ItemId = CreateItem.Id;

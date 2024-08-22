@@ -128,12 +128,21 @@
                 justify-content: space-between;
             }
 
+            #InvSt {
+                margin-left: 8px;
+            }
+
+            #InvTypeSel {
+                margin-right: 8px;
+            }
+
             #emailBtn {
                 background-image: url('/images/emailBtn.jpg');
                 background-repeat: no-repeat;
                 background-size: 100%;
                 width: 51px;
                 height: 30px;
+                margin-left: 8px;
             }
 
         </style>
@@ -470,7 +479,7 @@
                     string SelectStr = "<select id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
                 }
                 @Html.Raw(SelectStr)
-                <div><a href="Inventory\Create"> <b>+</b> New Item</a></div>
+                <div><a href="Inventory\Create?InvType=@invType"> <b>+</b> New Item</a></div>
     
                 <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
     

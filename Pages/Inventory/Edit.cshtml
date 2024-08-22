@@ -414,7 +414,9 @@
             <div class="col-sm-9 SValue">
                 @{
                     Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                    IList<SelectListItem> zlist = Enum.GetValues(typeof(InventoryItem.ItemZone)).Cast<InventoryItem.ItemZone>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
+                    IList<SelectListItem> zlist = Model.InventoryItem.Item.Status == 1 ?
+                                                     Enum.GetValues(typeof(InventoryItem.ItemZoneM)).Cast<InventoryItem.ItemZoneM>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList()
+                                                     : Enum.GetValues(typeof(InventoryItem.ItemZoneF)).Cast<InventoryItem.ItemZoneF>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
                     SelectList zdata = new SelectList(zlist, "Value", "Text");
                 }
                 <select asp-for="InventoryItem.Zone" class="form-control" asp-items="@zdata" style=" height: 2em; width: 12em; padding-bottom: 3px; padding-top: 3px"></select>

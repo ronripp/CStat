@@ -19,7 +19,6 @@
     <Compile Remove="wwwroot\tmpDBox\**" />
     <Compile Remove="wwwroot\Videos\**" />
     <Compile Remove="_debugSU\**" />
-    <Compile Remove="_Models\**" />
     <Compile Remove="__Models\**" />
     <Content Remove="CCAChurch\**" />
     <Content Remove="Common\CCAService\CCADataAccess\**" />
@@ -34,7 +33,6 @@
     <Content Remove="wwwroot\tmpDBox\**" />
     <Content Remove="wwwroot\Videos\**" />
     <Content Remove="_debugSU\**" />
-    <Content Remove="_Models\**" />
     <Content Remove="__Models\**" />
     <EmbeddedResource Remove="CCAChurch\**" />
     <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
@@ -49,7 +47,6 @@
     <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
     <EmbeddedResource Remove="wwwroot\Videos\**" />
     <EmbeddedResource Remove="_debugSU\**" />
-    <EmbeddedResource Remove="_Models\**" />
     <EmbeddedResource Remove="__Models\**" />
     <None Remove="CCAChurch\**" />
     <None Remove="Common\CCAService\CCADataAccess\**" />
@@ -64,7 +61,6 @@
     <None Remove="wwwroot\tmpDBox\**" />
     <None Remove="wwwroot\Videos\**" />
     <None Remove="_debugSU\**" />
-    <None Remove="_Models\**" />
     <None Remove="__Models\**" />
   </ItemGroup>
 

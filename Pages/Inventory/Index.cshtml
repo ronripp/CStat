@@ -476,7 +476,7 @@
                     bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
                     string invType = Request.Query["InvType"];
                     if (String.IsNullOrEmpty(invType)) invType = "0";
-                    string SelectStr = "<select id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
+                    string SelectStr = "<select style=\"font-weight:bold\" id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
                 }
                 @Html.Raw(SelectStr)
                 <div><a href="Inventory\Create?InvType=@invType"> <b>+</b> New Item</a></div>

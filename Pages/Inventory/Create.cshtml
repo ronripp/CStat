@@ -324,7 +324,7 @@
                         SelectList data = new SelectList(list, "Value", "Text");
                         var Selected = list[(Model.InventoryItem.Units.HasValue ? Model.InventoryItem.Units.Value : 0)].Text;
                     }
-                    <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 6.5em; padding-bottom: 3px; padding-top: 3px"></select>
+                    <select asp-for="InventoryItem.Units" class="form-control" asp-items="@data" onchange="changeUnits(this)" style="height: 2em; width: 7.5em; padding-bottom: 3px; padding-top: 3px"></select>
                     <span asp-validation-for="InventoryItem.Units" class="text-danger"></span>
                 </div>
             </div>

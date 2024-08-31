@@ -71,6 +71,9 @@ namespace CStat
             if (EditItem.Upc == null)
                 EditItem.Upc = "";
 
+            if (!InventoryItem.Expires.HasValue)
+                InventoryItem.Expires = new DateTime();
+
             ViewData["item"] = EditItem;
             ViewData["InventoryItem"] = InventoryItem;
             ViewData["UPCError"] = "";
@@ -127,7 +130,10 @@ namespace CStat
             tidsToDel.Add(GetBuyTransaction(2, Buy2URL));
             tidsToDel.Add(GetBuyTransaction(3, Buy3URL));
 
-            _context.Attach(InventoryItem).State = EntityState.Modified;
+            if (InventoryItem.Expires == DateTime.MinValue)
+                InventoryItem.Expires = null;
+
+                _context.Attach(InventoryItem).State = EntityState.Modified;
             _context.Attach(EditItem).State = EntityState.Modified;
 
             try

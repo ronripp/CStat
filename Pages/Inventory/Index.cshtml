@@ -179,7 +179,11 @@
                         var False = false;
 
                         function onFocus(invItemId) {
+                            if (cur_StockInvItemId != -1) {
+                                document.getElementById("sl" + cur_StockInvItemId).style.display = "none";
+                            }
                             cur_StockInvItemId = invItemId;
+                            document.getElementById("sl" + invItemId).style.display = "inline-block";
                         }
 
                         window.addEventListener("pageshow", function (event) {
@@ -594,8 +598,10 @@
                                 <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
                             }
                             else
-                {
+                            {
+                                var slid = "sl" + item.Id;
                                <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
+                               <div id="@slid" style="display:none; color:red">Expires [12/26/25] [...]"</div> 
                             }
 
                         </td>

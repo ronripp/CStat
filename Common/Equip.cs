@@ -84,11 +84,11 @@ namespace CStat.Common
         public string Attributes { get; set; } = "";
         public bool IsPropane ()
         {
-            return (this.PropName == "propaneTank");
+            return this.PropName.Equals("propaneTank", StringComparison.OrdinalIgnoreCase);
         }
         public bool IsTypePowerOn()
         {
-            return (this.PropName == "powerOn");
+            return this.PropName.Equals("powerOn", StringComparison.OrdinalIgnoreCase);
         }
 
         public List<KeyValuePair<string, double>> GetProps()
@@ -242,8 +242,9 @@ namespace CStat.Common
         {
             if (LastARs == null)
             {
+                // Note: Most recent AR already added so PriorAR = LastAr = LastARs[Count-2]
                 LastARs = GetLastRecords(NumCheckARs);
-                LastAR = LastARs.Last() ?? null;
+                LastAR = ((LastARs != null) && (LastARs.Count > 1)) ? (LastARs[LastARs.Count-2] ?? null) : null;
             }
 
             ArdRecord ar = GetArdRecord(jsonStr);

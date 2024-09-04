@@ -600,10 +600,10 @@
                             else
                             {
                                 var slid = "sl" + item.Id;
-                                var expDate = item.Expires.HasValue ? "E:" + item.Expires.Value.ToString("%M-yy") : "";
+                                var expDate = item.Expires.HasValue ? ((DateTime.Now > item.Expires.Value) ? "\u274C" : "\u2705") + item.Expires.Value.ToString("%M-yy") : "";
 
                                <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
-                               <div id="@slid" style="display:none; color:red">@expDate]</div> 
+                               <div id="@slid" style="display:none; color:red">@expDate</div> 
                             }
 
                         </td>

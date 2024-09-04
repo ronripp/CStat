@@ -1,1 +1,1 @@
-freezerTemp:41,frigTemp:36,kitchTemp:58,waterPres:93,powerOn:367,analog5:329,time:"10/23/23 6:30:05 PM"
+freezerTemp:-3,frigTemp:33,kitchTemp:64,waterPres:91,powerOn:320,analog5:309,time:"9/4/24 12:17:13 AM"

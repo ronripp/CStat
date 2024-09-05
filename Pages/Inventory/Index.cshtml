@@ -152,7 +152,7 @@
             @{
                             string StockType;
                             string InvType = Request.Query["InvType"];
-                            if (String.IsNullOrEmpty(InvType)) InvType = "0";
+                            if (String.IsNullOrEmpty(InvType)) InvType = "1";
                             switch (InvType)
                             {
                                 case "1":
@@ -178,13 +178,13 @@
                         var True = true;
                         var False = false;
 
-                        function onFocus(invItemId) {
-                            if (cur_StockInvItemId != -1) {
-                                document.getElementById("sl" + cur_StockInvItemId).style.display = "none";
-                            }
-                            cur_StockInvItemId = invItemId;
-                            document.getElementById("sl" + invItemId).style.display = "inline-block";
-                        }
+                        //NEWfunction onFocus(invItemId) {
+                        //NEW    if (cur_StockInvItemId != -1) {
+                        //NEW        document.getElementById("sl" + cur_StockInvItemId).style.display = "none";
+                        //NEW    }
+                        //NEW    cur_StockInvItemId = invItemId;
+                        //NEW    document.getElementById("sl" + invItemId).style.display = "inline-block";
+                        //NEW}
 
                         window.addEventListener("pageshow", function (event) {
                             var historyTraversal = event.persisted ||
@@ -479,7 +479,7 @@
             @{
                     bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
                     string invType = Request.Query["InvType"];
-                    if (String.IsNullOrEmpty(invType)) invType = "0";
+                    if (String.IsNullOrEmpty(invType)) invType = "1";
                     string SelectStr = "<select style=\"font-weight:bold\" id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
                 }
                 @Html.Raw(SelectStr)
@@ -525,57 +525,57 @@
                 {
                     <tr>
                         @{
-                        CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
-                        if (CurZone != LastZone)
-                        {
-                            LastZone = CurZone;
-                            ZoneCnt = 1;
-                        }
-                        else
-                        {
-                            ++ZoneCnt;
-                        }
-                        var bcolIdx = (CurZone - 1) % bkRowColors.Length;
-                        var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
-                        if (bcol == LastBCol)
-                            bcol = (((ZoneCnt+1) % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
-                        LastBCol = bcol;
+                            CurZone = (item.Zone.HasValue && (item.Zone.Value > 0)) ? item.Zone.Value : 1025;
+                            if (CurZone != LastZone)
+                            {
+                                LastZone = CurZone;
+                                ZoneCnt = 1;
+                            }
+                            else
+                            {
+                                ++ZoneCnt;
+                            }
+                            var bcolIdx = (CurZone - 1) % bkRowColors.Length;
+                            var bcol = ((ZoneCnt % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
+                            if (bcol == LastBCol)
+                                bcol = (((ZoneCnt + 1) % 2) != 0) ? bkRowColors[bcolIdx] : bkRowLiteCols[bcolIdx];
+                            LastBCol = bcol;
 
-                        string fid = "fid" + item.ItemId;
-                        string iid = "iid" + item.ItemId;
-                        string sid = "sid" + item.ItemId;
-                        string pid = "pid" + item.ItemId;
-                        string inputType;
-                        string onClickFunc;
-                        string onChangeFunc;
-                        string onFocusFunc;
-                        string inputClass;
-                        string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
-                        if (item.State == IndexInvModel.ASSIGNED_STATE)
-                        {
-                            inputType = "button";
-                            inputClass = "StockBtn";
-                            if (curStock.Length == 0)
-                                curStock = "In?";
-                            onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                            onChangeFunc = "";
-                            onFocusFunc = "";
-                        }
-                        else
-                        {
-                            inputType = "text";
-                            onClickFunc = "";
-                            inputClass = (item.State == IndexInvModel.INV_STATE) ? "InvInput" : "NormInput";
-                            onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
-                            onChangeFunc = "updateStock(" + item.ItemId + ")";
-                            onFocusFunc = "onFocus(" + item.ItemId + ")";
-                        }
-                    }
-                        <td style="background-color:@bcol">
+                            string fid = "fid" + item.ItemId;
+                            string iid = "iid" + item.ItemId;
+                            string sid = "sid" + item.ItemId;
+                            string pid = "pid" + item.ItemId;
+                            string inputType;
+                            string onClickFunc;
+                            string onChangeFunc;
+                            string onFocusFunc;
+                            string inputClass;
+                            string curStock = (item.CurrentStock.HasValue && (item.CurrentStock.Value > 0)) ? item.CurrentStock.Value.ToString() : "";
+                            if (item.State == IndexInvModel.ASSIGNED_STATE)
+                            {
+                                inputType = "button";
+                                inputClass = "StockBtn";
+                                if (curStock.Length == 0)
+                                    curStock = "In?";
+                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                                onChangeFunc = "";
+                                onFocusFunc = "";
+                            }
+                            else
+                            {
+                                inputType = "text";
+                                onClickFunc = "";
+                                inputClass = (item.State == IndexInvModel.INV_STATE) ? "InvInput" : "NormInput";
+                                onClickFunc = "{this.select(); itemStateChange(" + item.ItemId + ", true);}";
+                                onChangeFunc = "updateStock(" + item.ItemId + ")";
+                                onFocusFunc = "onFocus(" + item.ItemId + ")";
+                            }
+                         }
+                         <td style="background-color:@bcol">
                             @{
-                        CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
-                        var unitsStr = units.ToString();
-                    }
+                                CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
+                                var unitsStr = units.ToString();
+                            }
                             <form id="@fid">
                                 <input invItemId="@item.ItemId" type="@inputType" id="@iid" class="@inputClass" onclick="@onClickFunc" onchange="@onChangeFunc" onfocus="@onFocusFunc" value="@curStock" />
                             </form>
@@ -588,22 +588,24 @@
                                 </div>
                             }
                             else
-                {
-                    @unitsStr
+                            {
+                                @unitsStr
                             }
                         </td>
                         <td style="background-color:@bcol">
+                            @{
+                               //var slid = "sl" + item.Id;
+                               var expDate = item.Expires.HasValue ? ((DateTime.Now > item.Expires.Value) ? "\u274C" : "\u2705") + item.Expires.Value.ToString("%M-yy") : "";
+                            }
                             @if (!InInv)
                             {
-                                <a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a>
+                                <span><a href="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</a></span>
+                                <span style="display:inline-block; color:red">@expDate</span>
                             }
                             else
                             {
-                                var slid = "sl" + item.Id;
-                                var expDate = item.Expires.HasValue ? ((DateTime.Now > item.Expires.Value) ? "\u274C" : "\u2705") + item.Expires.Value.ToString("%M-yy") : "";
-
-                               <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
-                               <div id="@slid" style="display:none; color:red">@expDate</div> 
+                                <span class="InInvName" openUrl="Inventory\Edit?id=@item.Id">@Html.DisplayFor(modelItem => item.Item.Name)</span>
+                                <span style="display:inline-block; color: red">@expDate</span>
                             }
 
                         </td>

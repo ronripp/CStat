@@ -107,7 +107,7 @@ namespace CStat
 
         public IList<InventoryItem> InventoryItems { get; set; }
 
-        public async Task OnGetAsync(int InvType=0)
+        public async Task OnGetAsync(int InvType=1)
         {
             _InvType = InvType;
 

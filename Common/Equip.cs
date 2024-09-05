@@ -84,11 +84,11 @@ namespace CStat.Common
         public string Attributes { get; set; } = "";
         public bool IsPropane ()
         {
-            return this.PropName.Equals("propaneTank", StringComparison.OrdinalIgnoreCase);
+            return this.Active && this.PropName.Equals("propaneTank", StringComparison.OrdinalIgnoreCase);
         }
         public bool IsTypePowerOn()
         {
-            return this.PropName.Equals("powerOn", StringComparison.OrdinalIgnoreCase);
+            return this.Active && this.PropName.Equals("powerOn", StringComparison.OrdinalIgnoreCase);
         }
 
         public List<KeyValuePair<string, double>> GetProps()
@@ -182,7 +182,7 @@ namespace CStat.Common
             if (double.TryParse(waterPress, out _WaterPress))
                 WaterPress = _WaterPress*0.547619 + 3.5;
             if (double.TryParse(powerOn, out double _PowerOn))
-                PowerOn = (_PowerOn >= 300) ? 100 : 0;
+                PowerOn = (_PowerOn >= 290) ? 100 : 0;
             if (double.TryParse(analog5, out double _Analog5))
                 Analog5 = _Analog5;
             TimeStamp = timeStamp;

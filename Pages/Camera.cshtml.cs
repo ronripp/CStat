@@ -37,7 +37,7 @@ namespace CStat.Pages
             
         }
 
-        public void OnGet(int op)
+        public void OnGet(int cam, int op)
         {
             try
             {

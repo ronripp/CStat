@@ -22,7 +22,7 @@
             }
 
             .table td {
-                padding: 0.5rem;
+                padding: 0.2rem;
             }
 
             /*tr:nth-child(even) {background-color: #FFFFD0;}*/
@@ -36,7 +36,7 @@
                 color: black;
                 text-align: center;
                 text-decoration: none;
-                display: inline-block;
+                display: inline;
                 cursor: pointer;
             }
 
@@ -113,7 +113,6 @@
             MenuTD {
                 min-width: 50%;
                 width: 50%;
-                color:
             }
 
             .container {
@@ -610,14 +609,14 @@
 
                         </td>
                         <td style="background-color:@bcol">
-
+                            
                             @{
                     IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
-                }
-                            <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
+                            }
+                            <span>&#x29c9;<button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button></span>
                             @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
+        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@
 
                         </td>
                     </tr>

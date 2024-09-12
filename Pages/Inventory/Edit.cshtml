@@ -4,7 +4,7 @@
 @Html.AntiForgeryToken()
 
 @{
-    //Layout = "_LayoutAction";
+    Layout = "_LayoutItem";
     ViewData["Title"] = "Edit Item";
     var photoPath = "~/items/ItmImg_" + (((Model.EditItem.Upc != null) && (Model.EditItem.Upc.Length > 0)) ? Model.EditItem.Upc.Trim() + ".jpg" : "noimage.jpg");
     string UPCError = (ViewData["UPCError"] != null) ? (string)ViewData["UPCError"] : "";
@@ -509,7 +509,7 @@
                 <input type="submit" value="Save" id="SubmitId2" class="btn btn-primary" />
             </span>
             <span class="col-md-2">
-                <input type="button" onclick="window.history.go(-1)" value="Cancel" />
+                <input type="button" onclick="window.history.go(-1)" id="CancelId2" value="Cancel" />
             </span>
             <span class="col-md-2">
                 <input type="button" id="DelBtn" value="Delete" class="alignRight" style="background-color: #FFCCCC" />

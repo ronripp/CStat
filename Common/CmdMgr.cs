@@ -1807,8 +1807,8 @@ namespace CStat.Common
                             sshFileName = ssh.FileName;
                             if (!isOnly)
                             {
-                                ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail");
-                                ssh.SetPad(16, 16, 1, 10, 30, 20, 15, 4, 11, 13, 25);
+                                ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail", "Church");
+                                ssh.SetPad(16, 16, 1, 10, 30, 20, 15, 4, 11, 13, 25, 25);
                             }
                             else if (MailingOnly)
                             {

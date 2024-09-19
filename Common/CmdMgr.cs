@@ -24,6 +24,12 @@ namespace CStat.Common
 
         public delegate string HandleSrcDel(List<string> words);
 
+        public class PCh
+        {
+            public Person person { get; set; }
+            public Church church { get; set; }
+        }
+
         public enum CmdAction
         {
             FIND         = 0x00000000,
@@ -1383,9 +1389,6 @@ namespace CStat.Common
                 var word = words[i];
                 var match = CmdActionList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
 
-
-
-
                 if (!string.IsNullOrEmpty(match))
                 {
                     _cmdAction = (CmdAction)Enum.Parse(typeof(CmdAction), match);
@@ -1415,9 +1418,17 @@ namespace CStat.Common
             _cmdFormat = CmdFormat.TEXT; // default to FIND
             var NumWords = words.Count;
             var CmdFormatList = Enum.GetNames(typeof(CmdFormat)).Cast<string>().ToList();
+            bool lastTrySheets = false;
+            int lastTrySheetsIndex = -1;
             for (int i = 0; i < NumWords; ++i)
             {
                 var word = words[i];
+                if ((_cmdSrc != CmdSource.INVENTORY) && ((word == "sheet") || (word == "sheets")))
+                {
+                    lastTrySheets = true;
+                    lastTrySheetsIndex = i;
+                }
+
                 var match = CmdFormatList.Find(c => c.Equals(word, StringComparison.InvariantCultureIgnoreCase));
                 if (!string.IsNullOrEmpty(match))
                 {
@@ -1432,6 +1443,11 @@ namespace CStat.Common
                     _cmdFormatIdx = i;
                     break;
                 }
+            }
+            if ((_cmdFormat == CmdFormat.TEXT) && lastTrySheets)
+            {
+                _cmdFormat = CmdFormat.EXCEL;
+                _cmdFormatIdx = lastTrySheetsIndex;
             }
 
             return true;
@@ -1694,14 +1710,14 @@ namespace CStat.Common
             if (_cmdSrc == CmdSource.TRUSTEE)
             {
                 EMailTitle = "CCA Trustees";
-                people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).ToList();
+                people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).Include(p => p.Church).ToList();
             }
             else if (_cmdSrc == CmdSource.EC)
             {
                 //President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000
                 EMailTitle = "CCA Executive Committee";
                 long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
-                people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).ToList();
+                people = _context.Person.Where(p => p.Roles.HasValue && (p.Roles.Value & ECRoles) != 0).Include(p => p.Address).Include(p => p.Church).ToList();
             }
 
             if (people == null)
@@ -1709,12 +1725,12 @@ namespace CStat.Common
                 if (FindSpecificName(words, out string fName, out string lName, out string name))
                 {
                     people = (!string.IsNullOrEmpty(name))
-                             ? _context.Person.Where(p => (p.FirstName.StartsWith(name) || (p.LastName.StartsWith(name)))).Include(p => p.Address).ToList()
+                             ? _context.Person.Where(p => (p.FirstName.StartsWith(name) || (p.LastName.StartsWith(name)))).Include(p => p.Address).Include(p => p.Church).ToList()
                              : (!string.IsNullOrEmpty(fName) && !string.IsNullOrEmpty(lName))
-                                ? _context.Person.Where(p => (p.FirstName.StartsWith(fName)) && (p.LastName.StartsWith(lName))).Include(p => p.Address).ToList()
+                                ? _context.Person.Where(p => (p.FirstName.StartsWith(fName)) && (p.LastName.StartsWith(lName))).Include(p => p.Address).Include(p => p.Church).ToList()
                                 : (!string.IsNullOrEmpty(fName))
-                                  ? _context.Person.Where(p => p.FirstName.StartsWith(fName)).Include(p => p.Address).ToList()
-                                  : _context.Person.Where(p => p.LastName.StartsWith(lName)).Include(p => p.Address).ToList();
+                                  ? _context.Person.Where(p => p.FirstName.StartsWith(fName)).Include(p => p.Address).Include(p => p.Church).ToList()
+                                  : _context.Person.Where(p => p.LastName.StartsWith(lName)).Include(p => p.Address).Include(p => p.Church).ToList();
                 }
 
                 if ((_cmdSrcIdx != -1) || (_cmdSrc == CmdSource.PERSON))
@@ -1826,11 +1842,27 @@ namespace CStat.Common
                                 ssh.SetPad(16, 16, 13);
                             }
 
-                            foreach (var p in people.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
+                            // Handle person.Church is not a valid property for LINQ (get fails)
+                            List<PCh> pchs = new List<PCh>();
+                            foreach (var p in people)
                             {
+                                Church c;
+                                c = (p.Church == null) ?
+                                      new Church { Name = "", Affiliation = "ICCOC", Id = 0 }
+                                    : new Church { Name = p.Church.Name, Affiliation = p.Church.Affiliation, Id = p.Church.Id, MembershipStatus=p.Church.MembershipStatus };
+                                pchs.Add(new PCh { person = p, church = c });
+                            }
+                            var apeople = pchs.OrderBy(p => p.person.LastName).ThenBy(p => p.person.FirstName);
+
+                            foreach (var pc in apeople)
+                            {
+                                var p = pc.person;
+                                var c = pc.church;
                                 var fn = p.FirstName;
                                 var ln = p.LastName;
                                 var a = p?.Address;
+
+                                string cn = (a.Id != 0) ? c.Name : "???";
 
                                 if (MailingOnly)
                                 {
@@ -1863,7 +1895,7 @@ namespace CStat.Common
                                 var gender = Person.GetGender(p);
                                 var dob = Person.GetDOB(p);
                                 var serve = Person.GetRoleStr(p) + Person.GetSkillStr(p);
-                                ssh.AddRow(fn, ln, gender, dob, serve, Address.GetStreet(a), Address.GetTown(a), Address.GetState(a), Address.GetZip(a), phone, eMail);
+                                ssh.AddRow(fn, ln, gender, dob, serve, Address.GetStreet(a), Address.GetTown(a), Address.GetState(a), Address.GetZip(a), phone, eMail, c.Name);
                             }
                         }
 
@@ -3135,7 +3167,5 @@ namespace CStat.Common
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
     }
-
-
 
 }

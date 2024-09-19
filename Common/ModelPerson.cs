@@ -1976,7 +1976,11 @@ namespace CStat.Models
         }
         public string GetECRole()
         {
-            switch ((Person.TitleRoles)(this.Roles ?? 0))
+            long RoleMask = (long)TitleRoles.President | (long)Person.TitleRoles.Treasurer | (long)Person.TitleRoles.Secretary | (long)Person.TitleRoles.Vice_Pres | (long)Person.TitleRoles.Memb_at_Lg;
+            if (!this.Roles.HasValue)
+                return "";
+            Person.TitleRoles role = (Person.TitleRoles)(this.Roles.Value & RoleMask);
+            switch (role)
             {
                 case Person.TitleRoles.President:
                     return "President";

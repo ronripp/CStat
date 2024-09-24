@@ -15,7 +15,10 @@ namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
-        private static CamOps _CamOps = new CamOps();
+        private static CamOps1 _CamOps1 = new CamOps1();
+        private static CamOps2 _CamOps2 = new CamOps2();
+        private CamOps _CamOps = null;
+
         private const COp DefaultCOp = COp.Preset4;
         private CSLogger cl = new CSLogger();
 
@@ -37,10 +40,15 @@ namespace CStat.Pages
             
         }
 
-        public void OnGet(int cam, int op)
+        public void OnGet(CamOps.Camera cam, int op)
         {
             try
             {
+                if (cam == CamOps.Camera.Camera2)
+                    _CamOps = _CamOps2;
+                else
+                    _CamOps = _CamOps1;
+
                 PtzCamera.ResetLogin();
 
                 cl.Log("CAMERA.OnGet HandleOp " + op.ToString());

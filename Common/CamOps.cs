@@ -9,17 +9,48 @@ using static CStat.Common.PtzCamera;
 
 namespace CStat.Common
 {
-    public class CamOps
+    public class CamOps1 : CamOps
     {
-        private static readonly object _qLock = new object();
-        public Queue<COp> _queue;
-        //private string _link = "";
-        public CamOps()
+        protected override object _qLock { get; set; } = null;
+        public override Queue<COp> _queue { get; set; }
+
+        public CamOps1()
         {
+            _qLock = _qLock1;
             lock (_qLock)
             {
                 _queue = new Queue<COp>();
             }
+        }
+    }
+
+    public class CamOps2 : CamOps
+    {
+        protected override object _qLock { get; set; } = null;
+        public override Queue<COp> _queue { get; set; }
+
+        public CamOps2()
+        {
+            _qLock = _qLock1;
+            lock (_qLock)
+            {
+                _queue = new Queue<COp>();
+            }
+        }
+    }
+
+    public abstract class CamOps
+    {
+        public enum Camera { Camera1 = 1, Camera2 = 2 };
+
+        protected static object _qLock1 { get; set; } = new object();
+        protected static object _qLock2 { get; set; } = new object();
+        protected abstract object _qLock { get; set; }
+        public abstract Queue<COp> _queue { get; set; }
+
+        //private string _link = "";
+        public CamOps()
+        {
         }
 
         public COp Add(COp cop)

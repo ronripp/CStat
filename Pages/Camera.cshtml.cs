@@ -18,6 +18,7 @@ namespace CStat.Pages
         private static CamOps1 _CamOps1 = new CamOps1();
         private static CamOps2 _CamOps2 = new CamOps2();
         private CamOps _CamOps = null;
+        public CamOps.Camera _cam;
 
         private const COp DefaultCOp = COp.Preset4;
         private CSLogger cl = new CSLogger();
@@ -45,11 +46,17 @@ namespace CStat.Pages
             try
             {
                 if (cam == CamOps.Camera.Camera2)
+                {
                     _CamOps = _CamOps2;
+                    _cam = CamOps.Camera.Camera2;
+                }
                 else
+                {
                     _CamOps = _CamOps1;
+                    _cam = CamOps.Camera.Camera1;
+                }
 
-                PtzCamera.ResetLogin();
+                PtzCamera.ResetLogin(_cam);
 
                 cl.Log("CAMERA.OnGet HandleOp " + op.ToString());
                 if (op == (int)PtzCamera.COp.HRSnapShot)
@@ -80,7 +87,20 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             JObject jObj = JObject.Parse(jsonQS);
-            string opVal = (string)jObj["op"];
+
+            if (!int.TryParse((string)jObj["cam"], out int cam))
+                return new JsonResult("ERROR~:Incorrect Parameters");
+            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            {
+                _CamOps = _CamOps2;
+                _cam = CamOps.Camera.Camera2;
+            }
+            else
+            {
+                _CamOps = _CamOps1;
+                _cam = CamOps.Camera.Camera1;
+            }
+
             if (!int.TryParse((string)jObj["op"], out int op))
                 return new JsonResult("ERROR~:Incorrect Parameters");
 
@@ -119,6 +139,19 @@ namespace CStat.Pages
             JObject jObj = JObject.Parse(jsonQS);
             string url = (string)jObj["url"];
 
+            if (!int.TryParse((string)jObj["cam"], out int cam))
+                return new JsonResult("ERROR~:Incorrect Parameters");
+            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            {
+                _CamOps = _CamOps2;
+                _cam = CamOps.Camera.Camera2;
+            }
+            else
+            {
+                _CamOps = _CamOps1;
+                _cam = CamOps.Camera.Camera1;
+            }
+
             try
             {
                 var link = _CamOps.GetVideo(_hostEnv, url);
@@ -140,7 +173,20 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             JObject jObj = JObject.Parse(jsonQS);
-            string opVal = (string)jObj["op"];
+
+            if (!int.TryParse((string)jObj["cam"], out int cam))
+                return new JsonResult("ERROR~:Incorrect Parameters");
+            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            {
+                _CamOps = _CamOps2;
+                _cam = CamOps.Camera.Camera2;
+            }
+            else
+            {
+                _CamOps = _CamOps1;
+                _cam = CamOps.Camera.Camera1;
+            }
+
             if (!int.TryParse((string)jObj["op"], out int op))
                 return new JsonResult("ERROR~:Incorrect Parameters");
             try
@@ -165,6 +211,20 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:No Parameters");
             var jsonQS = rawQS.Substring(idx);
             JObject jObj = JObject.Parse(jsonQS);
+
+            if (!int.TryParse((string)jObj["cam"], out int cam))
+                return new JsonResult("ERROR~:Incorrect Parameters");
+            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            {
+                _CamOps = _CamOps2;
+                _cam = CamOps.Camera.Camera2;
+            }
+            else
+            {
+                _CamOps = _CamOps1;
+                _cam = CamOps.Camera.Camera1;
+            }
+
             string exceptFile = (string)jObj["except"] ?? "";
             try
             {

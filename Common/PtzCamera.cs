@@ -138,11 +138,26 @@ public class PtzCamera : System.IDisposable
         public static DateTime _tokenTime = new DateTime(2000, 1, 1);
         private static readonly object tokenLock = new object();
         public static CSLogger gLog = null;
+        private CamOps.Camera _cam;
+        private string _host;
+
+        private static string host1 = "https://ccacamp.hopto.org:1961/api.cgi";
+        private static string host2 = "https://ccacamp.hopto.org:1962/api.cgi";
 
         private bool disposed = false;
 
-        public PtzCamera ()
+        public PtzCamera (CamOps.Camera cam)
         {
+            _cam = cam;
+            if (cam == CamOps.Camera.Camera2)
+            {
+                _host = host2;
+            }
+            else
+            {
+                _host = host1;
+            }
+
             if (gLog == null)
                 gLog = new CSLogger();
             Login();
@@ -200,7 +215,7 @@ public class PtzCamera : System.IDisposable
                 {
                     // Get Token
                     HttpReq2 req = new HttpReq2();
-                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=Login");
+                    req.Open(HttpMethod.Post, _host + "?cmd=Login");
 
                     req.AddHeaderProp("Connection","keep-alive");
                     req.AddHeaderProp("Accept","*/*");
@@ -257,7 +272,7 @@ public class PtzCamera : System.IDisposable
                 {
                     // Get Token
                     HttpReq2 req = new HttpReq2();
-                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=Logout&token=" + tok);
+                    req.Open(HttpMethod.Post, _host + "?cmd=Logout&token=" + tok);
 
                     req.AddHeaderProp("Connection", "keep-alive");
                     req.AddHeaderProp("Accept", "*/*");
@@ -285,9 +300,9 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public static void ResetLogin()
+        public static void ResetLogin(CamOps.Camera cam)
         {
-            using (var ptz = new PtzCamera())
+            using (var ptz = new PtzCamera(cam))
             {
                 ptz.Logout(true);
             }
@@ -303,7 +318,7 @@ public class PtzCamera : System.IDisposable
 
                     // Get Picture by Preset #
                     HttpReq2 req = new HttpReq2();
-                    req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+                    req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token);
 
                     req.AddHeaderProp("Connection", "keep-alive");
                     req.AddHeaderProp("Accept", "*/*");
@@ -344,7 +359,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform PTZ op
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -361,7 +376,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform Stop
                 HttpReq2 req2 = new HttpReq2();
-                req2.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                req2.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -387,7 +402,7 @@ public class PtzCamera : System.IDisposable
         {
             // Get PTZ Check State
             HttpReq2 req3 = new HttpReq2();
-            req3.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
+            req3.Open(HttpMethod.Post, _host + "?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
 
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
@@ -456,7 +471,7 @@ public class PtzCamera : System.IDisposable
 
             // Get PTZ Check State
             HttpReq2 req3 = new HttpReq2();
-            req3.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
+            req3.Open(HttpMethod.Post, _host + "?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
 
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
@@ -539,12 +554,12 @@ public class PtzCamera : System.IDisposable
 
             //RJR AVOID CLIENT CERT ERROR if (!asFile)
             //RJR AVOID CLIENT CERT ERROR {
-            //RJR AVOID CLIENT CERT ERROR     return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr; //"&width=1024&height=768";
+            //RJR AVOID CLIENT CERT ERROR     return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr; //"&width=1024&height=768";
             //RJR AVOID CLIENT CERT ERROR 
-            //RJR AVOID CLIENT CERT ERROR     //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr;
-            //RJR AVOID CLIENT CERT ERROR     //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=640&height=480";
-            //RJR AVOID CLIENT CERT ERROR     //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=1024&height=768";
-            //RJR AVOID CLIENT CERT ERROR     //return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
+            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr;
+            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=640&height=480";
+            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=1024&height=768";
+            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
             //RJR AVOID CLIENT CERT ERROR }
 
             try
@@ -563,7 +578,7 @@ public class PtzCamera : System.IDisposable
 
                 byte[] content;
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
+                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
@@ -601,7 +616,7 @@ public class PtzCamera : System.IDisposable
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
             return "";
-            //RJR return "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
+            //RJR return _host + "?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token;
 
             //RJR OLDtry
             //RJR OLD{
@@ -620,7 +635,7 @@ public class PtzCamera : System.IDisposable
             //RJR OLD    }
             //RJR OLD
             //RJR OLD    //HttpReq2 req = new HttpReq2();
-            //RJR OLD    //req.Open("Post", "https://ccacamp.hopto.org:1961/api.cgi?cmd=PtzCtrl&token=" + _token);
+            //RJR OLD    //req.Open("Post", _host + "/api.cgi?cmd=PtzCtrl&token=" + _token);
             //RJR OLD
             //RJR OLD    //req.AddHeaderProp("Connection: keep-alive");
             //RJR OLD    //req.AddHeaderProp("Accept: */*");
@@ -628,7 +643,7 @@ public class PtzCamera : System.IDisposable
             //RJR OLD    //req.Send(out string sResult);
             //RJR OLD
             //RJR OLD    byte[] content;
-            //RJR OLD    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
+            //RJR OLD    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(_host + "?cmd=Download&source=" + url + "&output=" + url + "&token=" + _token);
             //RJR OLD    using (WebResponse response = request.GetResponse())
             //RJR OLD    {
             //RJR OLD        long bytesToRead = response.ContentLength + 5000;
@@ -758,7 +773,7 @@ public class PtzCamera : System.IDisposable
             //RJROLD             else
             //RJROLD                 timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + "A]";
             //RJROLD 
-            //RJROLD             //https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
+            //RJROLD             //_host + ?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
             //RJROLD 
             //RJROLD             int RMegs = (int)Math.Round((double)vf.size/1000000);
             //RJROLD             string title = " [" + RMegs + "-" + vf.StartTime.mon + "/" + vf.StartTime.day + "@" + timeStr;
@@ -826,7 +841,7 @@ public class PtzCamera : System.IDisposable
             try
             {
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/cgi-bin/api.cgi?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
+                req.Open(HttpMethod.Post, _host + "?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
 
                 req.AddHeaderProp("content-type", "application/json");
                 req.AddHeaderProp("accept","application/json");
@@ -851,7 +866,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=GetWhiteLed&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=GetWhiteLed&token=" + _token);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -868,7 +883,7 @@ public class PtzCamera : System.IDisposable
                 var SetJson = JsonConvert.SerializeObject(GWLResp);
 
                 HttpReq2 req2 = new HttpReq2();
-                req2.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=SetWhiteLed&token=" + _token);
+                req2.Open(HttpMethod.Post, _host + "?cmd=SetWhiteLed&token=" + _token);
 
                 req2.AddHeaderProp("Connection", "keep-alive");
                 req2.AddHeaderProp("Accept", "*/*");
@@ -892,7 +907,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=SetEmailV20&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=SetEmailV20&token=" + _token);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -930,7 +945,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, "https://ccacamp.hopto.org:1961/api.cgi?cmd=AudioAlarmPlay&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=AudioAlarmPlay&token=" + _token);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");

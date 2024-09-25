@@ -17,6 +17,7 @@ namespace CStat.Common
         public CamOps1()
         {
             _qLock = _qLock1;
+            _cam = Camera.Camera1;
             lock (_qLock)
             {
                 _queue = new Queue<COp>();
@@ -32,6 +33,7 @@ namespace CStat.Common
         public CamOps2()
         {
             _qLock = _qLock1;
+            _cam = Camera.Camera2;
             lock (_qLock)
             {
                 _queue = new Queue<COp>();
@@ -47,6 +49,7 @@ namespace CStat.Common
         protected static object _qLock2 { get; set; } = new object();
         protected abstract object _qLock { get; set; }
         public abstract Queue<COp> _queue { get; set; }
+        public CamOps.Camera _cam;
 
         //private string _link = "";
         public CamOps()
@@ -141,7 +144,7 @@ namespace CStat.Common
         {
             try
             {
-                using (PtzCamera ptzCam = new PtzCamera())
+                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     var link = ptzCam.GetVideo(hostEnv, url);
                     ptzCam.Logout();
@@ -161,7 +164,7 @@ namespace CStat.Common
             //gLog.Log("CamOps.SnapShot START");
             try
             {
-                using (PtzCamera ptzCam = new PtzCamera())
+                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     var link = ptzCam.GetSnapshot(hostEnv, asFile, resStr);
                     //gLog.Log("CamOps.SnapShot LINK=" + link);
@@ -181,7 +184,7 @@ namespace CStat.Common
         {
             try
             {
-                using (PtzCamera ptzCam = new PtzCamera())
+                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     ptzCam.Cleanup(hostEnv, exceptFile);
                     ptzCam.Logout(true);
@@ -198,7 +201,7 @@ namespace CStat.Common
         {
             try
             {
-                using (PtzCamera ptzCam = new PtzCamera())
+                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     int ancCount = 0;
                     return ptzCam.GetVideoAnchors(hostEnv, sdt, edt, ref ancCount);

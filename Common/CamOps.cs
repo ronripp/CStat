@@ -111,7 +111,7 @@ namespace CStat.Common
             //gLog.Log("CamOps.HandleOp START rcop=" + (int)rcop);
             try
             {
-                using (PtzCamera ptzCam = new PtzCamera())
+                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     int MaxDelay = 0;
                     var cop = Add(rcop);

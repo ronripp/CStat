@@ -172,11 +172,18 @@ namespace CStat.Common
                         // Clean/{Reset to full view} Camera
                         cl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        using (var ptz = new PtzCamera(_cam))
+                        using (var ptz = new PtzCamera(CamOps.Camera.Camera1))
                         {
                             ptz.Cleanup(_hostEnv);
                             ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
                         }
+
+                        // TBD ENABLE using (var ptz = new PtzCamera(CamOps.Camera.Camera2))
+                        // TBD ENABLE {
+                        // TBD ENABLE     ptz.Cleanup(_hostEnv);
+                        // TBD ENABLE     ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
+                        // TBD ENABLE }
+
 
                         cl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");

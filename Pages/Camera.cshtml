@@ -126,7 +126,11 @@
     </style>
 
     <script type="text/javascript">
-
+        @{
+            string cam = Request.Query["cam"];
+            if (String.IsNullOrEmpty(cam)) cam = "1";
+        }
+        var gCam = @cam;
         var gCleanupTimer = null;
 
         var gRepaintTimer = null;
@@ -181,7 +185,7 @@
 
         function getVideo(url, title) {
             $("#videoDiv").text("Preparing " + title + " . . . Please wait a minute.");
-            var parameters = "{'url':'" + url + "'}";
+            var parameters = "{'url':'" + url + "','cam':'" + gCam + "'}";
             $.ajax({
                 url: "/Camera?handler=Video",
                 contentType: "application/json",
@@ -260,7 +264,7 @@
         }
 
         function setSnapShot() {
-            var parameters = "{'op':'" + 0 + "'}";
+            var parameters = "{'op':'" + 0 + "','cam':'" + gCam + "'}";
             $.ajax({
                 url: "/Camera?handler=SnapShot",
                 contentType: "application/json",
@@ -289,7 +293,7 @@
             if (!repaintEnabled())
                 return;
 
-            var parameters = "{'op':'" + 0 + "'}";
+            var parameters = "{'op':'" + 0 + "','cam':'" + gCam + "'}";
             $.ajax({
                 url: "/Camera?handler=SnapShot",
                 contentType: "application/json",
@@ -326,7 +330,7 @@
         function onCamOp(op) {
             clearCleanup();
             clearRepaint();
-            var parameters = "{'op':'" + op + "'}";
+            var parameters = "{'op':'" + op + "','cam':'" + gCam + "'}";
             $.ajax({
                 url: "/Camera?handler=CamOp",
                 contentType: "application/json",

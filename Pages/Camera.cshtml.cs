@@ -4,10 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CStat.Areas.Identity.Data;
 using CStat.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using static CStat.Common.PtzCamera;
 
@@ -15,9 +17,11 @@ namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
-        private static CamOps1 _CamOps1 = new CamOps1();
-        private static CamOps2 _CamOps2 = new CamOps2();
-        private CamOps _CamOps = null;
+        static string[] _presets1 = new string[7] { "1", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door" };
+        static string[] _presets2 = new string[7] { "2", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors" };
+        public static CamOps1 _CamOps1 = new CamOps1();
+        public static CamOps2 _CamOps2 = new CamOps2();
+        public CamOps _CamOps = null;
         public CamOps.Camera _cam;
 
         private const COp DefaultCOp = COp.Preset4;
@@ -79,6 +83,50 @@ namespace CStat.Pages
             }
         }
 
+        public static string GetPhoto(IWebHostEnvironment hostEnv, IConfiguration config, Microsoft.AspNetCore.Identity.UserManager<CStatUser> userManager, CSUser curUser, string hint)
+        {
+            CamOps camOps;
+            COp hintOp = COp.None;
+            int index;
+
+            index = Array.FindIndex(_presets1, p => hint.IndexOf(p) != -1);
+            if (index != -1)
+            {
+                camOps = _CamOps1;
+                hintOp = (COp)index;
+            }
+            else
+            {
+                index = Array.FindIndex(_presets2, p => hint.IndexOf(p) != -1);
+                if (index != -1)
+                {
+                    camOps = _CamOps2;
+                    hintOp = (COp)index;
+                }
+                else
+                {
+                    camOps = _CamOps2;
+                    hintOp = COp.None;
+                }
+            }
+            if (hintOp != COp.None)
+            {
+                System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, (COp)hintOp));
+            }
+            string sshFile = camOps.SnapShotFile(hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+            string EMailTitle = "CCA Camera Photo : " + hint;
+            var email = new CSEMail(config, userManager);
+            string result = email.Send(curUser.EMail, curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
+                ? "E-Mail sent with " + EMailTitle
+                : "Failed to E-Mail : " + EMailTitle;
+            return result; // TBD
+        }
+
+        public string PresetName(int cam, int index)
+        {
+            return (cam == 2) ? _presets2[index] : _presets2[index];
+        }
+
         public JsonResult OnGetCamOp() // TBD Add Async
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
@@ -106,7 +154,7 @@ namespace CStat.Pages
 
             try
             {
-                cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                //cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
                 string link;
                 int delay;
                 if (op == (int)PtzCamera.COp.HRSnapShot)
@@ -119,13 +167,13 @@ namespace CStat.Pages
                     delay = _CamOps.HandleOp(_hostEnv, (COp)op);
                     link = _CamOps.SnapShot(_hostEnv, false);
                 }
-                cl.Log("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
+                //cl.Log("AJAX.OnGetCamOp [OK~:delay=" + delay.ToString() + ";link=" + link + "]");
                 return new JsonResult("OK~:delay=" + delay.ToString() + ";link=" + link);
             }
             catch (Exception e)
             {
                 _ = e;
-                cl.Log("AJAX.OnGetCamOp [ERROR~: CamOp Exception]");
+                //cl.Log("AJAX.OnGetCamOp [ERROR~: CamOp Exception]");
                 return new JsonResult("ERROR~: CamOp Exception");
             }
         }
@@ -191,8 +239,8 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             try
             {
-                cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
-                var link = _CamOps.SnapShot(_hostEnv, op==(int)PtzCamera.COp.HRSnapShot);
+                //cl.Log("AJAX.OnGetCamOp HandleOp " + op.ToString());
+                var link = _CamOps.SnapShot(_hostEnv, op==(int)PtzCamera.COp.HRSnapShot, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution);
                 var pending = _CamOps.PendingOps();
                 return new JsonResult("OK~:todo=" + pending + "&" + link);
             }

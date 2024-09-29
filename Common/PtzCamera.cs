@@ -613,6 +613,60 @@ public class PtzCamera : System.IDisposable
                 return "";
             }
         }
+
+        public string GetSnapshotFile(IWebHostEnvironment hostEnv, string resStr = "&width=1024&height=768")
+        {
+            try
+            {
+                var tempPath = GetTempDir(hostEnv);
+
+                var now = PropMgr.ESTNow;
+                string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+                string actFilename = baseFilename + ".jpg";
+                string fullPath = Path.Combine(tempPath, actFilename);
+                for (int i = 1; File.Exists(fullPath); ++i)
+                {
+                    actFilename = baseFilename + i.ToString("00") + ".jpg";
+                    fullPath = Path.Combine(tempPath, actFilename);
+                }
+
+                byte[] content;
+                HttpReq2 req = new HttpReq2();
+                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
+                req.AddHeaderProp("Connection", "keep-alive");
+                req.AddHeaderProp("Accept", "*/*");
+                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+                Stream stream = req.SendForStream();
+
+                using (BinaryReader br = new BinaryReader(stream))
+                {
+                    content = br.ReadBytes(50000000);
+                    br.Close();
+                }
+
+                FileStream fs = new FileStream(fullPath, FileMode.Create);
+                BinaryWriter bw = new BinaryWriter(fs);
+                try
+                {
+                    bw.Write(content);
+                }
+                finally
+                {
+                    fs.Close();
+                    bw.Close();
+                }
+                GetZoomAndFocus(out int zoom, out int focus);
+
+                return fullPath;
+            }
+            catch (Exception e)
+            {
+                _ = e;
+                //gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+                return "";
+            }
+        }
+
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
             return "";

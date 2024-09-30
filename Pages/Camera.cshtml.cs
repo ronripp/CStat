@@ -17,8 +17,8 @@ namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
-        static string[] _presets1 = new string[7] { "1", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door" };
-        static string[] _presets2 = new string[7] { "2", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors" };
+        public static string[] _presets1 = new string[7] { "1", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door" };
+        public static string[] _presets2 = new string[7] { "2", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors" };
         public static CamOps1 _CamOps1 = new CamOps1();
         public static CamOps2 _CamOps2 = new CamOps2();
         public CamOps _CamOps = null;
@@ -83,38 +83,20 @@ namespace CStat.Pages
             }
         }
 
-        public static string GetPhoto(IWebHostEnvironment hostEnv, IConfiguration config, Microsoft.AspNetCore.Identity.UserManager<CStatUser> userManager, CSUser curUser, string hint)
+        public static string GetPhoto(IWebHostEnvironment hostEnv, IConfiguration config, Microsoft.AspNetCore.Identity.UserManager<CStatUser> userManager, CSUser curUser, CamOps.Camera cam, COp preset)
         {
             CamOps camOps;
-            COp hintOp = COp.None;
-            int index;
-
-            index = Array.FindIndex(_presets1, p => hint.IndexOf(p) != -1);
-            if (index != -1)
-            {
-                camOps = _CamOps1;
-                hintOp = (COp)index;
-            }
+            if (cam == CamOps.Camera.Camera2)
+                camOps = _CamOps2;
             else
+                camOps = _CamOps2;
+
+            if (preset != COp.None)
             {
-                index = Array.FindIndex(_presets2, p => hint.IndexOf(p) != -1);
-                if (index != -1)
-                {
-                    camOps = _CamOps2;
-                    hintOp = (COp)index;
-                }
-                else
-                {
-                    camOps = _CamOps2;
-                    hintOp = COp.None;
-                }
-            }
-            if (hintOp != COp.None)
-            {
-                System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, (COp)hintOp));
+                System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, preset));
             }
             string sshFile = camOps.SnapShotFile(hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
-            string EMailTitle = "CCA Camera Photo : " + hint;
+            string EMailTitle = "CCA Camera Photo";
             var email = new CSEMail(config, userManager);
             string result = email.Send(curUser.EMail, curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
                 ? "E-Mail sent with " + EMailTitle

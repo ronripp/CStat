@@ -1,6 +1,7 @@
 ﻿using CStat.Areas.Identity.Data;
 using CStat.Data;
 using CStat.Models;
+using CStat.Pages;
 using Dropbox.Api.Files;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static CStat.Common.PtzCamera;
 using static CStat.Models.Event;
 
 namespace CStat.Common
@@ -236,6 +238,8 @@ namespace CStat.Common
             {"photo", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
             {"shot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
             {"snapshot", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) }, // C -
+            {"image", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
+            {"cam", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
             {"refrigerator", new Tuple<CmdSource, bool>(CmdSource.FRIDGE, false) },
             {"freezer", new Tuple<CmdSource, bool>(CmdSource.FREEZER, false) },
             {"doc", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
@@ -443,7 +447,6 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.FREEZER, HandleEquip);
             _srcDelegateDict.Add(CmdSource.PRESSURE, HandleEquip);
             _srcDelegateDict.Add(CmdSource.ELECTRIC, HandleEquip);
-            _srcDelegateDict.Add(CmdSource.CAMERA, HandleEquip);
             _srcDelegateDict.Add(CmdSource.KITCH_TEMP, HandleEquip);
 
             _srcDelegateDict.Add(CmdSource.INTERNET, HandleBiz);
@@ -459,6 +462,9 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.ATTENDANCE, HandleAttendance);
             _srcDelegateDict.Add(CmdSource.URGENCY, HandleUrgency);
             _srcDelegateDict.Add(CmdSource.CHURCH, HandleChurch);
+
+            _srcDelegateDict.Add(CmdSource.CAMERA, HandleCamera);
+
             //_srcDelegateDict.Add(CmdSource.CSTEST, HandleCSTest);
         }
 
@@ -717,7 +723,7 @@ namespace CStat.Common
             return (index < words.Count) ? words[index] : "";
         }
 
-        public bool FindCmdOther(List<string> words) // ZZZAAA
+        public bool FindCmdOther(List<string> words)
         {
             if ((_cmdSrc == CmdSource.NONE) && (words.Count == 1) && words[0].StartsWith("sop"))
             {
@@ -1232,7 +1238,7 @@ namespace CStat.Common
             }
         }
 
-        public bool FindCmdSource(List<string> words) // ZZZAAA ************************
+        public bool FindCmdSource(List<string> words)
         {
             var NumWords = words.Count;
 
@@ -1696,7 +1702,7 @@ namespace CStat.Common
 
             return report;
         }
-        private string HandlePeople(List<string> words) // ZZZ
+        private string HandlePeople(List<string> words)
         {
             string result = "";
             List<Person> people = null;
@@ -2762,9 +2768,45 @@ namespace CStat.Common
             return instr;
         }
 
-        private string HandleCamera(List<string> words)
+        private string HandleCamera(List<string> words) // ZZZ
         {
-            return "Not Implemented";
+            CamOps camOps;
+            COp hintOp = COp.None;
+            int index;
+
+            //index = Array.FindIndex(CameraModel._presets1, p => hint.IndexOf(p) != -1);
+            //if (index != -1)
+            //{
+            //    camOps = _CamOps1;
+            //    hintOp = (COp)index;
+            //}
+            //else
+            //{
+            //    index = Array.FindIndex(_presets2, p => hint.IndexOf(p) != -1);
+            //    if (index != -1)
+            //    {
+            //        camOps = _CamOps2;
+            //        hintOp = (COp)index;
+            //    }
+            //    else
+            //    {
+            //        camOps = _CamOps1;
+            //        hintOp = COp.None;
+            //    }
+            //}
+            //if (hintOp != COp.None)
+            //{
+            //    System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, preset));
+            //}
+            //string sshFile = camOps.SnapShotFile(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+            //string EMailTitle = "CCA Camera Photo : " + preset;
+            //var email = new CSEMail(_config, _userManager);
+            //string result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
+            //    ? "E-Mail sent with " + EMailTitle
+            //    : "Failed to E-Mail : " + EMailTitle;
+            //return result; // TBD
+
+            return "";
         }
 
         private string HandleAttendance(List<string> words)

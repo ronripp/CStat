@@ -2770,43 +2770,82 @@ namespace CStat.Common
 
         private string HandleCamera(List<string> words) // ZZZ
         {
-            CamOps camOps;
-            COp hintOp = COp.None;
+            CamOps camOps = null;
+            COp preset = COp.None;
             int index;
 
-            //index = Array.FindIndex(CameraModel._presets1, p => hint.IndexOf(p) != -1);
-            //if (index != -1)
-            //{
-            //    camOps = _CamOps1;
-            //    hintOp = (COp)index;
-            //}
-            //else
-            //{
-            //    index = Array.FindIndex(_presets2, p => hint.IndexOf(p) != -1);
-            //    if (index != -1)
-            //    {
-            //        camOps = _CamOps2;
-            //        hintOp = (COp)index;
-            //    }
-            //    else
-            //    {
-            //        camOps = _CamOps1;
-            //        hintOp = COp.None;
-            //    }
-            //}
-            //if (hintOp != COp.None)
-            //{
-            //    System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, preset));
-            //}
-            //string sshFile = camOps.SnapShotFile(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
-            //string EMailTitle = "CCA Camera Photo : " + preset;
-            //var email = new CSEMail(_config, _userManager);
-            //string result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
-            //    ? "E-Mail sent with " + EMailTitle
-            //    : "Failed to E-Mail : " + EMailTitle;
-            //return result; // TBD
+            foreach (var desc in _cmdDescList)
+            {
+                index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc) != -1);
+                if (index != -1)
+                {
+                    camOps = CameraModel._CamOps1;
+                    preset = (COp)index;
+                }
+                else
+                {
+                    index = Array.FindIndex(CameraModel._presets2, p => p.IndexOf(desc) != -1);
+                    if (index != -1)
+                    {
+                        camOps = CameraModel._CamOps2;
+                        preset = (COp)index;
+                    }
+                }
+            }
 
-            return "";
+            if (camOps == null)
+            {
+                string wordStr = "";
+                foreach (var w in words)
+                {
+                    wordStr += (w + " ");
+                }
+                wordStr = wordStr.Trim();
+
+                if (wordStr.Contains("camera 1)"))
+                    camOps = CameraModel._CamOps1;
+                else if (wordStr.Contains("camera 2)"))
+                    camOps = CameraModel._CamOps2;
+                else if (wordStr.Contains("cam 1)"))
+                    camOps = CameraModel._CamOps1;
+                else if (wordStr.Contains("cam 2)"))
+                    camOps = CameraModel._CamOps2;
+
+                if (wordStr.Contains("preset 1)"))
+                    preset = COp.Preset1;
+                else if (wordStr.Contains("preset one)"))
+                    preset = COp.Preset1;
+                else if (wordStr.Contains("preset 2)"))
+                    preset = COp.Preset2;
+                else if (wordStr.Contains("preset two)"))
+                    preset = COp.Preset2;
+                else if (wordStr.Contains("preset 3)"))
+                    preset = COp.Preset3;
+                else if (wordStr.Contains("preset three)"))
+                    preset = COp.Preset3;
+                else if (wordStr.Contains("preset 4)"))
+                    preset = COp.Preset4;
+                else if (wordStr.Contains("preset four)"))
+                    preset = COp.Preset4;
+                else if (wordStr.Contains("preset 5)"))
+                    preset = COp.Preset5;
+                else if (wordStr.Contains("preset five)"))
+                    preset = COp.Preset5;
+                else if (wordStr.Contains("preset 6)"))
+                    preset = COp.Preset6;
+                else if (wordStr.Contains("preset six)"))
+                    preset = COp.Preset6;
+            }
+            if (camOps == null)
+                camOps = CameraModel._CamOps1;
+
+            string sshFile = camOps.SnapShotFile(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+            string EMailTitle = "CCA Camera Photo : " + preset;
+            var email = new CSEMail(_config, _userManager);
+            string result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
+                ? "E-Mail sent with " + EMailTitle
+                : "Failed to E-Mail : " + EMailTitle;
+            return result; 
         }
 
         private string HandleAttendance(List<string> words)

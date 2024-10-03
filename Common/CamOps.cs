@@ -140,6 +140,45 @@ namespace CStat.Common
                 return 0;
             }
         }
+
+        //public string HandleSnapShotFile(IWebHostEnvironment hostEnv,  string resStr = "&width=1024&height=768"))
+        //{
+
+        //    public string SnapShotFile(IWebHostEnvironment hostEnv, bool asFile, string resStr = "&width=1024&height=768")
+
+        //    gLog.Log("CamOps.HandleOp START rcop=" + (int)rcop);
+        //    try
+        //    {
+        //        using (PtzCamera ptzCam = new PtzCamera(_cam))
+        //        {
+        //            int MaxDelay = 0;
+        //            var cop = Add(rcop);
+        //            if (cop == COp.None)
+        //                return 6000;
+        //            while (cop != COp.None)
+        //            {
+        //                gLog.Log("CamOps.HandleOp " + (int)cop);
+        //                var delay = ptzCam.ExecuteOp(hostEnv, cop);
+        //                if (delay > MaxDelay)
+        //                    MaxDelay = delay;
+        //                cop = Delete();
+        //            }
+
+        //            // Give time for Camera to move. Delay can be adjusted
+        //            ptzCam.Logout();
+        //            gLog.Log("CamOps.HandleOp RETURN MaxDelay=" + rcop);
+
+        //            return MaxDelay;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _ = e;
+        //        gLog.Log("**EXCEPTION*** HandleOp(" + (int)rcop + ") e=" + e.Message);
+        //        return 0;
+        //    }
+        //}
+
         public string GetVideo(IWebHostEnvironment hostEnv, string url)
         {
             try

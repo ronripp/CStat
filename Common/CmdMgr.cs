@@ -2776,7 +2776,10 @@ namespace CStat.Common
 
             foreach (var desc in _cmdDescList)
             {
-                index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc) != -1);
+                if ((desc == "of") || (desc == "of"))
+                    continue;
+
+                index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
                 if (index != -1)
                 {
                     camOps = CameraModel._CamOps1;
@@ -2784,7 +2787,7 @@ namespace CStat.Common
                 }
                 else
                 {
-                    index = Array.FindIndex(CameraModel._presets2, p => p.IndexOf(desc) != -1);
+                    index = Array.FindIndex(CameraModel._presets2, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
                     if (index != -1)
                     {
                         camOps = CameraModel._CamOps2;
@@ -2811,27 +2814,27 @@ namespace CStat.Common
                 else if (wordStr.Contains("cam 2)"))
                     camOps = CameraModel._CamOps2;
 
-                if (wordStr.Contains("preset 1)"))
+                if (wordStr.Contains("preset 1)") || wordStr.Contains("preset1)"))
                     preset = COp.Preset1;
                 else if (wordStr.Contains("preset one)"))
                     preset = COp.Preset1;
-                else if (wordStr.Contains("preset 2)"))
+                else if (wordStr.Contains("preset 2)") || wordStr.Contains("preset2)"))
                     preset = COp.Preset2;
                 else if (wordStr.Contains("preset two)"))
                     preset = COp.Preset2;
-                else if (wordStr.Contains("preset 3)"))
+                else if (wordStr.Contains("preset 3)") || wordStr.Contains("preset3)"))
                     preset = COp.Preset3;
                 else if (wordStr.Contains("preset three)"))
                     preset = COp.Preset3;
-                else if (wordStr.Contains("preset 4)"))
+                else if (wordStr.Contains("preset 4)") || wordStr.Contains("preset4)"))
                     preset = COp.Preset4;
                 else if (wordStr.Contains("preset four)"))
                     preset = COp.Preset4;
-                else if (wordStr.Contains("preset 5)"))
+                else if (wordStr.Contains("preset 5)") || wordStr.Contains("preset5)"))
                     preset = COp.Preset5;
                 else if (wordStr.Contains("preset five)"))
                     preset = COp.Preset5;
-                else if (wordStr.Contains("preset 6)"))
+                else if (wordStr.Contains("preset 6)") || wordStr.Contains("preset6)"))
                     preset = COp.Preset6;
                 else if (wordStr.Contains("preset six)"))
                     preset = COp.Preset6;

@@ -106,7 +106,7 @@ namespace CStat.Pages
 
         public string PresetName(int cam, int index)
         {
-            return (cam == 2) ? _presets2[index] : _presets2[index];
+            return (cam == 2) ? _presets2[index] : _presets1[index];
         }
 
         public JsonResult OnGetCamOp() // TBD Add Async

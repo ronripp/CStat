@@ -134,12 +134,16 @@ public class PtzCamera : System.IDisposable
             {COp.FocusInc ,"FocusInc" }
         };
 
-        public static string _token = "";
-        public static DateTime _tokenTime = new DateTime(2000, 1, 1);
-        private static readonly object tokenLock = new object();
+        public static string[] _token = {"", "", ""};
+        public static DateTime[] _tokenTime = { new DateTime(2000, 1, 1), new DateTime(2000, 1, 1), new DateTime(2000, 1, 1) };
+        private static readonly object _tokenLock1 = new object();
+        private static readonly object _tokenLock2 = new object();
         public static CSLogger gLog = null;
         private CamOps.Camera _cam;
+        private int _cIdx;
         private string _host;
+        private string _password;
+        private object _tokenLock;
 
         private static string host1 = "https://ccacamp.hopto.org:1961/api.cgi";
         private static string host2 = "https://ccacamp.hopto.org:1962/api.cgi";
@@ -149,13 +153,18 @@ public class PtzCamera : System.IDisposable
         public PtzCamera (CamOps.Camera cam)
         {
             _cam = cam;
+            _cIdx = (int)_cam;
             if (cam == CamOps.Camera.Camera2)
             {
                 _host = host2;
+                _password = "Red35845!";
+                _tokenLock = _tokenLock2;
             }
             else
             {
                 _host = host1;
+                _password = "cca2022";
+                _tokenLock = _tokenLock1;
             }
 
             if (gLog == null)
@@ -196,20 +205,20 @@ public class PtzCamera : System.IDisposable
 
         public bool Login()
         {
-            lock (tokenLock)
+            lock (_tokenLock)
             {
-                if (!String.IsNullOrEmpty(_token))
+                if (!String.IsNullOrEmpty(_token[_cIdx]))
                 {
-                    if ((PropMgr.ESTNow - _tokenTime).TotalSeconds >= 0)
+                    if ((PropMgr.ESTNow - _tokenTime[_cIdx]).TotalSeconds >= 0)
                         Logout();
                     else
                     {
-                        //gLog.Log("PtzC.Login START Returning existing token=" + _token);
+                        gLog.Log("PtzC.Login START Returning existing token=" + _token[_cIdx]);
                         return true;
                     }
                 }
 
-                //gLog.Log("PtzC.Login START *** GETTING TOKEN ***");
+                gLog.Log("PtzC.Login START *** GETTING TOKEN ***");
 
                 try
                 {
@@ -222,26 +231,26 @@ public class PtzCamera : System.IDisposable
                     req.AddHeaderProp("Accept-Encoding","gzip, deflate, br");
                     req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                    req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"cca2022\" }}}]", "application/json");
+                    req.AddBody("[{\"cmd\":\"Login\",\"param\":{\"User\":{\"userName\":\"admin\", \"password\":\"" + _password + "\" }}}]", "application/json");
                     var sResult = req.SendForString();
 
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
                     {
-                        //gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + req.RespCode);
+                        gLog.Log("PtzC.Login EARLY RETURN : EMPTY sResult. " + req.RespCode);
 
                         return true;
                     }
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
-                    _token = LoginResp[0].value.Token.name;
-                    _tokenTime = PropMgr.ESTNow.AddSeconds((int)LoginResp[0].value.Token.leaseTime-60);
-                    //gLog.Log("PtzC.Login RETURN token=" + _token);
-                    return !string.IsNullOrEmpty(_token);
+                    _token[_cIdx] = LoginResp[0].value.Token.name;
+                    _tokenTime[_cIdx] = PropMgr.ESTNow.AddSeconds((int)LoginResp[0].value.Token.leaseTime-60);
+                    gLog.Log("PtzC.Login RETURN token=" + _token[_cIdx]);
+                    return !string.IsNullOrEmpty(_token[_cIdx]);
                 }
                 catch (Exception e)
                 {
                     _ = e;
-                    //gLog.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
+                    gLog.Log("PtzC.Login EXCEPTION e.Msg=" + e.Message);
                     return false;
                 }
             }
@@ -249,25 +258,25 @@ public class PtzCamera : System.IDisposable
 
         public bool Logout(bool force=false)
         {
-            lock (tokenLock)
+            lock (_tokenLock)
             {
-                //gLog.Log("PtzC.Logout token=" + _token);
+                gLog.Log("PtzC.Logout token=" + _token[_cIdx]);
 
-                if (!force && (_tokenTime - PropMgr.ESTNow).TotalSeconds > 0)
+                if (!force && (_tokenTime[_cIdx] - PropMgr.ESTNow).TotalSeconds > 0)
                 {
-                    //gLog.Log("PtzC.Logout NOT Logging out. Keeping existing token=" + _token);
+                    gLog.Log("PtzC.Logout NOT Logging out. Keeping existing token=" + _token[_cIdx]);
                     return true;
                 }
 
-                if (string.IsNullOrEmpty(_token))
+                if (string.IsNullOrEmpty(_token[_cIdx]))
                 {
-                    //gLog.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
+                    gLog.Log("PtzC.Logout EARLY RETURN : EMPTY TOKEN");
                     return false;
                 }
 
-                var tok = _token;
-                _token = "";
-                _tokenTime = new DateTime(2000, 1, 1);
+                var tok = _token[_cIdx];
+                _token[_cIdx] = "";
+                _tokenTime[_cIdx] = new DateTime(2000, 1, 1);
                 try
                 {
                     // Get Token
@@ -284,17 +293,17 @@ public class PtzCamera : System.IDisposable
                     // "name" : "8da4c31df166a94"
                     if (String.IsNullOrEmpty(sResult))
                     {
-                        //gLog.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
+                        gLog.Log("PtzC.Logout EARLY RETURN : EMPTY sResult");
                         return true;
                     }
                     dynamic LogoutResp = JsonConvert.DeserializeObject(sResult);
-                    //gLog.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
+                    gLog.Log("PtzC.Logout RETURN rspCode" + LogoutResp[0].value.rspCode);
                     return LogoutResp[0].value.rspCode == 200;
                 }
                 catch (Exception e)
                 {
                     _ = e;
-                    //gLog.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
+                    gLog.Log("PtzC.Logout EXCEPTION e.Msg=" + e.Message);
                 }
                 return false;
             }
@@ -310,7 +319,7 @@ public class PtzCamera : System.IDisposable
 
         public int GetPresetPicture(IWebHostEnvironment hostEnv, int preset)
         {
-            //gLog.Log("PtzC.GetPresetPicture START preset=" + preset);
+            gLog.Log("PtzC.GetPresetPicture START preset=" + preset);
             try
             {
                 if ((preset >= 1) && (preset <= 99))
@@ -318,7 +327,7 @@ public class PtzCamera : System.IDisposable
 
                     // Get Picture by Preset #
                     HttpReq2 req = new HttpReq2();
-                    req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token);
+                    req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token[_cIdx]);
 
                     req.AddHeaderProp("Connection", "keep-alive");
                     req.AddHeaderProp("Accept", "*/*");
@@ -332,21 +341,21 @@ public class PtzCamera : System.IDisposable
                     dynamic LoginResp = JsonConvert.DeserializeObject(sResult);
                     if (LoginResp[0].value.rspCode != 200)
                     {
-                        //gLog.Log("PtzC.GetPresetPicture ERR return rspCode=" + LoginResp[0].value.rspCode);
+                        gLog.Log("PtzC.GetPresetPicture ERR return rspCode=" + LoginResp[0].value.rspCode);
                         return 0;
                     }
 
                     return CheckForSomeStability();
 
                 }
-                //gLog.Log("PtzC.GetPresetPicture DONE rspCode=");
+                gLog.Log("PtzC.GetPresetPicture DONE rspCode=");
 
                 return 0;
             }
             catch (Exception e)
             {
                 _ = e;
-                //gLog.Log("PtzC.GetPresetPicture EXCEPTION e.Msg=" + e.Message);
+                gLog.Log("PtzC.GetPresetPicture EXCEPTION e.Msg=" + e.Message);
                 return 0;
             }
         }
@@ -359,7 +368,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform PTZ op
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                req.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token[_cIdx]); // &user=admin&password=<this._password>");
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -376,7 +385,7 @@ public class PtzCamera : System.IDisposable
 
                 // Perform Stop
                 HttpReq2 req2 = new HttpReq2();
-                req2.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token); // &user=admin&password=cca2022");
+                req2.Open(HttpMethod.Post, _host + "?cmd=PtzCtrl&token=" + _token[_cIdx]); // &user=admin&password=<this._password>");
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -402,7 +411,7 @@ public class PtzCamera : System.IDisposable
         {
             // Get PTZ Check State
             HttpReq2 req3 = new HttpReq2();
-            req3.Open(HttpMethod.Post, _host + "?cmd=GetPtzCheckState&token=" + _token); // &user=admin&password=cca2022");
+            req3.Open(HttpMethod.Post, _host + "?cmd=GetPtzCheckState&token=" + _token[_cIdx]); // &user=admin&password=<this._password>");
 
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
@@ -416,7 +425,7 @@ public class PtzCamera : System.IDisposable
                 // PtzCheckState 0:idle, 1:doing, 2:finish
                 if (PostResp3[0].value != null)
                 {
-                    //gLog.Log("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
+                    gLog.Log("GetPtzCheckState PtzCheckState=" + (int)(PostResp3[0].value.PtzCheckState));
                     if (PostResp3[0].value.PtzCheckState != 1)
                         return true;
                 }            
@@ -443,7 +452,7 @@ public class PtzCamera : System.IDisposable
             //RJR OLD    {
             //RJR OLD        if (++CCount >= MatchesNeeded)
             //RJR OLD        {
-            //RJR OLD            //gLog.Log("*** PICTURE DONE ***");
+            //RJR OLD            gLog.Log("*** PICTURE DONE ***");
             //RJR OLD            return 500;
             //RJR OLD        }
             //RJR OLD        if ((CCount == MinMatches) && (MaxCount< 30))
@@ -471,7 +480,7 @@ public class PtzCamera : System.IDisposable
 
             // Get PTZ Check State
             HttpReq2 req3 = new HttpReq2();
-            req3.Open(HttpMethod.Post, _host + "?cmd=GetZoomFocus&token=" + _token); // &user=admin&password=cca2022");
+            req3.Open(HttpMethod.Post, _host + "?cmd=GetZoomFocus&token=" + _token[_cIdx]); // &user=admin&password=<this._password>);
 
             req3.AddHeaderProp("Connection", "keep-alive");
             req3.AddHeaderProp("Accept", "*/*");
@@ -491,18 +500,18 @@ public class PtzCamera : System.IDisposable
                 {
                     zoom = -1;
                     focus = -1;
-                    //gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+                    gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
                 }
-                //gLog.Log("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
+                gLog.Log("GetZoomAndFocus Zoom=" + zoom + " Focus=" + focus);
                 return true;
             }
-            //gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
+            gLog.Log("GetZoomAndFocus FAIL Zoom=" + zoom + " Focus=" + focus);
             return false;
         }
 
         public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
         {
-            //gLog.Log("PtzC.ExecuteOp START cop=" + (int)cop);
+            gLog.Log("PtzC.ExecuteOp START cop=" + (int)cop);
 
             if ((cop == COp.None) || (cop == COp.Refresh))
                 return 0;
@@ -550,7 +559,7 @@ public class PtzCamera : System.IDisposable
 
         public string GetSnapshot(IWebHostEnvironment hostEnv, bool asFile, string resStr ="&width=1024&height=768")
         {
-            //gLog.Log("PtzC.GetSnapShot");
+            gLog.Log("PtzC.GetSnapShot");
 
             //RJR AVOID CLIENT CERT ERROR if (!asFile)
             //RJR AVOID CLIENT CERT ERROR {
@@ -559,7 +568,7 @@ public class PtzCamera : System.IDisposable
             //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr;
             //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=640&height=480";
             //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + "&width=1024&height=768";
-            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=cca2022&width=640&height=480";
+            //RJR AVOID CLIENT CERT ERROR     //return _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&user=admin&password=" + _password + "&width=640&height=480";
             //RJR AVOID CLIENT CERT ERROR }
 
             try
@@ -578,7 +587,7 @@ public class PtzCamera : System.IDisposable
 
                 byte[] content;
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
+                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token[_cIdx] + resStr);
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
@@ -602,14 +611,14 @@ public class PtzCamera : System.IDisposable
                     bw.Close();
                 }
                 GetZoomAndFocus(out int zoom, out int focus);
-                //gLog.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
+                gLog.Log("PtzC.GetSnapShot Camera/Images/" + actFilename);
             
                 return "Camera/Images/" + actFilename;  // Send back URL
             }
             catch (Exception e)
             {
                 _ = e;
-                //gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+                gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
                 return "";
             }
         }
@@ -632,7 +641,7 @@ public class PtzCamera : System.IDisposable
 
                 byte[] content;
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token + resStr);
+                req.Open(HttpMethod.Post, _host + "?cmd=Snap&channel=0&rs=flsYJfZgM6RTB_os&token=" + _token[_cIdx] + resStr);
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
                 req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
@@ -662,7 +671,7 @@ public class PtzCamera : System.IDisposable
             catch (Exception e)
             {
                 _ = e;
-                //gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
+                gLog.Log("PtzC.GetSnapShot EXCEPTION e.Msg=" + e.Message);
                 return "";
             }
         }
@@ -799,7 +808,7 @@ public class PtzCamera : System.IDisposable
             catch (UnauthorizedAccessException ex)
             {
                 _ = ex;
-                //gLog.Log("PtzCamera Unautorized Access:" + ex.Message);
+                gLog.Log("PtzCamera Unautorized Access:" + ex.Message);
             }
 
             return "";
@@ -827,7 +836,7 @@ public class PtzCamera : System.IDisposable
             //RJROLD             else
             //RJROLD                 timeStr = vf.StartTime.hour + ":" + vf.StartTime.min.ToString("00") + "A]";
             //RJROLD 
-            //RJROLD             //_host + ?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=cca2022
+            //RJROLD             //_host + ?cmd=Playback&source=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&output=Mp4Record/2022-03-06/RecM01_20220306_020024_020118_6732828_2821E4C.mp4&user=admin&password=<this._password>
             //RJROLD 
             //RJROLD             int RMegs = (int)Math.Round((double)vf.size/1000000);
             //RJROLD             string title = " [" + RMegs + "-" + vf.StartTime.mon + "/" + vf.StartTime.day + "@" + timeStr;
@@ -895,7 +904,7 @@ public class PtzCamera : System.IDisposable
             try
             {
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=Search&rs=adshf4549f&user=admin&password=cca2022");
+                req.Open(HttpMethod.Post, _host + "?cmd=Search&rs=adshf4549f&user=admin&password=" + _password);
 
                 req.AddHeaderProp("content-type", "application/json");
                 req.AddHeaderProp("accept","application/json");
@@ -920,7 +929,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=GetWhiteLed&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=GetWhiteLed&token=" + _token[_cIdx]);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -937,7 +946,7 @@ public class PtzCamera : System.IDisposable
                 var SetJson = JsonConvert.SerializeObject(GWLResp);
 
                 HttpReq2 req2 = new HttpReq2();
-                req2.Open(HttpMethod.Post, _host + "?cmd=SetWhiteLed&token=" + _token);
+                req2.Open(HttpMethod.Post, _host + "?cmd=SetWhiteLed&token=" + _token[_cIdx]);
 
                 req2.AddHeaderProp("Connection", "keep-alive");
                 req2.AddHeaderProp("Accept", "*/*");
@@ -961,7 +970,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=SetEmailV20&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=SetEmailV20&token=" + _token[_cIdx]);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");
@@ -999,7 +1008,7 @@ public class PtzCamera : System.IDisposable
             {
                 // Get Light State
                 HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=AudioAlarmPlay&token=" + _token);
+                req.Open(HttpMethod.Post, _host + "?cmd=AudioAlarmPlay&token=" + _token[_cIdx]);
 
                 req.AddHeaderProp("Connection", "keep-alive");
                 req.AddHeaderProp("Accept", "*/*");

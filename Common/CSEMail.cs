@@ -161,7 +161,8 @@ namespace CStat.Common
                 builder.TextBody = body;
                 foreach (var a in attArray)
                 {
-                    builder.Attachments.Add(a);
+                    if (a.Length > 0)
+                        builder.Attachments.Add(a);
                 }
                 message.Body = builder.ToMessageBody();
             }

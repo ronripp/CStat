@@ -17,8 +17,8 @@ namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
-        public static string[] _presets1 = new string[7] { "1", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door" };
-        public static string[] _presets2 = new string[7] { "2", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors" };
+        public static string[] _presets1 = new string[10] { "~", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door", "~", "~", "~" };
+        public static string[] _presets2 = new string[10] { "~", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors", "~", "~", "~" };
         public static CamOps1 _CamOps1 = new CamOps1();
         public static CamOps2 _CamOps2 = new CamOps2();
         public CamOps _CamOps = null;
@@ -44,7 +44,6 @@ namespace CStat.Pages
         {
             
         }
-
         public void OnGet(CamOps.Camera cam, int op)
         {
             try
@@ -65,7 +64,7 @@ namespace CStat.Pages
                 cl.Log("CAMERA.OnGet HandleOp " + op.ToString());
                 if (op == (int)PtzCamera.COp.HRSnapShot)
                 {
-                    CameraLink = _CamOps.SnapShot(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+                    CameraLink = _CamOps.SnapShot(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD camera resolution
                 }
                 else
                 {
@@ -89,7 +88,7 @@ namespace CStat.Pages
             if (cam == CamOps.Camera.Camera2)
                 camOps = _CamOps2;
             else
-                camOps = _CamOps2;
+                camOps = _CamOps1;
 
             if (preset != COp.None)
             {

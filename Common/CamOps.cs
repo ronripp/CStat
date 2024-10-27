@@ -23,6 +23,10 @@ namespace CStat.Common
                 _queue = new Queue<COp>();
             }
         }
+        public override int PresetOffsetFrom1()
+        {
+            return 9;
+        }
     }
 
     public class CamOps2 : CamOps
@@ -39,6 +43,10 @@ namespace CStat.Common
                 _queue = new Queue<COp>();
             }
         }
+        public override int PresetOffsetFrom1()
+        {
+            return 7;
+        }
     }
 
     public abstract class CamOps
@@ -49,6 +57,8 @@ namespace CStat.Common
         protected static object _qLock2 { get; set; } = new object();
         protected abstract object _qLock { get; set; }
         public abstract Queue<COp> _queue { get; set; }
+        public abstract int PresetOffsetFrom1();
+
         public CamOps.Camera _cam;
 
         //private string _link = "";
@@ -239,8 +249,6 @@ namespace CStat.Common
                 return "";
             }
         }
-
-
 
         public void Cleanup(IWebHostEnvironment hostEnv, string exceptFile = "")
         {

@@ -2772,75 +2772,113 @@ namespace CStat.Common
         {
             CamOps camOps = null;
             COp preset = COp.None;
+            int maxMatchLen = 3;
             int index;
+
+            string wordStr = "";
+            foreach (var w in words)
+            {
+                wordStr += (w + " ");
+            }
+            wordStr = wordStr.Trim();
+
+            if (wordStr.Contains("camera 1") || wordStr.Contains("camera one)"))
+                camOps = CameraModel._CamOps1;
+            else if (wordStr.Contains("camera 2") || wordStr.Contains("camera two)"))
+                camOps = CameraModel._CamOps2;
+            else if (wordStr.Contains("cam 1") || wordStr.Contains("cam one)"))
+                camOps = CameraModel._CamOps1;
+            else if (wordStr.Contains("cam 2") || wordStr.Contains("cam two)"))
+                camOps = CameraModel._CamOps2;
+
+            int foundCam = (camOps != null) ? (int)camOps._cam : 0;
 
             foreach (var desc in _cmdDescList)
             {
                 if ((desc == "of") || (desc == "of"))
                     continue;
 
-                index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
-                if (index != -1)
+                int len = desc.Length;
+
+                if ((foundCam == 1) || (foundCam == 0))
                 {
-                    camOps = CameraModel._CamOps1;
-                    preset = (COp)index;
+                    index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
+                    if ((index != -1) && (len > maxMatchLen))
+                    {
+                        maxMatchLen = len;
+                        if (foundCam == 0)
+                            camOps = CameraModel._CamOps1;
+                        preset = (COp)index;
+                    }
                 }
-                else
+
+                if ((foundCam == 2) || (foundCam == 0))
                 {
                     index = Array.FindIndex(CameraModel._presets2, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
-                    if (index != -1)
+                    if ((index != -1) && (len > maxMatchLen))
                     {
-                        camOps = CameraModel._CamOps2;
+                        maxMatchLen = len;
+                        if (foundCam == 0)
+                            camOps = CameraModel._CamOps2;
                         preset = (COp)index;
                     }
                 }
             }
 
-            if (camOps == null)
+            if (preset == COp.None)
             {
-                string wordStr = "";
-                foreach (var w in words)
-                {
-                    wordStr += (w + " ");
-                }
-                wordStr = wordStr.Trim();
-
-                if (wordStr.Contains("camera 1)"))
-                    camOps = CameraModel._CamOps1;
-                else if (wordStr.Contains("camera 2)"))
-                    camOps = CameraModel._CamOps2;
-                else if (wordStr.Contains("cam 1)"))
-                    camOps = CameraModel._CamOps1;
-                else if (wordStr.Contains("cam 2)"))
-                    camOps = CameraModel._CamOps2;
-
                 if (wordStr.Contains("preset 1)") || wordStr.Contains("preset1)"))
                     preset = COp.Preset1;
                 else if (wordStr.Contains("preset one)"))
                     preset = COp.Preset1;
-                else if (wordStr.Contains("preset 2)") || wordStr.Contains("preset2)"))
+                else if (wordStr.Contains("preset 2)") || wordStr.Contains("preset2"))
                     preset = COp.Preset2;
                 else if (wordStr.Contains("preset two)"))
                     preset = COp.Preset2;
-                else if (wordStr.Contains("preset 3)") || wordStr.Contains("preset3)"))
+                else if (wordStr.Contains("preset 3") || wordStr.Contains("preset3"))
                     preset = COp.Preset3;
                 else if (wordStr.Contains("preset three)"))
                     preset = COp.Preset3;
-                else if (wordStr.Contains("preset 4)") || wordStr.Contains("preset4)"))
+                else if (wordStr.Contains("preset 4") || wordStr.Contains("preset4"))
                     preset = COp.Preset4;
                 else if (wordStr.Contains("preset four)"))
                     preset = COp.Preset4;
-                else if (wordStr.Contains("preset 5)") || wordStr.Contains("preset5)"))
+                else if (wordStr.Contains("preset 5") || wordStr.Contains("preset5"))
                     preset = COp.Preset5;
                 else if (wordStr.Contains("preset five)"))
                     preset = COp.Preset5;
-                else if (wordStr.Contains("preset 6)") || wordStr.Contains("preset6)"))
+                else if (wordStr.Contains("preset 6") || wordStr.Contains("preset6"))
                     preset = COp.Preset6;
                 else if (wordStr.Contains("preset six)"))
                     preset = COp.Preset6;
+
+                else if (wordStr.Contains("preset 7") || wordStr.Contains("preset7"))
+                    preset = COp.Preset7;
+                else if (wordStr.Contains("preset seven)"))
+                    preset = COp.Preset7;
+
+                else if (wordStr.Contains("preset 8") || wordStr.Contains("preset8"))
+                    preset = COp.Preset8;
+                else if (wordStr.Contains("preset eight)"))
+                    preset = COp.Preset8;
+
+                else if (wordStr.Contains("preset 9") || wordStr.Contains("preset9"))
+                    preset = COp.Preset9;
+                else if (wordStr.Contains("preset nine"))
+                    preset = COp.Preset9;
             }
             if (camOps == null)
                 camOps = CameraModel._CamOps1;
+
+            if (preset != COp.None)
+            {
+                Thread.Sleep(camOps.HandleOp(_hostEnv, preset + camOps.PresetOffsetFrom1()));
+                for (int i = 0; i < 8; ++i)
+                {
+                    camOps.SnapShot(_hostEnv, false, "&width=3840&height=2160");
+                    Thread.Sleep(1000);
+                }
+            }
 
             string sshFile = camOps.SnapShotFile(_hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
             string EMailTitle = "CCA Camera Photo : " + preset;

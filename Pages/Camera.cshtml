@@ -331,6 +331,10 @@
             function onCamOp(op) {
                 clearCleanup();
                 clearRepaint();
+
+                if (gCam == "2") {
+                    op -= 2;
+                }
                 var parameters = "{'op':'" + op + "','cam':'" + gCam + "'}";
             $.ajax({
                     url: "/Camera?handler=CamOp",

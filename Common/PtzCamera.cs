@@ -101,6 +101,10 @@ public class PtzCamera : System.IDisposable
             Preset4 = 4,
             Preset5 = 5,
             Preset6 = 6,
+            Preset7 = 7,
+            Preset8 = 8,
+            Preset9 = 9,
+
             ToggleLight = 100,
             TurnOnAlarm = 101,
             HRSnapShot = 102,

@@ -119,7 +119,9 @@ public class PtzCamera : System.IDisposable
             ZoomDec = 300,
             ZoomInc = 301,
             FocusDec = 400,
-            FocusInc = 401
+            FocusInc = 401,
+            LightOn = 500,
+            LightOff = 501,
         };
 
         public static Dictionary<COp, string> COpToStr = new Dictionary<COp, string>
@@ -530,10 +532,17 @@ public class PtzCamera : System.IDisposable
             {
                 return ToggleLight();
             }
+            if (cop == PtzCamera.COp.LightOn)
+            {
+                return ToggleLight(1);
+            }
+            if (cop == PtzCamera.COp.LightOff)
+            {
+                return ToggleLight(0);
+            }
             if (cop == PtzCamera.COp.TurnOnAlarm)
             {
                 return TurnOnAlarm(10);
-
             }
             return GetPtzPicture(hostEnv, (int)cop);
         }
@@ -927,27 +936,32 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public int ToggleLight()
+        public int ToggleLight(int forceState=-1)
         {
             try
             {
-                // Get Light State
-                HttpReq2 req = new HttpReq2();
-                req.Open(HttpMethod.Post, _host + "?cmd=GetWhiteLed&token=" + _token[_cIdx]);
+                int newState;
+                if (forceState == -1)
+                {
+                    // Get Light State
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Post, _host + "?cmd=GetWhiteLed&token=" + _token[_cIdx]);
 
-                req.AddHeaderProp("Connection", "keep-alive");
-                req.AddHeaderProp("Accept", "*/*");
-                req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+                    req.AddHeaderProp("Connection", "keep-alive");
+                    req.AddHeaderProp("Accept", "*/*");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
 
-                req.AddBody("[{\"cmd\": \"GetWhiteLed\",\"action\": 0,\"param\": {\"channel\": 0}}]", "application/json");
-                var sResult = req.SendForString();
+                    req.AddBody("[{\"cmd\": \"GetWhiteLed\",\"action\": 0,\"param\": {\"channel\": 0}}]", "application/json");
+                    var sResult = req.SendForString();
 
-                // value.PowerLed.state : 0 | 1
-                if (String.IsNullOrEmpty(sResult))
-                    return 0;
-                dynamic GWLResp = JsonConvert.DeserializeObject(sResult);
-                var newState = (GWLResp[0].value.WhiteLed.state == 0) ? 1 : 0;
-                var SetJson = JsonConvert.SerializeObject(GWLResp);
+                    // value.PowerLed.state : 0 | 1
+                    if (String.IsNullOrEmpty(sResult))
+                        return 0;
+                    dynamic GWLResp = JsonConvert.DeserializeObject(sResult);
+                    newState = (GWLResp[0].value.WhiteLed.state == 0) ? 1 : 0;
+                }
+                else
+                    newState = forceState;
 
                 HttpReq2 req2 = new HttpReq2();
                 req2.Open(HttpMethod.Post, _host + "?cmd=SetWhiteLed&token=" + _token[_cIdx]);
@@ -959,7 +973,7 @@ public class PtzCamera : System.IDisposable
                 req2.AddBody("[{\"cmd\": \"SetWhiteLed\",\"param\": {\"WhiteLed\": {\"state\":" + newState + ",\"channel\": 0,\"mode\": 1,\"bright\": 85,\"LightingSchedule\": {\"EndHour\": 6,\"EndMin\": 0,\"StartHour\": 18,\"StartMin\": 0},\"wlAiDetectType\": {\"dog_cat\": 1,\"face\": 0,\"people\": 1,\"vehicle\": 0}}}}]", "application/json");
                 var sResult2 = req2.SendForString();
 
-                return 500; // need time to turn off light. This may be reduced.
+                return 500; // need time to turn on/off light. This may be reduced.
             }
             catch (Exception e)
             {

@@ -2870,6 +2870,8 @@ namespace CStat.Common
             if (camOps == null)
                 camOps = CameraModel._CamOps1;
 
+            Thread.Sleep(camOps.HandleOp(_hostEnv, COp.LightOn));
+
             if (preset != COp.None)
             {
                 Thread.Sleep(camOps.HandleOp(_hostEnv, preset + camOps.PresetOffsetFrom1()));
@@ -2886,6 +2888,9 @@ namespace CStat.Common
             string result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })
                 ? "E-Mail sent with " + EMailTitle
                 : "Failed to E-Mail : " + EMailTitle;
+
+            Thread.Sleep(camOps.HandleOp(_hostEnv, COp.LightOff));
+
             return result; 
         }
 

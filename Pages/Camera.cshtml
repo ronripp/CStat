@@ -332,7 +332,7 @@
                 clearCleanup();
                 clearRepaint();
 
-                if (gCam == "2") {
+                if ((op < 100) && (gCam == "2")) {
                     op -= 2;
                 }
                 var parameters = "{'op':'" + op + "','cam':'" + gCam + "'}";

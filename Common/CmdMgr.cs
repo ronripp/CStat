@@ -2642,12 +2642,15 @@ namespace CStat.Common
             }
             else
             {
+                bool IsMemb = false;
                 if (words.Contains("metro"))
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.StatusDetails.Contains("@Metro") || c.StatusDetails.Contains("@metro") || c.StatusDetails.Contains("@METRO")).ToList();
                 else if (words.Contains("independent") || words.Contains("christian"))
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+                else if (words.Contains("good"))
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.MembershipStatus == 1).OrderBy(c => c.Name).ToList();
                 else if (words.Contains("member"))
-                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.Name).ToList();
+                    churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.MembershipStatus).ThenBy(c => c.Name).ToList();
                 else
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
 
@@ -2655,7 +2658,6 @@ namespace CStat.Common
                 {
                     var poc = Person.GetPOCMinister(c);
                     var status = Church.ChurchLists.MemberStatList[(int)c.MembershipStatus].name;
-
                     report += "CHURCH: " + c.Name + " " +
                         (Address.FormatAddress(c.Address) + " " +
                         (!string.IsNullOrEmpty(status) ? " " + status : "") +

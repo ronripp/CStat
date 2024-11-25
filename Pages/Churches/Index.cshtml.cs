@@ -44,7 +44,26 @@ namespace CStat.Pages.Churches
                         .Include(c => c.YouthMinister).ToListAsync();
                     break;
 
-                case 2: //Members
+                case 2: //Member Good Standing
+                    Church = await _context.Church.Where(c => c.MembershipStatus == 1)
+                    .Include(c => c.Address)
+                    .Include(c => c.Alternate1)
+                    .Include(c => c.Alternate2)
+                    .Include(c => c.Alternate3)
+                    .Include(c => c.Elder1)
+                    .Include(c => c.Elder2)
+                    .Include(c => c.Elder3)
+                    .Include(c => c.Elder4)
+                    .Include(c => c.Elder5)
+                    .Include(c => c.SeniorMinister)
+                    .Include(c => c.Trustee1)
+                    .Include(c => c.Trustee2)
+                    .Include(c => c.Trustee3)
+                    .Include(c => c.YouthMinister).ToListAsync();
+                    break;
+
+
+                case 3: //Members
                     Church = await _context.Church.Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2))
                     .Include(c => c.Address)
                     .Include(c => c.Alternate1)
@@ -62,7 +81,7 @@ namespace CStat.Pages.Churches
                     .Include(c => c.YouthMinister).ToListAsync();
                     break;
 
-                case 3: //IC_COC
+                case 4: //IC_COC
                     Church = await _context.Church.Where(c => (c.Affiliation == "ICCOC"))
                     .Include(c => c.Address)
                     .Include(c => c.Alternate1)
@@ -80,7 +99,7 @@ namespace CStat.Pages.Churches
                     .Include(c => c.YouthMinister).ToListAsync();
                     break;
 
-                case 4: // Attends Metro
+                case 5: // Attends Metro
                     Church = await _context.Church.Where(c => c.StatusDetails.Contains("@Metro") || c.StatusDetails.Contains("@metro") || c.StatusDetails.Contains("@METRO"))
                     .Include(c => c.Address)
                     .Include(c => c.Alternate1)

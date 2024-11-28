@@ -138,6 +138,9 @@ namespace CStat.Common
             {"spread_sheet", CmdFormat.EXCEL},
             {"spreadsheet", CmdFormat.EXCEL},
             {"spreadlist", CmdFormat.EXCEL},
+            {"sheet", CmdFormat.EXCEL},
+            {"sheets", CmdFormat.EXCEL},
+            {"ss", CmdFormat.EXCEL},
             {"ms_word", CmdFormat.MSDOC},
             {"microsoft_word", CmdFormat.MSDOC},
             {"word_doc", CmdFormat.MSDOC},
@@ -545,6 +548,7 @@ namespace CStat.Common
                            .Replace("walk in freezer", "freezer")
                            .Replace("walk in fridge", "refrigerator")
                            .Replace("walk in refrigerator", "refrigerator")
+                           .Replace("spread sheet", "spread_sheet")
                            .Replace(":", "")
                            .Replace("  ", " ");
            
@@ -1710,16 +1714,19 @@ namespace CStat.Common
             showEMail = showAdr = showPhone = showAttr = true;
             bool EMailOnly, MailingOnly, PhoneOnly;
             EMailOnly = MailingOnly = PhoneOnly = false;
+            string sshFileBody = "ContactList";
 
             string EMailTitle = "Requested Contact Info";
 
             if (_cmdSrc == CmdSource.TRUSTEE)
             {
                 EMailTitle = "CCA Trustees";
+                sshFileBody = "CCA_Trustees";
                 people = _context.Person.Where(p => p.Roles.HasValue && ((p.Roles.Value & (long)Person.TitleRoles.Trustee) != 0)).Include(p => p.Address).Include(p => p.Church).ToList();
             }
             else if (_cmdSrc == CmdSource.EC)
             {
+                sshFileBody = "CCA_Exec_Com";
                 //President = 0x800, Treasurer = 0x1000, Secretary = 0x2000, Vice_Pres = 0x4000, Memb_at_Lg = 0x8000
                 EMailTitle = "CCA Executive Committee";
                 long ECRoles = (long)(Person.TitleRoles.President | Person.TitleRoles.Treasurer | Person.TitleRoles.Secretary | Person.TitleRoles.Vice_Pres | Person.TitleRoles.Memb_at_Lg);
@@ -1824,28 +1831,28 @@ namespace CStat.Common
                     {
                         bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
                         string sshFileName = "";
-                        using (var ssh = new CSSpreadSheet("ContactList", ssType))
+                        using (var ssh = new CSSpreadSheet(sshFileBody, ssType))
                         {
                             sshFileName = ssh.FileName;
                             if (!isOnly)
                             {
-                                ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail", "Church");
                                 ssh.SetPad(16, 16, 1, 10, 30, 20, 15, 4, 11, 13, 25, 25);
+                                ssh.AddRow("First Name", "Last Name", "Gender", "DOB", "Serve", "Street", "Town", "State", "Zip", "Phone", "EMail", "Church");
                             }
                             else if (MailingOnly)
                             {
-                                ssh.AddRow("First Name", "Last Name", "Street", "Town", "State", "Zip");
                                 ssh.SetPad(16, 16, 30, 20, 4, 10);
+                                ssh.AddRow("First Name", "Last Name", "Street", "Town", "State", "Zip");
                             }
                             else if (EMailOnly)
                             {
-                                ssh.AddRow("First Name", "Last Name", "EMail");
                                 ssh.SetPad(16, 16, 25);
+                                ssh.AddRow("First Name", "Last Name", "EMail");
                             }
                             else // if (PhoneOnly)
                             {
-                                ssh.AddRow("First Name", "Last Name", "Phone");
                                 ssh.SetPad(16, 16, 13);
+                                ssh.AddRow("First Name", "Last Name", "Phone");
                             }
 
                             // Handle person.Church is not a valid property for LINQ (get fails)

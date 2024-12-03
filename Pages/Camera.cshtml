@@ -332,7 +332,9 @@
                 clearCleanup();
                 clearRepaint();
 
-                if ((op < 100) && (gCam == "2")) {
+                if ((op == 11) && (gCam == "1")) { // Temp fix for preset# shift in cam 1
+                    op = 6;
+                } else if ((op < 100) && (gCam == "2")) {
                     op -= 2;
                 }
                 var parameters = "{'op':'" + op + "','cam':'" + gCam + "'}";

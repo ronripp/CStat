@@ -94,8 +94,10 @@ namespace CStat.Common
             string alias = "";
             if (!String.IsNullOrEmpty(email))
             {
-                var idx = email.IndexOf("@");
-                alias = (idx != -1) ? alias = email.Substring(0, idx) : email;
+                var aidx = email.IndexOf("@");
+                var didx = email.IndexOf(".");
+                var idx = ((didx > 0) && (didx < aidx)) ? didx: aidx;
+                alias = (idx != -1) ? email.Substring(0, idx) : email;
                 alias = Regex.Replace(alias, "[0-9]{2,}", "*");
             }
             return alias; 

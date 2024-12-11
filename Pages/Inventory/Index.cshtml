@@ -613,7 +613,7 @@
                             @{
                     IndexInvModel.InvItemState invIS = Model.GetInvItemState(item);
                             }
-                            <span>&#x29c9;<button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button></span>
+                            <button class="@invIS.btnClass" id="@sid" onClick="itemStateChange('@item.ItemId', false)" pid="@invIS.pid" state="@invIS.state" invItemId="@item.ItemId">@invIS.displayName</button>
                             @*<a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
         <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
         <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>*@

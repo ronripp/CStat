@@ -177,8 +177,10 @@
                 var dtLoc = DateTime.UtcNow;
                 TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
                 DateTime dt = TimeZoneInfo.ConvertTime(dtLoc, easternZone);
-                var curDT = dt.DayOfWeek.ToString().Substring(0, 3) + " " + dt.Day + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "P" : "A") + " ";
+                var curDT = dt.DayOfWeek.ToString().Substring(0, 2) + " " + dt.Day + " @ " + dt.ToString("h:mm") + " " + ((dt.Hour >= 12) ? "P" : "A") + " ";
                 var AtIdx = User.Identity.Name.IndexOf("@");
+                var DtIdx = User.Identity.Name.IndexOf(".");
+                if ((DtIdx > 0) && (DtIdx < AtIdx)) AtIdx = DtIdx;
                 if (AtIdx == -1) AtIdx = 6;
                 var userObj = Model._cset.GetUser(User.Identity.Name);
                 var alias = (userObj != null) ? userObj.Alias : "";

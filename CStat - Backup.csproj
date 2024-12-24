@@ -1,0 +1,150 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>aspnet-CStat-2C99F0C5-7850-42D0-BA53-0A069C36562D</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CCAChurch\**" />
+    <Compile Remove="Common\CCAService\CCADataAccess\**" />
+    <Compile Remove="EquipSrc\**" />
+    <Compile Remove="ModelsLast\**" />
+    <Compile Remove="Pages\NewFolder1\**" />
+    <Compile Remove="wwwroot\chapelHeat\**" />
+    <Compile Remove="wwwroot\DropBox_\**" />
+    <Compile Remove="wwwroot\Equip\**" />
+    <Compile Remove="wwwroot\items\**" />
+    <Compile Remove="wwwroot\Tasks\**" />
+    <Compile Remove="wwwroot\tmpDBox\**" />
+    <Compile Remove="wwwroot\Videos\**" />
+    <Compile Remove="_debugSU\**" />
+    <Compile Remove="__Models\**" />
+    <Content Remove="CCAChurch\**" />
+    <Content Remove="Common\CCAService\CCADataAccess\**" />
+    <Content Remove="EquipSrc\**" />
+    <Content Remove="ModelsLast\**" />
+    <Content Remove="Pages\NewFolder1\**" />
+    <Content Remove="wwwroot\chapelHeat\**" />
+    <Content Remove="wwwroot\DropBox_\**" />
+    <Content Remove="wwwroot\Equip\**" />
+    <Content Remove="wwwroot\items\**" />
+    <Content Remove="wwwroot\Tasks\**" />
+    <Content Remove="wwwroot\tmpDBox\**" />
+    <Content Remove="wwwroot\Videos\**" />
+    <Content Remove="_debugSU\**" />
+    <Content Remove="__Models\**" />
+    <EmbeddedResource Remove="CCAChurch\**" />
+    <EmbeddedResource Remove="Common\CCAService\CCADataAccess\**" />
+    <EmbeddedResource Remove="EquipSrc\**" />
+    <EmbeddedResource Remove="ModelsLast\**" />
+    <EmbeddedResource Remove="Pages\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\chapelHeat\**" />
+    <EmbeddedResource Remove="wwwroot\DropBox_\**" />
+    <EmbeddedResource Remove="wwwroot\Equip\**" />
+    <EmbeddedResource Remove="wwwroot\items\**" />
+    <EmbeddedResource Remove="wwwroot\Tasks\**" />
+    <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
+    <EmbeddedResource Remove="wwwroot\Videos\**" />
+    <EmbeddedResource Remove="_debugSU\**" />
+    <EmbeddedResource Remove="__Models\**" />
+    <None Remove="CCAChurch\**" />
+    <None Remove="Common\CCAService\CCADataAccess\**" />
+    <None Remove="EquipSrc\**" />
+    <None Remove="ModelsLast\**" />
+    <None Remove="Pages\NewFolder1\**" />
+    <None Remove="wwwroot\chapelHeat\**" />
+    <None Remove="wwwroot\DropBox_\**" />
+    <None Remove="wwwroot\Equip\**" />
+    <None Remove="wwwroot\items\**" />
+    <None Remove="wwwroot\Tasks\**" />
+    <None Remove="wwwroot\tmpDBox\**" />
+    <None Remove="wwwroot\Videos\**" />
+    <None Remove="_debugSU\**" />
+    <None Remove="__Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Common\CCAService\ChurchMgr.cs" />
+    <Compile Remove="Common\CCAService\FileUploadController.cs" />
+    <Compile Remove="Common\CCAService\HomeController.cs" />
+    <Compile Remove="Common\ImportPA.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="CStat.json" />
+    <Content Remove="wwwroot\public.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Pages\Inventory\favicon.ico" />
+    <None Remove="Pages\Required.html" />
+    <None Remove="SQLQuery1.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="obj\Debug\netcoreapp3.1\PubTmp\Out\wwwroot\public.html" />
+    <Content Include="Pages\Inventory\favicon.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Page Include="Pages\Required.html" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Dropbox.Api" Version="4.9.4" />
+    <PackageReference Include="Identity" Version="1.0.3" />
+    <PackageReference Include="LargeXlsx" Version="1.9.1" />
+    <PackageReference Include="MailKit" Version="2.4.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.31" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.32">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Select.HtmlToPdf.NetCore" Version="21.2.0" />
+    <PackageReference Include="Twilio" Version="5.68.1" />
+    <PackageReference Include="Twilio.AspNet.Core" Version="5.37.2" />
+    <PackageReference Include="Twilio.AspNet.Mvc" Version="5.37.2" />
+    <PackageReference Include="TwilioSharpCore" Version="1.0.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="wwwroot\trails\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="CStat.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\_NYSDOH\v1022.html" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="wwwroot\CCAByLaws2021.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Required.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

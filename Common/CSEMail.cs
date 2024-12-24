@@ -24,6 +24,59 @@ namespace CStat.Common
         {
             Index = index;
         }
+
+        public void UpdateBase(MimeMessage msg)
+        {
+            Subject = msg.Subject;
+            HtmlBody = msg.HtmlBody;
+            TextBody = msg.TextBody;
+            var tbFlds = msg?.TextBody?.Split("\r\n") ?? new String[0];
+            foreach (var t in tbFlds)
+            {
+                var tfld = t.Trim();
+                if (tfld.StartsWith("Sent:") || tfld.StartsWith("Date:"))
+                {
+                    Date = CSEMail.ParseDetailedDate(tfld);
+                }
+            }
+            From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
+            if (Date == default)
+            {
+                Date = PropMgr.UTCtoEST(msg.Date.DateTime);
+            }
+        }
+
+        public void UpdateAttachments(MimeMessage msg, List<string> attRawFileList)
+        {
+            // Sometimes images are in BodyParts. filter out other content
+            foreach (var attachment in msg.BodyParts)
+            {
+                var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "";
+                if (string.IsNullOrEmpty(fileName))
+                    continue; // filter out other non-file content
+                if (attRawFileList.IndexOf(fileName) != -1)
+                    continue; // we already have this file from above attachments 
+
+                fileName = GetUniqueTempFileName(fileName, true);
+                using (var stream = File.Create(fileName))
+                {
+                    if (attachment is MessagePart)
+                    {
+                        var part = (MessagePart)attachment;
+
+                        part.Message.WriteTo(stream);
+                    }
+                    else
+                    {
+                        var part = (MimePart)attachment;
+
+                        part.Content.DecodeTo(stream);
+                    }
+                }
+                Attachments.Add(fileName);
+            }
+        }
+
         public string From { get; set; } = "";
         public string Subject { get; set; } = "";
         public DateTime Date { get; set; } = default;
@@ -248,77 +301,51 @@ namespace CStat.Common
                         if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
                             continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
                         var re = new REMail(i);
-                        re.Subject = msg.Subject;
-                        re.HtmlBody = msg.HtmlBody;
-                        re.TextBody = msg.TextBody;
-                        var tbFlds = msg?.TextBody?.Split("\r\n") ?? new String[0];
-                        foreach (var t in tbFlds)
-                        {
-                            var tfld = t.Trim();
-                            if (tfld.StartsWith("Sent:") || tfld.StartsWith("Date:"))
-                            {
-                                re.Date = CSEMail.ParseDetailedDate(tfld);
-                            }
-                        }
-                        re.From = (msg.Sender != null) ? msg.Sender.ToString() : (((msg.From != null) && (msg.From.Count > 0)) ? msg.From[0].ToString() : "unknown");
-                        if (re.Date == default)
-                        {
-
-                            re.Date = PropMgr.UTCtoEST(msg.Date.DateTime);
-                        }
+                        re.UpdateBase(msg);
                         re.Attachments = new List<string>();
                         var attRawFileList = new List<string>();
-                        foreach (var attachment in msg.Attachments)
+                        foreach (MimeKit.MimeEntity attachment in msg.Attachments)
                         {
-                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "Att";
-                            attRawFileList.Add(fileName);
-                            fileName = re.GetUniqueTempFileName(fileName, true);
-                            using (var stream = File.Create(fileName))
+                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name;
+                            if (fileName != null) // attachment : MimeKit.MimeEntity {MimeKit.MessagePart}
                             {
-                                if (attachment is MessagePart)
+                                // Found fileName in top Message
+                                attRawFileList.Add(fileName);
+                                fileName = re.GetUniqueTempFileName(fileName, true);
+                                using (var stream = File.Create(fileName))
                                 {
-                                    var part = (MessagePart)attachment;
+                                    if (attachment is MessagePart)
+                                    {
+                                        var part = (MessagePart)attachment;
 
-                                    part.Message.WriteTo(stream);
-                                }
-                                else
-                                {
-                                    var part = (MimePart)attachment;
+                                        part.Message.WriteTo(stream);
+                                    }
+                                    else
+                                    {
+                                        var part = (MimePart)attachment;
 
-                                    part.Content.DecodeTo(stream);
+                                        part.Content.DecodeTo(stream);
+                                    }
                                 }
+                                re.Attachments.Add(fileName);
                             }
-                            re.Attachments.Add(fileName);
-                        }
-
-                        // Sometimes images are in BodyParts. filter out other content
-                        foreach (var attachment in msg.BodyParts)
-                        {
-                            var fileName = attachment.ContentDisposition?.FileName ?? attachment.ContentType.Name ?? "";
-                            if (string.IsNullOrEmpty(fileName))
-                                continue; // filter out other non-file content
-                            if (attRawFileList.IndexOf(fileName) != -1)
-                                continue; // we already have this file from above attachments 
-
-                            fileName = re.GetUniqueTempFileName(fileName, true);
-                            using (var stream = File.Create(fileName))
+                            else
                             {
-                                if (attachment is MessagePart)
+                                MimeKit.MessagePart att = (MimeKit.MessagePart)attachment;
+                                if ((att != null) && attachment.ContentType.MediaType.Contains("message"))
                                 {
-                                    var part = (MessagePart)attachment;
-
-                                    part.Message.WriteTo(stream);
-                                }
+                                    MimeMessage amsg = (MimeMessage)att.Message;
+                                    if (amsg != null)
+                                    {
+                                        re.UpdateBase(amsg);
+                                        re.UpdateAttachments(amsg, attRawFileList);
+                                    }
+                                } 
                                 else
-                                {
-                                    var part = (MimePart)attachment;
-
-                                    part.Content.DecodeTo(stream);
-                                }
+                                    fileName = "Att";
                             }
-                            re.Attachments.Add(fileName);
                         }
-
+                        re.UpdateAttachments(msg, attRawFileList);
 
                         if (EMailReceived > _settings.LastEMailRead)
                         {
@@ -341,6 +368,7 @@ namespace CStat.Common
                 return new List<REMail>(); // TBD Log failure
             }
         }
+
         public static DateTime ParseDetailedDate(string rawDStr)
         {
             CultureInfo enUS = new CultureInfo("en-US");

@@ -26,59 +26,52 @@ namespace CStat.Controllers
     [Route("api/[controller]")]
     [AllowAnonymous]
     [ApiController]
-    public class EquipController : ControllerBase
+    public class RouterController : ControllerBase
     {
         private readonly IWebHostEnvironment HostEnv;
         private readonly IConfiguration Config;
         private readonly UserManager<CStatUser> UserManager;
 
-        public EquipController (IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public RouterController(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
             HostEnv = hostEnv;
             Config = config;
             UserManager = userManager;
         }
 
-        // GET: api/Equip
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { " Not Implemented." };
-        }
-
-        // GET api/Equip/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "Not Implemented";
-        }
-
-        // POST api/Equip
         [HttpPost]
         public HttpResponseMessage Post([FromBody] string raw)
         {
-            ArdMgr ardMgr = new ArdMgr(HostEnv, Config, UserManager);
-            HttpStatusCode hsCode = (ardMgr.Set(raw) > 0) ? HttpStatusCode.OK : HttpStatusCode.NotAcceptable;
-            ardMgr.CheckValues(raw);
+            HttpStatusCode hsCode;
+            String RespMsg;
+            try
+            {
+                if (raw.Length > 100)
+                {
+                    ClientReport[] clients = ClientReport.GetClientsFromJson(raw);
+                    ClientReport.SetClients(clients);
+                    hsCode = (clients != null) ? HttpStatusCode.OK : HttpStatusCode.NotAcceptable;
+                }
+                else
+                    hsCode = HttpStatusCode.NotAcceptable;
+                RespMsg = "Response from CStat Router Post";
+            }
+            catch (Exception e)
+            {
+                hsCode = HttpStatusCode.InternalServerError;
+                RespMsg = e.Message;
+            }
+
             var response = new HttpResponseMessage(hsCode)
             {
-                Content = new StringContent("Response from CStat PUT", System.Text.Encoding.UTF8, "text/plain"),
+                Content = new StringContent(RespMsg, System.Text.Encoding.UTF8, "text/plain"),
                 StatusCode = hsCode
             };
             return response;
-        }
 
-        // PUT api/Equip/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
         }
-
-        // DELETE api/Equip/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-
     }
+
 }
+
+

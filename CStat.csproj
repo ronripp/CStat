@@ -15,6 +15,7 @@
     <Compile Remove="wwwroot\DropBox_\**" />
     <Compile Remove="wwwroot\Equip\**" />
     <Compile Remove="wwwroot\items\**" />
+    <Compile Remove="wwwroot\RConns\**" />
     <Compile Remove="wwwroot\Tasks\**" />
     <Compile Remove="wwwroot\tmpDBox\**" />
     <Compile Remove="wwwroot\Videos\**" />
@@ -29,6 +30,7 @@
     <Content Remove="wwwroot\DropBox_\**" />
     <Content Remove="wwwroot\Equip\**" />
     <Content Remove="wwwroot\items\**" />
+    <Content Remove="wwwroot\RConns\**" />
     <Content Remove="wwwroot\Tasks\**" />
     <Content Remove="wwwroot\tmpDBox\**" />
     <Content Remove="wwwroot\Videos\**" />
@@ -43,6 +45,7 @@
     <EmbeddedResource Remove="wwwroot\DropBox_\**" />
     <EmbeddedResource Remove="wwwroot\Equip\**" />
     <EmbeddedResource Remove="wwwroot\items\**" />
+    <EmbeddedResource Remove="wwwroot\RConns\**" />
     <EmbeddedResource Remove="wwwroot\Tasks\**" />
     <EmbeddedResource Remove="wwwroot\tmpDBox\**" />
     <EmbeddedResource Remove="wwwroot\Videos\**" />
@@ -57,6 +60,7 @@
     <None Remove="wwwroot\DropBox_\**" />
     <None Remove="wwwroot\Equip\**" />
     <None Remove="wwwroot\items\**" />
+    <None Remove="wwwroot\RConns\**" />
     <None Remove="wwwroot\Tasks\**" />
     <None Remove="wwwroot\tmpDBox\**" />
     <None Remove="wwwroot\Videos\**" />

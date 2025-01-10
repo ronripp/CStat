@@ -222,6 +222,7 @@ namespace CStat.Common
         public int deviceType { get; set; }
         public bool isConnected { get; set; }
         public string vendor { get; set; }
+        public DateTime curDT { get; set; }
 
         public ClientReport()
         {
@@ -231,6 +232,8 @@ namespace CStat.Common
             FullClientInfo curFC = ((curRS != null) && curRS._clients.ContainsKey(macId)) ? curRS._clients[macId] : null;
             if (curFC == null) return;
             FullClientInfo prevFC = ((prevRS != null) && prevRS._clients.ContainsKey(macId)) ? prevRS._clients[macId] : null;
+
+            curDT = DateTime.Now;
 
             name = curFC.name;
             alias = curFC.nickName;

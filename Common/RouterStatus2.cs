@@ -208,7 +208,6 @@ namespace CStat.Common
             //}
         }
 
-
         public string name { get; set; }
         public string alias { get; set; }
         public string mac { get; set; }
@@ -223,7 +222,7 @@ namespace CStat.Common
         public bool isConnected { get; set; }
         public string vendor { get; set; }
         public DateTime curDT { get; set; }
-
+        public DateTime startDT { get; set; }
         public ClientReport()
         {
         }
@@ -288,6 +287,10 @@ namespace CStat.Common
             return double.TryParse(dstr, out double d) ? d : 0;
         }
 
+        public string GetName()
+        {
+            return !string.IsNullOrEmpty(name) ? name : (!string.IsNullOrEmpty(alias) ? alias : (!string.IsNullOrEmpty(vendor) ? vendor : mac));
+        }
     }
 
     /*****

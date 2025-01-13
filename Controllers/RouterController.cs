@@ -28,15 +28,17 @@ namespace CStat.Controllers
     [ApiController]
     public class RouterController : ControllerBase
     {
-        private readonly IWebHostEnvironment HostEnv;
-        private readonly IConfiguration Config;
-        private readonly UserManager<CStatUser> UserManager;
+        private readonly IWebHostEnvironment _hostEnv;
+        private readonly IConfiguration _config;
+        private readonly UserManager<CStatUser> _userManager;
+        private readonly CStat.Models.CStatContext _context;
 
-        public RouterController(IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
+        public RouterController(IWebHostEnvironment hostEnv, IConfiguration config, CStat.Models.CStatContext context, UserManager<CStatUser> userManager)
         {
-            HostEnv = hostEnv;
-            Config = config;
-            UserManager = userManager;
+            _hostEnv = hostEnv;
+            _config = config;
+            _userManager = userManager;
+            _context = context;
         }
 
         [HttpPost]
@@ -50,6 +52,10 @@ namespace CStat.Controllers
                 {
                     ClientReport[] clients = ClientReport.GetClientsFromJson(raw);
                     ClientReport.SetClients(clients);
+
+                    RConnMgr rcmgr = new RConnMgr(_hostEnv, _context);
+                    rcmgr.Update(clients);
+                    rcmgr.Close(out string newClient);
                     hsCode = (clients != null) ? HttpStatusCode.OK : HttpStatusCode.NotAcceptable;
                 }
                 else

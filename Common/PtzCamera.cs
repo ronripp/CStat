@@ -163,13 +163,13 @@ public class PtzCamera : System.IDisposable
             if (cam == CamOps.Camera.Camera2)
             {
                 _host = host2;
-                _password = "Red35845!";
+                _password = "CCACert25";
                 _tokenLock = _tokenLock2;
             }
             else
             {
                 _host = host1;
-                _password = "cca2022";
+                _password = "CCACert25";
                 _tokenLock = _tokenLock1;
             }
 

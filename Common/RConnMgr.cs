@@ -205,18 +205,20 @@ namespace CStat.Common
                 if (!Event.IsEventDay(_context, false, -8, 6))
                 {
                     List<ClientReport> lastConnectedCRs = ReadLast();
-                    DateTime maxDate = lastConnectedCRs.Max(lc => lc.curDT);
                     DateTime minDate = connectedCRs.Min(lc => lc.curDT);
-                    if ((minDate - maxDate).TotalHours > 4)
+                    ClientReport instCR = connectedCRs.Find(c => c.curDT == minDate);
+                    if (lastConnectedCRs.Count > 0)
                     {
-                        ClientReport instCR = connectedCRs.Find(c => c.curDT == minDate);
-
-                        lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortDateString();
+                        DateTime maxDate = lastConnectedCRs.Max(lc => lc.curDT);
+                        if ((minDate - maxDate).TotalHours > 4)
+                            lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortDateString();
                     }
+                    else
+                        lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortDateString();
                 }
-                WriteLast(connectedCRs);
+                WriteLastConnected(connectedCRs);
             }
-            return true;
+            return lastConnected.Length > 0;
         }
 
         string GetLastFilename()
@@ -262,7 +264,7 @@ namespace CStat.Common
             return lastCRs;
         }
 
-        public bool WriteLast(List<ClientReport> crs)
+        public bool WriteLastConnected(List<ClientReport> crs)
         {
             string fullFile = GetLastFilename();
             bool res = false;

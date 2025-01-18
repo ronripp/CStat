@@ -27,6 +27,9 @@ namespace CStat.Pages
         private PropaneLevel _pl;
         public CSSettings Settings { get; set; }
         private List<List<double>> ActiveEqHistory { get; set; }
+        private RConnMgr _rconnMgr;
+        private List<ClientReport> _rconnClients;
+        private bool _rConnsUnknown = false;
 
         public EquipModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -99,6 +102,30 @@ namespace CStat.Pages
                     ActiveEqHistory.Add(dlist);
                 }
             }
+
+            _rconnMgr = new RConnMgr(_hostEnv, _context);
+            _rconnClients = _rconnMgr.ReadLast();
+            if (_rconnClients.Count > 0)
+            {
+                var maxRC = _rconnClients.Max(lc => lc.curDT);
+                if ((DateTime.Now - maxRC).TotalHours > 4)
+                    _rConnsUnknown = true; // Likely monitoring has shut down for some reason
+            }
+        }
+
+        public string GetRConnsColor()
+        {
+            if (_rConnsUnknown)
+                return "lightgray";
+            if (Event.IsEventDay(_context, false, -8, 6))
+                return "lawngreen";
+            return (_rconnClients.Count > 0) ? "red" : "lawngreen";
+        }
+        public string GetRConnsText()
+        {
+            if (_rConnsUnknown)
+                return "?";
+            return _rconnClients.Count.ToString();
         }
 
         public ArdRecord GetLastArd()

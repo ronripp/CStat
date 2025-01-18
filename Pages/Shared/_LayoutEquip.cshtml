@@ -8,15 +8,29 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link runat="server" rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link runat="server" rel="icon" href="favicon.ico" type="image/ico" />
+
+    <style>
+        .Cams {
+            background-color: lawngreen;
+            color: black;
+        }
+
+        .RCs {
+            background-color: lawngreen;
+            color: black;
+        }
+    </style>
+
 </head>
+
 <body style="background-color:#000000; color: #FFFFFF">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-black box-shadow mb-3">
             <div class="container" style="background-color:#000000; color: #FFFFFF">
-                <span style="color:dodgerblue;"><b>Equipment : </b></span>
-                <span><button id="SecCam1" onclick="onCamera(1,9)">Cam 1</button></span>
-                <span><button id="SecCam2" onclick="onCamera(2,14)">Cam 2</button></span>
-
+                <span style="color:dodgerblue;"><b>Equipment</b></span>
+                <span><button id="SecCam1" class="Cams" onclick="onCamera(1,9)">&#128248;1</button></span>
+                <span><button id="SecCam2" class="Cams" onclick="onCamera(2,14)">&#128248;2</button></span>
+                <span><button id="RConns" class="RCs" onclick="onRConns()">&#129485;?</button></span>
                 <span><img style="width: 1.2em;height: 1.2em;" src="~/images/Settings_16x.svg" alt="[=]" onclick="doSettings()"></span>
                 <span><a class="nav-link" style="background-color:#000000; color:darkorange" asp-area="" asp-page="/Index"><b>Home</b></a></span>
             </div>
@@ -41,6 +55,12 @@
     <script>
         function onCamera(cam, op) {
             location.assign("/Camera?cam=" + cam + "&op=" + op);
+        }
+    </script>
+
+    <script>
+        function onRConns() {
+            location.assign("/RConns");
         }
     </script>
 

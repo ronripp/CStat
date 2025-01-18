@@ -5,7 +5,6 @@
     @{
         ViewData["Title"] = "Equip";
         Layout = "_LayoutEquip";
-
     }
 
     <head>
@@ -90,6 +89,11 @@
             var eqMaxArr = [];
             var eqColorArr = [];
             var eqCurValArr = [];
+
+            const rConnsEl = document.getElementById("RConns");
+            rConnsEl.style.backgroundColor = "@Model.GetRConnsColor()";
+            rConnsEl.innerHTML = "&#129485;" + "@Model.GetRConnsText()";
+
             @for (int i = 0; i < Model.ActEq.Count; ++i)
             {
                 string curValStr = Model.ActEqVal(i);

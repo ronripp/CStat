@@ -167,7 +167,7 @@ namespace CStat.Common
         }
         private int AddClientReport(ClientReport cr)
         {
-            if ((cr.deviceType != 31) || (cr?.curDT == null) )
+            if (((cr.deviceType != 31) && (cr.deviceType != 30)) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime))
                 return 0;
 
             // Generate file body name to read existing CR records

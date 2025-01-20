@@ -171,6 +171,21 @@
             window.location.href = "Index?showTemplates=false&filter=" + filt;
         }
 
+        $(document).ready(function () {
+
+            widenDesc();
+
+            function widenDesc() {
+                const descWStr = (window.innerWidth * 0.25) + "px";
+                const table = document.getElementById("TaskTbl");
+                for (var i = 0, row; row = table.rows[i]; i++) {
+                    row.cells[1].style.minWidth = descWStr;
+                }
+            }
+
+        });
+
+
     </script>
 
 </head>
@@ -189,22 +204,23 @@
             }
             else
             {
-    <b><a asp-page="Create">@createLabel</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ListFilter" value="@Model.GetFilter()" type="text" /><button onclick="getFilteredList()">&#x1F50D;</button><button style="margin-left:8px; font-weight:bold;" onclick="window.location.href='/nysdoh?usage=staffOct22zs';">NYSDOH</button></b>
-    }
-    }
-    <span>
-        @{ if (Model.IsTemplate)
-            {
-                <a asp-page="Index"><b>Back to Tasks</b></a>
-            }
-            else
-            {
-                <a asp-page="Index" asp-route-showTemplates="true">Templates</a>
+                <b><a asp-page="Create">@createLabel</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ListFilter" value="@Model.GetFilter()" type="text" /><button onclick="getFilteredList()">&#x1F50D;</button><button style="margin-left:8px; font-weight:bold;" onclick="window.location.href='/nysdoh?usage=staffOct22zs';">NYSDOH</button></b>
             }
         }
-    </span>
-</p>
-    <table class="table" style="background-color:@bkColor">
+        <span>
+            @{ if (Model.IsTemplate)
+                {
+                    <a asp-page="Index"><b>Back to Tasks</b></a>
+                }
+                else
+                {
+                    <a asp-page="Index" asp-route-showTemplates="true">Templates</a>
+                }
+            }
+        </span>
+    </p>
+
+    <table id="TaskTbl" class="table" style="background-color:@bkColor">
         <thead>
             <tr style="background-color: lightgray;">
                 <th>
@@ -234,81 +250,82 @@
             }
             @foreach (var item in Model.Task)
             {
-                
-            string ClassNm = item.ClassName(i++);
-            <tr class="@ClassNm">
-                <td>
-                    <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
-                </td>
-                <td>
-                    <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
-                </td>
-                <td>
-                    @{
-                        var stateStr = "TEMPLATE";
-                        if (!Model.IsTemplate)
-                        {
-                            item.GetTaskStatus(out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
-                            var baseState = ((CTask.eTaskStatus)state).ToString().Replace("_", " ");
-                            stateStr = ((baseState == "Not Started") && (pctComp == 0)) ? baseState : baseState + " (" + pctComp + "%)";
-                        }
-                    }
-                    @stateStr
-                </td>
-                <td>
-                    @{
-                        string dateStr = "---";
-                        if (item.DueDate.HasValue)
-                        {
-                            dateStr = item.DueDate.Value.Month + "/" + item.DueDate.Value.Day + "/" + item.DueDate.Value.Year % 100;
-                            if ((item.DueDate.Value.Hour != 23) || (item.DueDate.Value.Minute != 59))
+
+                string ClassNm = item.ClassName(i++);
+                <tr class="@ClassNm">
+                    <td>
+                        <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Id)</a>
+                    </td>
+                    <td>
+                        <a asp-page="./Create" class="@ClassNm" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Description)</a>
+                    </td>
+                    <td>
+                        @{
+                            var stateStr = "TEMPLATE";
+                            if (!Model.IsTemplate)
                             {
-                                if ((item.DueDate.Value.Hour == 0) && (item.DueDate.Value.Minute == 0))
-                                    dateStr += " START";
-                                else
+                                item.GetTaskStatus(out CTask.eTaskStatus state, out CTask.eTaskStatus reason, out int pctComp);
+                                var baseState = ((CTask.eTaskStatus)state).ToString().Replace("_", " ");
+                                stateStr = ((baseState == "Not Started") && (pctComp == 0)) ? baseState : baseState + " (" + pctComp + "%)";
+                            }
+                        }
+                        @stateStr
+                    </td>
+                    <td>
+                        @{
+                            string dateStr = "---";
+                            if (item.DueDate.HasValue)
+                            {
+                                dateStr = item.DueDate.Value.Month + "/" + item.DueDate.Value.Day + "/" + item.DueDate.Value.Year % 100;
+                                if ((item.DueDate.Value.Hour != 23) || (item.DueDate.Value.Minute != 59))
                                 {
-                                    string ampm;
-                                    int hr = item.DueDate.Value.Hour;
-                                    if (item.DueDate.Value.Hour >= 12)
-                                    {
-                                        hr -= 12;
-                                        ampm = " PM";
-                                    }
+                                    if ((item.DueDate.Value.Hour == 0) && (item.DueDate.Value.Minute == 0))
+                                        dateStr += " START";
                                     else
-                                        ampm = " AM";
-                                    dateStr = dateStr + " " + hr + ":" + item.DueDate.Value.Minute + ampm;
+                                    {
+                                        string ampm;
+                                        int hr = item.DueDate.Value.Hour;
+                                        if (item.DueDate.Value.Hour >= 12)
+                                        {
+                                            hr -= 12;
+                                            ampm = " PM";
+                                        }
+                                        else
+                                            ampm = " AM";
+                                        dateStr = dateStr + " " + hr + ":" + item.DueDate.Value.Minute + ampm;
+                                    }
                                 }
                             }
                         }
-                    }
-                    @dateStr
-                </td>
-                <td>
-                    @{
-                        var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "none";
-                    }
-                    @nameStr
-                </td>
-                <td>
-                    @{
-                        var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
-                    }
-                    @priorityStr
-                </td>
-                <td>
-                    @{
-                    if (ClassNm.StartsWith("Done") || Model.IsTemplate)
-                    {
-                        <a asp-page="./Delete" class="@ClassNm" asp-route-id="@item.Id">[Delete]</a>
-                    }
-                    else
-                    {
-                        <a href="javascript:void(0);" onclick="MarkComplete(@item.Id)"class="@ClassNm">[Done]</a>
-                    }
-                    }
-                </td>
-            </tr>
+                        @dateStr
+                    </td>
+                    <td>
+                        @{
+                            var nameStr = (item.Person != null) ? item.Person.FirstName + " " + item.Person.LastName : "none";
+                        }
+                        @nameStr
+                    </td>
+                    <td>
+                        @{
+                            var priorityStr = ((CTask.ePriority)item.Priority).ToString().Replace("_", " ");
+                        }
+                        @priorityStr
+                    </td>
+                    <td>
+                        @{
+                            if (ClassNm.StartsWith("Done") || Model.IsTemplate)
+                            {
+                                <a asp-page="./Delete" class="@ClassNm" asp-route-id="@item.Id">[Delete]</a>
+                            }
+                            else
+                            {
+                                <a href="javascript:void(0);" onclick="MarkComplete(@item.Id)" class="@ClassNm">[Done]</a>
+                            }
+                        }
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
+
 </body>

@@ -16,18 +16,19 @@
     <script type="text/javascript" src="jquery.svg.js"></script>
 
     <style>
-
+        .RConn {
+            background-color: lightgoldenrodyellow;
+            border-top: 3px solid darkred;
+        }
     </style>
 
     <script>
-
-
     </script>
 
 </head>
 <body>
     <table class="table">
-        <thead>
+        <thead style="background-color:#008080;color:white">
             <tr>
                 <th>
                     Name
@@ -49,7 +50,7 @@
         <tbody>
             @foreach (var crep in Model.ClientReps.OrderByDescending(b => b.rssi))
             {
-                <tr>
+                <tr class="RConn">
                     <td>
                         @crep.GetName()
                     </td>
@@ -69,7 +70,6 @@
             }
         </tbody>
     </table>
-    <br />
     <hr />
-    @Model.Summary()
+    <div style="text-align:center"><b>@Model.Summary()</b></div>
 </body>

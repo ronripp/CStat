@@ -20,6 +20,7 @@ namespace CStat.Pages
         public CSSettings _settings { get; set; }
         private RConnMgr _rconnMgr;
         public IList<ClientReport> ClientReps { get; set; } = null;
+        private bool _rconnsValid = false;
 
         public RConnsModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
         {
@@ -32,12 +33,12 @@ namespace CStat.Pages
 
         public void OnGet()
         {
-            ClientReps = _rconnMgr.ReadLast();
+            ClientReps = _rconnMgr.GetValidLast(out _rconnsValid);
         }
 
         public string Summary()
         {
-            return (ClientReps.Count == 0) ? "There are NO detected people @ CCA" : "There are " + ClientReps.Count + " detected people @ CCA";
+            return _rconnsValid ? ((ClientReps.Count == 0) ? "There are NO detected people @ CCA" : "There are " + ClientReps.Count + " detected people @ CCA") : "People Detection is not operational. Please try later";
         }
     }
 }

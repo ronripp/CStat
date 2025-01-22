@@ -297,5 +297,20 @@ namespace CStat.Common
             return res;
         }
 
+        public List<ClientReport> GetValidLast(out bool isValid)
+        {
+            var rcs = this.ReadLast();
+            if (rcs.Count > 0)
+            {
+                var maxRC = rcs.Max(lc => lc.curDT);
+                if ((DateTime.Now - maxRC).TotalHours <= 4)
+                {
+                    isValid = true;
+                    return rcs;
+                }
+            }
+            isValid = false;
+            return new List<ClientReport>();
+        }
     }
 }

@@ -38,7 +38,20 @@ namespace CStat.Pages
 
         public string Summary()
         {
-            return _rconnsValid ? ((ClientReps.Count == 0) ? "There are NO detected people @ CCA" : "There are " + ClientReps.Count + " detected people @ CCA") : "People Detection is not operational. Please try later";
+            String lastDTStr = "";
+            if (ClientReps.Count > 0)
+            {
+                DateTime maxDate = ClientReps.Max(lc => lc.curDT);
+                lastDTStr = " Last Report was " + maxDate.ToShortDateString() + " " + maxDate.ToShortTimeString();
+            }
+
+            if (!_rconnsValid)
+                return "People Detection is not operational. Please try later." + lastDTStr; 
+
+            if (ClientReps.Count <= 0)
+                return "There are NO detected people @ CCA." + lastDTStr;
+
+            return  ClientReps.Count + " detected people @ CCA." + lastDTStr;
         }
     }
 }

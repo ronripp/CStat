@@ -53,6 +53,7 @@ namespace CStat.Controllers
                     ClientReport[] clients = ClientReport.GetClientsFromJson(raw);
                     ClientReport.SetClients(clients);
 
+   
                     RConnMgr rcmgr = new RConnMgr(_hostEnv, _context);
                     rcmgr.Update(clients);
                     rcmgr.Close(out string newClient);

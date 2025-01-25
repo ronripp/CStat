@@ -167,8 +167,9 @@ namespace CStat.Common
         }
         private int AddClientReport(ClientReport cr)
         {
-            if (((cr.deviceType != 31) && (cr.deviceType != 30)) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime))
-                return 0;
+            //if (((cr.deviceType != 31) && (cr.deviceType != 30)) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // PCs/Laptops and Cells/Tablets
+            if ((cr.deviceType != 31) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // Cells / Tablets
+               return 0;
 
             // Generate file body name to read existing CR records
             string fileBody = "RConn" + (cr.curDT.Year % 100).ToString("00") + cr.curDT.Month.ToString("00") + cr.curDT.Day.ToString("00") + ".txt";
@@ -211,10 +212,10 @@ namespace CStat.Common
                     {
                         DateTime maxDate = lastConnectedCRs.Max(lc => lc.curDT);
                         if ((minDate - maxDate).TotalHours > 4)
-                            lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortDateString();
+                            lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortTimeString();
                     }
                     else
-                        lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortDateString();
+                        lastConnected = "New Arrival : " + instCR.GetName() + " @ " + instCR.curDT.ToShortDateString() + " " + instCR.curDT.ToShortTimeString();
                 }
                 WriteLastConnected(connectedCRs);
             }

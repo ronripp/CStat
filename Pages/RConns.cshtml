@@ -55,13 +55,26 @@
                         @crep.GetName()
                     </td>
                     <td>
-                        @Html.Raw(((crep.deviceType==31) ? "Cell/Tab" : "PC/Lap") + " " + crep.mac)
+                        @Html.Raw(((crep.deviceType == 31) ? "Cell/Tab" : "PC/Lap") + " " + crep.mac)
                     </td>
                     <td>
                         @Html.Raw(((crep.rssi >= -70) ? "Kitchen" : ((crep.rssi) >= -80) ? "Not Far" : "Far") + " (" + crep.rssi + ")")
                     </td>
                     <td>
-                        @Html.Raw(crep.startDT.ToShortDateString() + " " + crep.startDT.ToShortTimeString())
+                        @{
+                            DateTime estStartDT;
+                            if (System.Math.Abs((DateTime.Now - DateTime.UtcNow).TotalSeconds) < 2)
+                            {
+                                crep.startDT = DateTime.SpecifyKind(crep.startDT, DateTimeKind.Utc);
+                                TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                                estStartDT = TimeZoneInfo.ConvertTimeFromUtc(crep.startDT, easternZone);
+                            }
+                            else
+                                estStartDT = crep.startDT;
+                            string estDTStr = estStartDT.ToShortDateString() + " " + estStartDT.ToShortTimeString();
+                         }
+                         @Html.Raw(estDTStr)
+                           
                     </td>
                     <td>
                         @Html.Raw(crep.dRx.ToString())

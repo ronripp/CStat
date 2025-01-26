@@ -41,17 +41,23 @@ namespace CStat.Pages
             String lastDTStr = "";
             if (ClientReps.Count > 0)
             {
-                DateTime maxDate = ClientReps.Max(lc => lc.curDT);
-                lastDTStr = " Last Report was " + maxDate.ToShortDateString() + " " + maxDate.ToShortTimeString();
+                DateTime maxDT = ClientReps.Max(lc => lc.curDT);
+                if (System.Math.Abs((DateTime.Now - DateTime.UtcNow).TotalSeconds) < 2)
+                {
+                    maxDT = DateTime.SpecifyKind(maxDT, DateTimeKind.Utc);
+                    TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                    maxDT = TimeZoneInfo.ConvertTimeFromUtc(maxDT, easternZone);
+                }
+                lastDTStr = " Last Report: " + maxDT.ToShortDateString() + " " + maxDT.ToShortTimeString();
             }
 
             if (!_rconnsValid)
                 return "People Detection is not operational. Please try later." + lastDTStr; 
 
             if (ClientReps.Count <= 0)
-                return "There are NO detected people @ CCA." + lastDTStr;
+                return "NO people found @ CCA." + lastDTStr;
 
-            return  ClientReps.Count + " detected people @ CCA." + lastDTStr;
+            return  ClientReps.Count + " people found @ CCA." + lastDTStr;
         }
     }
 }

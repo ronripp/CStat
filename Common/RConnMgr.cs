@@ -167,8 +167,9 @@ namespace CStat.Common
         }
         private int AddClientReport(ClientReport cr)
         {
-            //if (((cr.deviceType != 31) && (cr.deviceType != 30)) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // PCs/Laptops and Cells/Tablets
-            if ((cr.deviceType != 31) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // Cells / Tablets
+            //if (((cr.deviceType != 31) && (cr.deviceType != 30)) || (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // NotPCs/Laptops and Cells/Tablets
+            if ( ( (cr.deviceType != 31) && !((cr.deviceType == 0) && ((cr.name == "") || cr.name.Contains("iPhone"))) ) ||
+                 (cr?.curDT == null) || string.IsNullOrEmpty(cr.connTime)) // Not Cells / Tablets : Note : iPhone may have device type of 0 with or without name containing iPhone
                return 0;
 
             // Generate file body name to read existing CR records

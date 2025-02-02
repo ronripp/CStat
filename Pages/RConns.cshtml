@@ -55,7 +55,7 @@
                         @crep.GetName()
                     </td>
                     <td>
-                        @Html.Raw(((crep.deviceType == 31) ? "Cell/Tab" : "PC/Lap") + " " + crep.mac)
+                        @Html.Raw(((crep.deviceType == 30) ? "PC/Lap" :"Cell/Tab") + " " + crep.mac)
                     </td>
                     <td>
                         @Html.Raw(((crep.rssi >= -70) ? "Kitchen" : ((crep.rssi) >= -80) ? "Not Far" : "Far") + " (" + crep.rssi + ")")

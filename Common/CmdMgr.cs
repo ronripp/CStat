@@ -135,7 +135,7 @@ namespace CStat.Common
             {"pdf", CmdFormat.PDF},
             {"pdf_file", CmdFormat.PDF},
             {"excel", CmdFormat.EXCEL},
-            {"spread_sheet", CmdFormat.EXCEL},
+            {"spread-sheet", CmdFormat.EXCEL},
             {"spreadsheet", CmdFormat.EXCEL},
             {"spreadlist", CmdFormat.EXCEL},
             {"sheet", CmdFormat.EXCEL},
@@ -548,7 +548,7 @@ namespace CStat.Common
                            .Replace("walk in freezer", "freezer")
                            .Replace("walk in fridge", "refrigerator")
                            .Replace("walk in refrigerator", "refrigerator")
-                           .Replace("spread sheet", "spread_sheet")
+                           .Replace("spread sheet", "spread-sheet")
                            .Replace(":", "")
                            .Replace("  ", " ");
            

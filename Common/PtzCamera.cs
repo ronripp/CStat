@@ -208,7 +208,7 @@ public class PtzCamera : System.IDisposable
         {
             Logout();
         }
-
+        
         public bool Login()
         {
             lock (_tokenLock)
@@ -560,7 +560,7 @@ public class PtzCamera : System.IDisposable
 
         private string GetSnapDir(IWebHostEnvironment hostEnv)
         {
-            string folderName = @"Camera\Snap";
+            string folderName = ((this._cam == CamOps.Camera.Camera2) ? "Camera2 " : "Camera1 ") + @"\Snap";
             string webRootPath = hostEnv.WebRootPath;
             string TempPath = Path.Combine(webRootPath, folderName);
             if (!Directory.Exists(TempPath))

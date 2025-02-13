@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 using CTask = CStat.Models.Task;
+using System.IO;
 
 namespace CStat.Common
 {
@@ -43,9 +44,21 @@ namespace CStat.Common
             //_csSettings = new CSSettings(_configuration, userManager);
         }
 
+
         public async Task DoWork(CancellationToken stoppingToken)
         {
             var cl = new CSLogger();
+
+            // Create Filewatches for Camera notications to trigger patrol
+            string webRootPath = _hostEnv.WebRootPath;
+            string ImgPath1 = Path.Combine(webRootPath, @"Camera1\Images");
+            string ImgPath2 = Path.Combine(webRootPath, @"Camera2\Images");
+            if (!Directory.Exists(ImgPath1))
+                Directory.CreateDirectory(ImgPath1);
+            if (!Directory.Exists(ImgPath2))
+                Directory.CreateDirectory(ImgPath2);
+            CSFileWatcher csFW1 = new CSFileWatcher(ImgPath1, "*.jpg", _hostEnv);
+            CSFileWatcher csFW2 = new CSFileWatcher(ImgPath2, "*.jpg", _hostEnv);
 
             cl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 

@@ -3044,7 +3044,7 @@ namespace CStat.Common
                 {
                     return ByLawsLink + "\nERROR : DropBox NOT Accessible.";
                 }
-                string SrcPath = "/Corporate/By-Laws & IDs";
+                string SrcPath = "/Corporate/By-Laws, IDs & Docs";
                 string FileName = "CCA By-Laws 2021.docx";
                 string FullSrcPath = SrcPath + "/" + FileName;
                 string FullDestPath = Path.Combine(Path.GetTempPath(), FileName);

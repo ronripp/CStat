@@ -10,8 +10,10 @@ namespace CStat.Common
     public class CSFileWatcher : FileSystemWatcher
     {
         public readonly IWebHostEnvironment _hostEnv;
-        public CSFileWatcher(string path, string wildcard, IWebHostEnvironment hostEnv)
+        public readonly CSLogger _cl;
+        public CSFileWatcher(string path, string wildcard, IWebHostEnvironment hostEnv) : base(path, wildcard)
         {
+            _cl = new CSLogger();
             _hostEnv = hostEnv;
             NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
@@ -22,55 +24,38 @@ namespace CStat.Common
                                  | NotifyFilters.Security
                                  | NotifyFilters.Size;
 
-            Changed += OnChanged;
+            Changed += OnCreated;
             Created += OnCreated;
-            Deleted += OnDeleted;
-            Renamed += OnRenamed;
+            //Deleted += OnDeleted;
+            //Renamed += OnRenamed;
             Error += OnError;
 
             Filter = wildcard;
-            IncludeSubdirectories = true;
+            IncludeSubdirectories = false;
             EnableRaisingEvents = true;
-        }
-
-        private static void OnChanged(object sender, FileSystemEventArgs e)
-        {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-            {
-                return;
-            }
-            Console.WriteLine($"Changed: {e.FullPath}");
         }
 
         private static void OnCreated(object sender, FileSystemEventArgs e)
         {
-            string value = $"Created: {e.FullPath}";
-            Console.WriteLine(value);
-        }
+            CSFileWatcher csFW = (CSFileWatcher)sender;
+            csFW._cl.Log("CSFW: Created/Mod : {e.FullPath}");
 
-        private static void OnDeleted(object sender, FileSystemEventArgs e) =>
-            Console.WriteLine($"Deleted: {e.FullPath}");
-
-        private static void OnRenamed(object sender, RenamedEventArgs e)
-        {
-            Console.WriteLine($"Renamed:");
-            Console.WriteLine($"    Old: {e.OldFullPath}");
-            Console.WriteLine($"    New: {e.FullPath}");
-        }
-
-        private static void OnError(object sender, ErrorEventArgs e) =>
-            PrintException(e.GetException());
-
-        private static void PrintException(Exception? ex)
-        {
-            if (ex != null)
+            if (e.FullPath.Contains("Camera1\\Images"))
             {
-                Console.WriteLine($"Message: {ex.Message}");
-                Console.WriteLine("Stacktrace:");
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine();
-                PrintException(ex.InnerException);
+                // Camera 1 has motion/activity
+                //PtzCamera cam1 = new PtzCamera(CamOps.Camera.Camera1);
+                //cam1.GetPresetPicture(csFW._hostEnv, 
             }
+            else
+            {
+                // Camera 2 has motion/activity
+            }
+        }
+
+        private static void OnError(object sender, ErrorEventArgs e)
+        {
+            CSFileWatcher csFW = (CSFileWatcher)sender;
+            csFW._cl.Log("CSFW: Error : {e.FullPath}");
         }
     }
 }

@@ -38,24 +38,27 @@ namespace CStat.Common
         private static void OnCreated(object sender, FileSystemEventArgs e)
         {
             CSFileWatcher csFW = (CSFileWatcher)sender;
-            csFW._cl.Log("CSFW: Created/Mod : {e.FullPath}");
+            csFW._cl.Log("CSFW: Created/Mod : " + e.FullPath);
 
-            if (e.FullPath.Contains("Camera1\\Images"))
+            if (e.FullPath.Contains("Camera2\\Images"))
+            {
+                // Camera 2 has motion/activity
+                PtzCamera cam2 = new PtzCamera(CamOps.Camera.Camera2);
+                cam2.GetPresetPicture(csFW._hostEnv, 2);
+            }
+            else if (e.FullPath.Contains("Camera1\\Images"))
             {
                 // Camera 1 has motion/activity
                 //PtzCamera cam1 = new PtzCamera(CamOps.Camera.Camera1);
                 //cam1.GetPresetPicture(csFW._hostEnv, 
             }
-            else
-            {
-                // Camera 2 has motion/activity
-            }
+
         }
 
         private static void OnError(object sender, ErrorEventArgs e)
         {
             CSFileWatcher csFW = (CSFileWatcher)sender;
-            csFW._cl.Log("CSFW: Error : {e.FullPath}");
+            csFW._cl.Log("CSFW: Error : " + e.GetException().Message );
         }
     }
 }

@@ -94,7 +94,7 @@ namespace CStat.Pages
             {
                 System.Threading.Thread.Sleep(camOps.HandleOp(hostEnv, preset));
             }
-            string sshFile = camOps.SnapShotFile(hostEnv, true, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
+            string sshFile = camOps.SnapShotFile("", hostEnv, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
             string EMailTitle = "CCA Camera Photo";
             var email = new CSEMail(config, userManager);
             string result = email.Send(curUser.EMail, curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFile })

@@ -12,7 +12,7 @@ namespace CStat.Common
     public class CamOps1 : CamOps
     {
         protected override object _qLock { get; set; } = null;
-        public override Queue<COp> _queue { get; set; }
+        public override Queue<COpObj> _queue { get; set; }
 
         public CamOps1()
         {
@@ -20,7 +20,7 @@ namespace CStat.Common
             _cam = Camera.Camera1;
             lock (_qLock)
             {
-                _queue = new Queue<COp>();
+                _queue = new Queue<COpObj>();
             }
         }
         public override int PresetOffsetFrom1()
@@ -32,7 +32,7 @@ namespace CStat.Common
     public class CamOps2 : CamOps
     {
         protected override object _qLock { get; set; } = null;
-        public override Queue<COp> _queue { get; set; }
+        public override Queue<COpObj> _queue { get; set; }
 
         public CamOps2()
         {
@@ -40,7 +40,7 @@ namespace CStat.Common
             _cam = Camera.Camera2;
             lock (_qLock)
             {
-                _queue = new Queue<COp>();
+                _queue = new Queue<COpObj>();
             }
         }
         public override int PresetOffsetFrom1()
@@ -56,7 +56,7 @@ namespace CStat.Common
         protected static object _qLock1 { get; set; } = new object();
         protected static object _qLock2 { get; set; } = new object();
         protected abstract object _qLock { get; set; }
-        public abstract Queue<COp> _queue { get; set; }
+        public abstract Queue<COpObj> _queue { get; set; }
         public abstract int PresetOffsetFrom1();
 
         public CamOps.Camera _cam;
@@ -66,21 +66,21 @@ namespace CStat.Common
         {
         }
 
-        public COp Add(COp cop)
+        public COpObj Add(COpObj copObj)
         {
             lock (_qLock)
             {
                 try
                 {
                     bool _qEmpty = _queue.Count == 0;
-                    gLog.Log("CamOps.Add to Queue " + (int)cop);
-                    _queue.Enqueue(cop);
-                    gLog.Log("VCamOps.Add returning " + ((_qEmpty) ? (int)cop : (int)COp.None));
-                    return (_qEmpty) ? cop : COp.None; // Indicate what if anything to execute COp now
+                    gLog.Log("CamOps.Add to Queue " + (int)copObj._cop);
+                    _queue.Enqueue(copObj);
+                    gLog.Log("VCamOps.Add returning " + ((_qEmpty) ? (int)copObj._cop : (int)COp.None));
+                    return (_qEmpty) ? copObj : null; // Indicate what if anything to execute COp now
                 }
                 catch
                 {
-                    return COp.None;
+                    return null;
                 }
             }
         }
@@ -93,8 +93,7 @@ namespace CStat.Common
             }
         }
 
-
-        public COp Delete()
+        public COpObj Delete()
         {
             lock (_qLock)
             {
@@ -103,38 +102,40 @@ namespace CStat.Common
                     bool _qEmpty = _queue.Count <= 1;
                     if (_queue.Count > 0)
                     {
-                        gLog.Log("CamOps.Delete from Queue " + (int)_queue.Peek());
+                        gLog.Log("CamOps.Delete from Queue " + _queue.Peek()._cop);
                         _queue.Dequeue();
                     }
-                    gLog.Log("CamOps.Delete returning " + ((_qEmpty) ? (int)COp.None : (int)_queue.Peek()));
+                    gLog.Log("CamOps.Delete returning " + ((_qEmpty) ? null :  _queue.Peek()));
 
-                    return (_qEmpty) ? COp.None : _queue.Peek(); // Indicate what if anything to execute COp now
+                    return (_qEmpty) ? null : _queue.Peek(); // Indicate what if anything to execute COp now
                 }
                 catch
                 {
-                    return COp.None;
+                    return null;
                 }
             }
         }
-        public int HandleOp (IWebHostEnvironment hostEnv, COp rcop)
+        public int HandleOp (IWebHostEnvironment hostEnv, COp rcop, string rcopPath="", string rcopAttr="")
         {
+            COpObj rCOpObj = new COpObj(rcop, rcopPath, rcopAttr);
             gLog.Log("CamOps.HandleOp START rcop=" + (int)rcop);
             try
             {
                 using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
                     int MaxDelay = 0;
-                    var cop = Add(rcop);
-                    if (cop == COp.None)
+                    var copObj = Add(rCOpObj);
+                    if (copObj == null)
                         return 6000;
-                    while (cop != COp.None)
+                    do
                     {
-                        gLog.Log("CamOps.HandleOp " + (int)cop);
-                        var delay = ptzCam.ExecuteOp(hostEnv, cop);
+                        gLog.Log("CamOps.HandleOp " + (int)copObj._cop);
+                        var delay = ptzCam.ExecuteOp(hostEnv, copObj);
                         if (delay > MaxDelay)
                             MaxDelay = delay;
-                        cop = Delete();
+                        copObj = Delete();
                     }
+                    while (copObj != null);
 
                     // Give time for Camera to move. Delay can be adjusted
                     ptzCam.Logout();
@@ -229,14 +230,14 @@ namespace CStat.Common
             }
         }
 
-        public string SnapShotFile(IWebHostEnvironment hostEnv, bool asFile, string resStr = "&width=1024&height=768")
+        public string SnapShotFile(string ssfile, IWebHostEnvironment hostEnv, string resStr = "&width=1024&height=768")
         {
             gLog.Log("CamOps.SnapShot START");
             try
             {
                using (PtzCamera ptzCam = new PtzCamera(_cam))
                 {
-                    var file = ptzCam.GetSnapshotFile(hostEnv, resStr);
+                    var file = ptzCam.GetSnapshotFile(ssfile, hostEnv, resStr);
                     gLog.Log("CamOps.SnapShot FILE=" + file);
                     ptzCam.Logout();
                     return file;

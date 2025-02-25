@@ -124,6 +124,19 @@ public class PtzCamera : System.IDisposable
             LightOff = 501,
         };
 
+        public class COpObj
+        {
+            public COp _cop;
+            public string _path;
+            public string _attrs;
+            public COpObj(COp cop, string path = "", string attrs = "")
+            {
+                _cop = cop;
+                _path = path;
+                _attrs = attrs;
+            }
+        }
+
         public static Dictionary<COp, string> COpToStr = new Dictionary<COp, string>
         {
             {COp.UL       ,"LeftUp"},
@@ -515,8 +528,9 @@ public class PtzCamera : System.IDisposable
             return false;
         }
 
-        public int ExecuteOp(IWebHostEnvironment hostEnv, COp cop)
+        public int ExecuteOp(IWebHostEnvironment hostEnv, COpObj copObj)
         {
+            COp cop = copObj._cop;
             gLog.Log("PtzC.ExecuteOp START cop=" + (int)cop);
 
             if ((cop == COp.None) || (cop == COp.Refresh))
@@ -526,6 +540,7 @@ public class PtzCamera : System.IDisposable
 
             if (cop == PtzCamera.COp.HRSnapShot)
             {
+                GetSnapshotFile(copObj._path, hostEnv, copObj._attrs);
                 return 0; // HRSnapShot just gets a High Resolution snapshot.
             }
             if (cop == PtzCamera.COp.ToggleLight)
@@ -636,16 +651,32 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public string GetSnapshotFile(IWebHostEnvironment hostEnv, string resStr = "&width=1024&height=768")
+        public string GetSnapshotFile(string fullFile, IWebHostEnvironment hostEnv, string resStr = "&width=1024&height=768")
         {
             try
             {
-                var tempPath = GetTempDir(hostEnv);
+                string fullPath;
+                string baseFilename;
+                string actFilename;
+                string tempPath;
+                if (!string.IsNullOrEmpty(fullFile))
+                {
+                    fullPath = fullFile;
+                    int lastBS = fullFile.LastIndexOf('\\');
+                    tempPath = (lastBS > 0) ? fullFile.Substring(0, lastBS - 1) : "";
+                    actFilename = (lastBS > 0) ? fullFile.Substring(lastBS+1) : fullFile;
+                    int lastDot = actFilename.LastIndexOf('.');
+                    baseFilename = (lastDot > 0) ? actFilename.Substring(lastDot + 1) : actFilename;
+                }
+                else
+                {
+                    tempPath = GetTempDir(hostEnv);
+                    var now = PropMgr.ESTNow;
+                    baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
+                    actFilename = baseFilename + ".jpg";
+                    fullPath = Path.Combine(tempPath, actFilename);
+                }
 
-                var now = PropMgr.ESTNow;
-                string baseFilename = "Cam" + (now.Year % 100).ToString("00") + now.Month.ToString("00") + now.Day.ToString("00") + now.Hour.ToString("00") + now.Minute.ToString("00") + now.Second.ToString("00");
-                string actFilename = baseFilename + ".jpg";
-                string fullPath = Path.Combine(tempPath, actFilename);
                 for (int i = 1; File.Exists(fullPath); ++i)
                 {
                     actFilename = baseFilename + i.ToString("00") + ".jpg";
@@ -1094,7 +1125,7 @@ public class PtzCamera : System.IDisposable
         {
             try
             {
-                GetPresetPicture(hostEnv, (int)COp.Preset4); // reset back to full view so we can return to surveilence
+                // Should go back to Monitor Point on its own : GetPresetPicture(hostEnv, (int)COp.Preset4); // reset back to full view so we can return to surveilence
 
                 // Delete all temp camera images
                 string[] filePaths = Directory.GetFiles(GetTempDir(hostEnv));

@@ -2792,13 +2792,13 @@ namespace CStat.Common
             wordStr = wordStr.Trim();
 
             if (wordStr.Contains("camera 1") || wordStr.Contains("camera one)"))
-                camOps = CameraModel._CamOps1;
+                camOps = CamOps._CamOps1;
             else if (wordStr.Contains("camera 2") || wordStr.Contains("camera two)"))
-                camOps = CameraModel._CamOps2;
+                camOps = CamOps._CamOps2;
             else if (wordStr.Contains("cam 1") || wordStr.Contains("cam one)"))
-                camOps = CameraModel._CamOps1;
+                camOps = CamOps._CamOps1;
             else if (wordStr.Contains("cam 2") || wordStr.Contains("cam two)"))
-                camOps = CameraModel._CamOps2;
+                camOps = CamOps._CamOps2;
 
             int foundCam = (camOps != null) ? (int)camOps._cam : 0;
 

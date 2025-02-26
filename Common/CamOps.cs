@@ -51,6 +51,11 @@ namespace CStat.Common
 
     public abstract class CamOps
     {
+        public static string[] _presets1 = new string[10] { "~", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door", "~", "~", "~" };
+        public static string[] _presets2 = new string[10] { "~", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors", "~", "~", "~" };
+        public static CamOps1 _CamOps1 = new CamOps1();
+        public static CamOps2 _CamOps2 = new CamOps2();
+
         public enum Camera { none = 0, Camera1 = 1, Camera2 = 2 };
 
         protected static object _qLock1 { get; set; } = new object();

@@ -17,10 +17,6 @@ namespace CStat.Pages
 {
     public class CameraModel : PageModel
     {
-        public static string[] _presets1 = new string[10] { "~", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door", "~", "~", "~" };
-        public static string[] _presets2 = new string[10] { "~", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors", "~", "~", "~" };
-        public static CamOps1 _CamOps1 = new CamOps1();
-        public static CamOps2 _CamOps2 = new CamOps2();
         public CamOps _CamOps = null;
         public CamOps.Camera _cam;
 
@@ -50,12 +46,12 @@ namespace CStat.Pages
             {
                 if (cam == CamOps.Camera.Camera2)
                 {
-                    _CamOps = _CamOps2;
+                    _CamOps = CamOps._CamOps2;
                     _cam = CamOps.Camera.Camera2;
                 }
                 else
                 {
-                    _CamOps = _CamOps1;
+                    _CamOps = CamOps._CamOps1;
                     _cam = CamOps.Camera.Camera1;
                 }
 
@@ -86,9 +82,9 @@ namespace CStat.Pages
         {
             CamOps camOps;
             if (cam == CamOps.Camera.Camera2)
-                camOps = _CamOps2;
+                camOps = CamOps._CamOps2;
             else
-                camOps = _CamOps1;
+                camOps = CamOps._CamOps1;
 
             if (preset != COp.None)
             {
@@ -105,7 +101,7 @@ namespace CStat.Pages
 
         public string PresetName(int cam, int index)
         {
-            return (cam == 2) ? _presets2[index] : _presets1[index];
+            return (cam == 2) ? CamOps._presets2[index] : CamOps._presets1[index];
         }
 
         public JsonResult OnGetCamOp() // TBD Add Async
@@ -121,12 +117,12 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
             {
-                _CamOps = _CamOps2;
+                _CamOps = CamOps._CamOps2;
                 _cam = CamOps.Camera.Camera2;
             }
             else
             {
-                _CamOps = _CamOps1;
+                _CamOps = CamOps._CamOps1;
                 _cam = CamOps.Camera.Camera1;
             }
 
@@ -172,12 +168,12 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
             {
-                _CamOps = _CamOps2;
+                _CamOps = CamOps._CamOps2;
                 _cam = CamOps.Camera.Camera2;
             }
             else
             {
-                _CamOps = _CamOps1;
+                _CamOps = CamOps._CamOps1;
                 _cam = CamOps.Camera.Camera1;
             }
 
@@ -207,12 +203,12 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
             {
-                _CamOps = _CamOps2;
+                _CamOps = CamOps._CamOps2;
                 _cam = CamOps.Camera.Camera2;
             }
             else
             {
-                _CamOps = _CamOps1;
+                _CamOps = CamOps._CamOps1;
                 _cam = CamOps.Camera.Camera1;
             }
 
@@ -245,12 +241,12 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~:Incorrect Parameters");
             if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
             {
-                _CamOps = _CamOps2;
+                _CamOps = CamOps._CamOps2;
                 _cam = CamOps.Camera.Camera2;
             }
             else
             {
-                _CamOps = _CamOps1;
+                _CamOps = CamOps._CamOps1;
                 _cam = CamOps.Camera.Camera1;
             }
 

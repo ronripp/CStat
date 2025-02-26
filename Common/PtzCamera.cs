@@ -540,7 +540,7 @@ public class PtzCamera : System.IDisposable
 
             if (cop == PtzCamera.COp.HRSnapShot)
             {
-                GetSnapshotFile(copObj._path, hostEnv, copObj._attrs);
+                GetSnapshotFile(copObj._path, hostEnv, "&width=3840&height=2160");
                 return 0; // HRSnapShot just gets a High Resolution snapshot.
             }
             if (cop == PtzCamera.COp.ToggleLight)

@@ -35,6 +35,11 @@ namespace CStat.Common
             EnableRaisingEvents = true;
         }
 
+        public string GetHRSnapShotFilePath(CamOps.Camera cam)
+        {
+            return ""; // ZZZ
+        }
+
         private static void OnCreated(object sender, FileSystemEventArgs e)
         {
             CSFileWatcher csFW = (CSFileWatcher)sender;
@@ -43,7 +48,7 @@ namespace CStat.Common
             if (e.FullPath.Contains("Camera2\\Images"))
             {
                 // Camera 2 has motion/activity
-                PtzCamera cam2 = new PtzCamera(CamOps.Camera.Camera2);
+                CamOps._CamOps2.HandleOp(csFW._hostEnv, PtzCamera.COp.HRSnapShot, csFW.GetHRSnapShotFilePath(CamOps.Camera.Camera2), "");
                 cam2.GetPresetPicture(csFW._hostEnv, 2);
             }
             else if (e.FullPath.Contains("Camera1\\Images"))

@@ -2792,13 +2792,13 @@ namespace CStat.Common
             wordStr = wordStr.Trim();
 
             if (wordStr.Contains("camera 1") || wordStr.Contains("camera one)"))
-                camOps = CamOps._CamOps1;
+                camOps = Cam._CamOps1;
             else if (wordStr.Contains("camera 2") || wordStr.Contains("camera two)"))
-                camOps = CamOps._CamOps2;
+                camOps = Cam._CamOps2;
             else if (wordStr.Contains("cam 1") || wordStr.Contains("cam one)"))
-                camOps = CamOps._CamOps1;
+                camOps = Cam._CamOps1;
             else if (wordStr.Contains("cam 2") || wordStr.Contains("cam two)"))
-                camOps = CamOps._CamOps2;
+                camOps = Cam._CamOps2;
 
             int foundCam = (camOps != null) ? (int)camOps._cam : 0;
 
@@ -2811,24 +2811,24 @@ namespace CStat.Common
 
                 if ((foundCam == 1) || (foundCam == 0))
                 {
-                    index = Array.FindIndex(CameraModel._presets1, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
+                    index = Array.FindIndex(Cam._presets1, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
                     if ((index != -1) && (len > maxMatchLen))
                     {
                         maxMatchLen = len;
                         if (foundCam == 0)
-                            camOps = CameraModel._CamOps1;
+                            camOps = Cam._CamOps1;
                         preset = (COp)index;
                     }
                 }
 
                 if ((foundCam == 2) || (foundCam == 0))
                 {
-                    index = Array.FindIndex(CameraModel._presets2, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
+                    index = Array.FindIndex(Cam._presets2, p => p.IndexOf(desc, StringComparison.InvariantCultureIgnoreCase) != -1);
                     if ((index != -1) && (len > maxMatchLen))
                     {
                         maxMatchLen = len;
                         if (foundCam == 0)
-                            camOps = CameraModel._CamOps2;
+                            camOps = Cam._CamOps2;
                         preset = (COp)index;
                     }
                 }
@@ -2877,7 +2877,7 @@ namespace CStat.Common
                     preset = COp.Preset9;
             }
             if (camOps == null)
-                camOps = CameraModel._CamOps1;
+                camOps = Cam._CamOps1;
 
             Thread.Sleep(camOps.HandleOp(_hostEnv, COp.LightOn));
 

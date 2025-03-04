@@ -9,6 +9,15 @@ using static CStat.Common.PtzCamera;
 
 namespace CStat.Common
 {
+    public static class Cam
+    {
+        public enum Camera { none = 0, Camera1 = 1, Camera2 = 2 };
+        public static string[] _presets1 = new string[10] { "~", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door", "~", "~", "~" };
+        public static string[] _presets2 = new string[10] { "~", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors", "~", "~", "~" };
+        public static CamOps1 _CamOps1 = new CamOps1();
+        public static CamOps2 _CamOps2 = new CamOps2();
+    }
+
     public class CamOps1 : CamOps
     {
         protected override object _qLock { get; set; } = null;
@@ -17,7 +26,7 @@ namespace CStat.Common
         public CamOps1()
         {
             _qLock = _qLock1;
-            _cam = Camera.Camera1;
+            _cam = Cam.Camera.Camera1;
             lock (_qLock)
             {
                 _queue = new Queue<COpObj>();
@@ -37,7 +46,7 @@ namespace CStat.Common
         public CamOps2()
         {
             _qLock = _qLock1;
-            _cam = Camera.Camera2;
+            _cam = Cam.Camera.Camera2;
             lock (_qLock)
             {
                 _queue = new Queue<COpObj>();
@@ -51,20 +60,13 @@ namespace CStat.Common
 
     public abstract class CamOps
     {
-        public static string[] _presets1 = new string[10] { "~", "Camper", "Work Zone", "Chapel", "Front View", "Deck/Doors", "End Door", "~", "~", "~" };
-        public static string[] _presets2 = new string[10] { "~", "Lower Path", "Propane", "Drive up", "Girls Path", "Park/Field", "Deck/Doors", "~", "~", "~" };
-        public static CamOps1 _CamOps1 = new CamOps1();
-        public static CamOps2 _CamOps2 = new CamOps2();
-
-        public enum Camera { none = 0, Camera1 = 1, Camera2 = 2 };
-
         protected static object _qLock1 { get; set; } = new object();
         protected static object _qLock2 { get; set; } = new object();
         protected abstract object _qLock { get; set; }
         public abstract Queue<COpObj> _queue { get; set; }
         public abstract int PresetOffsetFrom1();
 
-        public CamOps.Camera _cam;
+        public Cam.Camera _cam;
 
         //private string _link = "";
         public CamOps()

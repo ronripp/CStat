@@ -18,7 +18,7 @@ namespace CStat.Pages
     public class CameraModel : PageModel
     {
         public CamOps _CamOps = null;
-        public CamOps.Camera _cam;
+        public Cam.Camera _cam;
 
         private const COp DefaultCOp = COp.Preset4;
         private CSLogger cl = new CSLogger();
@@ -40,19 +40,19 @@ namespace CStat.Pages
         {
             
         }
-        public void OnGet(CamOps.Camera cam, int op)
+        public void OnGet(Cam.Camera cam, int op)
         {
             try
             {
-                if (cam == CamOps.Camera.Camera2)
+                if (cam == Cam.Camera.Camera2)
                 {
-                    _CamOps = CamOps._CamOps2;
-                    _cam = CamOps.Camera.Camera2;
+                    _CamOps = Cam._CamOps2;
+                    _cam = Cam.Camera.Camera2;
                 }
                 else
                 {
-                    _CamOps = CamOps._CamOps1;
-                    _cam = CamOps.Camera.Camera1;
+                    _CamOps = Cam._CamOps1;
+                    _cam = Cam.Camera.Camera1;
                 }
 
                 PtzCamera.ResetLogin(_cam);
@@ -78,13 +78,13 @@ namespace CStat.Pages
             }
         }
 
-        public static string GetPhoto(IWebHostEnvironment hostEnv, IConfiguration config, Microsoft.AspNetCore.Identity.UserManager<CStatUser> userManager, CSUser curUser, CamOps.Camera cam, COp preset)
+        public static string GetPhoto(IWebHostEnvironment hostEnv, IConfiguration config, Microsoft.AspNetCore.Identity.UserManager<CStatUser> userManager, CSUser curUser, Cam.Camera cam, COp preset)
         {
             CamOps camOps;
-            if (cam == CamOps.Camera.Camera2)
-                camOps = CamOps._CamOps2;
+            if (cam == Cam.Camera.Camera2)
+                camOps = Cam._CamOps2;
             else
-                camOps = CamOps._CamOps1;
+                camOps = Cam._CamOps1;
 
             if (preset != COp.None)
             {
@@ -101,7 +101,7 @@ namespace CStat.Pages
 
         public string PresetName(int cam, int index)
         {
-            return (cam == 2) ? CamOps._presets2[index] : CamOps._presets1[index];
+            return (cam == 2) ? Cam._presets2[index] : Cam._presets1[index];
         }
 
         public JsonResult OnGetCamOp() // TBD Add Async
@@ -115,15 +115,15 @@ namespace CStat.Pages
 
             if (!int.TryParse((string)jObj["cam"], out int cam))
                 return new JsonResult("ERROR~:Incorrect Parameters");
-            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            if ((Cam.Camera)cam == Cam.Camera.Camera2)
             {
-                _CamOps = CamOps._CamOps2;
-                _cam = CamOps.Camera.Camera2;
+                _CamOps = Cam._CamOps2;
+                _cam = Cam.Camera.Camera2;
             }
             else
             {
-                _CamOps = CamOps._CamOps1;
-                _cam = CamOps.Camera.Camera1;
+                _CamOps = Cam._CamOps1;
+                _cam = Cam.Camera.Camera1;
             }
 
             if (!int.TryParse((string)jObj["op"], out int op))
@@ -166,15 +166,15 @@ namespace CStat.Pages
 
             if (!int.TryParse((string)jObj["cam"], out int cam))
                 return new JsonResult("ERROR~:Incorrect Parameters");
-            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            if ((Cam.Camera)cam == Cam.Camera.Camera2)
             {
-                _CamOps = CamOps._CamOps2;
-                _cam = CamOps.Camera.Camera2;
+                _CamOps = Cam._CamOps2;
+                _cam = Cam.Camera.Camera2;
             }
             else
             {
-                _CamOps = CamOps._CamOps1;
-                _cam = CamOps.Camera.Camera1;
+                _CamOps = Cam._CamOps1;
+                _cam = Cam.Camera.Camera1;
             }
 
             try
@@ -201,15 +201,15 @@ namespace CStat.Pages
 
             if (!int.TryParse((string)jObj["cam"], out int cam))
                 return new JsonResult("ERROR~:Incorrect Parameters");
-            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            if ((Cam.Camera)cam == Cam.Camera.Camera2)
             {
-                _CamOps = CamOps._CamOps2;
-                _cam = CamOps.Camera.Camera2;
+                _CamOps = Cam._CamOps2;
+                _cam = Cam.Camera.Camera2;
             }
             else
             {
-                _CamOps = CamOps._CamOps1;
-                _cam = CamOps.Camera.Camera1;
+                _CamOps = Cam._CamOps1;
+                _cam = Cam.Camera.Camera1;
             }
 
             if (!int.TryParse((string)jObj["op"], out int op))
@@ -239,15 +239,15 @@ namespace CStat.Pages
 
             if (!int.TryParse((string)jObj["cam"], out int cam))
                 return new JsonResult("ERROR~:Incorrect Parameters");
-            if ((CamOps.Camera)cam == CamOps.Camera.Camera2)
+            if ((Cam.Camera)cam == Cam.Camera.Camera2)
             {
-                _CamOps = CamOps._CamOps2;
-                _cam = CamOps.Camera.Camera2;
+                _CamOps = Cam._CamOps2;
+                _cam = Cam.Camera.Camera2;
             }
             else
             {
-                _CamOps = CamOps._CamOps1;
-                _cam = CamOps.Camera.Camera1;
+                _CamOps = Cam._CamOps1;
+                _cam = Cam.Camera.Camera1;
             }
 
             string exceptFile = (string)jObj["except"] ?? "";

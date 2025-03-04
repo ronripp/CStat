@@ -158,7 +158,7 @@ public class PtzCamera : System.IDisposable
         private static readonly object _tokenLock1 = new object();
         private static readonly object _tokenLock2 = new object();
         public static CSLogger gLog = null;
-        private CamOps.Camera _cam;
+        private Cam.Camera _cam;
         private int _cIdx;
         private string _host;
         private string _password;
@@ -169,11 +169,11 @@ public class PtzCamera : System.IDisposable
 
         private bool disposed = false;
 
-        public PtzCamera (CamOps.Camera cam)
+        public PtzCamera (Cam.Camera cam)
         {
             _cam = cam;
             _cIdx = (int)_cam;
-            if (cam == CamOps.Camera.Camera2)
+            if (cam == Cam.Camera.Camera2)
             {
                 _host = host2;
                 _password = "CCACert25";
@@ -328,7 +328,7 @@ public class PtzCamera : System.IDisposable
             }
         }
 
-        public static void ResetLogin(CamOps.Camera cam)
+        public static void ResetLogin(Cam.Camera cam)
         {
             using (var ptz = new PtzCamera(cam))
             {
@@ -575,7 +575,7 @@ public class PtzCamera : System.IDisposable
 
         private string GetSnapDir(IWebHostEnvironment hostEnv)
         {
-            string folderName = ((this._cam == CamOps.Camera.Camera2) ? "Camera2 " : "Camera1 ") + @"\Snap";
+            string folderName = ((this._cam == Cam.Camera.Camera2) ? "Camera2 " : "Camera1 ") + @"\Snap";
             string webRootPath = hostEnv.WebRootPath;
             string TempPath = Path.Combine(webRootPath, folderName);
             if (!Directory.Exists(TempPath))
@@ -663,10 +663,10 @@ public class PtzCamera : System.IDisposable
                 {
                     fullPath = fullFile;
                     int lastBS = fullFile.LastIndexOf('\\');
-                    tempPath = (lastBS > 0) ? fullFile.Substring(0, lastBS - 1) : "";
+                    tempPath = (lastBS > 0) ? fullFile.Substring(0, lastBS) : "";
                     actFilename = (lastBS > 0) ? fullFile.Substring(lastBS+1) : fullFile;
                     int lastDot = actFilename.LastIndexOf('.');
-                    baseFilename = (lastDot > 0) ? actFilename.Substring(lastDot + 1) : actFilename;
+                    baseFilename = (lastDot > 0) ? actFilename.Substring(0, lastDot) : actFilename;
                 }
                 else
                 {

@@ -185,7 +185,7 @@ namespace CStat.Common
                         // Clean/{Reset to full view} Camera
                         cl.Log("CSProc: DoWork() Clean/Reset Camera");
 
-                        using (var ptz = new PtzCamera(CamOps.Camera.Camera1))
+                        using (var ptz = new PtzCamera(Cam.Camera.Camera1))
                         {
                             ptz.Cleanup(_hostEnv);
                             ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day

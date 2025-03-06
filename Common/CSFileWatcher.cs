@@ -72,7 +72,7 @@ namespace CStat.Common
                 // Camera 1 has motion/activity
                 Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.LightOn));
                 Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.HRSnapShot, csFW.GetHRSnapShotFilePath(Cam.Camera.Camera1)));
-                Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.Preset4 + Cam._CamOps2.PresetOffsetFrom1())); // Front View
+                Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.Preset4 + Cam._CamOps1.PresetOffsetFrom1())); // Front View
                 Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.HRSnapShot, csFW.GetHRSnapShotFilePath(Cam.Camera.Camera1)));
                 Thread.Sleep(15000);
                 Thread.Sleep(Cam._CamOps1.HandleOp(csFW._hostEnv, PtzCamera.COp.LightOff));

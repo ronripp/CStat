@@ -50,15 +50,22 @@ namespace CStat.Common
             var cl = new CSLogger();
 
             // Create Filewatches for Camera notications to trigger patrol
-            string webRootPath = _hostEnv.WebRootPath;
-            string ImgPath1 = Path.Combine(webRootPath, @"Camera1\Images");
-            string ImgPath2 = Path.Combine(webRootPath, @"Camera2\Images");
-            //if (!Directory.Exists(ImgPath1))
-            //    Directory.CreateDirectory(ImgPath1);
-            //if (!Directory.Exists(ImgPath2))
-            //    Directory.CreateDirectory(ImgPath2);
-            CSFileWatcher csFW1 = new CSFileWatcher(ImgPath1, "*.jpg", _hostEnv);
-            CSFileWatcher csFW2 = new CSFileWatcher(ImgPath2, "*.jpg", _hostEnv);
+            try
+            {
+                string webRootPath = _hostEnv.WebRootPath;
+                string ImgPath1 = Path.Combine(webRootPath, @"Camera1\Images");
+                string ImgPath2 = Path.Combine(webRootPath, @"Camera2\Images");
+                if (!Directory.Exists(ImgPath1))
+                    Directory.CreateDirectory(ImgPath1);
+                if (!Directory.Exists(ImgPath2))
+                    Directory.CreateDirectory(ImgPath2);
+                CSFileWatcher csFW1 = new CSFileWatcher(ImgPath1, "*.jpg", _hostEnv);
+                CSFileWatcher csFW2 = new CSFileWatcher(ImgPath2, "*.jpg", _hostEnv);
+            }
+            catch (Exception e)
+            {
+                cl.Log("CSProc: DoWork() CSFileWatcher Initialization Exception: " + e.Message);
+            }
 
             cl.Log("CSProc: DoWork() **** STARTED **** Inst=" + Interlocked.Increment(ref CSPInstCnt));
 

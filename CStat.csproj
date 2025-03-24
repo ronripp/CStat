@@ -148,6 +148,7 @@
     <None Include="CStat.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="wwwroot\docs\Required2021.pdf" />
     <None Include="wwwroot\_NYSDOH\v1022.html" />
   </ItemGroup>
 

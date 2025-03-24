@@ -43,7 +43,8 @@
                     Arrived
                 </th>
                 <th>
-                    Read Rate
+                    R/W
+                    Rate
                 </th>
             </tr>
         </thead>
@@ -77,7 +78,7 @@
                            
                     </td>
                     <td>
-                        @Html.Raw(crep.dRx.ToString())
+                        @Html.Raw((Math.Abs(crep.dRx) + Math.Abs(crep.dTx)).ToString())
                     </td>
                 </tr>
             }

@@ -57,7 +57,7 @@ namespace CStat.Pages
             if (ClientReps.Count <= 0)
                 return "NO people found @ CCA." + lastDTStr;
 
-            return  ClientReps.Count + " people found @ CCA." + lastDTStr;
+            return  ClientReps.Count + ((ClientReps.Count == 1) ? "person" : "people") + " found @ CCA." + lastDTStr;
         }
     }
 }

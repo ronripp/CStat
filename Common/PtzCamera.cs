@@ -575,7 +575,7 @@ public class PtzCamera : System.IDisposable
 
         private string GetSnapDir(IWebHostEnvironment hostEnv)
         {
-            string folderName = ((this._cam == Cam.Camera.Camera2) ? "Camera2 " : "Camera1 ") + @"\Snap";
+            string folderName = ((this._cam == Cam.Camera.Camera2) ? "Camera2" : "Camera1") + @"\Snap";
             string webRootPath = hostEnv.WebRootPath;
             string TempPath = Path.Combine(webRootPath, folderName);
             if (!Directory.Exists(TempPath))

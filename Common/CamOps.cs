@@ -34,7 +34,7 @@ namespace CStat.Common
         }
         public override int PresetOffsetFrom1()
         {
-            return 0;
+            return 8;
         }
     }
 

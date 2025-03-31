@@ -1045,7 +1045,6 @@ public class PtzCamera : System.IDisposable
             }
             catch (Exception e)
             {
-                _ = e;
                 cl.Log("Enable EMail Camera Alert Exception : " + e.Message);
             }
             return 0;
@@ -1074,7 +1073,8 @@ public class PtzCamera : System.IDisposable
             }
             catch (Exception e)
             {
-                _ = e;
+                var cl = new CSLogger();
+                cl.Log("Turn on Alarm Exception : " + e.Message);
             }
             return 0;
         }
@@ -1159,10 +1159,14 @@ public class PtzCamera : System.IDisposable
                     catch { }
                     delDT = delDT.AddDays(1);
                 }
-             }
-            catch
-            {
 
+                // Delete FTP alert snapshot as well as 
+                CSFileWatcher.DeleteFilesOlderThanDays(hostEnv, this._cam,  10);
+            }
+            catch (Exception e)
+            {
+                var cl = new CSLogger();
+                cl.Log("PTZ Cleanup Exception : " + e.Message);
             }
         }
     }

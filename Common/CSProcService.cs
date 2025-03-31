@@ -198,12 +198,11 @@ namespace CStat.Common
                             ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
                         }
 
-                        // TBD ENABLE using (var ptz = new PtzCamera(CamOps.Camera.Camera2))
-                        // TBD ENABLE {
-                        // TBD ENABLE     ptz.Cleanup(_hostEnv);
-                        // TBD ENABLE     ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
-                        // TBD ENABLE }
-
+                        using (var ptz = new PtzCamera(Cam.Camera.Camera2))
+                        {
+                            ptz.Cleanup(_hostEnv);
+                            ptz.EnableEMailAlerts(!Event.IsEventDay(_context, false, -8, 6)); // disable camera email alerts starting 8 hours of the first day of the non-banquet event up to 6 pm on the last day
+                        }
 
                         cl.Log($"CSProc: DoWork() Done!");
                         _logger.LogInformation($"CStat Daily Updates Completed at {PropMgr.ESTNow}");

@@ -14,7 +14,7 @@ namespace CStat.Common
         public readonly CSLogger _cl;
         public CSFileWatcher(string path, string wildcard, IWebHostEnvironment hostEnv) : base(path, wildcard)
         {
-             _cl = new CSLogger();
+            _cl = new CSLogger();
             _hostEnv = hostEnv;
             NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
@@ -54,7 +54,7 @@ namespace CStat.Common
 
         private static void OnCreated(object sender, FileSystemEventArgs e)
         {
-           CSFileWatcher csFW = (CSFileWatcher)sender;
+            CSFileWatcher csFW = (CSFileWatcher)sender;
             csFW._cl.Log("CSFW: Created/Mod : " + e.FullPath);
 
             if (e.FullPath.Contains("Camera2\\Images"))
@@ -85,7 +85,54 @@ namespace CStat.Common
         private static void OnError(object sender, ErrorEventArgs e)
         {
             CSFileWatcher csFW = (CSFileWatcher)sender;
-            csFW._cl.Log("CSFW: Error : " + e.GetException().Message );
+            csFW._cl.Log("CSFW: Error : " + e.GetException().Message);
+        }
+
+        public static List<string> GetFilesDaysOlderThan(string path, string pattern, int daysBack, bool includeSubDirs)
+        {
+            DateTime targetDT = PropMgr.ESTNow.AddDays(-daysBack);
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+                              .Where(f => f.CreationTime < targetDT)
+                              .Select(f => f.FullName).ToList();
+        }
+
+        public static List<string> GetFilesWithinMinutesOf(string path, string pattern, DateTime srcDT, int withinMinutes, bool includeSubDirs)
+        {
+            var startDT = srcDT.AddMinutes(-withinMinutes);
+            var endDT = srcDT.AddMinutes(withinMinutes);
+
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+                              .Where(f => f.CreationTime >= startDT && f.CreationTime <= endDT)
+                              .Select(f => f.FullName).ToList();
+        }
+
+        public static List<string> GetFiles(string path, string pattern, DateTime startDT, DateTime endDT, bool includeSubDirs)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+                              .Where(f => f.CreationTime >= startDT && f.CreationTime <= endDT)
+                              .Select(f => f.FullName).ToList();
+        }
+
+        public static void DeleteFilesOlderThanDays(IWebHostEnvironment hostEnv, Cam.Camera cam, int olderThanDays)
+        {
+            string cDir;
+            if (cam == Cam.Camera.Camera1)
+                cDir = "Camera1";
+            else if (cam == Cam.Camera.Camera2)
+                cDir = "Camera2";
+            else
+            {
+                var cl = new CSLogger();
+                cl.Log("CSFW: DeleteFilesOlderThanDays : Error : CAMERA {" + cam.ToString() + "} NOT Found.");
+                return;
+            }
+            foreach (var fn in GetFilesDaysOlderThan(System.IO.Path.Combine(hostEnv.WebRootPath, cDir, "Images"), "*.jpg", olderThanDays, true))
+            {
+                System.IO.File.Delete(fn);
+            }
         }
     }
 }

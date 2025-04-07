@@ -93,10 +93,34 @@ namespace CStat.Common
             DateTime targetDT = PropMgr.ESTNow.AddDays(-daysBack);
             DirectoryInfo dirInfo = new DirectoryInfo(path);
             return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
-                              .Where(f => f.CreationTime < targetDT)
-                              .Select(f => f.FullName).ToList();
+               .Where(f => f.CreationTime < targetDT)
+               .Select(f => f.FullName).ToList();
         }
 
+        public static List<string> GetFileGroups(IWebHostEnvironment hostEnv, Cam.Camera cam)
+        {
+            List<string> groups = new List<string> { };
+            string cDir="";
+            if (cam == Cam.Camera.Camera1)
+                cDir = "Camera1";
+            else if (cam == Cam.Camera.Camera2)
+                cDir = "Camera2";
+            else
+            {
+                var cl = new CSLogger();
+                cl.Log("CSFW: DeleteFilesOlderThanDays : Error : CAMERA {" + cam.ToString() + "} NOT Found.");
+                return groups;
+            }
+
+            string TopPath = System.IO.Path.Combine(hostEnv.WebRootPath, cDir, "Images");
+            string AfterPath = System.IO.Path.Combine(TopPath, "After");
+
+
+
+            // TBD Generate groups
+
+            return groups;
+        }
         public static List<string> GetFilesWithinMinutesOf(string path, string pattern, DateTime srcDT, int withinMinutes, bool includeSubDirs)
         {
             var startDT = srcDT.AddMinutes(-withinMinutes);

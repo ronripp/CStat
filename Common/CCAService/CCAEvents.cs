@@ -35,7 +35,8 @@ namespace CCAEvents
         Senior_Retreat,
         Leadership_Retreat,
         SWAT_Training,
-        Other
+        Other,
+        Woodchuck_Retreat
     }
 
     public class CInfo

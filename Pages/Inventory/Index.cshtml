@@ -572,7 +572,7 @@
                          }
                          <td style="background-color:@bcol">
                             @{
-                                CreateItemsModel.ItemUnits units = (CreateItemsModel.ItemUnits)item.Units;
+                                InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)item.Units;
                                 var unitsStr = units.ToString();
                             }
                             <form id="@fid">
@@ -580,7 +580,7 @@
                             </form>
                         </td>
                         <td style="background-color:@bcol">
-                            @if ((units == CreateItemsModel.ItemUnits.drums) || (units == CreateItemsModel.ItemUnits.boxes))
+                            @if ((units == InventoryItem.ItemUnits.drums) || (units == InventoryItem.ItemUnits.boxes))
                             {
                                 <div style="position: relative">
                                     <a data-toggle="popover" title="Pick Current amount :" data-html="true" data-content="<img id='@pid' src='/images/itemCnt.jpg' height='120'>"> @unitsStr</a>

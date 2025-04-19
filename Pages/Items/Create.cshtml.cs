@@ -22,25 +22,6 @@ namespace CStat
     }
     public class CreateItemsModel : PageModel
     {
-        public enum ItemUnits
-        {
-            unknown = 0,
-            bags = 1,
-            bladders = 2,
-            bottles = 3,
-            boxes = 4,
-            bulbs = 5,
-            drums = 6,
-            jugs = 7,
-            ounces = 8,
-            pairs = 9,
-            pieces = 10,
-            reams = 11,
-            rolls = 12,
-            sheets = 13,
-            tablets = 14
-        };
-
         private readonly CStat.Models.CStatContext _context;
         private IWebHostEnvironment hostEnv;
 
@@ -534,11 +515,11 @@ namespace CStat
                     Item item = new Item();
                     item.Name = idobj.name.Replace("^^", "\"").Replace("^", "'");
                     item.Size = 1;
-                    ItemUnits units;
-                    if (ItemUnits.TryParse(idobj.units, out units))
+                    InventoryItem.ItemUnits units;
+                    if (InventoryItem.ItemUnits.TryParse(idobj.units, out units))
                         item.Units = (int)units;
                     else
-                        item.Units = (int)ItemUnits.unknown;
+                        item.Units = (int)InventoryItem.ItemUnits.unknown;
                     item.Status = 1;
                     item.Upc = "";
 

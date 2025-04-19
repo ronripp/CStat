@@ -379,7 +379,8 @@ namespace CStat
                 var attList = from a in ce.Attendance
                               where ((EType == -1) || (int)a.Event.Type == EType)
                               join p in ce.Person on a.PersonId equals p.Id
-                              join adr in ce.Address on p.AddressId equals adr.Id
+                              join adr in ce.Address on p.AddressId equals adr.Id into ardInc
+                              from adrInc in ardInc.DefaultIfEmpty() 
                               join e in ce.Event on new { eid = a.EventId.Value, eyear = EYear } equals new { eid = e.Id, eyear = e.StartTime.Year }
 
                               //join r in ce.Registrations on new { eid2 = e.id, pid2 = p.id } equals new { eid2 = r.Event_id.Value, pid2 = r.Person_id.Value }
@@ -401,10 +402,10 @@ namespace CStat
                                   //CurGrade = r.Current_Grade,
                                   //TSize = r.T_Shirt_Size,
                                   EventName = e.Description,
-                                  Street = adr.Street,
-                                  Town = adr.Town,
-                                  State = adr.State,
-                                  Zip = adr.ZipCode,
+                                  Street = (adrInc != null) ? adrInc.Street : "---",
+                                  Town = (adrInc != null) ? adrInc.Town : "---",
+                                  State = (adrInc != null) ? adrInc.State : "---",
+                                  Zip = (adrInc != null) ? adrInc.ZipCode : "---",
                                   EMail = p.Email 
                               };
                 List<AttData> AttList = new List<AttData>();
@@ -432,7 +433,7 @@ namespace CStat
                     ad.gender = (a.gender == 0) ? '?' : (char)a.gender;
                     ad.Address = a.Street + " " + a.Town + " " + a.State + " " + a.Zip;
                     ad.EMail = a.EMail;
-                    ad.DOB = a.DOB.Value;
+                    ad.DOB = a.DOB.HasValue ? a.DOB.Value : new DateTime(1900, 1, 1);
 
                     if (a.DOB.HasValue)
                     {
@@ -1090,7 +1091,8 @@ namespace CStat
             c.Name = c.Name.Trim();
             if (c.Name.Length < 1)
                 return false;
-
+            if (c.Name.Length > 50)
+                c.Name = c.Name.Substring(0, 50);
             if (c.Affiliation == null)
                 c.Affiliation = "?";
 
@@ -2539,10 +2541,14 @@ namespace CStat
                             ce.Entry(newAdr).State = EntityState.Modified;
                             ce.SaveChanges();
                         }
-                        catch
+                        catch(Exception e)
                         {
                             ResPerson = person;
                             ResAddress = null;
+
+                            var cl = new CSLogger();
+                            cl.Log("Update Address Exception : " + e.Message);
+
                             return MgrStatus.Save_Address_Failed;
                         }
                         if (newAdr.Id != 0)

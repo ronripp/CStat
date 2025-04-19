@@ -40,16 +40,19 @@ namespace CStat
         [BindProperty]
         public Item CreateItem { get; set; }
         public IFormFile ItemPhoto { get; set; }
+        public int _invType;
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        public IActionResult OnGet()
+        public IActionResult OnGet(int invType)
         {
+            _invType = invType;
             CreateItem = new CStat.Models.Item
             {
                 Upc = "",
                 Name = "",
-                Units = (int)InventoryItem.ItemUnits.unknown
+                Units = (int)InventoryItem.ItemUnits.unknown,
+                Status = invType
             };
 
             InventoryItem = new InventoryItem();

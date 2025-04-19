@@ -199,7 +199,8 @@ namespace CStat.Models
             reams = 11,
             rolls = 12,
             sheets = 13,
-            tablets = 14
+            tablets = 14,
+            LBS = 15
         };
 
         public enum ItemZoneM

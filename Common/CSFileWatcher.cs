@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -97,9 +98,9 @@ namespace CStat.Common
                .Select(f => f.FullName).ToList();
         }
 
-        public static List<string> GetFileGroups(IWebHostEnvironment hostEnv, Cam.Camera cam)
+        public static List<List<FileInfo>> GetFileInfoGroups(IWebHostEnvironment hostEnv, Cam.Camera cam)
         {
-            List<string> groups = new List<string> { };
+            List<List<FileInfo>> groups = new List<List<FileInfo>> { };
             string cDir="";
             if (cam == Cam.Camera.Camera1)
                 cDir = "Camera1";
@@ -115,11 +116,36 @@ namespace CStat.Common
             string TopPath = System.IO.Path.Combine(hostEnv.WebRootPath, cDir, "Images");
             string AfterPath = System.IO.Path.Combine(TopPath, "After");
 
-
-
             // TBD Generate groups
+            DirectoryInfo TopDInfo = new DirectoryInfo(TopPath);
+            var TopFInfos = TopDInfo.GetFiles("*.jpg", SearchOption.TopDirectoryOnly);
+
+            foreach (var tfi in TopFInfos)
+            {
+                DateTime cdt = tfi.CreationTime;
+                var AfterList = CSFileWatcher.GetFileInfosWithinMinutesFollowing(AfterPath, "*.jpg", cdt, 3, false);
+                AfterList.Insert(0, tfi);
+                groups.Add(AfterList);
+            }
 
             return groups;
+        }
+
+        public static List<FileInfo> GetFileInfosWithinMinutesFollowing(string path, string pattern, DateTime srcDT, int minutesAfter, bool includeSubDirs)
+        {
+            var endDT = srcDT.AddMinutes(minutesAfter);
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+                              .Where(f => f.CreationTime >= srcDT && f.CreationTime <= endDT).ToList();
+        }
+
+        public static List<string> GetFilesWithinMinutesFollowing(string path, string pattern, DateTime srcDT, int minutesAfter, bool includeSubDirs)
+        {
+            var endDT = srcDT.AddMinutes(minutesAfter);
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            return dirInfo.GetFiles(pattern, (includeSubDirs ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+                              .Where(f => f.CreationTime >= srcDT && f.CreationTime <= endDT)
+                              .Select(f => f.FullName).ToList();
         }
         public static List<string> GetFilesWithinMinutesOf(string path, string pattern, DateTime srcDT, int withinMinutes, bool includeSubDirs)
         {

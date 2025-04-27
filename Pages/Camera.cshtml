@@ -28,6 +28,10 @@
             font-size: 1.3em;
         }
 
+        .CEStrip {
+            border: 2px solid blue;
+        }
+
         .pic {
         }
 
@@ -464,16 +468,7 @@
     </div>
     <div class="pic">
         <img src="@Model.CameraLink" id="CamImg" class="camSize" alt="Hit Refresh. Note : Always Hit X to Exit" />
-        <div id="imageEvents">
-            <div id="ce1" display:inline>
-                <div id="ce1t" onclick="onCamEvTitle(this.id)" style="display:inline">[Sun 4/6/25 8:05P] </div>
-                <div id="ce1s" onclick="onCamEvStrip(this.id)" style="display:none">
-                    <img src="\quilts\quilt01.jpg" width="100" />
-                    <img src="\quilts\quilt02.jpg" width="100" />
-                    <img src="\quilts\quilt03.jpg" width="100" />
-                </div>
-            </div>
-        </div>
+        @Html.Raw(Model.CreatePicEventsDiv())
     </div>
 </body>
 

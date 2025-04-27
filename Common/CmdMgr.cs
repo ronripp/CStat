@@ -651,7 +651,7 @@ namespace CStat.Common
 
             if ((_cmdSrc == CmdSource.NONE) && (_cmdDescList.Count > 0))
             {
-                // Check inventory or equipment match
+                // Check events, inventory or equipment match
                 if (!FindCmdOther(words))
                 {
                     _cmdSrc = CmdSource.PERSON; // default
@@ -740,7 +740,7 @@ namespace CStat.Common
                 return true;
             }
 
-            if ((_cmdSrc == CmdSource.NONE) && (words.Count >= 1) && (words.Count <= 2))
+            if ((_cmdSrc == CmdSource.NONE) && (words.Count >= 1))
             {
                 // Check for Event match
                 if (FindEvent(words, true))
@@ -749,11 +749,15 @@ namespace CStat.Common
                     return true;
                 }
 
-                // Check for a match with first name 
-                if (Person.SameFirstName(words[0], words[0]))
+                if (words.Count <= 2)
                 {
-                    _cmdSrc = CmdSource.PERSON;
-                    return true;
+
+                    // Check for a match with first name 
+                    if (Person.SameFirstName(words[0], words[0]))
+                    {
+                        _cmdSrc = CmdSource.PERSON;
+                        return true;
+                    }
                 }
             }
 
@@ -967,12 +971,13 @@ namespace CStat.Common
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.DATE_TIME_OF;
-                            if ((w == "is") || (w == "are"))
+                            w = gw(words, curIdx + 1);
+                            if ((w == "of") || (w == "for"))
                             {
                                 _cmdIgnoreIdxList.Add(++curIdx);
                                 w = gw(words, curIdx + 1);
                                 if (w == "the")
-                                    _cmdIgnoreIdxList.Add(curIdx);
+                                    _cmdIgnoreIdxList.Add(++curIdx);
                             }
                             return true;
                         }
@@ -1040,7 +1045,7 @@ namespace CStat.Common
                         _isWhen = true;
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.DATE_TIME_OF;
-                        w = gw(words, ++curIdx);
+                        w = gw(words, curIdx+1);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
                             _cmdIgnoreIdxList.Add(++curIdx);
@@ -1582,23 +1587,28 @@ namespace CStat.Common
                 if (AlreadyHandledExceptDesc(i)) continue;
 
                 // Make sure word match is a whole Event word
-                var eventStrs = eventList.Where(es => es.StartsWith(words[i] + " ")).ToList();
+                var eventStrs = eventList.Where(es => (es.StartsWith(words[i]) && words[i].Length >= es.Length) || es.StartsWith(words[i] + " ")).ToList();
                 if (eventStrs.Count > 0)
                 {
                     string str = eventStrs[0];
-                    bool hasRetreat = false;
+                    int eidx = -1;
                     if (eventStrs.Count > 1)
                     {
-                        if ( ((i+1) < NumWords) && words.Skip(i + 1).Any(w => w.StartsWith("retreat")) ) // the word, "retreat" is found futher in list
+                        if (words.FindIndex(w => w == "retreat") != -1)
                         {
-                            str = eventStrs.First(es => es.Contains("retreat")); // a Matching event has "retreat" in it. favor it. in this case. 
-                            if (string.IsNullOrEmpty(str))
+                            eidx = eventStrs.FindIndex(e => e.IndexOf("retreat") != -1);
+                        }
+                        if (eidx == -1)
+                        {
+                            if (words.FindIndex(w => w == "week") != -1)
                             {
-                                str = eventStrs[0];
-                                hasRetreat = true;
+                                eidx = eventStrs.FindIndex(e => e.IndexOf("week") != -1);
                             }
                         }
+                        if (eidx != -1)
+                            str = eventStrs[eidx];
                     }
+
                     if (Enum.TryParse(str.Replace(' ', '_'), true, out EventType et))
                     {
                         if (_cmdEventIdx == -1)
@@ -1606,10 +1616,10 @@ namespace CStat.Common
                             _cmdEvent = et;
                             _cmdEventIdx = i;
 
-                            if (hasRetreat || (eventStrs.Count == 1))
+                            if ((eventStrs.Count == 1) || (eidx != -1))
                                return true;
 
-                            if (Enum.TryParse(eventStrs[1].Replace(' ', '_'), true, out EventType et2))
+                            if (Enum.TryParse(eventStrs[0].Replace(' ', '_'), true, out EventType et2))
                             {
                                 _cmdEvent2 = et2;
                                 _cmdEvent2Idx = i;
@@ -2458,7 +2468,7 @@ namespace CStat.Common
                 for (int i = sidx; i <= eidx; ++i)
                 {
                     var e = eList[i];
-                    var DateStr = e.StartTime.Date.ToShortDateString() + "-" + e.EndTime.Date.ToShortDateString();
+                    var DateStr = e.StartTime.Date.ToShortDateString() + "@" + e.StartTime.ToShortTimeString() + " to " + e.EndTime.Date.ToShortDateString() + "@" + e.EndTime.ToShortTimeString();
                     report += e.Description + " (" + DateStr + ").\n";
                 }
             }
@@ -3253,6 +3263,11 @@ namespace CStat.Common
                 destArr.Add(s);
             }
             return destArr.ToArray();
+        }
+
+        private bool IsTimeBased(List<string> words)
+        {
+            return words.Any(w => (w == "when") || (w == "date") || (w == "time") || (w == "day"));
         }
 
         private CmdAction _cmdAction = default;

@@ -271,7 +271,7 @@ namespace CStat.Models
     
                 var stateStr = ((stateIdx == 2) && (i.Person != null)) ? "BUYING: " + i.Person.GetShortName() : StateStr[stateIdx];
                 InventoryItem.ItemUnits units = (InventoryItem.ItemUnits)(i.Units.HasValue ? i.Units : 0);
-                invList.Add(new InventoryState { ItemID = i.Item.Id, Name = i.Item.Name.Trim(), State = stateStr, InStock = (double)i.CurrentStock, Units = units.ToString(), Date = i.Date.Value });
+                invList.Add(new InventoryState { ItemID = i.Item.Id, Name = i.Item.Name.Trim(), State = stateStr, InStock = (double)(i.CurrentStock == null? 0 : i.CurrentStock), Units = units.ToString(), Date = i.Date.HasValue ? i.Date.Value : PropMgr.ESTNow });
             }
             return invList;
         }

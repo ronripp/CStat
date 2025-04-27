@@ -232,7 +232,6 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~: CamOp Exception");
             }
         }
-
         public JsonResult OnGetCamCleanup()
         {
             var rawQS = Uri.UnescapeDataString(Request.QueryString.ToString());
@@ -267,6 +266,51 @@ namespace CStat.Pages
                 return new JsonResult("ERROR~: OnGetCamCleanup Exception");
             }
         }
+        public string CreatePicEventsDiv()
+        {
+            var groups = CSFileWatcher.GetFileInfoGroups(_hostEnv, _cam);
+            string divStr;
+
+            /**************************
+                    <div id="imageEvents">
+                        <div id="ce1" display:inline>
+                            <div id="ce1t" onclick="onCamEvTitle(this.id)" style="display:inline">[Sun 4/6/25 8:05P] </div>
+                            <div id="ce1s" onclick="onCamEvStrip(this.id)" style="display:none">
+                                <img src="\quilts\quilt01.jpg" width="100" />
+                                <img src="\quilts\quilt02.jpg" width="100" />
+                                <img src="\quilts\quilt03.jpg" width="100" />
+                            </div>
+                        </div>
+                    </div>
+            ***************************/
+
+            int ceIdx = 1;
+            divStr = "<div id=\"imageEvents\">\n";
+
+            foreach (var grp in groups)
+            {
+                if (grp.Count > 0)
+                {
+                    var tfi = grp[0];
+                    divStr += "<div id=\"ce" + ceIdx + "\" display:inline>";
+                    divStr += "<div id=\"ce" + ceIdx + "t\" onclick=\"onCamEvTitle(this.id)\" style=\"display: inline; color:darkorange\">[" + tfi.CreationTime.ToString("ddd M/d/yy H:mmt") + "]</div>";
+                    divStr += "<div id=\"ce" + ceIdx + "s\" onclick=\"onCamEvStrip(this.id)\" style=\"display: none\">";
+                    foreach (var fi in grp)
+                    {
+                        int idx = fi.FullName.IndexOf("Camera");
+                        if (idx != -1)
+                            divStr += "<img src=\"" + fi.FullName.Substring(idx) + "\" class=\"CEStrip\" width=\"300\"/>";
+                    }
+                    divStr += "</div>";
+                    divStr += "</div>";
+                    ++ceIdx;
+                }
+            }
+            divStr += "</div>";
+            return divStr;
+        }
+
+
 
     }
 }

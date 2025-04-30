@@ -32,6 +32,11 @@
             border: 2px solid blue;
         }
 
+        .CEHeader {
+            color: lawngreen;
+            font-weight: bold;
+        }
+
         .pic {
         }
 
@@ -403,11 +408,13 @@
                 let idbase = id.substr(0, id.length - 1)
                 $("#" + idbase + "t").hide();
                 $("#" + idbase + "s").show();
+                $("#" + idbase + "h").show();
             }
             function onCamEvStrip(id) {
                 let idbase = id.substr(0, id.length - 1)
                 $("#" + idbase + "t").show()
                 $("#" + idbase + "s").hide();
+                $("#" + idbase + "h").hide();
             }
 
         $(document).ready(function () {

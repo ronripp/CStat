@@ -27,7 +27,7 @@ namespace CStat.Pages
             "Blue",  // 3
             "Blue",  // 4
             "DeepSkyBlue",  // 5
-            "MediumOrchard",  // 6
+            "MediumOrchid",  // 6
             "Orange",  // 7
             "Gold",  // 8
             "Gold",  // 9
@@ -40,7 +40,7 @@ namespace CStat.Pages
             "Gold",  // 16 4
             "Gold",  // 17 5
             "Orange",  // 18 6
-            "MediumOrchard",  // 19 7
+            "MediumOrchid",  // 19 7
             "DeepSkyBlue",  // 20 8
             "Blue",  // 21 9
             "Blue",  // 22
@@ -314,44 +314,46 @@ namespace CStat.Pages
             int ceIdx = 1;
             divStr = "<div id=\"imageEvents\">\n"; // IMGEVENTS
 
-            int G = 0;
+            //int G = 0;
 
             foreach (var grp in groups)
             {
                 if (grp.Count > 0)
                 {
                     var tfi = grp[0];
-                    string titleStr = tfi.CreationTime.ToString("ddd M/d/yy h:mmt");
+
+                    DateTime ImgDT = TimeZoneInfo.ConvertTimeFromUtc(tfi.LastWriteTimeUtc, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+                    string titleStr = ImgDT.ToString("ddd M/d/yy h:mmt");
 
                     divStr += "<div id=\"ce" + ceIdx + "\" display:inline>"; // ce#
 
                     // Opened [ - ] with arrows : ce#h
                     divStr += "<div class=\"CEHeader\" id=\"ce" + ceIdx + "h\" onclick=\"onCamEvStrip(this.id)\" style=\"display: none;\">&nbsp;&nbsp;[ - ]&nbsp;&nbsp;[" + titleStr + "]"; // ce#h
-                    int g1 = 0;
+                    //int g1 = 0;
                     foreach (var dfi in grp)
                     {
                         int idx = dfi.FullName.IndexOf("Camera");
                         if (idx != -1)
                             divStr += "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"" + dfi.FullName.Substring(idx) + "\" download>&#x21E9;</a>";
 
-                        if (++g1 >= 3) break;
+                        //if (++g1 >= 3) break;
                     }
                     divStr += "&nbsp;&nbsp;&nbsp;&nbsp;";
                     divStr += "</div>"; // ce#h
 
                     // Closed [ + ] ce#t
-                    divStr += "<div id=\"ce" + ceIdx + "t\" onclick=\"onCamEvTitle(this.id)\" style=\"display: inline; color:" + LinkColorMap[tfi.CreationTime.Hour] + "\">&nbsp;&nbsp;[ + ]&nbsp;&nbsp;[" + titleStr + "]</div>";
+                    divStr += "<div id=\"ce" + ceIdx + "t\" onclick=\"onCamEvTitle(this.id)\" style=\"display: inline; color:" + LinkColorMap[ImgDT.Hour] + "\">&nbsp;&nbsp;[ + ]&nbsp;&nbsp;[" + titleStr + "]</div>";
 
                     // Opened Images Strip ce#s
                     divStr += "<div id=\"ce" + ceIdx + "s\" onclick=\"onCamEvStrip(this.id)\" style=\"display: none\">";
-                    int g2 = 0;
+                    //int g2 = 0;
                     foreach (var fi in grp)
                     {
                         int idx = fi.FullName.IndexOf("Camera");
                         if (idx != -1)
                             divStr += "<img src=\"" + fi.FullName.Substring(idx) + "\" class=\"CEStrip\" width=\"300\"/>";
 
-                        if (++g2 >= 3) break;
+                        //if (++g2 >= 3) break;
                     }
                     divStr += "</div>";  // ce#s  Opened Images Strip
 
@@ -360,7 +362,7 @@ namespace CStat.Pages
                     ++ceIdx;
                 }
 
-                if (++G >= 10) break;
+                //if (++G >= 10) break;
             }
             divStr += "</div>";  // IMGEVENTS
             return divStr;

@@ -295,7 +295,7 @@ namespace CStat.Pages
         }
         public string CreatePicEventsDiv()
         {
-            var groups = CSFileWatcher.GetFileInfoGroups(_hostEnv, _cam);
+            var groups = CSFileWatcher.GetFileInfoGroups(_hostEnv, _cam).OrderByDescending(fi => fi[0].LastAccessTimeUtc);
             string divStr;
 
             /**************************

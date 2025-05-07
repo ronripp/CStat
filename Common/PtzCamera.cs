@@ -1161,7 +1161,7 @@ public class PtzCamera : System.IDisposable
                 }
 
                 // Delete FTP alert snapshot as well as 
-                CSFileWatcher.DeleteFilesOlderThanDays(hostEnv, this._cam, (this._cam == Cam.Camera.Camera2) ? 5 : 15);
+                CSFileWatcher.DeleteFilesOlderThanDays(hostEnv, this._cam, (this._cam == Cam.Camera.Camera2) ? 5 : 10);
             }
             catch (Exception e)
             {

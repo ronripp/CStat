@@ -328,7 +328,7 @@ namespace CStat.Pages
                     divStr += "<div id=\"ce" + ceIdx + "\" display:inline>"; // ce#
 
                     // Opened [ - ] with arrows : ce#h
-                    divStr += "<div class=\"CEHeader\" id=\"ce" + ceIdx + "h\" onclick=\"onCamEvStrip(this.id)\" style=\"display: none;\">&nbsp;&nbsp;[ - ]&nbsp;&nbsp;[" + titleStr + "]"; // ce#h
+                    divStr += "<div class=\"CEHeader\" id=\"ce" + ceIdx + "h\" style=\"display: none;\"><div onclick=\"onCamEvStrip(this.parentNode.id)\">&nbsp;&nbsp;[ - ]&nbsp;&nbsp;[" + titleStr + "]</div>"; // ce#h
                     //int g1 = 0;
                     foreach (var dfi in grp)
                     {

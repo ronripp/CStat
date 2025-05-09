@@ -128,7 +128,7 @@ namespace CStat
                 String err = e.Message;
             }
 
-            return RedirectToPage("./Index");
+            return RedirectToPage("./Index", new { InvType = ((CreateItem.Status == 1) ? "1" : "0") });
         }
         public ActionResult OnPostPingCInv()
         {

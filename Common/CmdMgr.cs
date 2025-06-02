@@ -171,7 +171,7 @@ namespace CStat.Common
             EVENT      = 0x00010000,
             ATTENDANCE = 0x00020000,
             URGENCY    = 0x00040000,
-            CSTEST     = 0x00080000,
+            TAX        = 0x00080000,
             TRUSTEE    = 0x00100000,
             EC         = 0x00200000,
             CHURCH     = 0x00400000,
@@ -235,6 +235,11 @@ namespace CStat.Common
             {"power", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"electricity", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"meter", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
+            {"tax", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
+            {"990", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
+            {"1023", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
+            {"tax-exempt", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
+            {"ST-119.1", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
             {"inv", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
             {"?", new Tuple<CmdSource, bool>(CmdSource.QUESTION, false) },
             {"pic", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
@@ -278,7 +283,6 @@ namespace CStat.Common
             {"executive committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"executive board", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
             {"committee", new Tuple<CmdSource, bool>(CmdSource.EC, false) },
-            {"cstest", new Tuple<CmdSource, bool>(CmdSource.CSTEST, false) },
             {"church", new Tuple<CmdSource, bool>(CmdSource.CHURCH, false) },
             {"churches", new Tuple<CmdSource, bool>(CmdSource.CHURCH, true) },
             {"garbage", new Tuple<CmdSource, bool>(CmdSource.TRASH, false) },
@@ -441,6 +445,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.EC, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
+            _srcDelegateDict.Add(CmdSource.TAX, HandleTax);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
             _srcDelegateDict.Add(CmdSource.BYLAWS, HandleDocs);
 
@@ -549,8 +554,8 @@ namespace CStat.Common
                            .Replace("walk in fridge", "refrigerator")
                            .Replace("walk in refrigerator", "refrigerator")
                            .Replace("spread sheet", "spread-sheet")
-                           .Replace(":", "")
-                           .Replace("  ", " ");
+                           .Replace("tax exempt", "tax-exempt")
+                           .Replace("tax exemption", "tax-exempt");
            
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
@@ -2191,7 +2196,7 @@ namespace CStat.Common
                 result = "Electric Power Info :\n";
                 ArdMgr am = new ArdMgr(_hostEnv, _config, _userManager);
                 ArdRecord ar = am.GetLast();
-                result = "The Power at CCA is " + ((ar.PowerOn > 70) ? "on" : "off") + " as of " + ar.TimeStampStr() + "\n\n";
+                result += (ar == null) ? "Power Info NOT Available" : ("The Power at CCA is " + ((ar.PowerOn > 70) ? "on" : "off") + " as of " + ar.TimeStampStr() + "\n\n");
 
                 List<Business> bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Electric)).ToList();
                 if (bizList.Count > 0)
@@ -2219,29 +2224,29 @@ namespace CStat.Common
                     result += "\n";
                 }
 
-                //var powMgr = new PowerMgr();
-                //double totKWHrs = 0;
-                //bool success = false;
-                //string powStr = "";
-                //if (_cmdDateRange != null)
-                //{
-                //    success = powMgr.TryGetKWHrs(_cmdDateRange.Start, _cmdDateRange.End, out totKWHrs);
-                //    if (_cmdDateRange.Start.Date != _cmdDateRange.End.Date)
-                //    {
-                //        powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
-                //                 " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
-                //    }
-                //    else
-                //        powStr = "Power used on " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 + " = " + totKWHrs + " KWHrs";
-                //}
-                //else
-                //{
-                //    DateTime Date = PropMgr.ESTNow;
-                //    success = powMgr.TryGetKWHrs(Date, Date, out totKWHrs);
-                //    powStr = "Power used on " + Date.Month + "/" + Date.Day + "/" + Date.Year % 100 + " = " + totKWHrs + " KWHrs";
-                //}
+                var powMgr = new PowerMgr();
+                double totKWHrs = 0;
+                bool success = false;
+                string powStr = "";
+                if (_cmdDateRange != null)
+                {
+                    success = powMgr.TryGetKWHrs(_cmdDateRange.Start, _cmdDateRange.End, out totKWHrs);
+                    if (_cmdDateRange.Start.Date != _cmdDateRange.End.Date)
+                    {
+                        powStr = "Power used from " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 +
+                                 " to " + _cmdDateRange.End.Month + "/" + _cmdDateRange.End.Day + "/" + _cmdDateRange.End.Year % 100 + " = " + totKWHrs + " KWHrs";
+                    }
+                    else
+                        powStr = "Power used on " + _cmdDateRange.Start.Month + "/" + _cmdDateRange.Start.Day + "/" + _cmdDateRange.Start.Year % 100 + " = " + totKWHrs + " KWHrs";
+                }
+                else
+                {
+                    DateTime Date = PropMgr.ESTNow;
+                    success = powMgr.TryGetKWHrs(Date, Date, out totKWHrs);
+                    powStr = "Power used on " + Date.Month + "/" + Date.Day + "/" + Date.Year % 100 + " = " + totKWHrs + " KWHrs";
+                }
 
-                //result = success ? powStr : "Sorry. Unable to get Total KwHrs now.";
+                result = success ? powStr : "Sorry. Unable to get Total KwHrs now.";
             }
             else
             {
@@ -3137,6 +3142,30 @@ namespace CStat.Common
         {
             return new CSDropBox(Startup.CSConfig, (_curUser == null || _curUser.IsFull));
         }
+
+        //***************************************************************
+        private string HandleTax(List<string> words)
+        //***************************************************************
+        {
+            string report;
+            string fname = "";
+            if (words.Any(w => w == "990"))
+            {
+                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+            }
+            else if (words.Any(w => w == "1023"))
+            {
+                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+            }
+            else
+            {
+                fname = "/Corporate/Permits & Certifications/CCA/NYS Tax Exempt Certification ST-119.1.pdf";
+                report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+            }
+            return report;
+        }
+
+
 
         //***************************************************************
         private string HandleCSTest(List<string> words)

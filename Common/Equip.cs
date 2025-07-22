@@ -174,7 +174,7 @@ namespace CStat.Common
                 FreezerTempF = _FreezerTempF;
             double _FridgeTempF = FridgeTempF;
             if (double.TryParse(fridgeTempF, out _FridgeTempF))
-                FridgeTempF = _FridgeTempF - 3; // TBD : Temp adjustment 12/8/24
+                FridgeTempF = _FridgeTempF; //Removed 6/12/25 _FridgeTempF - 3; // TBD : Temp adjustment 12/8/24
             double _KitchTempF = KitchTempF;
             if (double.TryParse(kitchTempF, out _KitchTempF))
                 KitchTempF = _KitchTempF;

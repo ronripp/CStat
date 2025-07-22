@@ -171,7 +171,7 @@ namespace CStat.Common
             EVENT      = 0x00010000,
             ATTENDANCE = 0x00020000,
             URGENCY    = 0x00040000,
-            TAX        = 0x00080000,
+            CORP       = 0x00080000,
             TRUSTEE    = 0x00100000,
             EC         = 0x00200000,
             CHURCH     = 0x00400000,
@@ -235,11 +235,12 @@ namespace CStat.Common
             {"power", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"electricity", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
             {"meter", new Tuple<CmdSource, bool>(CmdSource.ELECTRIC, false) },
-            {"tax", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
-            {"990", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
-            {"1023", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
-            {"tax-exempt", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
-            {"ST-119.1", new Tuple<CmdSource, bool>(CmdSource.TAX, false) },
+            {"insurance", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
+            {"tax", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
+            {"990", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
+            {"1023", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
+            {"tax-exempt", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
+            {"ST-119.1", new Tuple<CmdSource, bool>(CmdSource.CORP, false) },
             {"inv", new Tuple<CmdSource, bool>(CmdSource.INVENTORY, false) },
             {"?", new Tuple<CmdSource, bool>(CmdSource.QUESTION, false) },
             {"pic", new Tuple<CmdSource, bool>(CmdSource.CAMERA, false) },
@@ -445,7 +446,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.EC, HandlePeople);
 
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
-            _srcDelegateDict.Add(CmdSource.TAX, HandleTax);
+            _srcDelegateDict.Add(CmdSource.CORP, HandleCorp);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
             _srcDelegateDict.Add(CmdSource.BYLAWS, HandleDocs);
 
@@ -734,6 +735,22 @@ namespace CStat.Common
 
         public bool FindCmdOther(List<string> words)
         {
+            string sentence = "";
+            int NumWords = words.Count;
+            for (int i = 0; i < NumWords; ++i)
+            {
+                sentence += (words[i] + " ");
+            }
+            sentence = sentence.Trim();
+
+            if (sentence.Contains("temporary residen"))
+            {
+                _cmdSrc = CmdSource.CORP;
+                _cmdDescList.Add("trp");
+                _cmdDescIdxList.Add(_cmdDescList.Count-1);
+                return true;
+            }
+
             if ((_cmdSrc == CmdSource.NONE) && (words.Count == 1) && words[0].StartsWith("sop"))
             {
                 if (_cmdDescList.Count == 0)
@@ -3144,12 +3161,21 @@ namespace CStat.Common
         }
 
         //***************************************************************
-        private string HandleTax(List<string> words)
+        private string HandleCorp(List<string> words)
         //***************************************************************
         {
             string report;
             string fname = "";
-            if (words.Any(w => w == "990"))
+
+            if (_cmdDescList.Any(w => w == "trp"))
+            {
+                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+            }
+            else if (_cmdDescList.Any(w => w == "insurance"))
+            {
+                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+            }
+            else if (words.Any(w => w == "990"))
             {
                 report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }

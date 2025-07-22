@@ -351,7 +351,7 @@ namespace CStat.Pages
                     {
                         int idx = fi.FullName.IndexOf("Camera");
                         if (idx != -1)
-                            divStr += "<img src=\"" + fi.FullName.Substring(idx) + "\" class=\"CEStrip\" width=\"300\"/>";
+                            divStr += "<img src=\"" + fi.FullName.Substring(idx) + "\" class=\"CEStrip\" width=\"300\" loading=\"lazy\"/>";
 
                         //if (++g2 >= 3) break;
                     }

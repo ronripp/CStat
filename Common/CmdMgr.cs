@@ -2683,16 +2683,32 @@ namespace CStat.Common
             else
             {
                 bool IsMemb = false;
+                string filter = "";
                 if (words.Contains("metro"))
+                {
+                    filter = "Metro";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.StatusDetails.Contains("@Metro") || c.StatusDetails.Contains("@metro") || c.StatusDetails.Contains("@METRO")).ToList();
+                }
                 else if (words.Contains("independent") || words.Contains("christian"))
+                {
+                    filter = "IC/COC";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+                }
                 else if (words.Contains("good"))
+                {
+                    filter = "Good Standing";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.MembershipStatus == 1).OrderBy(c => c.Name).ToList();
+                }
                 else if (words.Contains("member"))
+                {
+                    filter = "Cur/Prior Members";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => (c.MembershipStatus == 1) || (c.MembershipStatus == 2)).OrderBy(c => c.MembershipStatus).ThenBy(c => c.Name).ToList();
+                }
                 else
+                {
+                    filter = "IC/COC";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
+                }
 
                 foreach (var c in churches)
                 {
@@ -2743,9 +2759,8 @@ namespace CStat.Common
                             wFile.Close();
                             var email = new CSEMail(_config, _userManager);
                             _alreadySentEMail = true;
-                            report = email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile })
-                            ? " successfully sent to " 
-                            : " FAILED to be sent to " +_curUser.EMail;
+                            report = "EMail " + (email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches based on " + filter + ".\nThanks!\nCee Stat", new string[] { FullFile })
+                            ? "successfully sent to " : "FAILED to be sent to ") + _curUser.EMail;
                         }
                     }
                     catch (Exception e)

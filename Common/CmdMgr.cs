@@ -693,7 +693,7 @@ namespace CStat.Common
                 return ("Try later.");
             var result = _srcDelegateDict.TryGetValue(_cmdSrc, out HandleSrcDel cmdDel) ? cmdDel(words) : "Huh?";
 
-            if (!noEMail && (IsEMailResult(words) || (_isTextMsg && (result.Length > TwilioReceive.Controllers.SmsController.MaxSendChars))) )
+            if (!_alreadySentEMail && !noEMail && (IsEMailResult(words) || (_isTextMsg && (result.Length > (TwilioReceive.Controllers.SmsController.MaxSendChars - 500)))) ) // TBD Determine better limit besides - 500
             {
                 CSEMail csEMail = new CSEMail(_config, _userManager);
                 return SrcTitle(_cmdSrc) + (csEMail.Send(_curUser.EMail, _curUser.EMail, "RE: " + _rawCmd, result) ? " successfully sent to " : " FAILED to be sent to ") + _curUser.EMail;
@@ -1944,6 +1944,7 @@ namespace CStat.Common
                             }
                         }
 
+                        _alreadySentEMail = true;
                         var email = new CSEMail(_config, _userManager);
                             result = email.Send(_curUser.EMail, _curUser.EMail, EMailTitle, "Hi\nAttached, please find " + EMailTitle + ".\nThanks!\nCee Stat", new string[] { sshFileName })
                                 ? "E-Mail sent with " + EMailTitle
@@ -2741,8 +2742,10 @@ namespace CStat.Common
                             }
                             wFile.Close();
                             var email = new CSEMail(_config, _userManager);
-
-                            email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile });
+                            _alreadySentEMail = true;
+                            report = email.Send(_curUser.EMail, _curUser.EMail, "CCA Churches Spreadsheet", "Hi\nAttached, please find a spreadsheet of CCA Churches\nThanks!\nCee Stat", new string[] { FullFile })
+                            ? " successfully sent to " 
+                            : " FAILED to be sent to " +_curUser.EMail;
                         }
                     }
                     catch (Exception e)
@@ -2923,6 +2926,7 @@ namespace CStat.Common
                 }
             }
 
+            _alreadySentEMail = true;
             string sshFile = camOps.SnapShotFile("", _hostEnv, "&width=3840&height=2160"); // 3840 X 2160 (8.0 MP) 4K ultra HD video resolution
             string EMailTitle = "CCA Camera Photo : " + preset;
             var email = new CSEMail(_config, _userManager);
@@ -3015,6 +3019,7 @@ namespace CStat.Common
                         var endIdx = report.IndexOf("\n");
                         if (endIdx != -1)
                         {
+                            _alreadySentEMail = true;
                             var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
                             report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
                         }
@@ -3028,6 +3033,7 @@ namespace CStat.Common
                             var endIdx = report.IndexOf("\n");
                             if (endIdx != -1)
                             {
+                                _alreadySentEMail = true;
                                 var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
                                 report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
                             }
@@ -3041,6 +3047,7 @@ namespace CStat.Common
                                 var endIdx = report.IndexOf("\n");
                                 if (endIdx != -1)
                                 {
+                                    _alreadySentEMail = true;
                                     var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
                                     report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
                                 }
@@ -3059,6 +3066,7 @@ namespace CStat.Common
                 var SrcPath = Path.Combine(Utils.GetTempDir(_hostEnv, @"docs"), "Required2021.pdf");
                 if (System.IO.File.Exists(SrcPath))
                 {
+                    _alreadySentEMail = true;
                     var email = new CSEMail(_config, _userManager);
                     if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For CCA Required by Law", "Hi\nAttached, please find the CCA Required by Law document.\n\nThanks!\nCee Stat", new string[] { SrcPath }))
                         return ReqLink + "\nERROR : Failed to EMail Required by Law";
@@ -3091,6 +3099,7 @@ namespace CStat.Common
                         task.Wait();
                         if (System.IO.File.Exists(FullDestPath))
                         {
+                            _alreadySentEMail = true;
                             var email = new CSEMail(_config, _userManager);
                             if (!email.Send(_curUser.EMail, _curUser.EMail, "RE: Request For By-Laws", "Hi\nAttached, please find the CCA By-Laws\n\nThanks!\nCee Stat", new string[] { FullDestPath }))
                                 return ByLawsLink + "\nERROR : Failed to EMail By-Laws";
@@ -3169,22 +3178,23 @@ namespace CStat.Common
 
             if (_cmdDescList.Any(w => w == "trp"))
             {
-                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                report = "Not available yet."; //_alreadySentEMail = true; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }
             else if (_cmdDescList.Any(w => w == "insurance"))
             {
-                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                report = "Not available yet."; //_alreadySentEMail = true; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }
             else if (words.Any(w => w == "990"))
             {
-                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                report = "Not available yet."; //_alreadySentEMail = true; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }
             else if (words.Any(w => w == "1023"))
             {
-                report = "Not available yet."; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                report = "Not available yet."; //_alreadySentEMail = true; //EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }
             else
             {
+                _alreadySentEMail = true;
                 fname = "/Corporate/Permits & Certifications/CCA/NYS Tax Exempt Certification ST-119.1.pdf";
                 report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
             }
@@ -3370,6 +3380,7 @@ namespace CStat.Common
         private InventoryState _inventoryStateMatch = null;
 
         private string _rawCmd = "";
+        private bool _alreadySentEMail = false;
 
         Dictionary<CmdSource, HandleSrcDel> _srcDelegateDict = new Dictionary<CmdSource, HandleSrcDel>();
     }

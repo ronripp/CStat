@@ -2592,12 +2592,12 @@ namespace CStat.Models
             new List<string>{"Zephaniah","Zeph"}
         };
 
-        public static string[] SimilarNames(string fn)
+        public static string[] FindSimilarNames(string fn)
         {
             if (String.IsNullOrEmpty(fn))
                 return new string[] { };
 
-            var found = SameNames.First(list => list.Any(n => n.Equals(fn, StringComparison.OrdinalIgnoreCase)));
+            var found = SameNames.FirstOrDefault((list => list.Any(n => n.Equals(fn, StringComparison.OrdinalIgnoreCase))));
             if ((found?.Count() ?? 0) > 0)
                 return found.ToArray().Where(n => !n.Equals(fn, StringComparison.OrdinalIgnoreCase)).ToArray();
             return new string[] { };

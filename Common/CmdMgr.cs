@@ -1847,6 +1847,16 @@ namespace CStat.Common
                 else if (_cmdDescList.Count == 2)
                 {
                     people = _context.Person.Where(p => (p.FirstName.StartsWith(_cmdDescList[0])) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
+                    if ((people?.Count ?? 0) == 0)
+                    {
+                        string[] otherFNs = Person.FindSimilarNames(_cmdDescList[0]);
+                        foreach (var fn in otherFNs)
+                        {
+                            people = _context.Person.Where(p => (p.FirstName.StartsWith(fn)) && (p.LastName.StartsWith(_cmdDescList[1]))).Include(p => p.Address).ToList();
+                            if ((people?.Count ?? 0) > 0)
+                                break;
+                        }
+                    }
                 }
             }
 

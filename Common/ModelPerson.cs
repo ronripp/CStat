@@ -449,7 +449,11 @@ namespace CStat.Models
             //  "&PG2="
             //  "&SkillSets=" ...OR...  "&multicheckbox[]="
 
-            PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.FirstName", fp.FirstName, ref bFiltered);
+            string[] possibleFNs = Person.FindSimilarNames(fp.FirstName, false);
+            if (possibleFNs.Length > 1)
+                PersonMgr.AddArrayToSelect(ref sel, "ronripp_CStat.Person.FirstName", possibleFNs, ref bFiltered);
+            else
+                PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.FirstName", fp.FirstName, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Person.LastName", fp.LastName, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Address.Street", fa.Street, ref bFiltered);
             PersonMgr.AddToSelect(ref sel, "ronripp_CStat.Address.Town", fa.Town, ref bFiltered);
@@ -2592,14 +2596,18 @@ namespace CStat.Models
             new List<string>{"Zephaniah","Zeph"}
         };
 
-        public static string[] FindSimilarNames(string fn)
+        public static string[] FindSimilarNames(string fn, bool removeOrg=true)
         {
             if (String.IsNullOrEmpty(fn))
                 return new string[] { };
 
             var found = SameNames.FirstOrDefault((list => list.Any(n => n.Equals(fn, StringComparison.OrdinalIgnoreCase))));
             if ((found?.Count() ?? 0) > 0)
+            {
+                if (!removeOrg)
+                    return found.ToArray();
                 return found.ToArray().Where(n => !n.Equals(fn, StringComparison.OrdinalIgnoreCase)).ToArray();
+            }
             return new string[] { };
         }
 

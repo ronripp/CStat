@@ -2721,6 +2721,38 @@ namespace CStat
             }
         }
 
+        public static void AddArrayToSelect(ref String sel, String name, String[] values, ref bool bFiltered)
+        {
+            if ((values != null) && (values.Length > 0))
+            {
+                bool firstPass = true;
+                int NumVals = values.Length;
+                for (int i = 0; i < NumVals; ++i)
+                {
+                    string value = values[i];
+                    value = value.Replace("'", "''");
+                    if (firstPass)
+                    {
+                        firstPass = false;
+                        if (!bFiltered)
+                            sel = sel + " WHERE (";
+                        else
+                            sel = sel + " AND (";
+
+                    }
+                    bFiltered = true;
+
+                    if (name.EndsWith("Name"))
+                    {
+                        sel = sel + name + " LIKE '" + value + "%' OR Alias LIKE '" + name.Substring(7, 1) + ":" + value + "%'";
+                        if (i < (NumVals - 1))
+                            sel = sel + " OR ";
+                    }
+                }
+                sel = sel + ")";
+            }
+        }
+
         public static void AddToSelect(ref String sel, String name, byte value, ref bool bFiltered)
         {
             if (value != 0)

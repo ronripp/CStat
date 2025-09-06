@@ -37,7 +37,7 @@ namespace CStat.Models
         public static CSUser GetCurUser (CStat.Models.CStatContext context, IConfiguration config, IHttpContextAccessor httpCA, UserManager<CStatUser> userManager)
         {
             var csSettings = CSSettings.GetCSSettings(config, userManager);
-            string email = httpCA.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Subject.Name;
+            string email = httpCA.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Subject?.Name ?? null;
             if (email == null)
                 email = httpCA.HttpContext.User.Identity.Name;
             var userSettings = csSettings.GetUser(email);

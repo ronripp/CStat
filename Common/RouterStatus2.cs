@@ -289,7 +289,21 @@ namespace CStat.Common
 
         public string GetName()
         {
-            return !string.IsNullOrEmpty(name) ? name : (!string.IsNullOrEmpty(alias) ? alias : (!string.IsNullOrEmpty(vendor) ? vendor : mac));
+            string dname;
+            if (!string.IsNullOrEmpty(name))
+            {
+                dname = name;
+                if (!string.IsNullOrEmpty(vendor))
+                    dname += ("; " + vendor);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(vendor))
+                    dname = vendor;
+                else
+                    dname = mac;
+            }
+            return (dname.Length > 40) ? dname.Substring(0, 40) : dname;
         }
     }
 

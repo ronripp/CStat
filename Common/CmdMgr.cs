@@ -1771,7 +1771,7 @@ namespace CStat.Common
             if (people == null)
             {
                 if (words.IndexOf("cca") != -1)
-                    return "Catskill Christian Assembly ; 185 Falke Rd., Prattsville, NY 12468 ; PH# 518-299-3611 ; EMAIL: catskillchristianassembly@gmail.com";
+                    return "Catskill Christian Assembly ; 185 Falke Rd., Prattsville, NY 12468 ; PH# 518-299-3611 ; EMAIL: catskillchristianassembly@gmail.com ; NYS Water ID : 1902270 ; EIN : 22-2148820 ; Physically in Lexington, NY (Greene County)" ;
 
                 if (FindSpecificName(words, out string fName, out string lName, out string name))
                 {

@@ -1014,7 +1014,7 @@ namespace CStat.Common
                                 _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
-                        if ((w == "phone") || (w == "phone_number"))
+                        if ((w == "phone") || (w == "phone_number") || (w == "number"))
                         {
                             _cmdSpecificIdxList.Add(curIdx);
                             _cmdSpecific = CmdSpecific.PHONE_OF;
@@ -1197,6 +1197,7 @@ namespace CStat.Common
 
                     case "phone":
                     case "phone_number":
+                    case "number":
                         _cmdSpecificIdxList.Add(curIdx);
                         _cmdSpecific = CmdSpecific.PHONE_OF;
                         w = gw(words, curIdx + 1);
@@ -1769,6 +1770,9 @@ namespace CStat.Common
 
             if (people == null)
             {
+                if (words.IndexOf("cca") != -1)
+                    return "Catskill Christian Assembly ; 185 Falke Rd., Prattsville, NY 12468 ; PH# 518-299-3611 ; EMAIL: catskillchristianassembly@gmail.com";
+
                 if (FindSpecificName(words, out string fName, out string lName, out string name))
                 {
                     people = (!string.IsNullOrEmpty(name))
@@ -2143,6 +2147,9 @@ namespace CStat.Common
 
         private string HandleEquip(List<string> words)
         {
+            if (_cmdSpecific == CmdSpecific.PHONE_OF || _cmdSpecific == CmdSpecific.LOCATION_OF || _cmdSpecific == CmdSpecific.EMAIL_OF || _cmdSpecific == CmdSpecific.NAME_OF)
+                return HandleBiz(words);
+
             string result = "";
             if (_cmdSrc == CmdSource.PROPANE)
             {
@@ -2519,6 +2526,10 @@ namespace CStat.Common
             if (_cmdSrc == CmdSource.INTERNET)
             {
                 bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Internet)).ToList();
+            }
+            else if (_cmdSrc == CmdSource.PROPANE)
+            {
+                bizList = _context.Business.Include(b => b.Poc).Include(b => b.Address).Where(b => b.Type.HasValue && (b.Type.Value == (int)Business.EType.Propane)).ToList();
             }
             else if (_cmdSrc == CmdSource.TRASH)
             {

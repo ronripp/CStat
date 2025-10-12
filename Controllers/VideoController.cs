@@ -32,6 +32,7 @@ namespace CStat.Controllers
             "", // 5
             "", // 6
             "Videos\\CCA Video_Captions.mp4", // 7
+            "Videos\\Promo Video Men's Retreat 2025.mp4" //8
         };
 
         [HttpGet("{vidx}")]

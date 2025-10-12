@@ -46,10 +46,10 @@
         function setVideoWidth(cmd) {
             let vWidth = (document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth);
             let vidWidth =  vWidth * ((cmd === 0) ? 0.35 : (vWidth === window.innerWidth) ? 0.96 : 0.99);
-            document.getElementById("vid").style.width = vidWidth + "px";
+            document.getElementById("vid" + cmd).style.width = vidWidth + "px";
         }
         function showVideo(cmd) {
-            document.getElementById("vid").style.display = (document.getElementById("vid").style.display === "block") ? "none" : "block";
+            document.getElementById("vid" + cmd).style.display = (document.getElementById("vid" + cmd).style.display === "block") ? "none" : "block";
             setVideoWidth(0);
         }
     </script>
@@ -62,18 +62,24 @@
         <hr />
         <p><a class="LC" href="CCAByLaws2021.html"><h3>&nbsp;&nbsp;CCA By-Laws 2021</h3></a></p>
         <p><a class="LC" href="CCAHistory.html"><h3>&nbsp;&nbsp;CCA History</h3></a></p>
-        <p><a class="LC" href="1955-1962 David Miller recalls the start of CCA.pdf" download><h3>&nbsp;&nbsp;1955-1962 David Miller recalls the start of CCA</h3></a></p>
-        <p><a class="LC" href="1988-01 Newsletter.pdf" download><h3>&nbsp;&nbsp;1988-01 Newsletter</h3></a></p>
-        <p><a class="LC" href="CCAQuilts.html"><h3>&nbsp;&nbsp;CCA Quilts</h3></a></p>
-        <p><a class="LC" href="trails/trails.html"><h3>&nbsp;&nbsp;CCA Trails</h3></a></p>
         <p>
-            <div><a class="LC" href="#" onclick="showVideo();event.preventDefault();"><h3>&nbsp;&nbsp;Dave Miller's 9/21 Presentation</h3></a></div>
-            <video id="vid" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
-                <source src="https://ccaserve.org/api/Video" type="video/mp4" />
+            <div><a class="LC" href="#" onclick="showVideo(8);event.preventDefault();"><h3>&nbsp;&nbsp;2025 Men's Retreat</h3></a></div>
+            <video id="vid8" style="display:none; padding-left:2px" onplaying="setVideoWidth(8)" width=800 controls>
+                <source src="https://ccaserve.org/api/Video/8" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </p>
+        <p>
+            <div><a class="LC" href="#" onclick="showVideo(1);event.preventDefault();"><h3>&nbsp;&nbsp;Dave Miller's 9/21 Presentation</h3></a></div>
+            <video id="vid1" style="display:none; padding-left:2px" onplaying="setVideoWidth(1)" width=800 controls>
                 <source src="https://ccaserve.org/api/Video/1" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
         </p>
+        <p><a class="LC" href="CCAQuilts.html"><h3>&nbsp;&nbsp;CCA Quilts</h3></a></p>
+        <p><a class="LC" href="trails/trails.html"><h3>&nbsp;&nbsp;CCA Trails</h3></a></p>
+        <p><a class="LC" href="1955-1962 David Miller recalls the start of CCA.pdf" download><h3>&nbsp;&nbsp;1955-1962 David Miller recalls the start of CCA</h3></a></p>
+        <p><a class="LC" href="1988-01 Newsletter.pdf" download><h3>&nbsp;&nbsp;1988-01 Newsletter</h3></a></p>
         <p><a class="LC" href="https://www.youtube.com/watch?v=ewCmcMnnoaQ"><h3>&nbsp;&nbsp;Dave Miller's 9/21 Presentation by Tammy Lanham (YouTube)</h3></a></p>
         <p>
             <div><a class="LC" href="CCA_Presentation.html"><h3>&nbsp;&nbsp;CCA Presentation:</h3></a></div>

@@ -232,7 +232,7 @@ namespace CStat.Common
             return Path.Combine(newPath, "LastConnected.txt");
         }
 
-        public List<ClientReport> ReadLast()
+        public List<ClientReport> ReadLast(int filter=0)
         {
             string fullFile = GetLastFilename();
             List<ClientReport> lastCRs = new List<ClientReport>();
@@ -248,6 +248,18 @@ namespace CStat.Common
                             ClientReport cr = JsonSerializer.Deserialize<ClientReport>(fl);
                             if (cr != null)
                             {
+                                if (filter == 0)
+                                {
+                                    string name = cr.GetName();
+                                    if (name.StartsWith("Shenzhen Baichuan Digital Techn; Shenzhe")) continue;
+                                    if (name.StartsWith("EYEDRO-004809AF; Eyedro Green Solutions")) continue;
+                                    if (name.StartsWith("Arduino; Dragino Technology Co., Limited")) continue;
+                                    if (name.StartsWith("CCASERVER; Hewlett Packard")) continue;
+                                    if (name.StartsWith("NPIE8E01C")) continue;
+                                    if (name.StartsWith("espressif; Orbit Irrigation")) continue;
+                                    if (name.StartsWith("EX7000")) continue;
+                                }
+
                                 lastCRs.Add(cr);
                             }
                         }
@@ -299,9 +311,9 @@ namespace CStat.Common
             return res;
         }
 
-        public List<ClientReport> GetValidLast(out bool isValid)
+        public List<ClientReport> GetValidLast(out bool isValid, int filter=0)
         {
-            var rcs = this.ReadLast();
+            var rcs = this.ReadLast(filter);
             if (rcs.Count > 0)
             {
                 var maxRC = rcs.Max(lc => lc.curDT);

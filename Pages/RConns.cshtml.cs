@@ -20,6 +20,7 @@ namespace CStat.Pages
         public CSSettings _settings { get; set; }
         private RConnMgr _rconnMgr;
         public IList<ClientReport> ClientReps { get; set; } = null;
+        public int _filter { get; set; } = 0;
         private bool _rconnsValid = false;
 
         public RConnsModel(CStat.Models.CStatContext context, IWebHostEnvironment hostEnv, IConfiguration config, UserManager<CStatUser> userManager)
@@ -31,9 +32,10 @@ namespace CStat.Pages
             _rconnMgr = new RConnMgr(_hostEnv, _context);
         }
 
-        public void OnGet()
+        public void OnGet(int filt)
         {
-            ClientReps = _rconnMgr.GetValidLast(out _rconnsValid);
+            _filter = filt;
+            ClientReps = _rconnMgr.GetValidLast(out _rconnsValid, _filter);
         }
 
         public string Summary()

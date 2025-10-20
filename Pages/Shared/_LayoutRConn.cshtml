@@ -14,8 +14,8 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container" style="background-color:#fff090;">
                 <a class="navbar-brand" asp-area="" asp-page="/Index" id="_LayoutTitle">@ViewData["Title"]</a>
-                <span><button id="filtAll" style="margin-right:10px" onclick="doFilter(1)">All</button></span>
-                <span><button id="filtDate" onclick="doFilter(2)">Date:</button><input type='text' id='filtEdit' style="width:4em"></span>
+                <span><button id="filtAll" style="margin-right:10px" onclick="changeFilter(1)">All</button></span>
+                <span><button id="filtDate" onclick="changeFilter(2)" disabled>Date:</button><input type='text' id='filtEdit' style="width:4em" disabled></span>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -49,15 +49,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <script>
-        function doFilter(cmd) {
-            goBackAfterSave = true;
-            filterConns(cmd);
-        }
-
-    </script>
-
 
     @RenderSection("Scripts", required: false)
 </body>

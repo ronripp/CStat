@@ -24,30 +24,52 @@
 
     <script>
 
-        var gFilter = 0;
+        initFilter();
 
-        function filterConns(cmd) {
+        function initFilter() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            let filtStr = urlParams.get('filt');
+            if (!filtStr) filtStr = "0";
 
-            if (!gFilter) gFilter = 0;
-
-            if (cmd === 1) {
-                gFilter = (gFilter === 1) ? 0 : 1;
-            } else if (cmd === 2) {
-                gFilter = (gFilter === 2) ? 0 : 2;
-            }
             const filtAll = document.getElementById("filtAll");
             const filtDate = document.getElementById("filtDate");
-            const filtEdit = document.getElementById("filtEdit");
-            filtAll.style.backgroundColor = gFilter === 1 ? "lawnGreen" : "lightGray";
-            filtDate.style.backgroundColor = gFilter === 2 ? "lawnGreen" : "lightGray";
-            localStorage.setItem("RConnFilter", gFilter);
+            //const filtEdit = document.getElementById("filtEdit");
+
+            switch (filtStr) {
+                case "0":
+                    filtAll.style.backgroundColor = "lightGray";
+                    filtDate.style.backgroundColor = "lightGray";
+                    break;
+                case "1":
+                    filtAll.style.backgroundColor = "lawnGreen";
+                    filtDate.style.backgroundColor = "lightGray";
+                    break;
+                case "2":
+                    filtAll.style.backgroundColor = "lightGray";
+                    filtDate.style.backgroundColor = "lawnGreen";
+                    break;
+            }
+        }
+
+        function changeFilter(filtMode) {
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            let curFiltMode = urlParams.get('filt');
+            if (!curFiltMode) curFiltMode = 0;
+            if (filtMode == 1) {
+                filtMode = (curFiltMode == 1) ? 0 : 1;
+            } else if (filtMode == 2) {
+                filtMode = (curFiltMode == 2) ? 0 : 2;
+            }
 
             let url = window.location.href;
             let qMarkIdx = url.indexOf("?");
             if (qMarkIdx === -1)
-                url += "?filt=" + gFilter;
+                url += "?filt=" + filtMode;
             else
-                url = url.substring(0, qMarkIdx) + "?filt=" + gFilter;
+                url = url.substring(0, qMarkIdx) + "?filt=" + filtMode;
             window.location.href = url;
         }
 
@@ -55,7 +77,6 @@
 
 </head>
 <body>
-    Model.Filter = g
     <table class="table">
         <thead style="background-color:#008080;color:white">
             <tr>

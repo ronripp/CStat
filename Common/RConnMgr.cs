@@ -206,7 +206,8 @@ namespace CStat.Common
                 // Check on this being an alert given it is not near the time of an event
                 if (!Event.IsEventDay(_context, false, -8, 6))
                 {
-                    List<ClientReport> lastConnectedCRs = ReadLast();
+                    int allCnt = 0;
+                    List<ClientReport> lastConnectedCRs = ReadLast(0, ref allCnt);
                     DateTime minDate = connectedCRs.Min(lc => lc.curDT);
                     ClientReport instCR = connectedCRs.Find(c => c.curDT == minDate);
                     if (lastConnectedCRs.Count > 0)
@@ -232,8 +233,9 @@ namespace CStat.Common
             return Path.Combine(newPath, "LastConnected.txt");
         }
 
-        public List<ClientReport> ReadLast(int filter=0)
+        public List<ClientReport> ReadLast(int filter, ref int allCnt)
         {
+            allCnt = 0;
             string fullFile = GetLastFilename();
             List<ClientReport> lastCRs = new List<ClientReport>();
             if (CRSet._fLock.TryEnterWriteLock(250))
@@ -243,6 +245,7 @@ namespace CStat.Common
                     if (File.Exists(fullFile))
                     {
                         string[] fls = File.ReadAllLines(fullFile);
+                        allCnt = fls.Count();
                         foreach (var fl in fls)
                         {
                             ClientReport cr = JsonSerializer.Deserialize<ClientReport>(fl);
@@ -258,6 +261,7 @@ namespace CStat.Common
                                     if (name.StartsWith("NPIE8E01C")) continue;
                                     if (name.StartsWith("espressif; Orbit Irrigation")) continue;
                                     if (name.StartsWith("EX7000")) continue;
+                                    if (name.StartsWith("A2:A2:58:92:18:B8")) continue;
                                 }
 
                                 lastCRs.Add(cr);
@@ -313,7 +317,8 @@ namespace CStat.Common
 
         public List<ClientReport> GetValidLast(out bool isValid, int filter=0)
         {
-            var rcs = this.ReadLast(filter);
+            int allCnt=0;
+            var rcs = this.ReadLast(filter, ref allCnt);
             if (rcs.Count > 0)
             {
                 var maxRC = rcs.Max(lc => lc.curDT);
@@ -323,7 +328,7 @@ namespace CStat.Common
                     return rcs;
                 }
             }
-            isValid = false;
+            isValid = allCnt > 0;
             return new List<ClientReport>();
         }
     }

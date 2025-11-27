@@ -86,6 +86,11 @@ namespace CStat.Common
         {
             return this.Active && this.PropName.Equals("propaneTank", StringComparison.OrdinalIgnoreCase);
         }
+        public bool IsWaterPressure()
+        {
+            return this.Active && this.PropName.Equals("waterPres", StringComparison.OrdinalIgnoreCase);
+        }
+
         public bool IsTypePowerOn()
         {
             return this.Active && this.PropName.Equals("powerOn", StringComparison.OrdinalIgnoreCase);
@@ -302,9 +307,47 @@ namespace CStat.Common
                         }
                     }
                 }
+
+                if (ep.IsWaterPressure())
+                {
+                    DateTime now = PropMgr.ESTNow;
+                    double md1 = (now - new DateTime(now.Year, now.Month, now.Day, 3, 0, 0)).TotalMinutes;
+                    double md2 = (now - new DateTime(now.Year, now.Month, now.Day, 3+12, 0, 0)).TotalMinutes;
+                    
+                    if ((md1 < -5) && (md1 > 90
+
+
+
+
+                    // Check for a burst/water on
+                    if ((LastARs?.Count ?? 0) > 0)
+                    {
+                        int NumLARs = LastARs.Count;
+                        int bigDeltas = 0;
+                        double lastPres = LastARs[0].WaterPress;
+                        for (int j = 1; j < NumLARs; ++j)
+                        {
+                            if (Math.Abs(LastARs[j].WaterPress - lastPres) > 10)
+                                ++bigDeltas;
+                            lastPres = LastARs[j].WaterPress;
+                        }
+                        if (bigDeltas >= NumLARs/2)
+                        {
+                            LastARs = GetLastRecords();
+                        }
+
+                }
+                    
+
             }
             return true;
         }
+
+        bool DetectRunningWater()
+        {
+                tbd #of and no big gaps.
+        }
+
 
         public bool ReportLastestValues(ref string report, bool alertsOnly) // Ard only : No propane
         {

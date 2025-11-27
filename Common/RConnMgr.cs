@@ -256,6 +256,7 @@ namespace CStat.Common
                                     string name = cr.GetName();
                                     if (name.StartsWith("Shenzhen Baichuan Digital Techn; Shenzhe")) continue;
                                     if (name.StartsWith("EYEDRO-004809AF; Eyedro Green Solutions")) continue;
+                                    if (name.StartsWith("Dragino Technology Co Limited; Dragino")) continue;
                                     if (name.StartsWith("Arduino; Dragino Technology Co., Limited")) continue;
                                     if (name.StartsWith("CCASERVER; Hewlett Packard")) continue;
                                     if (name.StartsWith("NPIE8E01C")) continue;

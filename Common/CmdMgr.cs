@@ -124,6 +124,8 @@ namespace CStat.Common
             {"order", CmdAction.BUY},
             {"buy", CmdAction.BUY},
             {"purchase", CmdAction.BUY},
+            {"vendor", CmdAction.FIND},
+            {"call", CmdAction.FIND},
             {"clean", CmdAction.CLEAN},
             {"wash", CmdAction.CLEAN}
         };
@@ -558,7 +560,8 @@ namespace CStat.Common
                            .Replace("walk in refrigerator", "refrigerator")
                            .Replace("spread sheet", "spread-sheet")
                            .Replace("tax exempt", "tax-exempt")
-                           .Replace("tax exemption", "tax-exempt");
+                           .Replace("tax exemption", "tax-exempt")
+                           .Replace("we need", "we_need");
            
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
@@ -949,7 +952,7 @@ namespace CStat.Common
                             _cmdSpecific = CmdSpecific.STATE_OF;
                             _cmdSpecificIdxList.Add(curIdx);
                         }
-                        
+
                         w = gw(words, curIdx+1);
                         if ((w == "is") || (_isPlural = (w == "are")))
                         {
@@ -1041,6 +1044,7 @@ namespace CStat.Common
                                 _cmdIgnoreIdxList.Add(++curIdx);
                             return true;
                         }
+
                         if (w == "name")
                         {
                             _cmdSpecificIdxList.Add(curIdx);
@@ -1103,7 +1107,8 @@ namespace CStat.Common
                             if ((w == "out") || (w == "low") || isNeed)
                             {
                                 w = gw(words, curIdx + 1);
-                                if ((w == "of") || (w == "on") || isNeed)
+                                bool isOfOn = (w == "of") || (w == "on");
+                                if (isOfOn || isNeed)
                                 {
                                     if (_isQuestion)
                                     {
@@ -1119,7 +1124,8 @@ namespace CStat.Common
                                         _cmdActionIdx = curIdx;
                                         _cmdAction = CmdAction.BUY;
                                     }
-                                    _cmdIgnoreIdxList.Add(++curIdx); // For "of" or "on"
+                                    if (isOfOn)
+                                        _cmdIgnoreIdxList.Add(++curIdx); // For "of" or "on"
 
                                     // Add 1 to more Descriptive Details of what is needed or being asked about
                                     AddDescDetails(words, ref curIdx);
@@ -1416,13 +1422,27 @@ namespace CStat.Common
 
         public bool FindCmdAction(List<string> words)
         {
-            if (_cmdActionIdx != -1)
-                return false;
+            var NumWords = words.Count;
+            if (_cmdAction == CmdAction.BUY) // From FindSpecific
+            {
+                for (int i = 0; i < NumWords; ++i)
+                {
+                    var w = words[i];
+                    if (w.StartsWith("level") || w.StartsWith("measurement") || w.StartsWith("reading") || w.StartsWith("value") ||
+                        w.StartsWith("value") || w.StartsWith("pressure") || w.StartsWith("temperature") || w.StartsWith("temp") || w.StartsWith("kitch_temp"))
+                    {
+                        _cmdSpecificIdxList.Add(i);
+                        _cmdSpecific = CmdSpecific.STATE_OF;
+                        _cmdAction = CmdAction.FIND;
+                        _cmdActionIdx = i;
+                        _isPlural = w.EndsWith("s");
+                        return true;
+                    }
+                }
+                return true;
+            }
 
             _cmdAction = CmdAction.FIND; // default to FIND
-
-            var NumWords = words.Count;
-
             var CmdActionList = Enum.GetNames(typeof(CmdAction)).Cast<string>().ToList();
             for (int i = 0; i < NumWords; ++i)
             {
@@ -2042,7 +2062,6 @@ namespace CStat.Common
             nla.Add(p);
             laLists.Add(nla);
         }
-
         private static int AddLAPeople(List<List<Person>> laLists, List<Person> laPeople)
         {
             int startPpl = laPeople.Count;
@@ -2147,7 +2166,7 @@ namespace CStat.Common
 
         private string HandleEquip(List<string> words)
         {
-            if (_cmdSpecific == CmdSpecific.PHONE_OF || _cmdSpecific == CmdSpecific.LOCATION_OF || _cmdSpecific == CmdSpecific.EMAIL_OF || _cmdSpecific == CmdSpecific.NAME_OF)
+            if (_cmdAction == CmdAction.BUY || _cmdSpecific == CmdSpecific.PHONE_OF || _cmdSpecific == CmdSpecific.LOCATION_OF || _cmdSpecific == CmdSpecific.EMAIL_OF || _cmdSpecific == CmdSpecific.NAME_OF)
                 return HandleBiz(words);
 
             string result = "";

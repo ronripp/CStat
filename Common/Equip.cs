@@ -277,7 +277,7 @@ namespace CStat.Common
                         sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> CCA Power is back ON", true, false); // Allow resend
                     }
                 }
-                else 
+                else
                 {
                     // All other Equipment : Not "Propane" and Not "Power On"
                     var ARCount = LastARs.Count;
@@ -300,7 +300,7 @@ namespace CStat.Common
                                 }
                             }
                         }
-                        if ((TotalFailed >= MinFailedARs) && (LastFailedIdx == (NumCheckARs-1)))
+                        if ((TotalFailed >= MinFailedARs) && (LastFailedIdx == (NumCheckARs - 1)))
                         {
                             CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
                             sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> " + ep.Title + " is " + CSSettings.GetEqValueStr(ep, LastARs[LastFailedIdx], null, false), true, false); // Allow resend
@@ -311,43 +311,49 @@ namespace CStat.Common
                 if (ep.IsWaterPressure())
                 {
                     DateTime now = PropMgr.ESTNow;
-                    double md1 = (now - new DateTime(now.Year, now.Month, now.Day, 3, 0, 0)).TotalMinutes;
-                    double md2 = (now - new DateTime(now.Year, now.Month, now.Day, 3+12, 0, 0)).TotalMinutes;
-                    
-                    if ((md1 < -5) && (md1 > 90
+                    double md1 = (now - new DateTime(now.Year, now.Month, now.Day, 3, 0, 0)).TotalMinutes; // currently Scheduled 3 AM for 50 mins ... may change
+                    double md2 = (now - new DateTime(now.Year, now.Month, now.Day, 3 + 12, 0, 0)).TotalMinutes; // currently 3 PM for 50 mins ... may change
 
-
-
-
-                    // Check for a burst/water on
-                    if ((LastARs?.Count ?? 0) > 0)
+                    if (((md1 < -5) || (md1 > 55)) && ((md2 < -5) || (md2 > 55))) // Do not include expected scheduled water dumps
                     {
-                        int NumLARs = LastARs.Count;
-                        int bigDeltas = 0;
-                        double lastPres = LastARs[0].WaterPress;
-                        for (int j = 1; j < NumLARs; ++j)
+                        // Check for a burst/water
+                        if (DetectRunningWater(LastARs) && DetectRunningWater(GetLastRecords(30))) // 30 x 2 mins/sample = 60 mins of continuous water running.
                         {
-                            if (Math.Abs(LastARs[j].WaterPress - lastPres) > 10)
-                                ++bigDeltas;
-                            lastPres = LastARs[j].WaterPress;
+                            CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
+                            sms.NotifyUsers(CSSMS.NotifyType.EquipNT, "CStat:Equip> Water Pipe Burst/Running Water Alert", true, false); // Allow resend
                         }
-                        if (bigDeltas >= NumLARs/2)
-                        {
-                            LastARs = GetLastRecords();
-                        }
-
+                    }
                 }
-                    
-
             }
             return true;
         }
 
-        bool DetectRunningWater()
+        bool DetectRunningWater(List<ArdRecord> ardRecs)
         {
-                tbd #of and no big gaps.
-        }
+            if ((ardRecs?.Count ?? 0) == 0)
+                return false;
 
+            int NumARs = ardRecs.Count;
+            int bigDeltas = 0;
+            int missingBigDeltas = 0;
+            double lastPres = LastARs[0].WaterPress;
+            for (int j = 1; j < NumARs; ++j)
+            {
+                if (Math.Abs(LastARs[j].WaterPress - lastPres) > 10)
+                {
+                    ++bigDeltas;
+                    missingBigDeltas = 0;
+                }
+                else
+                    ++missingBigDeltas;
+
+                if (missingBigDeltas >= 4) // >= 8 minutes
+                    return false;
+
+                lastPres = LastARs[j].WaterPress;
+            }
+            return ((bigDeltas > 1) && (bigDeltas >= NumARs / 2));
+        }
 
         public bool ReportLastestValues(ref string report, bool alertsOnly) // Ard only : No propane
         {

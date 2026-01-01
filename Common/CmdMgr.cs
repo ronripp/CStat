@@ -111,6 +111,7 @@ namespace CStat.Common
             {"Phone", CmdAction.CALL},
             {"Phones", CmdAction.CALL},
             {"get", CmdAction.FIND},
+            {"send", CmdAction.FIND},
             {"show", CmdAction.FIND},
             {"report", CmdAction.FIND},
             {"list", CmdAction.FIND},
@@ -161,6 +162,7 @@ namespace CStat.Common
             TASK       = 0x00000010,
             REQ        = 0x00000020,
             DOC        = 0x00000040,
+            MMS        = 0x00000041,
             EQUIP      = 0x00000080,
             MENU       = 0x00000100,
             PROPANE    = 0x00000200,
@@ -184,7 +186,8 @@ namespace CStat.Common
             HARDWARE   = 0x08000000,
             OFFICE     = 0x10000000,
             POWER_CO   = 0x20000000,
-            KITCH_TEMP = 0x40000000
+            KITCH_TEMP = 0x40000000,
+
         }
 
         public enum CmdSpecific
@@ -257,9 +260,9 @@ namespace CStat.Common
             {"manual", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"document", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"file", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
-            {"meeting", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
-            {"minutes", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
-            {"meeting-minutes", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"meeting", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
+            {"minutes", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
+            {"meeting-minutes", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
             {"bylaws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
             {"by-laws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
             {"pics", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
@@ -447,6 +450,7 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.TRUSTEE, HandlePeople);
             _srcDelegateDict.Add(CmdSource.EC, HandlePeople);
 
+            _srcDelegateDict.Add(CmdSource.MMS, HandleMMs);
             _srcDelegateDict.Add(CmdSource.DOC, HandleDocs);
             _srcDelegateDict.Add(CmdSource.CORP, HandleCorp);
             _srcDelegateDict.Add(CmdSource.REQ, HandleDocs);
@@ -3184,6 +3188,64 @@ namespace CStat.Common
                 }
             }
             return "Document sent to your EMail.";
+        }
+
+        private string HandleMMs(List<string> words)
+        {
+            if (_cmdSrc == CmdSource.MMS) 
+            {
+                if (_cmdDescList.Count > 0)
+                {
+                    var dbox = GetDropBox();
+                    string report = "";
+                    RenderFolder(dbox, ModifySOPDesc(), "/Manuals & Procedures", "", "", ref report);
+                    var startIdx = report.IndexOf("]");
+                    if (startIdx != -1)
+                    {
+                        var endIdx = report.IndexOf("\n");
+                        if (endIdx != -1)
+                        {
+                            _alreadySentEMail = true;
+                            var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+                            report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                        }
+                    }
+                    else
+                    {
+                        RenderFolder(dbox, GetFilteredDesc(), "/Manuals & Procedures", "", "", ref report);
+                        startIdx = report.IndexOf("]");
+                        if (startIdx != -1)
+                        {
+                            var endIdx = report.IndexOf("\n");
+                            if (endIdx != -1)
+                            {
+                                _alreadySentEMail = true;
+                                var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+                                report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                            }
+                        }
+                        else
+                        {
+                            RenderFolder(dbox, this.SingularizeDesc(), "/Manuals & Procedures", "", "", ref report);
+                            startIdx = report.IndexOf("]");
+                            if (startIdx != -1)
+                            {
+                                var endIdx = report.IndexOf("\n");
+                                if (endIdx != -1)
+                                {
+                                    _alreadySentEMail = true;
+                                    var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
+                                    report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
+                                }
+                            }
+                            else
+                                return "No Matching Doc found. Try a different description.";
+                        }
+                    }
+                    return report;
+                }
+            }
+            return "Not performed.";
         }
 
         private static string EMailDropBoxFile(IConfiguration config, UserManager<CStatUser> userManager, CSUser curUser, string dboxFile, string subjectFileDesc="")

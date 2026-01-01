@@ -2865,7 +2865,7 @@ namespace CStat
                             continue;
                     }
 
-                    if ( ((p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child))) ||
+                    if ( ((p.Alias != null) && (person.Alias != null) && (p.Alias.Length > 0) && (String.Compare(p.Alias, person.Alias, true) == 0) && ((child == null) || isAValidPG(MinP, child)) ) ||
                           Person.SameFirstName(p.FirstName, person.FirstName) ||
                           ((p.Alias != null) && Person.SameFirstName(p.FirstName, person.FirstName)) )
                     {
@@ -2976,6 +2976,9 @@ namespace CStat
 
         private bool isAValidPG (Person p, Person child)
         {
+            if ((p == null) || (child == null))
+                return false;
+
             // Assumed person is a Parent/Guardian if child defined. Check to see if this is a child or the same as child with child expected to have a DOB
             if (p.Dob.HasValue && child.Dob.HasValue)
             {
@@ -3048,33 +3051,41 @@ namespace CStat
             String raw = name.Trim();
             if (string.IsNullOrEmpty(raw))
                 return false;
-            int isp = raw.LastIndexOf(" ");
-            if ((isp <= 0) && !string.IsNullOrEmpty(defLast))
+            int lisp = raw.LastIndexOf(" ");
+            int fisp = raw.IndexOf(" ");
+            if ((lisp == -1) && !string.IsNullOrEmpty(defLast))
             {
                 p.FirstName = raw;
                 p.LastName = defLast;
                 return true;
             }
             int iop = raw.IndexOf('(');
-            if (iop > isp)
+            if (iop > lisp)
                 return false;
             if (iop > 0)
             {
-                int icp = p.FirstName.IndexOf(')');
+                if (fisp < iop)
+                   p.FirstName = raw.Substring(0, fisp);
+                int icp = raw.IndexOf(')');
                 if (icp > iop)
                 {
-                    p.Alias = p.FirstName.Substring(iop + 1, (icp - iop) - 1);
+                    p.Alias = raw.Substring(iop + 1, (icp - iop) - 1);
                     p.Alias = "F:" + p.Alias.Trim();
-                    p.FirstName = raw.Substring(0, iop);
-                    p.FirstName = p.FirstName.Trim();
+                    p.FirstName = raw.Substring(0, iop).Trim();
+                }
+                else
+                {
+                    if (p.FirstName == null)
+                        p.FirstName = raw.Substring(0, fisp);
+                    p.LastName = raw.Substring(lisp + 1);
                 }
             }
             else
             {
-                p.FirstName = raw.Substring(0, isp);
+                p.FirstName = raw.Substring(0, fisp);
                 p.FirstName = p.FirstName.Trim();
             }
-            p.LastName = raw.Substring(isp + 1);
+            p.LastName = raw.Substring(lisp + 1);
             p.LastName = p.LastName.Trim();
             return true;
         }

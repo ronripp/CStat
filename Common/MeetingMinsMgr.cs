@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CStat.Data;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,9 @@ namespace CStat.Common
 
         public int ReadMins()
         {
+            var dbox = new CSDropBox(Startup.CSConfig);
+            var destPath = "/Corporate/Meeting Minutes";
+
             return 0;
         }
 

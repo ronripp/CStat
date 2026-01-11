@@ -3194,56 +3194,8 @@ namespace CStat.Common
         {
             if (_cmdSrc == CmdSource.MMS) 
             {
-                if (_cmdDescList.Count > 0)
-                {
-                    var dbox = GetDropBox();
-                    string report = "";
-                    RenderFolder(dbox, ModifySOPDesc(), "/Manuals & Procedures", "", "", ref report);
-                    var startIdx = report.IndexOf("]");
-                    if (startIdx != -1)
-                    {
-                        var endIdx = report.IndexOf("\n");
-                        if (endIdx != -1)
-                        {
-                            _alreadySentEMail = true;
-                            var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
-                            report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
-                        }
-                    }
-                    else
-                    {
-                        RenderFolder(dbox, GetFilteredDesc(), "/Manuals & Procedures", "", "", ref report);
-                        startIdx = report.IndexOf("]");
-                        if (startIdx != -1)
-                        {
-                            var endIdx = report.IndexOf("\n");
-                            if (endIdx != -1)
-                            {
-                                _alreadySentEMail = true;
-                                var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
-                                report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
-                            }
-                        }
-                        else
-                        {
-                            RenderFolder(dbox, this.SingularizeDesc(), "/Manuals & Procedures", "", "", ref report);
-                            startIdx = report.IndexOf("]");
-                            if (startIdx != -1)
-                            {
-                                var endIdx = report.IndexOf("\n");
-                                if (endIdx != -1)
-                                {
-                                    _alreadySentEMail = true;
-                                    var fname = report.Substring(startIdx + 1, (endIdx - startIdx) - 1);
-                                    report = EMailDropBoxFile(_config, _userManager, _curUser, fname);
-                                }
-                            }
-                            else
-                                return "No Matching Doc found. Try a different description.";
-                        }
-                    }
-                    return report;
-                }
+                var mmMgr = new MeetingMinsMgr(_config);
+                mmMgr.ReadMins();
             }
             return "Not performed.";
         }

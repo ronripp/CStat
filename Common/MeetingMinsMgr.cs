@@ -1,7 +1,9 @@
 ﻿using CStat.Data;
+using Dropbox.Api.Files;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,9 +11,21 @@ namespace CStat.Common
 {
     public class MeetingMins
     {
-        public enum MMType { Annual, EC, Special };
+        public MeetingMins(string fullPath, MMType type, DateTime dt, string doc)
+        {
+            _fullPath = fullPath;
+            _type = type;
+            _dt = dt;
+            _docs = new List<string>();
+            _docs.Add(doc);
+        }
+
+        public enum MMType { Annual, EC, Special, Letter};
+        public enum MMMonth {JANUARY=1, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER};
+
         public MMType _type;
         public DateTime _dt;
+        public string _fullPath;
         public List<string> _docs;
 
         public string GetLatest()
@@ -23,33 +37,152 @@ namespace CStat.Common
 
         public static MMType GetType(string minFile)
         {
-            return MMType.Special; // TBD;
+            String[] rwords = minFile.Split(".");
+            string word = String.Join(" ", rwords, 0, (rwords.Length > 1) ? rwords.Length - 1 : rwords.Length);
+            char[] delimChars = new char[] {' ', ',', '-', '_'};
+            string[] words = word.ToUpper().Split(delimChars);
+
+            if (words.Any(w => w.StartsWith("SPECIAL")))
+                return MMType.Special;
+
+            if (words.Any(w => w.StartsWith("LETTER")))
+                return MMType.Letter;
+
+            //bool isMeeting = words.Any(w => w.StartsWith("MEETING") || w.StartsWith("MINUTE") || w.StartsWith("MM"));
+            bool hasVotes = words.Any(w => w.StartsWith("VOTE"));
+            bool isAnnual = words.Any(w => w.StartsWith("ANNUAL") || w.StartsWith("BALANCE") || w.StartsWith("LOSS") || w.StartsWith("TREASUR") || w.StartsWith("FINAC") || w.StartsWith("SHEET") || hasVotes);
+            //bool isEC = words.Any(w => w.StartsWith("EC") || w.StartsWith("ZOOM") || w.StartsWith("MM"));
+            bool isNotAnnual = words.Any(w => w.StartsWith("EC") || w.StartsWith("PRE")) && !hasVotes;
+
+            return (isAnnual && !isNotAnnual) ? MMType.Annual : MMType.EC;
         }
 
-        public static DateTime GetDT(string minFile)
+        public static int FullYear(int raw)
         {
-            return DateTime.Now; // TBD;
+            if (raw < 100)
+                raw += (raw >= 60) ? 1900 : 2000;
+            return raw;
+        }
+
+        public static DateTime GetDT(string minFile, MMType type)
+        {
+            String[] rwords = minFile.Split(".");
+            string word = String.Join(" ", rwords, 0, (rwords.Length > 1) ? rwords.Length - 1 : rwords.Length);
+            char[] delimChars = new char[] { ' ', ',', '-', '_' };
+            string[] words = word.ToUpper().Split(delimChars);
+
+            List<int> dateNums = new List<int>();
+            foreach (var w in words)
+            {
+                if (int.TryParse(w, System.Globalization.NumberStyles.None, new CultureInfo("en-US"), out int num))
+                {
+                    dateNums.Add(num);
+                }
+                else
+                {
+                    if (MMMonth.TryParse(w, out MMMonth month))
+                    {
+                        dateNums.Add((int)month);
+                    }
+                }
+            }
+
+            if (type == MMType.Letter)
+            {
+                int month;
+                int day;
+
+                bool isAnnual = words.Any(w => w.StartsWith("ANNUAL") || w.StartsWith("BALANCE") || w.StartsWith("LOSS") || w.StartsWith("TREASUR") || w.StartsWith("FINAC") || w.StartsWith("SHEET"));
+                if (isAnnual)
+                {
+                    month = 11;
+                    day = 7;
+                }
+                else
+                {
+                    month = 12;
+                    day = 15;
+                }
+
+                // There are only 2 values for Annual -> Years return smaller of 2
+                if (dateNums.Count == 1)
+                {
+                    return new DateTime(MeetingMins.FullYear(dateNums[0]), month, day);
+                }
+                if ((dateNums.Count == 2) && (dateNums[0] <= 12))
+                {
+                    return new DateTime(MeetingMins.FullYear(dateNums[1]), dateNums[0], 15);
+                }
+            }
+
+            if (type == MMType.Annual)
+            {
+                int year;
+                int month = 11;
+                int day = 7;
+                // There are only 2 values for Annual -> Years return smaller of 2
+                if (dateNums.Count == 1)
+                {
+                    return new DateTime(MeetingMins.FullYear(dateNums[0]), month, day);
+                }
+                else if (dateNums.Count == 2)
+                {
+                    dateNums[0] = MeetingMins.FullYear(dateNums[0]);
+                    dateNums[1] = MeetingMins.FullYear(dateNums[1]);
+                    year = (dateNums[0] <= dateNums[1]) ? dateNums[0] : dateNums[1];
+                    return new DateTime(year, month, day);
+                }
+            }
+
+            if (dateNums.Count == 3)
+            {
+                return ((dateNums[0] > 12) && (dateNums[1] <= 12)) 
+                    ? new DateTime(MeetingMins.FullYear(dateNums[0]), dateNums[1], dateNums[2])  // YYYY MM DD
+                    : new DateTime(MeetingMins.FullYear(dateNums[2]), dateNums[0], dateNums[1]); // MM DD YYYY
+            }
+
+            return (dateNums.Count == 1) ? new DateTime(MeetingMins.FullYear(dateNums[0]), 11, 7) : new DateTime(2000, 11, 7); // unknown
         }
     }   
 
     public class MeetingMinsMgr
     {
         private readonly IConfiguration _config;
-        private List<MeetingMinsMgr> _meetingMins;
+        public List<MeetingMins> _List;
 
         public MeetingMinsMgr(IConfiguration config)
         {
             _config = config;
+            _List = new List<MeetingMins>();
         }
 
         public int ReadMins()
         {
+            _List.Clear();
             var dbox = new CSDropBox(Startup.CSConfig);
             var destPath = "/Corporate/Meeting Minutes";
+            ListFolderResult FldList = dbox.GetFolderList2(destPath);
 
-            return 0;
+            if (FldList.Entries.Count > 0)
+            {
+                foreach (var entry in FldList.Entries)
+                {
+                    if (!entry.IsFolder)
+                    {
+                        MeetingMins.MMType mmType = MeetingMins.GetType(entry.Name);
+                        DateTime dt = MeetingMins.GetDT(entry.Name, mmType);
+
+                        MeetingMins found = _List.FirstOrDefault(m => (m._type == mmType) && (m._dt == dt));
+                        if (found != null)
+                            found._docs.Add(entry.Name);
+                        else
+                            _List.Add(new MeetingMins(entry.PathDisplay, mmType, dt, entry.Name));               
+                    }
+                }
+            }
+
+            return _List.Count();
         }
-
     }
 }
 

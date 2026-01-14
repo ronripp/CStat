@@ -40,13 +40,15 @@
         <tbody>
             @foreach (var mMin in Model._mmMgr._List.OrderBy(mm => mm._dt))
             {
-                <tr class="RConn">
+                <tr class="MMList">
                     <td>
-                        @mMin._dt.ToLongDateString()
-                       
+                        @mMin._dt.ToShortDateString()
                     </td>
                     <td>
-                        @mMin._docs[0]
+                        @foreach (var doc in mMin._docs)
+                        {
+                            @Html.Raw("[" + doc + "] ")
+                        }
                     </td>
                     <td>
                         @mMin._type.ToString()

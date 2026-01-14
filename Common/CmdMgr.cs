@@ -3194,7 +3194,7 @@ namespace CStat.Common
         {
             if (_cmdSrc == CmdSource.MMS) 
             {
-                var mmMgr = new MeetingMinsMgr(_config);
+                var mmMgr = new MeetingMinsMgr();
                 mmMgr.ReadMins();
             }
             return "Not performed.";

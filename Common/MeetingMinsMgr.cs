@@ -147,12 +147,10 @@ namespace CStat.Common
 
     public class MeetingMinsMgr
     {
-        private readonly IConfiguration _config;
         public List<MeetingMins> _List;
 
-        public MeetingMinsMgr(IConfiguration config)
+        public MeetingMinsMgr()
         {
-            _config = config;
             _List = new List<MeetingMins>();
         }
 

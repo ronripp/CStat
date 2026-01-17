@@ -16,9 +16,43 @@
 
     <style>
 
+        .Year {
+            color: darkred;
+            font-weight: bold;
+            font-size: 2em;
+            background-color:blanchedalmond;
+        }
+
+        .Found {
+            color: darkred;
+            font-size: 1.3em;
+            background-color: blanchedalmond;
+        }
+
+        .table td, .table th {
+            vertical-align:middle; 
+        }
+
     </style>
 
     <script>
+
+        function openFileShare(folder, file) {
+            var parameters = "{'Folder':'" + folder + "','File':'" + file + "'}";
+            $.ajax({
+                url: "/Docs?handler=FileShare",
+                contentType: "application/json",
+                dataType: "json",
+                data: parameters,
+                success: function (response) {
+                    if (response.indexOf("ERROR~:") === -1) {
+                        window.location.href = response;
+                    }
+                },
+            });
+        }
+
+
     </script>
 
 </head>
@@ -38,8 +72,16 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var mMin in Model._mmMgr._List.OrderBy(mm => mm._dt))
+
+            @{var curYear = DateTime.UtcNow.Year;}
+            @foreach (var mMin in Model._mmMgr._List.OrderByDescending(mm => mm._dt))
             {
+                while (mMin._dt.Year <= curYear)
+                {
+                    @Html.Raw("<tr class=\"MMList\">\n<td class=\"Year\">\n" + curYear.ToString() + "</td>\n<td class=\"Found\">\nfound : " + ((mMin._dt.Year == curYear) ? Model._mmMgr._List.Where(mm => mm._dt.Year == curYear).Count().ToString() : "0").ToString() + "</td>\n<td>\n</tr>\n")
+                    --curYear;
+                }
+
                 <tr class="MMList">
                     <td>
                         @mMin._dt.ToShortDateString()
@@ -47,8 +89,10 @@
                     <td>
                         @foreach (var doc in mMin._docs)
                         {
-                            @Html.Raw("[" + doc + "] ")
+                            var padDoc = doc.Replace(" ", "%20");
+                            @Html.Raw("<a href=\"javascript: openFileShare('/Corporate/Meeting%20Minutes','" + padDoc + "')\"><b>[</b>" + doc + "<b>]</b> </a>")
                         }
+
                     </td>
                     <td>
                         @mMin._type.ToString()

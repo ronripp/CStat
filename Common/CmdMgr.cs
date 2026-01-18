@@ -263,6 +263,8 @@ namespace CStat.Common
             {"meeting", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
             {"minutes", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
             {"meeting-minutes", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
+            {"mms", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
+            {"mm", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
             {"bylaws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
             {"by-laws", new Tuple<CmdSource, bool>(CmdSource.BYLAWS, false) },
             {"pics", new Tuple<CmdSource, bool>(CmdSource.CAMERA, true) },
@@ -3190,13 +3192,48 @@ namespace CStat.Common
             return "Document sent to your EMail.";
         }
 
+
         private string HandleMMs(List<string> words)
         {
-            if (_cmdSrc == CmdSource.MMS) 
+            if (_cmdSrc == CmdSource.MMS)
             {
                 var mmMgr = new MeetingMinsMgr();
                 mmMgr.ReadMins();
+
+                if (_cmdDateTimeStartIdx != -1)
+                {
+                    if (_cmdDateTimeEndIdx != -1)
+                    {
+                    }
+                }
+                else
+                {
+                    if (_cmdNumberIdx != -1)
+                    {
+                        if (_cmdNumber < 2000)
+                            _cmdNumber += 2000;
+
+                        String results = "Enter : mm <date>  for one of the following " + _cmdNumber + " meetings :\n";
+                        List<MeetingMins> mms = mmMgr._List.Where(mm => mm._dt.Year == _cmdNumber).OrderBy(m => m._dt).ToList();
+                        foreach (MeetingMins m in mms)
+                        {
+                            results += m._dt.ToShortDateString() + " (" + m._type.ToString() + ")\n";
+                        }
+                        return results;
+                    }
+                    else
+                    {
+                        String results = "Enter : mm <year>  for one of the following years :\n";
+                        List<int>years = mmMgr._List.Select(mm => mm._dt.Year).Distinct().OrderByDescending(y => y).ToList();
+                        foreach (int y in years)
+                        {
+                            results += y + "\n";
+                        }
+                        return results;
+                    }
+                }
             }
+
             return "Not performed.";
         }
 

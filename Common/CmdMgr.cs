@@ -2752,7 +2752,7 @@ namespace CStat.Common
                     filter = "IC/COC";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.Affiliation == "ICCOC").OrderBy(c => c.Name).ToList();
                 }
-                else if (words.Contains("good"))
+                else if (words.Contains("good") || words.Any(w => w.StartsWith("good")))
                 {
                     filter = "Good Standing";
                     churches = _context.Church.Include(c => c.SeniorMinister).Include(c => c.YouthMinister).Include(c => c.Address).Where(c => c.MembershipStatus == 1).OrderBy(c => c.Name).ToList();
@@ -3199,12 +3199,25 @@ namespace CStat.Common
             {
                 var mmMgr = new MeetingMinsMgr();
                 mmMgr.ReadMins();
+                string report = "";
 
                 if (_cmdDateTimeStartIdx != -1)
                 {
-                    if (_cmdDateTimeEndIdx != -1)
+                    _alreadySentEMail = true;
+                    List<MeetingMins> mms = mmMgr._List.Where(mm => (mm._dt.Date >= _cmdDateRange.Start.Date) && (mm._dt.Date <= _cmdDateRange.End.Date)).OrderBy(m => m._dt).ToList();
+                    report = "Requested Meeting Minutes for " + _cmdDateRange.Start.ToShortDateString() + " : ";
+                    if (mms.Count > 0)
                     {
+                        foreach (MeetingMins m in mms)
+                        {
+                            report += EMailDropBoxFile(_config, _userManager, _curUser, m._fullPath) + "\n";
+                        }
                     }
+                    else
+                    {
+                        report += "not found.";
+                    }
+                    return report;
                 }
                 else
                 {

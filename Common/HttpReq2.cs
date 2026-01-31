@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace CStat.Common
@@ -43,6 +44,12 @@ namespace CStat.Common
         public void AddHeaderProp(string propName, string propVal)
         {
             _httpReq.Headers.Add(propName, propVal);
+        }
+
+        public void AddAuthenication(string auth)
+        {
+           var base64EncAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes(auth));
+            _httpReq.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64EncAuthString);
         }
 
         public bool AddBody(string postData, string contentType = "application/x-www-form-urlencoded")

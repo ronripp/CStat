@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using static CStat.Common.PtzCamera;
@@ -187,7 +188,7 @@ namespace CStat.Common
             OFFICE     = 0x10000000,
             POWER_CO   = 0x20000000,
             KITCH_TEMP = 0x40000000,
-
+            HUE        = 0x40000001,
         }
 
         public enum CmdSpecific
@@ -369,7 +370,13 @@ namespace CStat.Common
             {"phone_number", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"phone_numbers", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"phone", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) }
+            {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+
+            { "light", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+            { "security", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+            { "motion", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+            { "sensor", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+
         };
 
         //===============================================================
@@ -481,6 +488,8 @@ namespace CStat.Common
             _srcDelegateDict.Add(CmdSource.CHURCH, HandleChurch);
 
             _srcDelegateDict.Add(CmdSource.CAMERA, HandleCamera);
+
+            _srcDelegateDict.Add(CmdSource.HUE, HandleHue);
 
             //_srcDelegateDict.Add(CmdSource.CSTEST, HandleCSTest);
         }
@@ -2885,7 +2894,46 @@ namespace CStat.Common
             return instr;
         }
 
+        private string HandleHue(List<string> words) // ZZZ
+        {
+            if (words.Any(w => w.StartsWith("light")))
+            {
+                if ((_cmdAction == CmdAction.TURN_ON) || (_cmdAction == CmdAction.TURN_OFF))
+                {
+                    /******
+
+                    postman request PUT 'https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b' \
+                      --header 'hue-application-key: lj1TJGfM3pc7Xdz7F2BciMsjADLnp793cs6rWDsA' \
+                      --header 'Content-Type: application/json' \
+                      --header 'Authorization: ••••••' \
+                      --body '	{"dimming":{"brightness":100.0},"color":{"xy":{"x":0.3,"y":0.8}}}' \
+                      --auth-basic-username 'ronripp@outlook.com' \
+                      --auth-basic-password 'Red35876!'
+
+                    ******/
+
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Put, "https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b");
+                    req.AddHeaderProp("hue-application-key", "lj1TJGfM3pc7Xdz7F2BciMsjADLnp793cs6rWDsA");
+                    req.AddHeaderProp("Accept", "*/*");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+                    req.AddAuthenication("ronripp@outlook.com:Red35876!");
+                    req.AddBody("{\"dimming\":{\"brightness\":20.0},\"color\":{\"xy\":{\"x\":0.1,\"y\":0.6}}}", "application/json");
+                    var sResult = req.SendForString();
+                    if (String.IsNullOrEmpty(sResult))
+                        sResult = "no Results. Unknown status";
+                    return sResult;
+                }
+                else
+                {
+                    return "Available Lights are :\nChapel Light\nMess Light\n e.g. Turn on Chapel Light";
+                }
+            }
+            return "I did not understand.";
+        }
+
         private string HandleCamera(List<string> words) // ZZZ
+
         {
             CamOps camOps = null;
             COp preset = COp.None;
@@ -3191,7 +3239,6 @@ namespace CStat.Common
             }
             return "Document sent to your EMail.";
         }
-
 
         private string HandleMMs(List<string> words)
         {

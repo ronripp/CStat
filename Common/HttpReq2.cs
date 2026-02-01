@@ -48,7 +48,7 @@ namespace CStat.Common
 
         public void AddAuthenication(string auth)
         {
-           var base64EncAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes(auth));
+            var base64EncAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes(auth));
             _httpReq.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64EncAuthString);
         }
 

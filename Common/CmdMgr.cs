@@ -2898,6 +2898,13 @@ namespace CStat.Common
         {
             if (words.Any(w => w.StartsWith("light")))
             {
+                if (words.Any(w => w.StartsWith("test")))
+                {
+                    var hmgr = new HueMgr();
+                    hmgr.RGBtoHueColor(150, 128, 120);
+                    return "";
+                }
+
                 if ((_cmdAction == CmdAction.TURN_ON) || (_cmdAction == CmdAction.TURN_OFF))
                 {
                     /******

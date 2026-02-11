@@ -31,6 +31,7 @@ namespace CStat.Common
 
     public class HueMgr // Philips Hue Manager
     {
+        private enum GEdge { Unknown, InG, RGIn, GBIn, BRIn, RGOut, GBOut, BROut }
         private DPoint rPnt;
         private DPoint gPnt;
         private DPoint bPnt;
@@ -95,17 +96,52 @@ namespace CStat.Common
             return ((A.x - C.x) * (B.y - C.y)) - ((A.y - C.y) * (B.x - C.x));
         }
 
-        public bool isInGamutC(DPoint p)
+        public bool isInGamutC(DPoint p, out GEdge hint )
         {
-            TBD //return hint on returning false
-
-            // First see if it is in the Triangular bound before testing cross Product normal sign to filter out some cases.
-            if ((p.x < minX) || (p.x > maxX) || (p.y < minY) || (p.y > maxY))
-                return false;
-
             double rgN = GetNormal(rPnt, gPnt, p);
             double gbN = GetNormal(gPnt, bPnt, p);
             double brN = GetNormal(bPnt, rPnt, p);
+            if (rgN >= 0 && gbN >= 0 && brN >= 0)
+            {
+                hint = GEdge.InG;
+                return true;
+            }
+
+            // First see if it is in the Triangular bound before testing cross Product normal sign to filter out some cases.
+            if ((p.x < minX) || (p.x > maxX) || (p.y < minY) || (p.y > maxY))
+            {
+                // Out of rectangular bounds;
+                // TBD : Review
+                if (p.x < minX)
+                {
+                    if (gbN <= 0)
+                        hint = GEdge.GBOut;
+                    else if (brN <= 0)
+                        hint = GEdge.BROut;
+                    else
+                        hint = GEdge.Unknown;
+                }
+                else if ((p.y < rPnt.y) && (brN <= 0))
+                    hint = GEdge.BROut;
+                else if ((p.x > maxX) && (rgN <= 0))
+                    hint = GEdge.RGOut;
+                else
+                    hint = GEdge.Unknown;
+            }
+            else
+            {
+                // In rectangular bounds;
+                if (rgN <= 0)
+                    hint = GEdge.RGIn;
+                else if (gbN <= 0)
+                    hint = GEdge.GBIn;
+                else if (brN <= 0)
+                    hint = GEdge.BRIn;
+                else
+                    hint = GEdge.Unknown;
+            }
+
+
             return rgN >= 0 && gbN >= 0 && brN >= 0;
         }
     }

@@ -31,25 +31,27 @@ namespace CStat.Common
 
     public class HueMgr // Philips Hue Manager
     {
-        private enum GEdge { Unknown, InG, RGIn, GBIn, BRIn, RGOut, GBOut, BROut }
-        private DPoint rPnt;
-        private DPoint gPnt;
-        private DPoint bPnt;
+        private enum GState { Unknown=0, R=0x1, G=0x2, B=0x4, RG=0x8, GB=0x10, BR=0x20, OUT=0x1000, IN=0x2000 }
+        private readonly double delta = 1E-6;
+        private readonly DPoint rPnt;
+        private readonly DPoint gPnt;
+        private readonly DPoint bPnt;
 
-        private double minX;
-        private double maxX;
-        private double minY;
-        private double maxY;
+        private readonly double minX;
+        private readonly double maxX;
+        private readonly double minY;
+        private readonly double maxY;
 
         public HueMgr()
         {
-            DPoint rPnt = new DPoint(0.6915, 0.3038);
-            DPoint gPnt = new DPoint(0.17, 0.7);
-            DPoint bPnt = new DPoint(0.1532, 0.0475);
-            double minX = bPnt.x;
-            double maxX = rPnt.x;
-            double minY = bPnt.y;
-            double maxY = gPnt.y;
+            // Using Gamut C
+            rPnt = new DPoint(0.6915, 0.3038);
+            gPnt = new DPoint(0.17, 0.7);
+            bPnt = new DPoint(0.1532, 0.0475);
+            minX = bPnt.x;
+            maxX = rPnt.x;
+            minY = bPnt.y;
+            maxY = gPnt.y;
         }
 
         public HueColor RGBtoHueColor(int r8, int g8, int b8)
@@ -78,71 +80,152 @@ namespace CStat.Common
             var pnt = new DPoint(x, y);
 
             // Test : Remove
-            bool in1 = isInGamutC(new DPoint(0.3, 0.4));
-            bool in2 = isInGamutC(new DPoint(0.35, 0.5));
-            bool out1 = isInGamutC(new DPoint(0.1, 0.2));
-            bool out2 = isInGamutC(new DPoint(0.5, 0.2));
-            bool out3 = isInGamutC(new DPoint(0.5, 0.5));
+            DPoint p1 = new DPoint(0.3, 0.4);
+            DPoint p2 = new DPoint(0.35, 0.5);
+            DPoint p3 = new DPoint(0.1, 0.2);
+            DPoint p4 = new DPoint(0.5, 0.2);
+            DPoint p5 = new DPoint(0.5, 0.5);
+            GState ps1 = GamutState(new DPoint(0.3, 0.4));
+            GState ps2 = GamutState(new DPoint(0.35, 0.5));
+            GState ps3 = GamutState(new DPoint(0.1, 0.2));
+            GState ps4 = GamutState(new DPoint(0.5, 0.2));
+            GState ps5 = GamutState(new DPoint(0.5, 0.5));
 
-            if (isInGamutC(new DPoint(x, y)))
+            if (AdjustXY(ref pnt))
                 return new HueColor(x, y, brightness); // In GamutC
-
-            // Not in Gamut C. Find closest point to triangle edge and use this x,y else choose closes point (r,g or b) for xy
-
-            return new HueColor(0, 0, 0);
+            else
+                return null;
         }
-        public static double GetNormal(DPoint C, DPoint A, DPoint B)
+        private double GetNormal(DPoint C, DPoint A, DPoint B)
         {
             return ((A.x - C.x) * (B.y - C.y)) - ((A.y - C.y) * (B.x - C.x));
         }
 
-        public bool isInGamutC(DPoint p, out GEdge hint )
+        private GState GamutState(DPoint p)
         {
             double rgN = GetNormal(rPnt, gPnt, p);
             double gbN = GetNormal(gPnt, bPnt, p);
             double brN = GetNormal(bPnt, rPnt, p);
-            if (rgN >= 0 && gbN >= 0 && brN >= 0)
-            {
-                hint = GEdge.InG;
-                return true;
-            }
 
-            // First see if it is in the Triangular bound before testing cross Product normal sign to filter out some cases.
-            if ((p.x < minX) || (p.x > maxX) || (p.y < minY) || (p.y > maxY))
+            bool rgOut = rgN < 0;
+            bool gbOut = gbN < 0; 
+            bool brOut = brN < 0;
+            if (!rgOut && !gbOut && !brOut)
             {
-                // Out of rectangular bounds;
-                // TBD : Review
-                if (p.x < minX)
-                {
-                    if (gbN <= 0)
-                        hint = GEdge.GBOut;
-                    else if (brN <= 0)
-                        hint = GEdge.BROut;
-                    else
-                        hint = GEdge.Unknown;
-                }
-                else if ((p.y < rPnt.y) && (brN <= 0))
-                    hint = GEdge.BROut;
-                else if ((p.x > maxX) && (rgN <= 0))
-                    hint = GEdge.RGOut;
+                // Extra check but not needed.
+                if (InGamut(p.x, p.y))
+                    return GState.IN;
                 else
-                    hint = GEdge.Unknown;
+                    return GState.OUT; // should NEVER occur
             }
-            else
+
+            if (rgOut && gbOut && brOut)
+                return GState.OUT; // Should NEVER occur
+
+            if (rgOut && gbOut)
+                return GState.G;
+
+            if (gbOut && brOut)
+                return GState.B;
+
+            if (brOut && rgOut)
+                return GState.R;
+
+            if (rgOut)
+                return GState.RG;
+
+            if (gbOut)
+                return GState.GB;
+
+            if (brOut)
+                return GState.BR;
+
+            return GState.Unknown; // Should NEVER occur
+        }
+
+        private bool InGamut(double x, double y)
+        {
+            return (x >= (minX - delta)) && (x <= (maxX + delta)) && (y >= (minY - delta)) && (y <= (maxY + delta));
+        }
+
+        private bool GetEdgeXY(GState edge, ref DPoint pnt)
+        {
+            DPoint p1, p2;
+            switch (edge)
             {
-                // In rectangular bounds;
-                if (rgN <= 0)
-                    hint = GEdge.RGIn;
-                else if (gbN <= 0)
-                    hint = GEdge.GBIn;
-                else if (brN <= 0)
-                    hint = GEdge.BRIn;
-                else
-                    hint = GEdge.Unknown;
+                case GState.RG:
+                    p1 = new DPoint(rPnt.x, rPnt.y);
+                    p2 = new DPoint(gPnt.x, gPnt.y);
+                    break;
+                case GState.GB:
+                    p1 = new DPoint(gPnt.x, gPnt.y);
+                    p2 = new DPoint(bPnt.x, bPnt.y);
+                    break;
+                case GState.BR:
+                    p1 = new DPoint(bPnt.x, bPnt.y);
+                    p2 = new DPoint(rPnt.x, rPnt.y);
+                    break;
+                default:
+                    return false;
             }
 
+            double me = (p2.y - p1.y) / (p2.x - p1.x);
+            double be = p1.y - (me * p1.x);
+            double mp = - 1/me;
+            double bp = pnt.y - (mp * pnt.x);
+            double xi = (bp - be) / (me - mp);
+            double yi = me * xi + be;
 
-            return rgN >= 0 && gbN >= 0 && brN >= 0;
+            if (InGamut(xi, yi))
+            {
+                pnt.x = xi;
+                pnt.y = yi;
+            }
+
+            double sd1 = (xi - p1.x) * (xi - p1.x) + (yi - p1.y) * (yi - p1.y);
+            double sd2 = (xi - p2.x) * (xi - p2.x) + (yi - p2.y) * (yi - p2.y);
+
+            switch (edge)
+            {
+                case GState.RG:
+                    pnt = (sd1 < sd2) ? new DPoint(rPnt.x, rPnt.y) : new DPoint(gPnt.x, gPnt.y);
+                    return true;
+                case GState.GB:
+                    pnt = (sd1 < sd2) ? new DPoint(gPnt.x, gPnt.y) : new DPoint(bPnt.x, bPnt.y);
+                    return true;
+                case GState.BR:
+                    pnt = (sd1 < sd2) ? new DPoint(bPnt.x, bPnt.y) : new DPoint(rPnt.x, rPnt.y);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private bool AdjustXY(ref DPoint pnt)
+        {
+            GState gs = GamutState(pnt);
+            switch (gs)
+            {
+                case GState.IN:
+                    return true;
+                case GState.R:
+                    pnt = new DPoint(rPnt.x, rPnt.y);
+                    return true;
+                case GState.G:
+                    pnt = new DPoint(gPnt.x, gPnt.y);
+                    return true;
+                case GState.B:
+                    pnt = new DPoint(bPnt.x, bPnt.y);
+                    return true;
+                case GState.RG:
+                case GState.GB:
+                case GState.BR:
+                    return GetEdgeXY(gs, ref pnt);
+                default:
+                case GState.OUT:
+                case GState.Unknown:
+                    return false;
+            }
         }
     }
 }

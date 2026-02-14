@@ -176,7 +176,7 @@ namespace CStat.Common
             double xi = (bp - be) / (me - mp);
             double yi = me * xi + be;
 
-            if (InGamut(xi, yi))
+            if (InGamut(xi, yi)) TBD: Limit to line min max (not Gamut min max)
             {
                 pnt.x = xi;
                 pnt.y = yi;

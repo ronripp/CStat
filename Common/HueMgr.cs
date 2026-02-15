@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -79,17 +80,22 @@ namespace CStat.Common
             // Check to see if x, y is in the assumed Triangular Gamut C (newer Philip light bulbs)
             var pnt = new DPoint(x, y);
 
-            // Test : Remove
-            DPoint p1 = new DPoint(0.3, 0.4);
-            DPoint p2 = new DPoint(0.35, 0.5);
-            DPoint p3 = new DPoint(0.1, 0.2);
-            DPoint p4 = new DPoint(0.5, 0.2);
-            DPoint p5 = new DPoint(0.5, 0.5);
-            GState ps1 = GamutState(new DPoint(0.3, 0.4));
-            GState ps2 = GamutState(new DPoint(0.35, 0.5));
-            GState ps3 = GamutState(new DPoint(0.1, 0.2));
-            GState ps4 = GamutState(new DPoint(0.5, 0.2));
-            GState ps5 = GamutState(new DPoint(0.5, 0.5));
+            // Tests : Remove
+            DPoint p1 =  new DPoint(0.3, 0.4);
+            DPoint p2 =  new DPoint(0.35, 0.5);
+            DPoint p3 =  new DPoint(0.1, 0.2);
+            DPoint p4 =  new DPoint(0.5, 0.2);
+            DPoint p5 =  new DPoint(0.5, 0.5);
+            bool r1 = AdjustXY(ref p1);
+            Debug.WriteLine("AdjustXY=" + r1 + " (0.3, 0.4)->(" + p1.x + ", " + p1.y);
+            bool r2 = AdjustXY(ref p2);
+            Debug.WriteLine("AdjustXY=" + r2 + " (0.35, 0.5)->(" + p2.x + ", " + p2.y);
+            bool r3 = AdjustXY(ref p3);
+            Debug.WriteLine("AdjustXY=" + r3 + " (0.1, 0.2)->(" + p3.x + ", " + p3.y);
+            bool r4 = AdjustXY(ref p4);
+            Debug.WriteLine("AdjustXY=" + r4 + " (0.5, 0.2)->(" + p4.x + ", " + p4.y);
+            bool r5 = AdjustXY(ref p5);
+            Debug.WriteLine("AdjustXY=" + r5 + " (0.5, 0.5)->(" + p5.x + ", " + p5.y);
 
             if (AdjustXY(ref pnt))
                 return new HueColor(x, y, brightness); // In GamutC
@@ -148,6 +154,34 @@ namespace CStat.Common
             return (x >= (minX - delta)) && (x <= (maxX + delta)) && (y >= (minY - delta)) && (y <= (maxY + delta));
         }
 
+        private bool OnEdge(GState edge, double x, double y)
+        {
+            DPoint p1=null, p2=null;
+            switch (edge)
+            {
+                case GState.RG:
+                    p1 = new DPoint(rPnt.x, rPnt.y);
+                    p2 = new DPoint(gPnt.x, gPnt.y);
+                    break;
+                case GState.GB:
+                    p1 = new DPoint(gPnt.x, gPnt.y);
+                    p2 = new DPoint(bPnt.x, bPnt.y);
+                    break;
+                case GState.BR:
+                    p1 = new DPoint(bPnt.x, bPnt.y);
+                    p2 = new DPoint(rPnt.x, rPnt.y);
+                    break;
+                default:
+                    return false;
+            }
+
+            double eMinX = Math.Min(p1.x, p2.x);
+            double eMaxX = Math.Max(p1.x, p2.x);
+            double eMinY = Math.Min(p1.y, p2.y);
+            double eMaxY = Math.Max(p1.y, p2.y);
+            return (x >= (eMinX - delta)) && (x <= (eMaxX + delta)) && (y >= (eMinY - delta)) && (y <= (eMaxY + delta));
+        }
+
         private bool GetEdgeXY(GState edge, ref DPoint pnt)
         {
             DPoint p1, p2;
@@ -176,12 +210,14 @@ namespace CStat.Common
             double xi = (bp - be) / (me - mp);
             double yi = me * xi + be;
 
-            if (InGamut(xi, yi)) TBD: Limit to line min max (not Gamut min max)
+            if (OnEdge(edge, xi, yi))
             {
                 pnt.x = xi;
                 pnt.y = yi;
+                return true;
             }
 
+            // Find closest vertex
             double sd1 = (xi - p1.x) * (xi - p1.x) + (yi - p1.y) * (yi - p1.y);
             double sd2 = (xi - p2.x) * (xi - p2.x) + (yi - p2.y) * (yi - p2.y);
 

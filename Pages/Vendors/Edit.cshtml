@@ -267,6 +267,10 @@
             <button id="BrowseDoc" style="margin-right:6px;">Set Doc</button>
         </div>
     </div>
+
+    @if (Model._ErrorMsg != "")
+        @Html.Raw("<div class=class=\"form-group col-sm-12\" style=\"color:red; font-weight:bold\">" + @Model._ErrorMsg + "</div>")
+
     <div class="form-group center">
         <span class="md-8">
             <input type="submit" value="Update" class="btn btn-primary" />

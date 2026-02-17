@@ -40,6 +40,8 @@ namespace CStat.Pages.Vendors
         public string _poc { get; set; } = "";
         [BindProperty]
         public string _RedirectURL { get; set; } = "";
+        [BindProperty]
+        public string _ErrorMsg { get; set; } = "";
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -72,7 +74,7 @@ namespace CStat.Pages.Vendors
             IList<SelectListItem> BizStatusList = Enum.GetValues(typeof(Business.EStatus)).Cast<Business.EStatus>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
             ViewData["BizStatusList"] = BizStatusList;
             _RedirectURL = "";
-
+            _ErrorMsg = "";
             return Page();
         }
 
@@ -80,8 +82,10 @@ namespace CStat.Pages.Vendors
         // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            _ErrorMsg = "";
             if (string.IsNullOrEmpty(_Business.Name) || (_Business.Type == (int)Business.EType.Unknown))
             {
+                _ErrorMsg = "Please ensure Business Name is not empty AND Type is not Unknown."; 
                 return Page();
             }
 

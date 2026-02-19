@@ -2942,6 +2942,8 @@ namespace CStat.Common
                     string Rstr = words.Find(w => w.StartsWith("r="));
                     string Gstr = words.Find(w => w.StartsWith("g="));
                     string Bstr = words.Find(w => w.StartsWith("b="));
+                    string BrightStr = words.Find(w => w.StartsWith("i="));
+
                     if (!String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr))
                     {
                         if (!int.TryParse(Rstr.Substring(2), out Rval))
@@ -2953,6 +2955,12 @@ namespace CStat.Common
                     }
                     var hmgr = new HueMgr();
                     HueColor hcol = hmgr.RGBtoHueColor(Rval, Gval, Bval);
+
+                    if (!String.IsNullOrEmpty(BrightStr))
+                    {
+                        if (double.TryParse(BrightStr.Substring(2), out double BrightVal))
+                            hcol.brightness = BrightVal/100;
+                    }
 
                     HttpReq2 req = new HttpReq2();
                     req.Open(HttpMethod.Put, "https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b");

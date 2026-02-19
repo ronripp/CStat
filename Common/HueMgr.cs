@@ -46,7 +46,7 @@ namespace CStat.Common
         public HueMgr()
         {
             // Using Gamut C
-            rPnt = new DPoint(0.6915, 0.3038);
+            rPnt = new DPoint(0.6915, 0.3083);
             gPnt = new DPoint(0.17, 0.7);
             bPnt = new DPoint(0.1532, 0.0475);
             minX = bPnt.x;

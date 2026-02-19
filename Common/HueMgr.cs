@@ -80,22 +80,23 @@ namespace CStat.Common
             // Check to see if x, y is in the assumed Triangular Gamut C (newer Philip light bulbs)
             var pnt = new DPoint(x, y);
 
-            // Tests : Remove
-            DPoint p1 =  new DPoint(0.3, 0.4);
-            DPoint p2 =  new DPoint(0.35, 0.5);
-            DPoint p3 =  new DPoint(0.1, 0.2);
-            DPoint p4 =  new DPoint(0.5, 0.2);
-            DPoint p5 =  new DPoint(0.5, 0.5);
-            bool r1 = AdjustXY(ref p1);
-            Debug.WriteLine("AdjustXY=" + r1 + " (0.3, 0.4)->(" + p1.x + ", " + p1.y);
-            bool r2 = AdjustXY(ref p2);
-            Debug.WriteLine("AdjustXY=" + r2 + " (0.35, 0.5)->(" + p2.x + ", " + p2.y);
-            bool r3 = AdjustXY(ref p3);
-            Debug.WriteLine("AdjustXY=" + r3 + " (0.1, 0.2)->(" + p3.x + ", " + p3.y);
-            bool r4 = AdjustXY(ref p4);
-            Debug.WriteLine("AdjustXY=" + r4 + " (0.5, 0.2)->(" + p4.x + ", " + p4.y);
-            bool r5 = AdjustXY(ref p5);
-            Debug.WriteLine("AdjustXY=" + r5 + " (0.5, 0.5)->(" + p5.x + ", " + p5.y);
+            //// Tests : Remove
+            //DPoint p1i =  new DPoint(0.12, 0.03);
+            //DPoint p2i =  new DPoint(0.72, 0.32);
+            //DPoint p3i =  new DPoint(0.14, 0.74);
+            //DPoint p4i =  new DPoint(0.5, 0.2);
+            //DPoint p5i =  new DPoint(0.5, 0.5);
+            //DPoint p1 = new DPoint(p1i.x, p1i.y); DPoint p2 = new DPoint(p2i.x, p2i.y); DPoint p3 = new DPoint(p3i.x, p3i.y); DPoint p4 = new DPoint(p4i.x, p4i.y); DPoint p5 = new DPoint(p5i.x, p5i.y);
+            //bool r1 = AdjustXY(ref p1);
+            //Debug.WriteLine("AdjustXY=" + r1 + "(" + p1i.x + ", " + p1i.y + ")->(" + p1.x + ", " + p1.y);
+            //bool r2 = AdjustXY(ref p2);                
+            //Debug.WriteLine("AdjustXY=" + r2 + "(" + p2i.x + ", " + p2i.y + ")->(" + p2.x + ", " + p2.y);
+            //bool r3 = AdjustXY(ref p3);                
+            //Debug.WriteLine("AdjustXY=" + r3 + "(" + p3i.x + ", " + p3i.y + ")->(" + p3.x + ", " + p3.y);
+            //bool r4 = AdjustXY(ref p4);                
+            //Debug.WriteLine("AdjustXY=" + r4 + "(" + p4i.x + ", " + p4i.y + ")->(" + p4.x + ", " + p4.y);
+            //bool r5 = AdjustXY(ref p5);                
+            //Debug.WriteLine("AdjustXY=" + r5 + "(" + p5i.x + ", " + p5i.y + ")->(" + p5.x + ", " + p5.y);
 
             if (AdjustXY(ref pnt))
                 return new HueColor(x, y, brightness); // In GamutC

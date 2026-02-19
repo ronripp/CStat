@@ -47,7 +47,8 @@ namespace CStat.Common
             USE          = 0x00000100,
             TURN_ON      = 0x00000200,
             TURN_OFF     = 0x00000400,
-            RESET        = 0x00000800
+            RESET        = 0x00000800,
+            UNKNOWN      = 0x00001000
         };
 
         public enum CmdFormat
@@ -372,10 +373,12 @@ namespace CStat.Common
             {"phone", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"people", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
 
-            { "light", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
-            { "security", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
-            { "motion", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
-            { "sensor", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+            { "light", new Tuple<CmdSource, bool>(CmdSource.HUE, false) },
+            { "lights", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
+            { "security", new Tuple<CmdSource, bool>(CmdSource.HUE, false) },
+            { "motion", new Tuple<CmdSource, bool>(CmdSource.HUE, false) },
+            { "sensor", new Tuple<CmdSource, bool>(CmdSource.HUE, false) },
+            { "sensors", new Tuple<CmdSource, bool>(CmdSource.HUE, true) },
 
         };
 
@@ -555,6 +558,7 @@ namespace CStat.Common
                            .Replace("list of emails", "email_list")
                            .Replace("turn on", "turn_on")
                            .Replace("turn off", "turn_off")
+                           .Replace("shut off", "turn_off")
                            .Replace("electric power company", "power_company")
                            .Replace("power company", "power_company")
                            .Replace("electric company", "power_company")
@@ -1174,6 +1178,8 @@ namespace CStat.Common
                             _cmdIgnoreIdxList.Add(++curIdx);
                         return true;
 
+                    case "shut":
+                    case "turn":
                     case "start":
                     case "stop":
                     case "turn_on":
@@ -1457,7 +1463,7 @@ namespace CStat.Common
                 return true;
             }
 
-            _cmdAction = CmdAction.FIND; // default to FIND
+            _cmdAction = CmdAction.UNKNOWN; // temp default to UNKNOWN
             var CmdActionList = Enum.GetNames(typeof(CmdAction)).Cast<string>().ToList();
             for (int i = 0; i < NumWords; ++i)
             {
@@ -1477,6 +1483,18 @@ namespace CStat.Common
                     _cmdActionIdx = i;
                     break;
                 }
+            }
+
+            if (_cmdAction == CmdAction.UNKNOWN)
+            {
+                if (words.Any(w => w == "turn_off") ||
+                   (words.Any(w => w == "turn") && words.Any(w => w == "off")) ||
+                   (words.Any(w => w == "shut") && words.Any(w => w == "off")))
+                    _cmdAction = CmdAction.TURN_OFF;
+                else if (words.Any(w => w == "turn_on") || (words.Any(w => w == "turn") && words.Any(w => w == "on")))
+                    _cmdAction = CmdAction.TURN_ON;
+                else
+                    _cmdAction = CmdAction.FIND; // final default to FIND
             }
 
             if ((_cmdSrc == CmdSource.QUESTION) && (_cmdAction == CmdAction.ASK))
@@ -2905,10 +2923,9 @@ namespace CStat.Common
                     return "";
                 }
 
-                if ((_cmdAction == CmdAction.TURN_ON) || (_cmdAction == CmdAction.TURN_OFF))
+                if (_cmdAction == CmdAction.TURN_ON)
                 {
                     /******
-
                     postman request PUT 'https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b' \
                       --header 'hue-application-key: lj1TJGfM3pc7Xdz7F2BciMsjADLnp793cs6rWDsA' \
                       --header 'Content-Type: application/json' \
@@ -2916,8 +2933,26 @@ namespace CStat.Common
                       --body '	{"dimming":{"brightness":100.0},"color":{"xy":{"x":0.3,"y":0.8}}}' \
                       --auth-basic-username 'ronripp@outlook.com' \
                       --auth-basic-password 'Red35876!'
-
                     ******/
+
+                    // GET RGB for now
+                    int Rval = 255;
+                    int Gval = 255;
+                    int Bval = 150;
+                    string Rstr = words.Find(w => w.StartsWith("r="));
+                    string Gstr = words.Find(w => w.StartsWith("g="));
+                    string Bstr = words.Find(w => w.StartsWith("b="));
+                    if (!String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr))
+                    {
+                        if (!int.TryParse(Rstr.Substring(2), out Rval))
+                            Rval = 255;
+                        if (!int.TryParse(Gstr.Substring(2), out Gval))
+                            Gval = 255;
+                        if (!int.TryParse(Bstr.Substring(2), out Bval))
+                            Bval = 150;
+                    }
+                    var hmgr = new HueMgr();
+                    HueColor hcol = hmgr.RGBtoHueColor(Rval, Gval, Bval);
 
                     HttpReq2 req = new HttpReq2();
                     req.Open(HttpMethod.Put, "https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b");
@@ -2925,7 +2960,22 @@ namespace CStat.Common
                     req.AddHeaderProp("Accept", "*/*");
                     req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                     req.AddAuthenication("ronripp@outlook.com:Red35876!");
-                    req.AddBody("{\"dimming\":{\"brightness\":20.0},\"color\":{\"xy\":{\"x\":0.1,\"y\":0.6}}}", "application/json");
+                    req.AddBody("{\"on\": {\"on\": true},\"dimming\":{\"brightness\":" + hcol.brightness*100 + "},\"color\":{\"xy\":{\"x\":" + hcol.x + ",\"y\":" + hcol.y + "}}}", "application/json");
+                    //req.AddBody("{\"dimming\":{\"brightness\":20.0},\"color\":{\"xy\":{\"x\":0.1,\"y\":0.6}}}", "application/json");
+                    var sResult = req.SendForString();
+                    if (String.IsNullOrEmpty(sResult))
+                        sResult = "no Results. Unknown status";
+                    return sResult;
+                }
+                else if (_cmdAction == CmdAction.TURN_OFF)
+                {
+                    HttpReq2 req = new HttpReq2();
+                    req.Open(HttpMethod.Put, "https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b");
+                    req.AddHeaderProp("hue-application-key", "lj1TJGfM3pc7Xdz7F2BciMsjADLnp793cs6rWDsA");
+                    req.AddHeaderProp("Accept", "*/*");
+                    req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
+                    req.AddAuthenication("ronripp@outlook.com:Red35876!");
+                    req.AddBody("{\"on\": {\"on\": false}} ", "application/json");
                     var sResult = req.SendForString();
                     if (String.IsNullOrEmpty(sResult))
                         sResult = "no Results. Unknown status";

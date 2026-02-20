@@ -84,29 +84,48 @@ namespace CStat.Common
             return new MemoryStream();
         }
 
-        public String SendForString()
+        public String SendForString(bool returnExc=false, bool resolveRetry = false)
         {
-            _respCode = 0;
-            try
+            bool retry = false;
+            String ExcStr = "";
+            do
             {
-                var httpResp = _client.SendAsync(_httpReq).Result;
-                _respCode = httpResp.StatusCode;
-
-                // In this case we'll expect our caller to handle a HttpRequestException
-                // if this request was not successful.
-                httpResp.EnsureSuccessStatusCode();
-
-                if (httpResp.Content is object)
+                _respCode = 0;
+                try
                 {
-                    return httpResp.Content.ReadAsStringAsync().Result;
+                    var httpResp = _client.SendAsync(_httpReq).Result;
+                    _respCode = httpResp.StatusCode;
+
+                    // In this case we'll expect our caller to handle a HttpRequestException
+                    // if this request was not successful.
+                    httpResp.EnsureSuccessStatusCode();
+
+                    if (httpResp.Content is object)
+                    {
+                        return httpResp.Content.ReadAsStringAsync().Result;
+                    }
+                    retry = false;
+                }
+                catch (Exception e)
+                {
+                    ExcStr = "HttpReq:Send e=" + e.Message;
+                    _gLog.Log(ExcStr);
+
+                    if (retry)
+                        retry = false;
+                    else
+                    {
+                        if (resolveRetry && ExcStr.ToLower().Contains("known"))
+                        {
+                            Dns.GetHostEntry(_httpReq.RequestUri.Host);
+                            retry = true;
+                        }
+                    }
                 }
             }
-            catch (Exception e)
-            {
-                _gLog.Log("HttpReq:Send e=" + e.Message);
+            while (retry);
 
-            }
-            return "";
+            return returnExc ? ExcStr : "";
         }
 
         public HttpStatusCode RespCode   // property

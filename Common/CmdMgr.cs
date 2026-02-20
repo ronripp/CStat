@@ -1488,10 +1488,9 @@ namespace CStat.Common
             if (_cmdAction == CmdAction.UNKNOWN)
             {
                 if (words.Any(w => w == "turn_off") ||
-                   (words.Any(w => w == "turn") && words.Any(w => w == "off")) ||
-                   (words.Any(w => w == "shut") && words.Any(w => w == "off")))
+                   ((words.Any(w => w == "turn") || words.Any(w => w == "shut") || words.Any(w => w == "put")) && (words.Any(w => w == "off") || words.Any(w => w == "out"))))
                     _cmdAction = CmdAction.TURN_OFF;
-                else if (words.Any(w => w == "turn_on") || (words.Any(w => w == "turn") && words.Any(w => w == "on")))
+                else if (words.Any(w => w == "turn_on") || ((words.Any(w => w == "turn") || words.Any(w => w == "put")) && words.Any(w => w == "on")))
                     _cmdAction = CmdAction.TURN_ON;
                 else
                     _cmdAction = CmdAction.FIND; // final default to FIND
@@ -2937,21 +2936,21 @@ namespace CStat.Common
 
                     // GET RGB for now
                     int Rval = 255;
-                    int Gval = 255;
-                    int Bval = 150;
+                    int Gval = 190;
+                    int Bval = 126;
                     string Rstr = words.Find(w => w.StartsWith("r="));
                     string Gstr = words.Find(w => w.StartsWith("g="));
                     string Bstr = words.Find(w => w.StartsWith("b="));
                     string BrightStr = words.Find(w => w.StartsWith("i="));
-
-                    if (!String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr))
+                    bool customColor = !String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr) && !String.IsNullOrEmpty(Rstr);
+                    if (customColor)
                     {
                         if (!int.TryParse(Rstr.Substring(2), out Rval))
                             Rval = 255;
                         if (!int.TryParse(Gstr.Substring(2), out Gval))
-                            Gval = 255;
+                            Gval = 190;
                         if (!int.TryParse(Bstr.Substring(2), out Bval))
-                            Bval = 150;
+                            Bval = 126;
                     }
                     var hmgr = new HueMgr();
                     HueColor hcol = hmgr.RGBtoHueColor(Rval, Gval, Bval);
@@ -2959,8 +2958,10 @@ namespace CStat.Common
                     if (!String.IsNullOrEmpty(BrightStr))
                     {
                         if (double.TryParse(BrightStr.Substring(2), out double BrightVal))
-                            hcol.brightness = BrightVal/100;
+                            hcol.brightness = BrightVal / 100;
                     }
+                    else if (!customColor)
+                        hcol.brightness = 1;
 
                     HttpReq2 req = new HttpReq2();
                     req.Open(HttpMethod.Put, "https://ronripp.tplinkdns.com:1964/clip/v2/resource/light/904cde20-02d0-421c-b097-4bf5afeacf9b");
@@ -2970,7 +2971,9 @@ namespace CStat.Common
                     req.AddAuthenication("ronripp@outlook.com:Red35876!");
                     req.AddBody("{\"on\": {\"on\": true},\"dimming\":{\"brightness\":" + hcol.brightness*100 + "},\"color\":{\"xy\":{\"x\":" + hcol.x + ",\"y\":" + hcol.y + "}}}", "application/json");
                     //req.AddBody("{\"dimming\":{\"brightness\":20.0},\"color\":{\"xy\":{\"x\":0.1,\"y\":0.6}}}", "application/json");
-                    var sResult = req.SendForString();
+                    var sResult = req.SendForString(true, true);
+                    if (sResult.Contains("\"errors\":[]"))
+                        sResult = "Done.";
                     if (String.IsNullOrEmpty(sResult))
                         sResult = "no Results. Unknown status";
                     return sResult;
@@ -2984,7 +2987,9 @@ namespace CStat.Common
                     req.AddHeaderProp("Accept-Encoding", "gzip, deflate, br");
                     req.AddAuthenication("ronripp@outlook.com:Red35876!");
                     req.AddBody("{\"on\": {\"on\": false}} ", "application/json");
-                    var sResult = req.SendForString();
+                    var sResult = req.SendForString(true, true);
+                    if (sResult.Contains("\"errors\":[]"))
+                        sResult = "Done.";
                     if (String.IsNullOrEmpty(sResult))
                         sResult = "no Results. Unknown status";
                     return sResult;

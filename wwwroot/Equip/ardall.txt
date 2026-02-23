@@ -27,3 +27,4 @@ freezerTemp:-3,frigTemp:33,kitchTemp:64,waterPres:91,powerOn:120,analog5:309,tim
 freezerTemp:-3,frigTemp:33,kitchTemp:64,waterPres:91,powerOn:120,analog5:309,time:"9/4/24 12:16:59 AM"
 freezerTemp:-3,frigTemp:33,kitchTemp:64,waterPres:91,powerOn:120,analog5:309,time:"9/4/24 12:17:04 AM"
 freezerTemp:-3,frigTemp:33,kitchTemp:64,waterPres:91,powerOn:320,analog5:309,time:"9/4/24 12:17:13 AM"
+{"username": "John_Doe"},time:"2/22/26 7:41:29 PM"

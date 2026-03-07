@@ -61,7 +61,7 @@ namespace CStat.Common
                 Directory.CreateDirectory(LogPath);
         }
 
-        public bool NeededToSend(string SMSSentFile, string hashStr, bool allowResend, bool cleanLog)
+        public bool NeededToSend(string SMSSentFile, string hashStr, bool allowResend, bool cleanLog, double delayHrs=25) // e.g. set delayHrs=3.5 for 1 hour delay
         {
             // Check for Debugging locally mode
             if ((LogPath == "C:\\cstat\\wwwroot\\Tasks") && !hashStr.StartsWith("203-770-3393["))
@@ -76,7 +76,7 @@ namespace CStat.Common
             bool IsNeeded = true;
             DateTime baseDT = new DateTime(2010, 1, 1);
             DateTime now = PropMgr.ESTNow;
-            double DelaySecs = now.AddHours(-25).Subtract(baseDT).TotalSeconds + 2.5 * 3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
+            double DelaySecs = now.AddHours(-delayHrs).Subtract(baseDT).TotalSeconds + 2.5 * 3600; // Sent 22.5 hours or less ago to handle daily even with send with clock changes TBD: revise
             double ResendSecs = allowResend ? DelaySecs : -100;
             double CleanSecs = now.AddDays(-14).Subtract(baseDT).TotalSeconds; // When cleaning, don't save a record of what we already sent 2 or more weeks ago
             int linesRead = 0;
@@ -227,7 +227,7 @@ namespace CStat.Common
             throw new NotImplementedException();
         }
 
-        public CSResult SendMessage(string toPhone, string msg, bool allowResend, bool cleanLog)
+        public CSResult SendMessage(string toPhone, string msg, bool allowResend, bool cleanLog, double delayHrs=25) // e.g. set delayHrs=3.5 for 1 hour delay
         {
             string SMSSentFile = Path.Combine(LogPath, "SMSSent.log");
             string SendHash = toPhone + "[" + msg + "]";

@@ -58,7 +58,7 @@ namespace CStat.Controllers
         public HttpResponseMessage Post([FromBody] string raw)
         {
             CSSMS sms = new CSSMS(HostEnv, Config, UserManager);
-            sms.SendMessage("203-770-3393", "Alert Test :" + raw, true, false);
+            sms.SendMessage("203-770-3393", "Alert Test :" + raw, true, false, 3.5); // Re-Send every hour
             HttpStatusCode hsCode = HttpStatusCode.OK;
             var response = new HttpResponseMessage(hsCode)
             {

@@ -72,17 +72,24 @@ namespace CStat.Common
             string[] words = word.ToUpper().Split(delimChars);
 
             List<int> dateNums = new List<int>();
-            foreach (var w in words)
+            List<int> dnIdxs = new List<int>();
+            int NumWords = words.Length;
+            int MonthIdx = -1;
+            for (int i = 0; i < NumWords; ++i)
             {
+                string w = words[i];
                 if (int.TryParse(w, System.Globalization.NumberStyles.None, new CultureInfo("en-US"), out int num))
                 {
                     dateNums.Add(num);
+                    dnIdxs.Add(i);
                 }
                 else
                 {
                     if (MMMonth.TryParse(w, out MMMonth month))
                     {
                         dateNums.Add((int)month);
+                        dnIdxs.Add(i);
+                        MonthIdx = i;
                     }
                 }
             }
@@ -134,11 +141,22 @@ namespace CStat.Common
                 }
             }
 
-            if (dateNums.Count == 3)
+            if ((dateNums.Count == 3) && (dnIdxs[2]-dnIdxs[1] == 1) && (dnIdxs[1] - dnIdxs[0] == 1)) // 3 numbers next to each other implies a full date
             {
                 return ((dateNums[0] > 12) && (dateNums[1] <= 12)) 
                     ? new DateTime(MeetingMins.FullYear(dateNums[0]), dateNums[1], dateNums[2])  // YYYY MM DD
                     : new DateTime(MeetingMins.FullYear(dateNums[2]), dateNums[0], dateNums[1]); // MM DD YYYY
+            }
+
+            if ( (dateNums.Count >= 4) && ((dnIdxs[1] - dnIdxs[0]) == 1) && ((dnIdxs[2] - dnIdxs[1]) > 1) && ((dnIdxs[3] - dnIdxs[2]) == 1) )
+            {
+                // Two separate pair of number assuming year ranges. Take the second to highest year as date
+                for (int i = 0; i < 4; ++i)
+                {
+                    dateNums[i] = FullYear(dateNums[i]);
+                }
+                dateNums = dateNums.OrderBy(n => n).ToList();
+                return (type == MMType.Annual) ? new DateTime(dateNums[2], 11, 7) : new DateTime(dateNums[2], 12, 15);
             }
 
             return (dateNums.Count == 1) ? new DateTime(MeetingMins.FullYear(dateNums[0]), 11, 7) : new DateTime(2000, 11, 7); // unknown

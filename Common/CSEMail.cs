@@ -263,6 +263,8 @@ namespace CStat.Common
                     //readClient.AuthenticationMechanisms.Remove("XOAUTH2");
                     //readClient.Authenticate(credentials, cancel.Token);
 
+                    readClient.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
                     readClient.SslProtocols = System.Security.Authentication.SslProtocols.Tls;
                     readClient.Connect(Server, Port, SecureSocketOptions.SslOnConnect);
                     readClient.AuthenticationMechanisms.Remove("XOAUTH2");
@@ -299,7 +301,7 @@ namespace CStat.Common
                         // Get DateTime Originally Sent
 
                         if ((EMailReceived == default) || (EMailReceived <= LatestEMailRead))
-                            continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but on or more not proccessed.
+                            continue; // Either an Admin Delivery failure alert or already read. TBD : Case where multiple emails read the same second but one or more not proccessed.
                         var re = new REMail(i);
                         re.UpdateBase(msg);
                         re.Attachments = new List<string>();

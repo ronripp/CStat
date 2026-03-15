@@ -52,12 +52,21 @@
 
             $(document).ready(function () {
 
-                $('.p1').click(function () {
+                $('.l1').click(function () {
                     let OldHRef = window.location.href.toLowerCase();
                     let idx = OldHRef.indexOf("merge");
                     if (idx != -1) {
                         let NewHRef = OldHRef.substr(0, idx + 5);
                         window.location.href = NewHRef + "?id=1";
+                    }
+                });
+
+                $('.f1').click(function () {
+                    let OldHRef = window.location.href.toLowerCase();
+                    let idx = OldHRef.indexOf("merge");
+                    if (idx != -1) {
+                        let NewHRef = OldHRef.substr(0, idx + 5);
+                        window.location.href = NewHRef + "?id=4";
                     }
                 });
 
@@ -239,6 +248,8 @@
 
         @{
             string PStr = "";
+            string LStr = "";
+            string FStr = "";
             string AStr = "";
             string CStr = "";
             switch (Model.Id)
@@ -246,12 +257,17 @@
                 case 0:
                 case 1:
                     PStr = "active";
+                    LStr = "active";
                     break;
                 case 2:
                     AStr = "active";
                     break;
                 case 3:
                     CStr = "active";
+                    break;
+                case 4:
+                    PStr = "active";
+                    FStr = "active";
                     break;
             }
         }
@@ -260,7 +276,10 @@
             <div>
                 <ul class="nav nav-tabs " role="tablist" id="MergeTabs">
                     <li class="nav-item">
-                        <a href="#PersonTab" class="nav-link @PStr p1" data-toggle="tab" role="tab"><b>Person</b></a>
+                        <a href="#LastTab" class="nav-link @LStr l1" data-toggle="tab" role="tab"><b>P.Last</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#PersonTab" class="nav-link @FStr f1" data-toggle="tab" role="tab"><b>P.First</b></a>
                     </li>
                     <li class="nav-item">
                         <a href="#AddressTab" class="nav-link @AStr a1" data-toggle="tab" role="tab"><b>Address</b></a>

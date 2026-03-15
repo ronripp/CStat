@@ -44,6 +44,9 @@ namespace CStat.Pages
                 case 3:
                     Church = _ctx.Church.AsNoTracking().OrderBy(p => p.Name).ToList();
                     break;
+                case 4:
+                    People = _ctx.Person.Include(p => p.Address).AsNoTracking().OrderBy(p => p.FirstName).ToList();
+                    break;
             }
 
             //id = 3025;

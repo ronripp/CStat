@@ -165,6 +165,7 @@ namespace CStat.Pages
                 switch (cmd)
                 {
                     case 1:
+                    case 4:
                         return MergeToPerson(fromIdxList, toIdx);
                     case 2:
                         return MergeToAddress(fromIdxList, toIdx);

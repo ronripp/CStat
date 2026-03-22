@@ -1882,6 +1882,7 @@ namespace CStat.Common
                             people = _context.Person.Include(p => p.Address).ToList();
                             break;
                         case "email_list":
+                        case "emails":
                             EMailOnly = true;
                             EMailTitle = "Contact EMail Addresses";
                             showAdr = showPhone = showAttr = false;
@@ -1975,7 +1976,7 @@ namespace CStat.Common
                                 var ln = p.LastName;
                                 var a = p?.Address;
 
-                                string cn = (a.Id != 0) ? c.Name : "???";
+                                string cn = ((a != null) && (a.Id != 0)) ? c.Name : "???";
 
                                 if (MailingOnly)
                                 {
@@ -1989,19 +1990,27 @@ namespace CStat.Common
                                     continue;
                                 }
 
-                                var eMail = !string.IsNullOrEmpty(p.Email) ? p.Email : "";
+                                var eMail = !string.IsNullOrEmpty(p?.Email) ? p.Email : "";
                                 if (EMailOnly)
                                 {
-                                    if (!String.IsNullOrEmpty(eMail.Trim()))
-                                        ssh.AddRow(fn, ln, eMail);
+                                    if (!String.IsNullOrEmpty(eMail))
+                                    {
+                                        eMail = eMail.Trim();
+                                        if (!String.IsNullOrEmpty(eMail))
+                                            ssh.AddRow(fn, ln, eMail);
+                                    }
                                     continue;
                                 }
 
-                                var phone = Person.GetAllPhones(p, "");
+                                var phone =  Person.GetAllPhones(p, "") ;
                                 if (PhoneOnly)
                                 {
-                                    if (!String.IsNullOrEmpty(phone.Trim()))
-                                        ssh.AddRow(fn, ln, phone);
+                                    if (!String.IsNullOrEmpty(phone))
+                                    {
+                                        phone = phone.Trim();
+                                        if (!String.IsNullOrEmpty(phone))
+                                            ssh.AddRow(fn, ln, phone);
+                                    }
                                     continue;
                                 }
 

@@ -31,6 +31,8 @@ namespace CStat.Common
         {
             public Person person { get; set; }
             public Church church { get; set; }
+            public int addressId { get; set; }
+            public string email { get; set; }
         }
 
         public enum CmdAction
@@ -313,7 +315,8 @@ namespace CStat.Common
             {"phone_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"people_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
             {"mailing_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
-            {"mailing", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
+            {"mailing", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
+            {"mailings", new Tuple<CmdSource, bool>(CmdSource.PERSON, true) },
 
             {"email_list", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
             {"email_address", new Tuple<CmdSource, bool>(CmdSource.PERSON, false) },
@@ -1876,17 +1879,18 @@ namespace CStat.Common
                             break;
                         case "mailing_list":
                         case "mailing":
+                        case "mailings":
                             MailingOnly = true;
                             EMailTitle = "Contact Mailing List";
                             showEMail = showPhone = showAttr = false;
-                            people = _context.Person.Include(p => p.Address).ToList();
+                            people = _context.Person.Include(p => p.Address).OrderBy(p => p.Address.Id).ToList();
                             break;
                         case "email_list":
                         case "emails":
                             EMailOnly = true;
                             EMailTitle = "Contact EMail Addresses";
                             showAdr = showPhone = showAttr = false;
-                            people = _context.Person.Include(p => p.Address).ToList();
+                            people = _context.Person.Include(p => p.Address).OrderBy(p => p.Email).ToList();
                             break;
                         default:
                             break;
@@ -1964,9 +1968,16 @@ namespace CStat.Common
                                 c = (p.Church == null) ?
                                       new Church { Name = "", Affiliation = "ICCOC", Id = 0 }
                                     : new Church { Name = p.Church.Name, Affiliation = p.Church.Affiliation, Id = p.Church.Id, MembershipStatus=p.Church.MembershipStatus };
-                                pchs.Add(new PCh { person = p, church = c });
+                                pchs.Add(new PCh { person = p, church = c, addressId = (p.AddressId.HasValue ? p.AddressId.Value : -1), email = p.Email });
                             }
-                            var apeople = pchs.OrderBy(p => p.person.LastName).ThenBy(p => p.person.FirstName);
+                            IOrderedEnumerable<PCh> apeople;
+                                
+                            if (MailingOnly)
+                                apeople = pchs.OrderBy(p => p.addressId);
+                            else if (EMailOnly)
+                                apeople = pchs.OrderBy(p => p.email);
+                            else
+                                apeople = pchs.OrderBy(p => p.person.LastName).ThenBy(p => p.person.FirstName);
 
                             foreach (var pc in apeople)
                             {
@@ -2775,7 +2786,6 @@ namespace CStat.Common
             }
             else
             {
-                bool IsMemb = false;
                 string filter = "";
                 if (words.Contains("metro"))
                 {

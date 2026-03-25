@@ -1970,14 +1970,58 @@ namespace CStat.Common
                                     : new Church { Name = p.Church.Name, Affiliation = p.Church.Affiliation, Id = p.Church.Id, MembershipStatus=p.Church.MembershipStatus };
                                 pchs.Add(new PCh { person = p, church = c, addressId = (p.AddressId.HasValue ? p.AddressId.Value : -1), email = p.Email });
                             }
-                            IOrderedEnumerable<PCh> apeople;
-                                
+
+                            List<PCh> apeople;
                             if (MailingOnly)
-                                apeople = pchs.OrderBy(p => p.addressId);
+                            {
+                                apeople = new List<PCh>();
+                                List<PCh> asame = new List<PCh>();
+                                List<PCh> rpeople = pchs.OrderBy(p => p.addressId).ToList();
+                                int curaid = -100;
+                                PCh pch = null;
+                                for (int i = 0; i < rpeople.Count(); ++i)
+                                {
+                                    pch = rpeople[i];
+                                    if (curaid != pch.addressId)
+                                    {
+                                        if (asame.Count > 0)
+                                        {
+                                            apeople.Add(AddBestMailing(asame));
+                                            asame.Clear();
+                                        }
+                                        curaid = pch.addressId;
+                                    }
+                                    else
+                                        asame.Add(pch);
+                                }
+                                apeople.Add(AddBestMailing(asame));
+                            }
                             else if (EMailOnly)
-                                apeople = pchs.OrderBy(p => p.email);
+                            {
+                                apeople = new List<PCh>();
+                                List<PCh> asame = new List<PCh>();
+                                List<PCh> rpeople = pchs.OrderBy(p => p.email).ToList();
+                                string curEMail = "@~None";
+                                PCh pch = null;
+                                for (int i = 0; i < rpeople.Count(); ++i)
+                                {
+                                    pch = rpeople[i];
+                                    if (!curEMail.Equals(pch.email, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (asame.Count > 0)
+                                        {
+                                            apeople.Add(AddBestEMail(asame));
+                                            asame.Clear();
+                                        }
+                                        curEMail = pch.email;
+                                    }
+                                    else
+                                        asame.Add(pch);
+                                }
+                                apeople.Add(AddBestEMail(asame));
+                            }
                             else
-                                apeople = pchs.OrderBy(p => p.person.LastName).ThenBy(p => p.person.FirstName);
+                                apeople = pchs.OrderBy(p => p.person.LastName, StringComparer.OrdinalIgnoreCase).ThenBy(p => p.person.FirstName, StringComparer.OrdinalIgnoreCase).ToList();
 
                             foreach (var pc in apeople)
                             {
@@ -2068,6 +2112,62 @@ namespace CStat.Common
                 }
             }
             return result.Trim();
+        }
+
+        public static PCh AddBestEMail(List<PCh> same)
+        {
+            if (same.Count == 1)
+                return same[0];
+            PCh fam = same.First(p => p.person.LastName.Equals("Family", StringComparison.OrdinalIgnoreCase));
+            if (fam != null)
+                return fam;
+
+            string s1 = same[0].email.Substring(0, 1);
+            string s2 = same[0].email.Substring(0, 2);
+            string s3 = same[0].email.Substring(0, 3);
+            int s1Idx = -1;
+            int s2Idx = -1;
+            int s3Idx = -1;
+
+            if (s1 == null || s2 == null || s3 == null)
+                return same[0];
+
+            for (int i = 0; i < same.Count; ++i)
+            {
+                var pch = same[i];
+
+                if (s1Idx == -1 && pch.person.FirstName.StartsWith(s1, StringComparison.OrdinalIgnoreCase))
+                    s1Idx = i;
+                if (s2Idx == -1 && pch.person.FirstName.StartsWith(s2, StringComparison.OrdinalIgnoreCase))
+                    s2Idx = i;
+                if (s3Idx == -1 && pch.person.FirstName.StartsWith(s3, StringComparison.OrdinalIgnoreCase))
+                    s3Idx = i;
+            }
+
+            if (s3Idx != -1)
+                return same[s3Idx]; // first 3 letters in email are first 3 letters in first name
+            if (s2Idx != -1)
+                return same[s2Idx]; // first 2 letters in email are first 2 letters in first name
+            if (s1Idx != -1)
+                return same[s1Idx]; // // first letter in email is first letter in first name
+
+            return same[0];
+        }
+
+        public static PCh AddBestMailing(List<PCh> same)
+        {
+            if (same.Count == 1)
+                return same[0];
+            PCh fam = same.First(p => p.person.LastName.Equals("Family", StringComparison.OrdinalIgnoreCase));
+            if (fam != null)
+                return fam;
+            for (int i = 0; i < same.Count; ++i)
+            {
+                var pch = same[i];
+                if (!pch.person.Pg1PersonId.HasValue && !pch.person.Pg2PersonId.HasValue)
+                    return pch; // possibly not a child camper
+            }
+            return same[0];
         }
 
         private static List<Person> GetMailingListPeople(List<Person> raw)

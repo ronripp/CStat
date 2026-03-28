@@ -1890,7 +1890,7 @@ namespace CStat.Common
                             EMailOnly = true;
                             EMailTitle = "Contact EMail Addresses";
                             showAdr = showPhone = showAttr = false;
-                            people = _context.Person.Include(p => p.Address).OrderBy(p => p.Email).ToList();
+                            people = _context.Person.Include(p => p.Address).Where(p => !string.IsNullOrEmpty(p.Email)).OrderBy(p => p.Email).ToList();
                             break;
                         default:
                             break;
@@ -1991,8 +1991,7 @@ namespace CStat.Common
                                         }
                                         curaid = pch.addressId;
                                     }
-                                    else
-                                        asame.Add(pch);
+                                    asame.Add(pch);
                                 }
                                 apeople.Add(AddBestMailing(asame));
                             }
@@ -2015,8 +2014,7 @@ namespace CStat.Common
                                         }
                                         curEMail = pch.email;
                                     }
-                                    else
-                                        asame.Add(pch);
+                                    asame.Add(pch);
                                 }
                                 apeople.Add(AddBestEMail(asame));
                             }
@@ -2113,12 +2111,11 @@ namespace CStat.Common
             }
             return result.Trim();
         }
-
         public static PCh AddBestEMail(List<PCh> same)
         {
             if (same.Count == 1)
                 return same[0];
-            PCh fam = same.First(p => p.person.LastName.Equals("Family", StringComparison.OrdinalIgnoreCase));
+            PCh fam = same.FirstOrDefault(p => p.person.FirstName.Equals("Family", StringComparison.OrdinalIgnoreCase));
             if (fam != null)
                 return fam;
 
@@ -2153,14 +2150,26 @@ namespace CStat.Common
 
             return same[0];
         }
-
         public static PCh AddBestMailing(List<PCh> same)
         {
             if (same.Count == 1)
                 return same[0];
-            PCh fam = same.First(p => p.person.LastName.Equals("Family", StringComparison.OrdinalIgnoreCase));
+            PCh fam = same.FirstOrDefault(p => p.person.FirstName.Equals("Family", StringComparison.OrdinalIgnoreCase));
             if (fam != null)
                 return fam;
+
+            // Check for a common Last Name and if so, make it Family
+            var grps = same.GroupBy(p => p.person.LastName.ToLowerInvariant());
+            foreach (var grp in grps)
+            {
+                if (grp.Count() > 1)
+                {
+                    PCh pch = grp.FirstOrDefault();
+                    pch.person.FirstName = "Family";
+                    return pch;
+                }
+            }
+
             for (int i = 0; i < same.Count; ++i)
             {
                 var pch = same[i];

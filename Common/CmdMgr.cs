@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -1974,6 +1975,7 @@ namespace CStat.Common
                             List<PCh> apeople;
                             if (MailingOnly)
                             {
+                                TBD investigate GetMailingListPeople
                                 apeople = new List<PCh>();
                                 List<PCh> asame = new List<PCh>();
                                 List<PCh> rpeople = pchs.OrderBy(p => p.addressId).ToList();
@@ -1982,6 +1984,7 @@ namespace CStat.Common
                                 for (int i = 0; i < rpeople.Count(); ++i)
                                 {
                                     pch = rpeople[i];
+                                    Debug.WriteLine("raw Mailing " + pch.person.FirstName + " " + pch.person.LastName + " [" + pch.addressId + "] " + pch.person.Address.Street + " " + pch.person.Address.Town + " " + pch.person.Address.State + " " + pch.person.Address.ZipCode);
                                     if (curaid != pch.addressId)
                                     {
                                         if (asame.Count > 0)
@@ -1997,6 +2000,7 @@ namespace CStat.Common
                             }
                             else if (EMailOnly)
                             {
+                                 TBD investigate for any prior filtering.
                                 apeople = new List<PCh>();
                                 List<PCh> asame = new List<PCh>();
                                 List<PCh> rpeople = pchs.OrderBy(p => p.email).ToList();
@@ -2111,6 +2115,29 @@ namespace CStat.Common
             }
             return result.Trim();
         }
+
+        public static PCh tAddBestEMail(List<PCh> same) // TEMP REMOVE
+        {
+            for (int i = 0; i < same.Count; ++i)
+            {
+                Debug.WriteLine("in AddBestEMail " + same[i].person.FirstName + " " + same[i].person.LastName);
+            }
+            PCh res = AddBestEMail(same);
+            Debug.WriteLine("***RES AddBestEMail " + res.person.FirstName + " " + res.person.LastName);
+            return res;
+        }
+
+        public static PCh tAddBestMailing(List<PCh> same) // TEMP REMOVE
+        {
+            for (int i = 0; i < same.Count; ++i)
+            {
+                Debug.WriteLine("in AddBestMailing " + same[i].person.FirstName + " " + same[i].person.LastName);
+            }
+            PCh res = AddBestMailing(same);
+            Debug.WriteLine("***RES AddBestMailing " + res.person.FirstName + " " + res.person.LastName);
+            return res;
+        }
+
         public static PCh AddBestEMail(List<PCh> same)
         {
             if (same.Count == 1)

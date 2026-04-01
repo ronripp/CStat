@@ -1926,13 +1926,22 @@ namespace CStat.Common
 
             if ((people?.Count ?? 0) > 0)
             {
+                List<PCh> apeople = new List<PCh>();
+
                 if (MailingOnly)
                     people = GetMailingListPeople(people);
 
                 int NumPeople = people.Count;
                 var ssType = CSSpreadSheet.GetSSType((int)_cmdFormat);
-                if ((NumPeople > 10) || (ssType == CSSpreadSheet.SSType.CSV) || (ssType == CSSpreadSheet.SSType.EXCEL))
+                bool isSpreadSheet = (ssType == CSSpreadSheet.SSType.CSV) || (ssType == CSSpreadSheet.SSType.EXCEL);
+                if ((NumPeople > 10) || isSpreadSheet)
                 {
+                    if (!isSpreadSheet)
+                    {
+                        ssType = CSSpreadSheet.SSType.EXCEL;
+                        _cmdFormat = CmdFormat.EXCEL;
+                    }
+
                     try
                     {
                         bool isOnly = EMailOnly || PhoneOnly || MailingOnly;
@@ -1972,36 +1981,9 @@ namespace CStat.Common
                                 pchs.Add(new PCh { person = p, church = c, addressId = (p.AddressId.HasValue ? p.AddressId.Value : -1), email = p.Email });
                             }
 
-                            List<PCh> apeople;
-                            if (MailingOnly)
+                            apeople = new List<PCh>();
+                            if (EMailOnly)
                             {
-                                TBD investigate GetMailingListPeople
-                                apeople = new List<PCh>();
-                                List<PCh> asame = new List<PCh>();
-                                List<PCh> rpeople = pchs.OrderBy(p => p.addressId).ToList();
-                                int curaid = -100;
-                                PCh pch = null;
-                                for (int i = 0; i < rpeople.Count(); ++i)
-                                {
-                                    pch = rpeople[i];
-                                    Debug.WriteLine("raw Mailing " + pch.person.FirstName + " " + pch.person.LastName + " [" + pch.addressId + "] " + pch.person.Address.Street + " " + pch.person.Address.Town + " " + pch.person.Address.State + " " + pch.person.Address.ZipCode);
-                                    if (curaid != pch.addressId)
-                                    {
-                                        if (asame.Count > 0)
-                                        {
-                                            apeople.Add(AddBestMailing(asame));
-                                            asame.Clear();
-                                        }
-                                        curaid = pch.addressId;
-                                    }
-                                    asame.Add(pch);
-                                }
-                                apeople.Add(AddBestMailing(asame));
-                            }
-                            else if (EMailOnly)
-                            {
-                                 TBD investigate for any prior filtering.
-                                apeople = new List<PCh>();
                                 List<PCh> asame = new List<PCh>();
                                 List<PCh> rpeople = pchs.OrderBy(p => p.email).ToList();
                                 string curEMail = "@~None";
@@ -2114,28 +2096,6 @@ namespace CStat.Common
                 }
             }
             return result.Trim();
-        }
-
-        public static PCh tAddBestEMail(List<PCh> same) // TEMP REMOVE
-        {
-            for (int i = 0; i < same.Count; ++i)
-            {
-                Debug.WriteLine("in AddBestEMail " + same[i].person.FirstName + " " + same[i].person.LastName);
-            }
-            PCh res = AddBestEMail(same);
-            Debug.WriteLine("***RES AddBestEMail " + res.person.FirstName + " " + res.person.LastName);
-            return res;
-        }
-
-        public static PCh tAddBestMailing(List<PCh> same) // TEMP REMOVE
-        {
-            for (int i = 0; i < same.Count; ++i)
-            {
-                Debug.WriteLine("in AddBestMailing " + same[i].person.FirstName + " " + same[i].person.LastName);
-            }
-            PCh res = AddBestMailing(same);
-            Debug.WriteLine("***RES AddBestMailing " + res.person.FirstName + " " + res.person.LastName);
-            return res;
         }
 
         public static PCh AddBestEMail(List<PCh> same)

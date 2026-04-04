@@ -405,7 +405,7 @@ namespace CStat.Models
             return oldFld | newFld;
         }
 
-        public static string FormatAddress(Address a, bool addPhone = false)
+        public static string FormatAddress(Address a, bool addPhone = false, bool markBadZip=false)
         {
             string astr = "";
             if (a == null)
@@ -418,7 +418,17 @@ namespace CStat.Models
             if (!string.IsNullOrEmpty(a.State))
                 astr += ", " + GetStateAbbr(a.State);
             if (!string.IsNullOrEmpty(a.ZipCode))
+            {
+                string zip = FixZip(a.ZipCode);
                 astr += " " + FixZip(a.ZipCode);
+                if (markBadZip)
+                {
+                    bool isZipNumeric = zip.Replace("-", "").All(char.IsNumber);
+                    int zipLen = zip.Length;
+                    if (!isZipNumeric || (zipLen != 5 && zipLen != 10))
+                        a.Status |= (int)AddressStatus.AdrStat_BAD_ZIP;
+                }
+            }
             if (addPhone)
             {
                 if (!string.IsNullOrEmpty(a.Phone))

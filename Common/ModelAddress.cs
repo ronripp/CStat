@@ -14,7 +14,8 @@ namespace CStat.Models
             AdrStat_RTS = 0x10000000,
             AdrStat_LastMMYY = 0x00001000,
             AdrStat_MM_MASK = 0x00000F00,
-            AdrStat_YY_MASK = 0x000000FF
+            AdrStat_YY_MASK = 0x000000FF,
+            AdrStat_BAD_ZIP = 0x01000000
         }
 
         public static int UpdateAddress(Models.CStatContext ce, Address inAdr)

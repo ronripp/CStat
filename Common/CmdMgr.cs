@@ -1876,7 +1876,7 @@ namespace CStat.Common
                         case "campers":
                         case "people":
                             EMailTitle = "Contact Full List";
-                            people = _context.Person.Include(p => p.Address).ToList();
+                            people = _context.Person.Include(p => p.Address).Include(p => p.Church).ToList();
                             break;
                         case "mailing_list":
                         case "mailing":
@@ -1974,6 +1974,7 @@ namespace CStat.Common
                             List<PCh> pchs = new List<PCh>();
                             foreach (var p in people)
                             {
+                                //Debug.WriteLine("People " + p.FirstName + " " + p.LastName + " ChurchID=" + p.ChurchId + " Church:" + ((p.Church != null) ? p.Church.Name : "---"));
                                 Church c;
                                 c = (p.Church == null) ?
                                       new Church { Name = "", Affiliation = "ICCOC", Id = 0 }
@@ -2015,7 +2016,8 @@ namespace CStat.Common
                                 var ln = p.LastName;
                                 var a = p?.Address;
 
-                                string cn = ((a != null) && (a.Id != 0)) ? c.Name : "???";
+                                string cn = c.Name ?? "???";
+                                //Debug.WriteLine("PCH cn = " + cn);
 
                                 if (MailingOnly)
                                 {
@@ -2056,7 +2058,7 @@ namespace CStat.Common
                                 var gender = Person.GetGender(p);
                                 var dob = Person.GetDOB(p);
                                 var serve = Person.GetRoleStr(p) + Person.GetSkillStr(p);
-                                ssh.AddRow(fn, ln, gender, dob, serve, Address.GetStreet(a), Address.GetTown(a), Address.GetState(a), Address.GetZip(a), phone, eMail, c.Name);
+                                ssh.AddRow(fn, ln, gender, dob, serve, Address.GetStreet(a), Address.GetTown(a), Address.GetState(a), Address.GetZip(a), phone, eMail, cn);
                             }
                         }
 

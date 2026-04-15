@@ -264,6 +264,7 @@ namespace CStat.Common
             {"doc", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"manual", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"document", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
+            {"camp_rules", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"file", new Tuple<CmdSource, bool>(CmdSource.DOC, false) },
             {"meeting", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
             {"minutes", new Tuple<CmdSource, bool>(CmdSource.MMS, false) },
@@ -584,7 +585,8 @@ namespace CStat.Common
                            .Replace("spread sheet", "spread-sheet")
                            .Replace("tax exempt", "tax-exempt")
                            .Replace("tax exemption", "tax-exempt")
-                           .Replace("we need", "we_need");
+                           .Replace("we need", "we_need")
+                           .Replace("camp rules", "camp_rules");
            
             return new List<string>(cmdStr.Split(new char[] { ' ', '\n', ',', ';' })).Select(w => w.Trim()).ToList();
         }
@@ -2099,7 +2101,6 @@ namespace CStat.Common
             }
             return result.Trim();
         }
-
         public static PCh AddBestEMail(List<PCh> same)
         {
             if (same.Count == 1)
@@ -3316,6 +3317,19 @@ namespace CStat.Common
         {
             if (_cmdSrc == CmdSource.DOC)
             {
+                if (words.IndexOf("camp_rules") != -1)
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/Camp Rules 2018.pdf");
+                if (words.IndexOf("swat") != -1)
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/CCA SWAT Manual 2025.pdf");
+                if ((words.IndexOf("deans") != -1) || (words.IndexOf("dean") != -1))
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/Dean Manual - 2019.pdf");
+                if (words.IndexOf("faculty") != -1 && (words.IndexOf("junior") != -1 || words.IndexOf("jr") != -1 || words.IndexOf("jr.") != -1) )
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/Junior Faculty Manual - 2019.pdf");
+                if (words.IndexOf("faculty") != -1)
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/CCA Faculty Manual 2025.pdf");
+                if ((words.IndexOf("nursing") != -1) || (words.IndexOf("nurse") != -1) || (words.IndexOf("nurses") != -1))
+                    return EMailDropBoxFile(_config, _userManager, _curUser, "/Manuals & Procedures/Camp Role Manuals/CCA Nursing Manual 2025.pdf");
+
                 if (_cmdDescList.Count > 0)
                 {
                     var dbox = GetDropBox();
@@ -3366,7 +3380,12 @@ namespace CStat.Common
                     }
                     return report;
                 }
-                return "Not performed.";
+                else
+                {
+
+
+                    return "Not performed.";
+                }
             }
             else if (_cmdSrc == CmdSource.REQ)
             {

@@ -70,6 +70,17 @@ namespace CStat
                     options.Conventions.AuthorizePage("/Docs");
                     options.Conventions.AuthorizePage("/Inventory/Index");
                     options.Conventions.AuthorizePage("/Index1");
+
+                    options.Conventions.AuthorizePage("/Inventory");
+                    options.Conventions.AuthorizePage("/Items");
+                    options.Conventions.AuthorizePage("/Events");
+                    options.Conventions.AuthorizePage("/People");
+                    options.Conventions.AuthorizePage("/Tasks");
+                    options.Conventions.AuthorizePage("/MeetMins");
+                    options.Conventions.AuthorizePage("/Docs");
+                    //options.Conventions.AuthorizePage("/Video/Audio");
+                    options.Conventions.AuthorizePage("/Private");
+
                     options.Conventions.AuthorizeFolder("/Inventory");
                     options.Conventions.AuthorizeFolder("/Items");
                     options.Conventions.AuthorizeFolder("/Events");
@@ -77,7 +88,7 @@ namespace CStat
                     options.Conventions.AuthorizeFolder("/Tasks");
                     options.Conventions.AuthorizeFolder("/MeetMins");
                     options.Conventions.AuthorizeFolder("/Docs");
-                    options.Conventions.AuthorizeFolder("/Video/Audio");
+                    //options.Conventions.AuthorizeFolder("/Video/Audio");
                     options.Conventions.AuthorizeFolder("/Private");
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");

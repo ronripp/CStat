@@ -35,17 +35,34 @@ namespace CStat.Controllers
             "Videos\\Promo Video Men's Retreat 2025.mp4" //8
         };
 
-        [HttpGet("{vidx}")]
-        public FileResult Index(int vidx)
+        private readonly String[] _audios =
         {
-            string fileName = _videos[vidx] ?? "";
+            "", // 0
+            "", // 1
+            "", // 2
+            "", // 3
+            "Audios\\CCA_EC_Meeting_4-9-26.m4a", // 4
+            "", // 5
+            "", // 6
+            "", // 7
+            "", // 8
+            "", // 9
+            "", // 10
+            "", // 11
+            "", // 12
+        };
+
+        [HttpGet("Audio/{aidx}")]
+        public FileResult Index(int aidx)
+        {
+            string fileName = _audios[aidx] ?? "";
             if (string.IsNullOrEmpty(fileName))
                 return null;
 
             string physPath = Path.Combine(_hostEnv.WebRootPath, fileName);
 
             //var content = new FileStream(physPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var res = File(System.IO.File.OpenRead(physPath), "video/mp4");
+            var res = File(System.IO.File.OpenRead(physPath), "audio/mp4");
             res.FileDownloadName = fileName;
             res.EnableRangeProcessing = true;
             return res;

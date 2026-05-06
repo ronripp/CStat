@@ -75,7 +75,9 @@ namespace CStat
                     options.Conventions.AuthorizeFolder("/Events");
                     options.Conventions.AuthorizeFolder("/People");
                     options.Conventions.AuthorizeFolder("/Tasks");
+                    options.Conventions.AuthorizeFolder("/MeetMins");
                     options.Conventions.AuthorizeFolder("/Docs");
+                    options.Conventions.AuthorizeFolder("/Video/Audio");
                     options.Conventions.AuthorizeFolder("/Private");
                     options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AllowAnonymousToFolder("/Private/PublicPages");

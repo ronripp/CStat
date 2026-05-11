@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CCA Pots & Pans</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+
+        .img-responsive {
+            max-width: 100%;
+            max-height: calc(100vh - 120px);
+            width: auto;
+            object-fit: contain;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-control.left, .carousel-control.right {
+            background-image: none;
+        }
+
+        .carousel-item img {
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        #PicTitle {
+            font-size: 2em;
+            padding-left:20px;
+            color:lawngreen;
+        }
+
+        /*        .carousel {
+            height: calc(100vh - 0px);
+            position: relative;
+        }
+
+
+
+        .carousel-item img {
+            width: auto;
+            height: calc(100vh - 0px);
+            object-fit: contain;
+            display: block;
+        }
+
+        .carousel-item img + p {
+            display: none;
+        }
+
+        .carousel-item, .carousel {
+            overflow: hidden;
+        }*/
+    </style>
+
+    <script>
+
+        const pics = [
+            { file: "\\kitchen\\above main island\\PXL_20260502_194314753.jpg", title: "All Above Island" },
+            { file: "\\kitchen\\above main island\\PXL_20260502_193840705.jpg", title: "Above Island 1" },
+            { file: "\\kitchen\\above main island\\PXL_20260502_193848095.jpg", title: "Above Island 2" },
+            { file: "\\kitchen\\above main island\\PXL_20260502_193901993.jpg", title: "Above Island 3" },
+            { file: "\\kitchen\\above main island\\PXL_20260502_193910250.jpg", title: "Above Island 4" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_193958473.jpg", title: "Cove Rack 5" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194007719.jpg", title: "Cove Rack 6" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194014697.jpg", title: "Cove Rack 7" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194038000.jpg", title: "Cove Rack 8" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194047637.jpg", title: "Cove Rack 9" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194056186.jpg", title: "Cove Rack 10" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194116316.jpg", title: "Cove Rack 11" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194125192.jpg", title: "Cove Rack 12" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194136089.jpg", title: "Cove Rack 13" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194141372.jpg", title: "Cove Rack 14" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194158698.jpg", title: "Cove Rack 15" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194210428.jpg", title: "Cove Rack 16" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194225301.jpg", title: "Cove Rack 17" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194245381.jpg", title: "Cove Rack 18" },
+            { file: "\\kitchen\\on metal rack in cove\\PXL_20260502_194251436.jpg", title: "Cove Rack 19" },
+        ];
+
+        $(document).ready(function () {
+
+            let gCurPic = 0;
+
+            fillData();
+
+            function fillData() {
+
+                //<div class="item">
+                //    <!--<span id="PicTitle">Above Island</span>-->
+                //    <img src="\kitchen\above main island\PXL_20260502_193848095.jpg" alt="Above Island 2" class="img-responsive">
+                //</div>
+
+                let htmlData = "";
+                for (let i = 0; i < pics.length; ++i) {
+
+                    let classData = (i === 0) ? "item active" : "item";
+                    htmlData += "<div class=\"" + classData + "\">\n" +
+                        "<!--< span id =\"" + "pic" + i + "\">" + pics[i].title + "</span>-->\n" +
+                        "<img src=\"" + pics[i].file + "\" alt=\"" + pics[i].title + "\" class=\"img-responsive\">\n" +
+                        "</div>\n";
+                }
+                $("#DataDiv").html(htmlData);
+            }
+
+            $('#myCarousel').on('slide.bs.carousel', function (e) {
+
+                if (e.direction === "left")
+                    ++gCurPic;
+                else if (e.direction === "right")
+                    --gCurPic;
+                if (gCurPic < 0)
+                    gCurPic = pics.length - 1;
+                else if (gCurPic >= pics.length)
+                    gCurPic = 0;
+
+                $("#hdrTitle").html("<b>" + pics[gCurPic].title + "</b>");
+            });
+        });
+
+    </script>
+
+</head>
+<body style="background-color:black; color:goldenrod">
+
+    <div class="container">
+        <h3 id="hdrTitle"><b>All Above Island</b></h3>
+        <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+            <!--<ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+            </ol>-->
+            <!--<span id="PicTitle">Picture title.</span>--> 
+            <div id="DataDiv" class="carousel-inner">
+            </div>
+            <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

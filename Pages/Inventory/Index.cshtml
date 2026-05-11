@@ -144,6 +144,10 @@
                 margin-left: 8px;
             }
 
+            #potsPansBtn {
+                margin-left: 8px;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -476,19 +480,21 @@
     <body onbeforeunload="invBeforeUnload()">
         <div class="container space-between">
             @{
-                    bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
-                    string invType = Request.Query["InvType"];
-                    if (String.IsNullOrEmpty(invType)) invType = "1";
-                    string SelectStr = "<select style=\"font-weight:bold\" id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
-                }
-                @Html.Raw(SelectStr)
-                <div><a href="Inventory\Create?InvType=@invType"> <b>+</b> New Item</a></div>
-    
-                <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
-    
-                <div><button id="emailBtn" onClick="emailInv()"></button></div>
-    
-            </div>
+                bool InInv = Model.GetAllState() == IndexInvModel.INV_STATE;
+                string invType = Request.Query["InvType"];
+                if (String.IsNullOrEmpty(invType)) invType = "1";
+                string SelectStr = "<select style=\"font-weight:bold\" id=\"InvTypeSel\">\n<option value=\"0\" " + ((invType == "0") ? "selected" : "") + ">FOOD</option>\n<option value=\"1\" " + ((invType == "1") ? "selected" : "") + ">MATERIAL</option>\n</select>";
+            }
+            @Html.Raw(SelectStr)
+            <div><a href="Inventory\Create?InvType=@invType"> <b>+</b> New Item</a></div>
+
+            <div><button id="InvSt" class="@(InInv? "AbortInvBtn":"InvBtn")" onClick="setInvMode(@(!InInv))">@(InInv ? "Abort INV" : "Start INV")</button></div>
+
+            <div><button id="emailBtn" onClick="emailInv()"></button></div>
+
+            <div><a href="~/CCAPotsPans.html" class="button">Equip</a></div>
+
+        </div>
     
             <table class="table">
     

@@ -163,7 +163,7 @@ namespace CStat
                 catch { }
             }
 
-            return RedirectToPage("./Index", new { InvType = ((EditItem.Status == 1) ? "1" : "0")});
+            return RedirectToPage("./Index", new { InvType = (((EditItem.Status%2) == 1) ? "1" : "0")});
         }
         private bool InventoryItemExists(int id)
         {

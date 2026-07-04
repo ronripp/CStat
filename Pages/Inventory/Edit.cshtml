@@ -428,7 +428,7 @@
             <div class="col-sm-9 SValue">
                 @{
                     Model.InventoryItem.Zone = Model.InventoryItem.Zone.HasValue ? Model.InventoryItem.Zone.Value : 0;
-                    IList<SelectListItem> zlist = Model.InventoryItem.Item.Status == 1 ?
+                    IList<SelectListItem> zlist = (Model.InventoryItem.Item.Status%2) == 1 ?
                                                      Enum.GetValues(typeof(InventoryItem.ItemZoneM)).Cast<InventoryItem.ItemZoneM>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList()
                                                      : Enum.GetValues(typeof(InventoryItem.ItemZoneF)).Cast<InventoryItem.ItemZoneF>().Select(x => new SelectListItem { Text = x.ToString().Replace("_", " "), Value = ((int)x).ToString() }).ToList();
                     SelectList zdata = new SelectList(zlist, "Value", "Text");

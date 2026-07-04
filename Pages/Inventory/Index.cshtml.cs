@@ -114,7 +114,7 @@ namespace CStat
             InventoryItems = await _context.InventoryItem
                 .Include(i => i.Inventory)
                 .Include(i => i.Item)
-                .Where (i => i.Item.Status == _InvType)
+                .Where (i => (i.Item.Status%2) == _InvType)
                 .ToListAsync();
         }
 
